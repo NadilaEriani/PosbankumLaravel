@@ -250,6 +250,72 @@
     color: #b42318;
 }
 
+.loginGoogleBtn {
+    width: 100%;
+    min-height: 54px;
+    border-radius: 16px;
+    border: 1px solid #d9dee8;
+    background: #ffffff;
+    color: #344054;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.loginGoogleBtn:hover,
+.loginGoogleBtn:focus-visible {
+    transform: translateY(-1px);
+    border-color: #b8c3d6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+.loginGoogleMark {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid #d9dee8;
+    background: #ffffff;
+    color: #344054;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    line-height: 1;
+    font-weight: 900;
+}
+
+.loginDivider {
+    margin: 22px 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #98a2b3;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 800;
+    text-align: center;
+}
+
+.loginDivider::before,
+.loginDivider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: #d9dee8;
+}
+
 .loginField {
     display: block;
     margin-bottom: 20px;
@@ -579,6 +645,17 @@
         padding: 10px 12px;
     }
 
+    .loginGoogleBtn {
+        min-height: 50px;
+        border-radius: 14px;
+        font-size: 15px;
+    }
+
+    .loginDivider {
+        margin: 18px 0 18px;
+        font-size: 12px;
+    }
+
     .loginSubmitBtn {
         height: 52px;
         border-radius: 15px;
@@ -623,5 +700,132 @@
 
     .loginCaptchaBox small {
         display: none;
+    }
+}
+
+/* ===== Revisi responsif Login sampai mobile kecil ===== */
+@media (max-width: 768px) {
+    .loginPage {
+        min-height: 100dvh;
+        padding: 18px 14px 28px;
+        overflow-y: auto;
+    }
+
+    .loginWrap {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        width: 100%;
+    }
+
+    .loginHeroCard,
+    .loginFormCard {
+        border-radius: 22px;
+    }
+
+    .loginHeroCard {
+        padding: 28px 20px;
+        min-height: auto;
+    }
+
+    .loginHeroCard h1 {
+        font-size: 34px;
+    }
+
+    .loginMascotBox {
+        min-height: 210px;
+    }
+
+    .loginMascotBox img {
+        max-height: 230px;
+    }
+
+    .loginStats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .loginFormCard {
+        padding: 30px 22px;
+        min-height: auto;
+    }
+
+    .loginFormHead h2 {
+        font-size: 26px;
+    }
+
+    .loginGoogleBtn,
+    .loginInputBox,
+    .loginSubmitBtn {
+        height: 52px;
+        border-radius: 16px;
+    }
+
+    .loginOptions {
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .loginCaptchaBox {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .loginPage {
+        padding: 14px 12px 24px;
+    }
+
+    .loginBackBtn {
+        width: 100%;
+        justify-content: center;
+        min-height: 44px;
+    }
+
+    .loginHeroCard {
+        padding: 24px 16px;
+    }
+
+    .loginHeroCard h1 {
+        font-size: 30px;
+    }
+
+    .loginHeroCard p,
+    .loginFormHead p {
+        font-size: 14px;
+    }
+
+    .loginBrandPill {
+        max-width: 100%;
+    }
+
+    .loginMascotBox {
+        min-height: 180px;
+    }
+
+    .loginMascotBox img {
+        max-height: 190px;
+    }
+
+    .loginStats {
+        grid-template-columns: 1fr;
+    }
+
+    .loginFormCard {
+        padding: 26px 16px;
+    }
+
+    .loginFormHead h2 {
+        font-size: 24px;
+    }
+
+    .loginDivider span {
+        font-size: 11px;
+        text-align: center;
+    }
+
+    .loginField > span,
+    .loginOptions,
+    .loginTerms {
+        font-size: 13px;
     }
 }

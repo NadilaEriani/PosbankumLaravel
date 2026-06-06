@@ -47,7 +47,7 @@ import logo from "../assets/logo.png";
 import medalIcon from "../assets/medal.png";
 import earthIcon from "../assets/earth.png";
 import mapsIcon from "../assets/maps.png";
-import "./landingPage.css";
+import "../../css/landingPage.css";
 
 const ORG_FULL = "Kantor Wilayah Kementerian Hukum Riau";
 const ORG_ADDR = "Kanwil Kemenkum Riau, Pekanbaru";

@@ -22,7 +22,7 @@ import {
 } from "react-icons/fi";
 
 import logo from "../../assets/logo.png";
-import "./posbankumDashboard.css";
+import "../../../css/paralegalDashboard.css";
 
 function fmtDateID(value) {
     if (!value) return "-";

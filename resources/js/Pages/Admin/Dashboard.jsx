@@ -1,5 +1,5 @@
-import { Head, Link, router, usePage } from "@inertiajs/react";
-import { useMemo, useState } from "react";
+import { Head, router, usePage } from "@inertiajs/react";
+import { useEffect, useMemo, useState } from "react";
 import {
     FiHome,
     FiFileText,
@@ -9,7 +9,6 @@ import {
     FiLogOut,
     FiTrendingUp,
     FiCalendar,
-    FiDownload,
     FiChevronDown,
     FiSearch,
     FiX,
@@ -32,6 +31,41 @@ import AdminProfile from "./AdminProfile";
 
 import posbankumIcon from "../../assets/icon.png";
 import logo from "../../assets/logo.png";
+
+const MENU_PATH_MAP = {
+    Beranda: "/admin",
+    "Kelola Berita": "/admin/kelola-berita",
+    "Data Posbankum": "/admin/data-posbankum",
+    "Verifikasi Data Posbankum": "/admin/verifikasi-data-posbankum",
+    "Laporan Kegiatan": "/admin/laporan-kegiatan",
+    "Manajemen Akun": "/admin/manajemen-akun",
+};
+
+function getActiveMenuFromPath(pathname = "") {
+    const path = String(pathname || "").toLowerCase();
+
+    if (path.startsWith("/admin/kelola-berita")) {
+        return "Kelola Berita";
+    }
+
+    if (path.startsWith("/admin/data-posbankum")) {
+        return "Data Posbankum";
+    }
+
+    if (path.startsWith("/admin/verifikasi-data-posbankum")) {
+        return "Verifikasi Data Posbankum";
+    }
+
+    if (path.startsWith("/admin/laporan-kegiatan")) {
+        return "Laporan Kegiatan";
+    }
+
+    if (path.startsWith("/admin/manajemen-akun")) {
+        return "Manajemen Akun";
+    }
+
+    return "Beranda";
+}
 
 function formatDateID(value) {
     if (!value) return "-";
@@ -68,7 +102,7 @@ function pickTone(type) {
 }
 
 export default function AdminDashboard() {
-    const { props } = usePage();
+    const { props, url } = usePage();
 
     const user = props.auth?.user || {};
     const stats = props.stats || {};
@@ -84,13 +118,34 @@ export default function AdminDashboard() {
     const kelurahanRows = props.kelurahanRows || [];
     const posbankumMasterRows = props.posbankumMasterRows || [];
 
-    const [active, setActive] = useState("Beranda");
+    const [active, setActive] = useState(() =>
+        getActiveMenuFromPath(window.location.pathname),
+    );
     const [rangeOpen, setRangeOpen] = useState(false);
     const [rangeDays, setRangeDays] = useState(30);
     const [detailSearch, setDetailSearch] = useState("");
     const [selectedPosDetail, setSelectedPosDetail] = useState(null);
     const [activityOpen, setActivityOpen] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
+
+    useEffect(() => {
+        const currentPath =
+            typeof window !== "undefined" ? window.location.pathname : "";
+        setActive(getActiveMenuFromPath(currentPath));
+    }, [url]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            setActive(getActiveMenuFromPath(window.location.pathname));
+            setShowProfile(false);
+        };
+
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, []);
 
     const menu = useMemo(
         () => [
@@ -163,6 +218,20 @@ export default function AdminDashboard() {
 
     const handleLogout = () => {
         router.post("/logout");
+    };
+
+    const handleChangeMenu = (label) => {
+        setShowProfile(false);
+        setSelectedPosDetail(null);
+        setActivityOpen(false);
+        setRangeOpen(false);
+        setActive(label);
+
+        const targetPath = MENU_PATH_MAP[label] || "/admin";
+
+        if (window.location.pathname !== targetPath) {
+            window.history.pushState({}, "", targetPath);
+        }
     };
 
     const pageTitle = active === "Beranda" ? "Dashboard Admin" : active;
@@ -428,15 +497,33 @@ export default function AdminDashboard() {
 
     const renderContent = () => {
         if (active === "Kelola Berita") {
-            return <KelolaBerita rows={beritaRows} />;
+            return (
+                <KelolaBerita
+                    rows={beritaRows}
+                    currentUserId={user.id_user || user.id || ""}
+                    currentUserName={user.nama_lengkap || user.name || "Admin"}
+                />
+            );
         }
 
         if (active === "Data Posbankum") {
-            return <DataPosbankum rows={detailRows} />;
+            return (
+                <DataPosbankum
+                    rows={verificationRows}
+                    kabupatenRows={kabupatenRows}
+                    kecamatanRows={kecamatanRows}
+                />
+            );
         }
 
         if (active === "Verifikasi Data Posbankum") {
-            return <VerifikasiDataPosbankum rows={verificationRows} />;
+            return (
+                <VerifikasiDataPosbankum
+                    rows={verificationRows}
+                    kabupatenRows={kabupatenRows}
+                    kecamatanRows={kecamatanRows}
+                />
+            );
         }
 
         if (active === "Laporan Kegiatan") {
@@ -495,10 +582,7 @@ export default function AdminDashboard() {
                             className={`ad-navItem ${
                                 active === item.label ? "is-active" : ""
                             }`}
-                            onClick={() => {
-                                setShowProfile(false);
-                                setActive(item.label);
-                            }}
+                            onClick={() => handleChangeMenu(item.label)}
                         >
                             <span className="ad-navIcon">{item.icon}</span>
                             <span className="ad-navLabel">{item.label}</span>

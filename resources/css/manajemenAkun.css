@@ -1732,3 +1732,115 @@
         font-size: 15px;
     }
 }
+
+/* ===== Revisi responsif Manajemen Akun sampai mobile kecil ===== */
+@media (max-width: 768px) {
+    .kpStatsGrid,
+    .kpContentGrid,
+    .kpFormGrid,
+    .kpAccountGrid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .kpStatCard,
+    .kpPanel,
+    .kpToolbar,
+    .kpTableCard,
+    .kpAccountCard {
+        border-radius: 16px;
+    }
+
+    .kpToolbar {
+        padding: 16px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kpSearch,
+    .kpAddBtn,
+    .kpFilterBtn,
+    .kpSelectBtn {
+        width: 100%;
+    }
+
+    .kpTableWrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .kpTable {
+        min-width: 760px;
+    }
+
+    .kpCardHead,
+    .kpCardBody,
+    .kpCardFoot {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .kpModalOverlay,
+    .kpDeleteOverlay {
+        padding: 10px;
+        align-items: flex-start;
+    }
+
+    .kpModal,
+    .kpDeleteModal {
+        width: 100%;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100dvh - 20px);
+        border-radius: 16px;
+    }
+
+    .kpModalHead,
+    .kpModalBody,
+    .kpModalFoot {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .kpModalTitle {
+        font-size: 18px;
+    }
+
+    .kpModalFoot,
+    .kpDeleteActions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .kpBtn,
+    .kpModalFoot button,
+    .kpDeleteActions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpToolbar,
+    .kpPanel,
+    .kpTableCard,
+    .kpAccountCard,
+    .kpStatCard {
+        border-radius: 14px;
+    }
+
+    .kpCardHead,
+    .kpCardBody,
+    .kpCardFoot,
+    .kpModalHead,
+    .kpModalBody,
+    .kpModalFoot {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .kpModal,
+    .kpDeleteModal {
+        max-width: calc(100vw - 16px);
+        max-height: calc(100dvh - 16px);
+    }
+}

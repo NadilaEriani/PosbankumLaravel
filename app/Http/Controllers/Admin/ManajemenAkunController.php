@@ -419,30 +419,25 @@ class ManajemenAkunController extends Controller
             DB::transaction(function () use ($idUser) {
                 $userKeyColumn = $this->userKeyColumn();
 
-                $userPayload = [];
-
-                $this->addColumn($userPayload, 'users', 'status', 'nonaktif');
-                $this->addColumn($userPayload, 'users', 'updated_at', now());
-
-                if (!empty($userPayload)) {
-                    DB::table('users')
-                        ->where($userKeyColumn, $idUser)
-                        ->where('role', 'paralegal')
-                        ->update($userPayload);
-                }
-
+                /*
+                 * Hapus relasi paralegal terlebih dahulu.
+                 * Ini supaya data di tabel posbankum_paralegal tidak menyisakan email/user lama.
+                 */
                 if ($this->hasTable('posbankum_paralegal')) {
-                    $relasiPayload = [];
-
-                    $this->addColumn($relasiPayload, 'posbankum_paralegal', 'status', 'nonaktif');
-                    $this->addColumn($relasiPayload, 'posbankum_paralegal', 'updated_at', now());
-
-                    if (!empty($relasiPayload)) {
-                        DB::table('posbankum_paralegal')
-                            ->where('id_user', $idUser)
-                            ->update($relasiPayload);
-                    }
+                    DB::table('posbankum_paralegal')
+                        ->where('id_user', $idUser)
+                        ->delete();
                 }
+
+                /*
+                 * Hapus akun paralegal dari tabel users.
+                 * Dengan ini email benar-benar hilang dari database,
+                 * sehingga bisa digunakan lagi untuk membuat akun baru.
+                 */
+                DB::table('users')
+                    ->where($userKeyColumn, $idUser)
+                    ->where('role', 'paralegal')
+                    ->delete();
             });
         } catch (\Throwable $e) {
             throw ValidationException::withMessages([

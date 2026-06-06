@@ -139,3 +139,29 @@
         width: 100%;
     }
 }
+
+/* ===== Revisi responsif reminder modal ===== */
+@media (max-width: 768px) {
+    .rmOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .rmModal {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+        border-radius: 16px;
+    }
+
+    .rmActions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .rmActions button {
+        width: 100%;
+    }
+}

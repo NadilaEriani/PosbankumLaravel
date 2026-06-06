@@ -125,3 +125,29 @@
 .dcmBtnDanger:not(:disabled):focus-visible {
     background: #b91c1c;
 }
+
+/* ===== Revisi responsif modal hapus ===== */
+@media (max-width: 768px) {
+    .dcmOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .dcmModal {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+        border-radius: 16px;
+    }
+
+    .dcmActions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .dcmActions button {
+        width: 100%;
+    }
+}

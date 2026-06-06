@@ -139,8 +139,9 @@ function EyeOffIcon() {
     );
 }
 
-export default function LoginPage({ status }) {
+export default function LoginPage({ status, googleLoginUrl }) {
     const [showPassword, setShowPassword] = useState(false);
+
     const { data, setData, post, processing, errors, reset, clearErrors } =
         useForm({
             email: "",
@@ -156,6 +157,7 @@ export default function LoginPage({ status }) {
         });
 
         clearErrors();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const submit = (event) => {
@@ -171,6 +173,11 @@ export default function LoginPage({ status }) {
             },
             onFinish: () => reset("password"),
         });
+    };
+
+    const handleGoogleLogin = () => {
+        const targetUrl = googleLoginUrl || "/auth/google/redirect";
+        window.location.assign(targetUrl);
     };
 
     return (
@@ -228,18 +235,39 @@ export default function LoginPage({ status }) {
                         className="loginForm"
                         autoComplete="off"
                     >
-                        {" "}
                         {status ? (
                             <div className="loginSuccessBox">{status}</div>
                         ) : null}
+
                         {errors.email ? (
                             <div className="loginErrorBox">{errors.email}</div>
                         ) : null}
+
                         {errors.password ? (
                             <div className="loginErrorBox">
                                 {errors.password}
                             </div>
                         ) : null}
+
+                        <button
+                            type="button"
+                            className="loginGoogleBtn"
+                            onClick={handleGoogleLogin}
+                            disabled={processing}
+                        >
+                            <span
+                                className="loginGoogleMark"
+                                aria-hidden="true"
+                            >
+                                G
+                            </span>
+                            <span>Masuk dengan Google</span>
+                        </button>
+
+                        <div className="loginDivider">
+                            <span>atau masuk dengan email dan kata sandi</span>
+                        </div>
+
                         <label className="loginField">
                             <span>
                                 Email<b>*</b>
@@ -260,6 +288,7 @@ export default function LoginPage({ status }) {
                                 />
                             </div>
                         </label>
+
                         <label className="loginField">
                             <span>
                                 Kata Sandi<b>*</b>
@@ -299,6 +328,7 @@ export default function LoginPage({ status }) {
                                 </button>
                             </div>
                         </label>
+
                         <div className="loginOptions">
                             <label>
                                 <input
@@ -310,16 +340,19 @@ export default function LoginPage({ status }) {
                                             event.target.checked,
                                         )
                                     }
+                                    disabled={processing}
                                 />
                                 Ingat saya
                             </label>
                             <Link href="#">Lupa kata sandi?</Link>
                         </div>
+
                         <div className="loginCaptchaBox">
                             <span className="loginCaptchaCheck">✓</span>
                             <span>I'm not a robot</span>
                             <small>CAPTCHA</small>
                         </div>
+
                         <button
                             type="submit"
                             className="loginSubmitBtn"

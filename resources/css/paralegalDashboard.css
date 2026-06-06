@@ -1467,3 +1467,112 @@
         border-radius: 14px;
     }
 }
+
+/* ===== Revisi responsif Dashboard Paralegal sampai mobile kecil ===== */
+@media (max-width: 768px) {
+    .pb2,
+    .pb2Shell,
+    .pb2Main {
+        min-width: 0;
+    }
+
+    .pb2Layout,
+    .pb2ContentGrid,
+    .pb2StatsGrid,
+    .pb2ProfileGrid,
+    .pb2FormGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .pb2Sidebar {
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 90;
+    }
+
+    .pb2Nav {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .pb2NavItem {
+        flex: 0 0 auto;
+        min-width: 140px;
+        white-space: nowrap;
+    }
+
+    .pb2Topbar,
+    .pb2PagePad,
+    .pb2Section,
+    .pb2Card,
+    .pb2Panel {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .pb2Topbar {
+        height: auto;
+        min-height: 68px;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .pb2PageTitle,
+    .pb2WireTitle {
+        font-size: 23px;
+    }
+
+    .pb2NotifOverlay {
+        padding: 10px;
+        align-items: flex-start;
+    }
+
+    .pb2NotifModal {
+        width: 100%;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100dvh - 20px);
+        border-radius: 16px;
+    }
+
+    .pb2NotifModal.has-detail .pb2NotifBody,
+    .pb2NotifBody,
+    .pb2NotifHead,
+    .pb2NotifFoot {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .pb2TableWrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .pb2Table {
+        min-width: 720px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pb2Topbar,
+    .pb2PagePad,
+    .pb2Section,
+    .pb2Card,
+    .pb2Panel {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .pb2PageTitle,
+    .pb2WireTitle {
+        font-size: 21px;
+    }
+
+    .pb2NotifModal {
+        max-width: calc(100vw - 16px);
+        max-height: calc(100dvh - 16px);
+    }
+}

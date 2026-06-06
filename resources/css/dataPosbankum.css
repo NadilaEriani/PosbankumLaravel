@@ -1,0 +1,1438 @@
+/* Halaman Data Posbankum */
+.dp,
+.dp * {
+    box-sizing: border-box;
+    font-family: "Outfit", sans-serif;
+}
+
+.dp {
+    width: 100%;
+    margin-top: 0;
+}
+
+.dp-errorBox {
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: rgba(254, 226, 226, 0.55);
+    color: #b91c1c;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.dp-imgIcon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+}
+
+.dp-iconWrap .dp-imgIcon {
+    width: 26px;
+    height: 26px;
+}
+
+/* Statistik card atas */
+.dp-topBoxes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin-bottom: 20px;
+}
+
+.dp-topBox {
+    min-height: 108px;
+    border-radius: 18px;
+    border: 0;
+    padding: 0;
+    color: #ffffff;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+}
+
+.dp-topBox.tone-green {
+    background: linear-gradient(135deg, #343a73 0%, #545a94 100%);
+}
+
+.dp-topBox.tone-yellow {
+    background: linear-gradient(135deg, #f5cb29 0%, #f6a640 100%);
+}
+
+.dp-topBox.tone-blue {
+    background: linear-gradient(135deg, #0b7f59 0%, #289c72 100%);
+}
+
+.dp-topBoxInner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 22px;
+}
+
+.dp-topIcon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.22) !important;
+    box-shadow: 0 14px 30px rgba(2, 6, 23, 0.12);
+}
+
+.dp-topIcon svg {
+    width: 22px;
+    height: 22px;
+    color: #ffffff;
+}
+
+.dp-topIcon.is-green {
+    background: #16a34a;
+}
+
+.dp-topIcon.is-yellow {
+    background: #f59e0b;
+}
+
+.dp-topIcon.is-red {
+    background: #ef4444;
+}
+
+.dp-topTitle,
+.dp-topValue,
+.dp-topHint {
+    color: #ffffff;
+}
+
+.dp-topTitle {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.dp-topValue {
+    margin-top: 4px;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.dp-topHint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 400;
+    opacity: 0.95;
+}
+
+/* Card filter */
+.dp-filterCard {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    margin-bottom: 16px;
+}
+
+.dp-divider {
+    height: 1px;
+    background: rgba(2, 6, 23, 0.08);
+    margin: 14px 0;
+}
+
+/* Toolbar pencarian dan filter */
+.dp-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.dp-search {
+    height: 52px;
+    border-radius: 18px;
+    border: 1px solid #d9dee8;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.dp-search:hover,
+.dp-search:focus-within {
+    border-color: #b8c3d6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dp-searchIcon {
+    color: rgba(2, 6, 23, 0.45);
+}
+
+.dp-searchInput {
+    border: 0;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+    background: transparent;
+    font-weight: 500;
+    color: rgba(2, 6, 23, 0.78);
+}
+
+.dp-searchInput:focus,
+.dp-searchInput:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.dp-filterRow {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Select filter lama */
+.dp-select {
+    height: 52px;
+    border-radius: 18px;
+    border: 1px solid #e8ecf3;
+    background: #f8fafc;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+}
+
+.dp-selectIcon {
+    width: 18px;
+    height: 18px;
+    color: rgba(2, 6, 23, 0.55);
+}
+
+.dp-selectChevron {
+    width: 18px;
+    height: 18px;
+    color: rgba(2, 6, 23, 0.55);
+}
+
+.dp-selectInput {
+    border: 0;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(2, 6, 23, 0.8);
+    padding-right: 6px;
+    appearance: none;
+}
+
+/* Tombol clear dan reset filter */
+.dp-clearBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 14px;
+    border: 1px solid rgba(2, 6, 23, 0.08);
+    background: rgba(2, 6, 23, 0.03);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.dp-resetFilterBtn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    border: 1px solid rgba(2, 6, 23, 0.1);
+    background: rgba(23, 2, 4, 0.03);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.dp-resetFilterBtn:hover,
+.dp-clearBtn:hover {
+    background: rgba(37, 99, 235, 0.06);
+    border-color: rgba(37, 99, 235, 0.18);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* Tab status */
+.dp-tabs {
+    display: flex;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+}
+
+.dp-tab {
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(2, 6, 23, 0.08);
+    background: #f2f4f7;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4b5563;
+    font-weight: 700;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.dp-tab:hover {
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.dp-tab.is-active {
+    background: #174ea6;
+    border-color: #174ea6;
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(23, 78, 166, 0.22);
+}
+
+/* Dropdown filter custom */
+.dp-dd {
+    position: relative;
+}
+
+.dp-ddBtn {
+    height: 44px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px;
+    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.06);
+    cursor: pointer;
+    min-width: 220px;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.dp-ddBtn:hover {
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.dp-dd.is-disabled .dp-ddBtn {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.dp-ddIcon {
+    color: rgba(2, 6, 23, 0.55);
+}
+
+.dp-ddText {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(2, 6, 23, 0.78);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+}
+
+.dp-ddText.is-placeholder {
+    color: rgba(2, 6, 23, 0.45);
+}
+
+.dp-ddChevron {
+    margin-left: auto;
+    color: rgba(2, 6, 23, 0.55);
+    transition: transform 0.12s ease;
+}
+
+.dp-ddChevron.is-open {
+    transform: rotate(180deg);
+}
+
+.dp-ddMenu {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    max-height: 260px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: #ffffff;
+    border: 1px solid rgba(2, 6, 23, 0.12);
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(2, 6, 23, 0.14);
+    padding: 6px;
+    z-index: 50;
+}
+
+.dp-ddMenu::-webkit-scrollbar {
+    width: 10px;
+}
+
+.dp-ddMenu::-webkit-scrollbar-thumb {
+    background: rgba(2, 6, 23, 0.18);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+
+.dp-ddMenu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dp-ddItem {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    color: rgba(2, 6, 23, 0.82);
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+.dp-ddItem:hover {
+    background: rgba(37, 99, 235, 0.06);
+}
+
+.dp-ddItem.is-active {
+    color: rgba(37, 99, 235, 0.95);
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.dp-ddCheck {
+    width: 18px;
+    height: 18px;
+    color: rgba(37, 99, 235, 0.95);
+}
+
+/* List data posbankum */
+.dp-list {
+    display: grid;
+    gap: 18px;
+    padding: 6px 0;
+}
+
+/* Card data posbankum */
+.dp-card {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.dp-cardHead {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.dp-cardHead:hover {
+    background: rgba(37, 99, 235, 0.03);
+}
+
+.dp-iconWrap {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: #174ea6;
+    box-shadow: 0 8px 20px rgba(23, 78, 166, 0.2);
+    flex: 0 0 auto;
+}
+
+.dp-iconWrap svg {
+    width: 22px;
+    height: 22px;
+    color: #ffffff;
+}
+
+.dp-titleWrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.dp-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(2, 6, 23, 0.92);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dp-sub {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.dp-subIcon {
+    width: 16px;
+    height: 16px;
+    color: rgba(2, 6, 23, 0.4);
+}
+
+.dp-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Badge status kanan */
+.dp-rowBadge {
+    height: 32px;
+    padding: 0 16px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    color: #ffffff;
+    border: 0;
+    box-shadow: none;
+}
+
+.dp-rowBadge.is-ok {
+    background: #22c55e;
+}
+
+.dp-rowBadge.is-warn {
+    background: #f97316;
+}
+
+/* Icon buka tutup card */
+.dp-chevron {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 0;
+    background: transparent;
+    display: grid;
+    place-items: center;
+}
+
+.dp-chevron svg {
+    width: 18px;
+    height: 18px;
+    color: rgba(2, 6, 23, 0.55);
+}
+
+/* Area expand card */
+.dp-cardExpand {
+    border-top: 2px solid rgba(2, 6, 23, 0.18);
+    padding: 18px;
+    background: #ffffff;
+}
+
+.dp-expandShell {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 0;
+}
+
+.dp-expandTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.dp-expandTable thead th {
+    text-align: left;
+    padding: 16px;
+    background: rgba(2, 6, 23, 0.06);
+    border-bottom: 1px solid rgba(2, 6, 23, 0.12);
+    font-weight: 500;
+    color: #45556c;
+}
+
+.dp-expandTable tbody td {
+    padding: 16px;
+    border-bottom: 1px solid rgba(2, 6, 23, 0.06);
+    color: rgba(15, 23, 42, 0.72);
+}
+
+.dp-tdStrong {
+    font-weight: 500;
+    color: #1d293d;
+}
+
+.dp-muted {
+    color: #1d293d;
+    font-weight: 500;
+}
+
+/* Badge status dokumen */
+.dp-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 13px;
+    gap: 8px;
+    color: #ffffff;
+    border: 0;
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.12);
+}
+
+.dp-status svg {
+    width: 16px;
+    height: 16px;
+    color: #ffffff;
+}
+
+.dp-status.is-ok {
+    background: #16a34a;
+}
+
+.dp-status.is-reject {
+    background: #ef4444;
+}
+
+.dp-status.is-warn,
+.dp-rowBadge.is-warn {
+    background: linear-gradient(90deg, #fe9a00 0%, #f54900 100%);
+    box-shadow: 0 12px 28px rgba(245, 73, 0, 0.22);
+}
+
+/* Tombol lihat data */
+.dp-viewBtn {
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 10px;
+    border: 0;
+    background: rgba(37, 99, 235, 0.98);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+    transition: box-shadow 0.18s ease;
+}
+
+.dp-viewBtn svg {
+    width: 16px;
+    height: 16px;
+    color: #ffffff;
+}
+
+.dp-viewBtn:hover {
+    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.32);
+}
+
+/* Footer expand card */
+.dp-expandFoot {
+    padding-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dp-closeInlineBtn {
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 0;
+    background: rgba(2, 6, 23, 0.08);
+    color: rgba(2, 6, 23, 0.75);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.dp-closeInlineBtn:hover {
+    background: rgba(2, 6, 23, 0.12);
+}
+
+/* Overlay modal preview */
+.dp-modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+    display: grid;
+    place-items: center;
+    z-index: 999;
+    padding: 12px;
+}
+
+/* Modal preview */
+.dp-modal {
+    width: min(1120px, 94vw);
+    background: #ffffff;
+    border: 1px solid rgba(2, 6, 23, 0.18);
+    border-radius: 18px;
+    box-shadow: 0 30px 90px rgba(2, 6, 23, 0.26);
+    overflow: hidden;
+}
+
+.dp-modalPreview {
+    height: 96vh;
+    max-height: 96vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header preview */
+.dp-previewHead {
+    padding: 18px;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 52%, #4a5080 100%);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.dp-previewTitleWrap {
+    min-width: 0;
+}
+
+.dp-previewTitle {
+    font-size: 18px;
+    font-weight: 500;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dp-previewSub {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.dp-previewClose {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 0;
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition:
+        box-shadow 0.18s ease,
+        background 0.18s ease;
+}
+
+.dp-previewClose:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 26px rgba(2, 6, 23, 0.18);
+}
+
+.dp-previewClose svg {
+    width: 18px;
+    height: 18px;
+    color: rgba(2, 6, 23, 0.75);
+}
+
+/* Toolbar preview */
+.dp-previewToolbar {
+    min-height: 72px;
+    height: auto;
+    background: rgba(15, 23, 42, 0.92);
+    display: flex;
+    align-items: center;
+    padding: 12px 18px 14px;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.dp-previewToolbarLeft {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.dp-previewCounter {
+    min-height: 38px;
+    padding: 0 10px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 52%, #4a5080 100%);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 12px 28px rgba(2, 6, 23, 0.18);
+}
+
+.dp-previewCounter button {
+    width: 30px;
+    height: 30px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.dp-previewCounter button:hover {
+    filter: brightness(1.06);
+}
+
+.dp-previewCounter span {
+    min-width: 54px;
+    text-align: center;
+    font-size: 13px;
+}
+
+/* Tombol download dan buka maps */
+.dp-downloadBtn,
+.dp-downloadBtn:visited {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: rgba(37, 99, 235, 0.98) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18) !important;
+    filter: none !important;
+    transform: none !important;
+    transition: box-shadow 180ms ease !important;
+}
+
+.dp-downloadBtn svg {
+    width: 18px;
+    height: 18px;
+    color: #ffffff !important;
+    stroke: currentColor !important;
+    fill: none;
+}
+
+.dp-downloadBtn:hover,
+.dp-downloadBtn:focus,
+.dp-downloadBtn:focus-visible,
+.dp-downloadBtn:active {
+    background: rgba(37, 99, 235, 0.98) !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    filter: none !important;
+    transform: none !important;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.22),
+        0 18px 38px rgba(37, 99, 235, 0.5),
+        0 8px 18px rgba(0, 0, 0, 0.22) !important;
+}
+
+.dp-downloadBtn:hover svg,
+.dp-downloadBtn:focus svg,
+.dp-downloadBtn:focus-visible svg,
+.dp-downloadBtn:active svg {
+    color: #ffffff !important;
+    stroke: currentColor !important;
+}
+
+/* Body preview */
+.dp-previewBody {
+    background: #0b1220;
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding-top: 18px;
+    box-sizing: border-box;
+}
+
+.dp-previewFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #0b1220;
+}
+
+.dp-previewImg {
+    width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    background: #0b1220;
+}
+
+.dp-previewEmpty {
+    padding: 18px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* Preview gambar carousel */
+.dp-previewMediaWrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #0b1220;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dp-previewMediaWrap .dp-previewImg {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: contain;
+}
+
+/* Preview maps */
+.dp-mapPreviewWrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #0b1220;
+}
+
+.dp-mapPreviewWrap .dp-previewFrame {
+    width: 100%;
+    height: 100%;
+    background: #0b1220;
+}
+
+.dp-mapInfo {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    border-radius: 16px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 52%, #4a5080 100%);
+    color: #ffffff;
+    box-shadow: 0 18px 46px rgba(2, 6, 23, 0.28);
+}
+
+.dp-mapInfoTitle {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.dp-mapInfoText {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+    opacity: 0.95;
+}
+
+.dp-mapInfoCoord {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+/* Footer modal */
+.dp-modalFoot {
+    padding: 16px 18px 18px;
+    display: flex;
+    justify-content: flex-end;
+    background: #ffffff;
+}
+
+.dp-backBtn {
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 0;
+    background: rgba(2, 6, 23, 0.08);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    color: rgba(2, 6, 23, 0.75);
+    transition: background 0.15s ease;
+}
+
+.dp-backBtn:hover {
+    background: rgba(2, 6, 23, 0.12);
+}
+
+/* Badge jumlah file */
+.dp-fileCount {
+    margin-left: 10px;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(43, 48, 86, 0.1);
+    color: #2b3056;
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Empty state */
+.dp-emptyCard {
+    min-height: 376px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #dfe3ea;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    color: #475467;
+}
+
+.dp-emptyCard.is-loading {
+    min-height: 150px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.dp-emptyIcon {
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    display: grid;
+    place-items: center;
+    color: #98a2b3;
+    margin-bottom: 26px;
+}
+
+.dp-emptyIcon svg {
+    width: 43px;
+    height: 43px;
+}
+
+.dp-emptyCard h2 {
+    margin: 0 0 13px;
+    color: #111827;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.dp-emptyCard p {
+    margin: 0;
+    color: #475467;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+/* Responsive tablet */
+@media (max-width: 980px) {
+    .dp-topBoxes {
+        grid-template-columns: 1fr;
+    }
+
+    .dp-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .dp-filterRow {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .dp-right {
+        gap: 10px;
+    }
+
+    .dp-rowBadge {
+        height: 32px;
+        font-size: 12px;
+    }
+}
+
+/* Responsive mobile */
+@media (max-width: 640px) {
+    .dp-fileCount {
+        margin-left: 0;
+        margin-top: 6px;
+        width: fit-content;
+    }
+
+    .dp-mapInfo {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+    }
+}
+
+/* Revisi status dan card statistik Data Posbankum. */
+.dp-topBox {
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.dp-topBoxInner {
+    align-items: flex-start;
+}
+
+.dp-topIcon {
+    margin-top: 2px;
+    align-self: flex-start;
+}
+
+.dp-cardHead {
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.dp-card.is-open .dp-cardHead {
+    background: rgba(37, 99, 235, 0.03);
+}
+
+.dp-cardExpand {
+    animation: dp-expand-smooth 0.22s ease both;
+}
+
+@keyframes dp-expand-smooth {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dp-sub {
+    gap: 0;
+}
+
+.dp-rowBadge {
+    border-radius: 999px;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dp-rowBadge.is-ok {
+    background: #22c55e;
+}
+
+.dp-rowBadge.is-warn {
+    background: #f97316;
+}
+
+.dp-tdStrong,
+.dp-tdStrong span:first-child {
+    color: #161616;
+}
+
+.dp-status {
+    min-width: 96px;
+    height: 34px;
+    border-radius: 999px;
+    padding: 0 16px;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dp-status.is-ok {
+    background: #22c55e;
+}
+
+.dp-status.is-reject {
+    background: #ef4444;
+}
+
+.dp-status.is-warn {
+    background: #f97316;
+}
+
+.dp-viewBtn {
+    border-radius: 999px;
+    background: #0f3f93;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dp-viewBtn:hover {
+    background: #0f3f93;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    filter: brightness(1.04);
+}
+
+/* Drop shadow khusus statistik Data Posbankum. */
+.dp-topBox {
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.18),
+        0 10px 15px -3px rgba(0, 0, 0, 0.18) !important;
+}
+
+.dp-topIcon {
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.14),
+        0 4px 6px -1px rgba(0, 0, 0, 0.14) !important;
+}
+
+/* ===== Revisi responsif Data Posbankum sampai mobile kecil ===== */
+@media (max-width: 768px) {
+    .dp-topBoxes {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .dp-topBox {
+        min-height: 96px;
+        border-radius: 16px;
+    }
+
+    .dp-topBoxInner {
+        padding: 18px;
+    }
+
+    .dp-topIcon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .dp-topValue {
+        font-size: 25px;
+    }
+
+    .dp-filterCard {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .dp-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .dp-search {
+        height: 48px;
+        border-radius: 15px;
+    }
+
+    .dp-filterRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .dp-dd,
+    .dp-ddBtn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .dp-ddMenu {
+        max-height: 230px;
+    }
+
+    .dp-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .dp-tab {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .dp-card {
+        border-radius: 16px;
+    }
+
+    .dp-cardHead {
+        padding: 16px;
+        align-items: flex-start;
+    }
+
+    .dp-iconWrap {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+    }
+
+    .dp-name {
+        font-size: 17px;
+        white-space: normal;
+    }
+
+    .dp-sub {
+        flex-wrap: wrap;
+        font-size: 12px;
+    }
+
+    .dp-right {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .dp-cardExpand {
+        padding: 14px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .dp-expandTable {
+        min-width: 720px;
+    }
+
+    .dp-expandFoot {
+        justify-content: stretch;
+    }
+
+    .dp-closeInlineBtn {
+        width: 100%;
+    }
+
+    .dp-modalOverlay {
+        padding: 10px;
+        align-items: flex-start;
+    }
+
+    .dp-modal,
+    .dp-modalPreview {
+        width: 100%;
+        height: calc(100dvh - 20px);
+        max-height: calc(100dvh - 20px);
+        border-radius: 16px;
+    }
+
+    .dp-previewHead {
+        padding: 14px;
+    }
+
+    .dp-previewTitle {
+        font-size: 16px;
+        white-space: normal;
+    }
+
+    .dp-previewToolbar {
+        flex-direction: column;
+        align-items: stretch;
+        min-height: auto;
+        padding: 12px;
+    }
+
+    .dp-previewToolbarLeft,
+    .dp-previewCounter,
+    .dp-downloadBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .dp-previewBody {
+        padding-top: 10px;
+    }
+
+    .dp-mapInfo {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dp-topBoxInner {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .dp-topTitle,
+    .dp-topHint {
+        font-size: 12px;
+    }
+
+    .dp-topValue {
+        font-size: 23px;
+    }
+
+    .dp-filterCard {
+        padding: 14px;
+    }
+
+    .dp-cardHead {
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .dp-right {
+        align-items: flex-start;
+    }
+
+    .dp-rowBadge {
+        height: 30px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    .dp-expandTable {
+        min-width: 660px;
+    }
+
+    .dp-previewClose {
+        width: 40px;
+        height: 40px;
+    }
+
+    .dp-modalFoot,
+    .dp-detailFooter {
+        padding: 14px;
+    }
+
+    .dp-backBtn {
+        width: 100%;
+    }
+}

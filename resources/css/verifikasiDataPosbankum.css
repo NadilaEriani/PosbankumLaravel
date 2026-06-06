@@ -1,0 +1,2032 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
+
+/* Base halaman verifikasi data posbankum. Jarak halaman utama memakai adminDashboard.css. */
+.vd,
+.vd * {
+    box-sizing: border-box;
+    font-family: "Outfit", sans-serif;
+}
+
+.vd {
+    width: 100%;
+    padding: 0;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+/* Statistik card atas */
+.vd-topBoxes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin-bottom: 22px;
+}
+
+.vd-topBox {
+    border: 0;
+    border-radius: 18px;
+    background: #ffffff;
+    color: #ffffff;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+}
+
+.vd-topBox:nth-child(1) {
+    background: linear-gradient(135deg, #343a73 0%, #545a94 100%);
+}
+
+.vd-topBox:nth-child(2) {
+    background: linear-gradient(135deg, #0b7f59 0%, #289c72 100%);
+}
+
+.vd-topBox:nth-child(3) {
+    background: linear-gradient(135deg, #ff2a2a 0%, #ff0015 100%);
+}
+
+.vd-topBoxInner {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px 22px;
+}
+
+.vd-topIcon {
+    width: 54px;
+    height: 54px;
+    margin-top: 2px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 12px 22px rgba(2, 6, 23, 0.12);
+    flex-shrink: 0;
+}
+
+.vd-topIcon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.vd-topTitle,
+.vd-topValue,
+.vd-topHint {
+    color: #ffffff;
+}
+
+.vd-topTitle {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.vd-topValue {
+    font-size: 26px;
+    line-height: 1.05;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.vd-topHint {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.95;
+}
+
+/* Card filter dan pencarian */
+.vd-filterCard {
+    border: 1px solid #d8dde6;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    padding: 20px 22px;
+    margin-bottom: 22px;
+}
+
+.vd-toolbar {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.vd-search {
+    flex: 1;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border: 1px solid #d8dde6;
+    border-radius: 18px;
+    background: #ffffff;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.vd-search:hover,
+.vd-search:focus-within {
+    border-color: #b8c3d6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.vd-searchIcon {
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+}
+
+.vd-searchInput {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+.vd-searchInput::placeholder {
+    color: #94a3b8;
+}
+
+.vd-searchInput:focus,
+.vd-searchInput:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.vd-clearBtn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 10px;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.vd-clearBtn:hover {
+    background: rgba(148, 163, 184, 0.18);
+    color: #0f172a;
+}
+
+.vd-filterRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Dropdown filter custom */
+.vd-dd {
+    position: relative;
+}
+
+.vd-ddBtn {
+    height: 52px;
+    min-width: 190px;
+    padding: 0 14px;
+    border-radius: 18px;
+    border: 1px solid #e8ecf3;
+    background: #f8fafc;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.vd-ddBtn:hover {
+    background: #ffffff;
+    border-color: #d8dde6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.vd-dd.is-disabled .vd-ddBtn {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.vd-ddIcon {
+    width: 18px;
+    height: 18px;
+    color: #0f172a;
+}
+
+.vd-ddText {
+    font-size: 14px;
+    color: #0f172a;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+.vd-ddText.is-placeholder {
+    color: #64748b;
+    font-weight: 700;
+}
+
+.vd-ddChevron {
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    color: #0f172a;
+    transition: transform 0.15s ease;
+}
+
+.vd-ddChevron.is-open {
+    transform: rotate(180deg);
+}
+
+.vd-ddMenu {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    z-index: 40;
+    width: 300px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+}
+
+.vd-ddSearch {
+    height: 46px;
+    margin: 10px;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid #d8dde6;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.vd-ddSearch:hover,
+.vd-ddSearch:focus-within {
+    border-color: #b8c3d6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.vd-ddSearchIcon {
+    width: 17px;
+    height: 17px;
+    color: #64748b;
+    flex: 0 0 auto;
+}
+
+.vd-ddSearchInput {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.vd-ddSearchInput::placeholder {
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.vd-ddSearchInput:focus,
+.vd-ddSearchInput:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.vd-ddSearchClear {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 0;
+    background: #f1f5f9;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.vd-ddSearchClear:hover {
+    background: rgba(148, 163, 184, 0.18);
+    color: #0f172a;
+}
+
+.vd-ddSearchClear svg {
+    width: 15px;
+    height: 15px;
+}
+
+.vd-ddList {
+    max-height: 230px;
+    overflow-y: auto;
+    padding-bottom: 6px;
+}
+
+.vd-ddEmpty {
+    padding: 12px 14px 16px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.vd-ddItem {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    color: #0f172a;
+    font-weight: 700;
+    transition: background 0.15s ease;
+}
+
+.vd-ddItem:hover {
+    background: #f1f5f9;
+}
+
+.vd-ddItem.is-active {
+    background: #eef2ff;
+}
+
+.vd-ddCheck {
+    color: #2563eb;
+}
+
+/* Tombol reset filter */
+.vd-resetBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    cursor: pointer;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.vd-resetBtn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* Pesan error */
+.vd-error {
+    margin-top: 12px;
+    border-radius: 12px;
+    background: rgba(254, 226, 226, 0.55);
+    color: #b91c1c;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Grid daftar posbankum */
+.vd-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.vd-loading {
+    padding: 16px;
+    font-size: 14px;
+    color: #64748b;
+    grid-column: 1 / -1;
+}
+
+.vd-card {
+    border-radius: 18px;
+    border: 1px solid #e7ebf2;
+    background: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.vd-cardHead {
+    padding: 18px;
+    border-bottom: 1.27px solid #e2e8f0;
+    background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
+}
+
+.vd-cardTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0b1220;
+    margin-bottom: 6px;
+}
+
+.vd-cardSub {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Daftar dokumen */
+.vd-docs {
+    padding: 14px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vd-docPill {
+    position: relative;
+    border-left: 5px solid transparent;
+    border-radius: 18px;
+    min-height: 54px;
+    padding: 10px 10px 10px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.vd-docPill.is-ok {
+    border-left-color: #00bc7d;
+    background: #ecfdf5;
+}
+
+.vd-docPill.is-wait {
+    border-left-color: #fe9a00;
+    background: #fffbeb;
+}
+
+.vd-docPill.is-no {
+    border-left-color: #fb2c36;
+    background: rgba(254, 226, 226, 0.55);
+}
+
+.vd-docLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.vd-docStatus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vd-docStatusIcon {
+    width: 18px;
+    height: 18px;
+}
+
+.vd-docPill.is-ok .vd-docStatusIcon {
+    color: #00bc7d;
+}
+
+.vd-docPill.is-wait .vd-docStatusIcon {
+    color: #fe9a00;
+}
+
+.vd-docPill.is-no .vd-docStatusIcon {
+    color: #fb2c36;
+}
+
+.vd-docMeta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.vd-docLabel {
+    font-size: 14px;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 700;
+}
+
+.vd-docDate {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Tombol mata lihat dokumen */
+.vd-eyeBtn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: none;
+    background: #2970ff;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 18px rgba(41, 112, 255, 0.24);
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+    flex-shrink: 0;
+}
+
+.vd-eyeBtn:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+}
+
+.vd-eyeBtn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.vd-eyeBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Pagination */
+.vd-pagination {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.vd-pageNav,
+.vd-pageBtn {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #0f172a;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.vd-pageNav:hover:not(:disabled),
+.vd-pageBtn:hover:not(:disabled) {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.vd-pageBtn.is-active {
+    background: #295dff;
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 10px 18px rgba(37, 99, 235, 0.25);
+}
+
+.vd-pageBtn.is-active:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.vd-pageNav:disabled,
+.vd-pageBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Overlay preview */
+.vd-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    z-index: 999;
+}
+
+/* Modal preview dokumen */
+.vd-previewModal {
+    width: min(1120px, 94vw);
+    height: 96vh;
+    max-height: 96vh;
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(2, 6, 23, 0.18);
+}
+
+/* Header preview */
+.vd-previewHead {
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    color: #ffffff;
+    padding: 18px;
+    min-height: 82px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.vd-previewTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    word-break: break-word;
+}
+
+.vd-previewSub {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.vd-previewClose {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    background: #ffffff;
+    color: rgba(2, 6, 23, 0.75);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+    flex-shrink: 0;
+}
+
+.vd-previewClose:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.88);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(2, 6, 23, 0.18);
+}
+
+.vd-previewClose:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Toolbar preview */
+.vd-previewToolbar {
+    min-height: 58px;
+    height: 58px;
+    background: rgba(15, 23, 42, 0.92);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    flex-shrink: 0;
+}
+
+.vd-previewToolbarLeft {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.vd-dots {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 4px;
+}
+
+.vd-previewCounter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 0 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.vd-previewCounter button {
+    width: 32px;
+    height: 30px;
+    border-radius: 9px;
+    border: none;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    transition: background 0.15s ease;
+}
+
+.vd-previewCounter button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.vd-previewCounter button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.vd-zoomMock {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.vd-zoomMock b {
+    min-width: 58px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* Tombol download preview */
+.vd-downloadBtn,
+.vd-downloadBtn:visited {
+    justify-self: end;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: #2563eb !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    box-shadow: 0 10px 18px rgba(37, 99, 235, 0.25) !important;
+    filter: none !important;
+    transform: none !important;
+    transition: box-shadow 180ms ease !important;
+}
+
+.vd-downloadBtn svg {
+    color: #ffffff !important;
+    stroke: currentColor !important;
+    fill: none;
+}
+
+.vd-downloadBtn:hover,
+.vd-downloadBtn:focus,
+.vd-downloadBtn:focus-visible,
+.vd-downloadBtn:active {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    filter: none !important;
+    transform: none !important;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.22),
+        0 18px 38px rgba(37, 99, 235, 0.5),
+        0 8px 18px rgba(0, 0, 0, 0.22) !important;
+}
+
+.vd-downloadBtn:hover svg,
+.vd-downloadBtn:focus svg,
+.vd-downloadBtn:focus-visible svg,
+.vd-downloadBtn:active svg {
+    color: #ffffff !important;
+    stroke: currentColor !important;
+}
+
+/* Body preview */
+.vd-previewBody {
+    flex: 1;
+    background: #0b1220;
+    padding: 18px;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.vd-docPaper,
+.vd-docPaper.is-image {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    border-radius: 0;
+    background: #0b1220;
+    box-shadow: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vd-previewFrame {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border: none;
+    background: #0b1220;
+}
+
+.vd-previewImg {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: contain;
+    background: #0b1220;
+}
+
+.vd-previewEmpty {
+    text-align: center;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 300px;
+    font-weight: 700;
+}
+
+.vd-previewEmptyIcon {
+    width: 40px;
+    height: 40px;
+    color: #94a3b8;
+}
+
+/* Footer preview */
+.vd-previewFoot {
+    min-height: 78px;
+    padding: 16px 24px 18px;
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.vd-previewActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Tombol aksi preview */
+.vd-previewBtn {
+    min-width: 92px;
+    height: 46px;
+    border-radius: 14px;
+    border: none;
+    padding: 0 22px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        filter 0.15s ease;
+}
+
+.vd-previewBtn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.vd-previewRejectBtn {
+    background: linear-gradient(135deg, #fb2c36, #e7000b);
+    box-shadow: 0 10px 24px rgba(251, 44, 54, 0.25);
+}
+
+.vd-previewRejectBtn:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+.vd-previewApproveBtn {
+    background: linear-gradient(135deg, #00bc7d, #00a63e);
+    box-shadow: 0 10px 24px rgba(0, 166, 62, 0.25);
+}
+
+.vd-previewApproveBtn:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+.vd-previewCloseBtn {
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    box-shadow: 0 10px 24px rgba(43, 48, 86, 0.18);
+}
+
+.vd-previewCloseBtn:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+.vd-previewSaveBtn {
+    min-width: 154px;
+    height: 44px;
+    border-radius: 14px;
+    border: 0;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 10px 24px rgba(43, 48, 86, 0.18);
+    transition:
+        filter 0.15s ease,
+        transform 0.15s ease;
+}
+
+.vd-previewSaveBtn:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.vd-previewBtn:disabled,
+.vd-previewSaveBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Modal tagging area */
+.vd-locationModal {
+    width: min(1100px, 96vw);
+    max-height: calc(100vh - 36px);
+    background: #ffffff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+}
+
+.vd-locationHead {
+    background: linear-gradient(135deg, #204fb3 0%, #3f447f 100%);
+    color: #ffffff;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.vd-locationHeadTitle {
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.vd-locationBody {
+    padding: 18px;
+    overflow-y: auto;
+}
+
+.vd-locationMeta {
+    margin-bottom: 14px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vd-locationMeta b {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.vd-locationMeta span {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.vd-locSearchRow {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.vd-locSearch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 16px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #ffffff;
+    padding: 10px 14px;
+    min-height: 48px;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.vd-locSearch:hover,
+.vd-locSearch:focus-within {
+    border-color: #b8c3d6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.vd-locSearchIcon {
+    color: rgba(15, 23, 42, 0.45);
+    flex-shrink: 0;
+}
+
+.vd-locSearchInput {
+    border: 0;
+    outline: none;
+    width: 100%;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.vd-locSearchInput:focus,
+.vd-locSearchInput:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.vd-locCariBtn {
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 16px;
+    border: 0;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        filter 0.15s ease,
+        transform 0.15s ease;
+}
+
+.vd-locCariBtn:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.vd-locGpsBtn {
+    width: 58px;
+    height: 48px;
+    border-radius: 16px;
+    border: 0;
+    background: #16a34a;
+    color: #ffffff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    transition:
+        filter 0.15s ease,
+        transform 0.15s ease;
+}
+
+.vd-locGpsBtn:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.vd-locCariBtn:disabled,
+.vd-locGpsBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.vd-locSearchWarning {
+    margin-top: 8px;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.vd-mapWrap {
+    margin-top: 16px;
+}
+
+.vd-mapShell {
+    position: relative;
+    min-height: 350px;
+}
+
+.vd-mapInfoCard {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 5;
+    width: min(310px, calc(100% - 24px));
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+    padding: 12px 14px;
+}
+
+.vd-mapInfoCoords {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    line-height: 1.35;
+}
+
+.vd-mapInfoAddr {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.vd-mapInfoLink {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    color: #1454c4;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.vd-mapInfoLink:hover {
+    text-decoration: underline;
+}
+
+.vd-mapBox {
+    width: 100%;
+    height: 350px;
+    min-height: 350px;
+    display: block;
+    position: relative;
+    z-index: 1;
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    overflow: hidden;
+    background: #e5e7eb;
+}
+
+.vd-mapBox.has-error {
+    display: grid;
+    place-items: center;
+    background: #f3f4f6;
+}
+
+.vd-mapFallbackText {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 0;
+}
+
+/* Form koordinat tagging area */
+.vd-locFormGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.vd-field {
+    display: block;
+}
+
+.vd-fieldLabel {
+    font-size: 12px;
+    color: rgba(15, 23, 42, 0.85);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.vd-fieldInput {
+    width: 100%;
+    height: 52px;
+    border-radius: 16px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    padding: 0 16px;
+    outline: none;
+    font-weight: 700;
+    background: #ffffff;
+}
+
+.vd-fieldAlamat {
+    margin-top: 14px;
+}
+
+.vd-fieldTextarea {
+    width: 100%;
+    min-height: 98px;
+    border-radius: 16px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    padding: 14px 16px;
+    outline: none;
+    font-weight: 700;
+    resize: none;
+    background: #ffffff;
+}
+
+.vd-fieldInput:focus,
+.vd-fieldTextarea:focus {
+    border-color: #204fb3;
+}
+
+.vd-fieldInput:disabled,
+.vd-fieldTextarea:disabled,
+.vd-locSearchInput:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.vd-tip {
+    margin-top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 14px;
+    background: rgba(20, 84, 196, 0.12);
+    color: #0f3f93;
+    border-left: 3px solid #2563eb;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.vd-tip svg {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.vd-inlineErr {
+    color: #b91c1c;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.vd-locationActions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Fix leaflet map */
+.vd .leaflet-container {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    display: block;
+    font-family: "Outfit", sans-serif;
+    z-index: 1;
+    background: #e5e7eb;
+}
+
+.vd .leaflet-pane,
+.vd .leaflet-top,
+.vd .leaflet-bottom {
+    z-index: 1;
+}
+
+.vd .vd-mapBox .leaflet-tile-pane,
+.vd .vd-mapBox .leaflet-overlay-pane,
+.vd .vd-mapBox .leaflet-marker-pane,
+.vd .vd-mapBox .leaflet-shadow-pane {
+    z-index: 1;
+}
+
+.vd .vd-mapBox .leaflet-control-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Modal tolak verifikasi */
+.vd-rejectOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(2, 6, 23, 0.62);
+    display: grid;
+    place-items: center;
+    padding: 18px;
+}
+
+.vd-rejectModal {
+    width: min(450px, 94vw);
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.vd-rejectHead {
+    min-height: 92px;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #fb2c36 0%, #e7000b 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.vd-rejectIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.18);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.vd-rejectIcon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.vd-rejectTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.vd-rejectSub {
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.vd-rejectBody {
+    padding: 24px;
+}
+
+.vd-rejectDetail {
+    border-radius: 14px;
+    background: #f8fafc;
+    padding: 16px;
+    margin-bottom: 18px;
+}
+
+.vd-rejectDetailTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.vd-rejectInfo {
+    font-size: 15px;
+    color: #475569;
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+.vd-rejectInfo b {
+    color: #334155;
+    font-weight: 700;
+}
+
+.vd-rejectLabel {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 10px;
+}
+
+.vd-rejectLabel span {
+    color: #fb2c36;
+}
+
+.vd-rejectTextarea {
+    width: 100%;
+    min-height: 108px;
+    border-radius: 16px;
+    border: 1px solid #d8dde6;
+    padding: 14px 16px;
+    outline: none;
+    resize: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0f172a;
+}
+
+.vd-rejectTextarea::placeholder {
+    color: #94a3b8;
+}
+
+.vd-rejectTextarea:focus {
+    border-color: #fb2c36;
+}
+
+.vd-rejectWarning {
+    margin-top: 22px;
+    border-radius: 16px;
+    border: 1px solid rgba(251, 44, 54, 0.22);
+    background: rgba(254, 226, 226, 0.55);
+    color: #b91c1c;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+.vd-rejectWarning svg {
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.vd-rejectActions {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.vd-rejectCancel,
+.vd-rejectSubmit {
+    height: 46px;
+    border-radius: 14px;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        transform 0.15s ease,
+        filter 0.15s ease;
+}
+
+.vd-rejectCancel {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.vd-rejectCancel:hover:not(:disabled) {
+    background: #cbd5e1;
+    transform: translateY(-1px);
+}
+
+.vd-rejectSubmit {
+    background: linear-gradient(135deg, #fb2c36, #e7000b);
+    color: #ffffff;
+}
+
+.vd-rejectSubmit:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.vd-rejectCancel:disabled,
+.vd-rejectSubmit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Responsive tablet */
+@media (max-width: 1100px) {
+    .vd-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vd-topBoxes {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Responsive mobile */
+@media (max-width: 760px) {
+    .vd-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vd-filterRow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vd-ddBtn,
+    .vd-dd {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .vd-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-previewToolbar {
+        height: auto;
+        min-height: 58px;
+        grid-template-columns: 1fr;
+        justify-items: stretch;
+        padding: 12px 16px;
+    }
+
+    .vd-previewToolbarLeft,
+    .vd-zoomMock,
+    .vd-downloadBtn {
+        justify-self: stretch;
+    }
+
+    .vd-downloadBtn {
+        justify-content: center;
+    }
+
+    .vd-previewBody {
+        padding: 14px;
+    }
+
+    .vd-locSearchRow,
+    .vd-locFormGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-locGpsBtn {
+        width: 100%;
+    }
+
+    .vd-rejectActions {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Revisi visual verifikasi data posbankum. */
+.vd-topBox {
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.vd-cardHead {
+    padding: 18px;
+    border-bottom: 1.27px solid #e2e8f0;
+    background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
+}
+
+.vd-docPill.is-no {
+    background: #fef2f280;
+}
+
+.vd-docPill.is-ok {
+    background: #ecfdf580;
+}
+
+.vd-docPill.is-wait {
+    background: #fffbeb80;
+}
+
+.vd-previewApproveBtn {
+    background: linear-gradient(135deg, #00bba7 0%, #009689 100%);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 187, 167, 0.3),
+        0 10px 15px -3px rgba(0, 187, 167, 0.3);
+}
+
+.vd-previewRejectBtn {
+    background: linear-gradient(135deg, #fb2c36 0%, #e7000b 100%);
+    box-shadow:
+        0 4px 6px -4px rgba(251, 44, 54, 0.3),
+        0 10px 15px -3px rgba(251, 44, 54, 0.3);
+}
+
+.vd-emptyCard {
+    grid-column: 1 / -1;
+    min-height: 376px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #dfe3ea;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    color: #475467;
+}
+
+.vd-emptyIcon {
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    display: grid;
+    place-items: center;
+    color: #98a2b3;
+    margin-bottom: 26px;
+}
+
+.vd-emptyIcon svg {
+    width: 43px;
+    height: 43px;
+}
+
+.vd-emptyCard h2 {
+    margin: 0 0 13px;
+    color: #111827;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.vd-emptyCard p {
+    margin: 0;
+    color: #475467;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 500;
+}
+
+/* =========================================================
+   Kunci layout filter Verifikasi Data Posbankum
+   Supaya tidak tertimpa selector lama dari adminDashboard.css.
+   ========================================================= */
+.ad-pagePad .vd {
+    width: 100%;
+    padding: 0;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+.ad-pagePad .vd .vd-filterCard {
+    border: 1px solid #d8dde6;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    padding: 20px 22px;
+    margin-bottom: 22px;
+}
+
+.ad-pagePad .vd .vd-filterCard .vd-toolbar {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 0;
+}
+
+.ad-pagePad .vd .vd-filterCard .vd-search {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+    height: 52px;
+    min-height: 52px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border: 1px solid #d8dde6;
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.ad-pagePad .vd .vd-filterCard .vd-search input,
+.ad-pagePad .vd .vd-filterCard .vd-searchInput {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.ad-pagePad .vd .vd-filterCard .vd-filterRow {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin: 0;
+}
+
+.ad-pagePad .vd .vd-filterCard .vd-dd {
+    width: auto;
+    min-width: 0;
+    position: relative;
+}
+
+.ad-pagePad .vd .vd-filterCard .vd-ddBtn {
+    width: auto;
+    min-width: 190px;
+    height: 52px;
+    padding: 0 14px;
+    border-radius: 18px;
+    border: 1px solid #e8ecf3;
+    background: #f8fafc;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ad-pagePad .vd .vd-cardHead {
+    display: block;
+    padding: 18px;
+    border-bottom: 1.27px solid #e2e8f0;
+    background: linear-gradient(135deg, #f1f5f9 0%, #f8fafc 100%);
+}
+
+.ad-pagePad .vd .vd-cardMeta {
+    margin: 0;
+}
+
+@media (max-width: 760px) {
+    .ad-pagePad .vd .vd-filterCard .vd-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ad-pagePad .vd .vd-filterCard .vd-filterRow {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ad-pagePad .vd .vd-filterCard .vd-search,
+    .ad-pagePad .vd .vd-filterCard .vd-dd,
+    .ad-pagePad .vd .vd-filterCard .vd-ddBtn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* ===== Revisi responsif Verifikasi Data Posbankum sampai mobile kecil ===== */
+@media (max-width: 768px) {
+    .vd-topBoxes {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .vd-topBox {
+        min-height: 96px;
+        border-radius: 16px;
+    }
+
+    .vd-topBoxInner {
+        padding: 18px;
+    }
+
+    .vd-topIcon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .vd-filterCard {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .vd-toolbar {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .vd-search {
+        height: 48px;
+        border-radius: 15px;
+    }
+
+    .vd-filterRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .vd-dd,
+    .vd-ddBtn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .vd-ddMenu {
+        max-height: 240px;
+    }
+
+    .vd-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .vd-card {
+        border-radius: 16px;
+    }
+
+    .vd-cardHead {
+        padding: 16px;
+    }
+
+    .vd-cardTitle {
+        font-size: 17px;
+    }
+
+    .vd-cardDocs {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .vd-docRow {
+        min-height: 58px;
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .vd-overlay,
+    .vd-rejectOverlay {
+        padding: 10px;
+        align-items: flex-start;
+    }
+
+    .vd-previewModal,
+    .vd-locationModal,
+    .vd-rejectModal {
+        width: 100%;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100dvh - 20px);
+        border-radius: 16px;
+    }
+
+    .vd-previewModal {
+        height: calc(100dvh - 20px);
+    }
+
+    .vd-previewHead,
+    .vd-locationHead,
+    .vd-rejectHead {
+        padding: 14px;
+    }
+
+    .vd-previewTitle,
+    .vd-locationTitle,
+    .vd-rejectTitle {
+        font-size: 16px;
+    }
+
+    .vd-previewToolbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px;
+    }
+
+    .vd-previewToolbarLeft,
+    .vd-previewCounter,
+    .vd-downloadBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vd-locationBody,
+    .vd-rejectBody {
+        padding: 16px;
+    }
+
+    .vd-locationGrid,
+    .vd-locationActions,
+    .vd-rejectActions {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-mapBox {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vd-topBoxInner {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .vd-topTitle,
+    .vd-topHint {
+        font-size: 12px;
+    }
+
+    .vd-topValue {
+        font-size: 23px;
+    }
+
+    .vd-filterCard,
+    .vd-cardHead,
+    .vd-cardDocs {
+        padding: 14px;
+    }
+
+    .vd-docRow {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .vd-docTitle {
+        font-size: 13px;
+    }
+
+    .vd-docDate {
+        font-size: 12px;
+    }
+
+    .vd-previewClose,
+    .vd-locationClose,
+    .vd-rejectClose {
+        width: 40px;
+        height: 40px;
+    }
+
+    .vd-mapBox {
+        min-height: 260px;
+    }
+}
