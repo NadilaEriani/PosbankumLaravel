@@ -16,7 +16,6 @@ import {
     FiMapPin,
     FiExternalLink,
     FiPhone,
-    FiUser,
 } from "react-icons/fi";
 import { TbFileCheck } from "react-icons/tb";
 import { BsCheck2Circle } from "react-icons/bs";
@@ -80,6 +79,10 @@ export default function AdminDashboard() {
     const accountRows = props.accountRows || [];
     const verificationRows = props.verificationRows || [];
     const laporanRows = props.laporanRows || [];
+    const kabupatenRows = props.kabupatenRows || [];
+    const kecamatanRows = props.kecamatanRows || [];
+    const kelurahanRows = props.kelurahanRows || [];
+    const posbankumMasterRows = props.posbankumMasterRows || [];
 
     const [active, setActive] = useState("Beranda");
     const [rangeOpen, setRangeOpen] = useState(false);
@@ -93,20 +96,19 @@ export default function AdminDashboard() {
         () => [
             { label: "Beranda", icon: <FiHome /> },
             { label: "Kelola Berita", icon: <FiFileText /> },
+            { label: "Data Posbankum", icon: <FiUsers /> },
+            { label: "Verifikasi Data Posbankum", icon: <FiCheckCircle /> },
+            { label: "Laporan Kegiatan", icon: <FiClock /> },
             {
-                label: "Data Posbankum",
+                label: "Manajemen Akun",
                 icon: (
-                    <img
-                        src={posbankumIcon}
-                        alt=""
-                        className="ad-menuLogoIcon"
+                    <span
+                        className="ad-navMaskIcon"
+                        style={{ "--mask-url": `url(${posbankumIcon})` }}
                         aria-hidden="true"
                     />
                 ),
             },
-            { label: "Verifikasi Data Posbankum", icon: <FiCheckCircle /> },
-            { label: "Laporan Kegiatan", icon: <FiClock /> },
-            { label: "Manajemen Akun", icon: <FiUsers /> },
         ],
         [],
     );
@@ -443,7 +445,15 @@ export default function AdminDashboard() {
 
         if (active === "Manajemen Akun") {
             return (
-                <ManajemenAkun rows={accountRows} posbankumRows={detailRows} />
+                <ManajemenAkun
+                    rows={accountRows}
+                    paralegalRows={accountRows}
+                    posbankumRows={detailRows}
+                    kabupatenRows={kabupatenRows}
+                    kecamatanRows={kecamatanRows}
+                    kelurahanRows={kelurahanRows}
+                    posbankumMasterRows={posbankumMasterRows}
+                />
             );
         }
 
@@ -456,27 +466,26 @@ export default function AdminDashboard() {
 
             <aside className="ad-side">
                 <button
+                    className="ad-brand ad-brandButton"
                     type="button"
-                    className="ad-brandButton"
-                    onClick={() => setActive("Beranda")}
+                    onClick={() => setShowProfile(true)}
                 >
-                    <div className="ad-brand">
-                        <div className="ad-brandLogoWrap">
-                            <img
-                                src={logo}
-                                alt="Logo Pengayoman"
-                                className="ad-brandLogo"
-                            />
-                        </div>
-
-                        <div className="ad-brandText">
-                            <div className="ad-brandName">Admin</div>
-                            <div className="ad-brandSub">Posbankum</div>
+                    <div className="ad-brandLogoWrap">
+                        <img
+                            src={logo}
+                            alt="Logo SIBAPAK"
+                            className="ad-brandLogo"
+                        />
+                    </div>
+                    <div className="ad-brandText">
+                        <div className="ad-brandName">SIBAPAK</div>
+                        <div className="ad-brandSub">
+                            Posbankum Kemenkum Riau
                         </div>
                     </div>
                 </button>
 
-                <div className="ad-brandDivider" />
+                <div className="ad-brandDivider" aria-hidden="true" />
 
                 <nav className="ad-nav">
                     {menu.map((item) => (
@@ -486,7 +495,10 @@ export default function AdminDashboard() {
                             className={`ad-navItem ${
                                 active === item.label ? "is-active" : ""
                             }`}
-                            onClick={() => setActive(item.label)}
+                            onClick={() => {
+                                setShowProfile(false);
+                                setActive(item.label);
+                            }}
                         >
                             <span className="ad-navIcon">{item.icon}</span>
                             <span className="ad-navLabel">{item.label}</span>
@@ -496,32 +508,26 @@ export default function AdminDashboard() {
             </aside>
 
             <main className="ad-main">
-                <header className="ad-top">
-                    <div>
-                        <div className="ad-pageIntroTitle">{pageTitle}</div>
-                        <div className="ad-pageIntroSub">
-                            Selamat datang,{" "}
-                            {user?.nama_lengkap || user?.name || "Admin"}
+                <header className="ad-top ad-topWire is-berita">
+                    <div className="ad-topLeft">
+                        <div className="ad-pageIntro">
+                            <div className="ad-pageIntroTitle">
+                                Dashboard Operator Kanwil
+                            </div>
+                            <div className="ad-pageIntroSub">
+                                Kementerian Hukum Wilayah Riau
+                            </div>
                         </div>
                     </div>
 
-                    <div className="ad-headActions">
-                        <button
-                            type="button"
-                            className="ad-filterBtn"
-                            onClick={() => setShowProfile(true)}
-                        >
-                            <FiUser />
-                            Profil
-                        </button>
-
+                    <div className="ad-topRight">
                         <button
                             type="button"
                             className="ad-topLogoutBtn"
                             onClick={handleLogout}
                         >
                             <FiLogOut />
-                            Logout
+                            Keluar
                         </button>
                     </div>
                 </header>
@@ -530,7 +536,7 @@ export default function AdminDashboard() {
 
                 <footer className="ad-footer">
                     <div className="ad-footerText">
-                        © 2026 Posbankum - Kantor Wilayah Kementerian Hukum Riau
+                        © 2026 Kementerian Hukum Riau. All rights reserved.
                     </div>
                 </footer>
             </main>

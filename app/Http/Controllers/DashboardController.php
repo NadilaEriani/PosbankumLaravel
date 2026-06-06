@@ -123,7 +123,18 @@ class DashboardController extends Controller
 
         $pengaduanCounts = $this->countByForeignKey('pengaduan', 'id_posbankum', $ids);
         $kegiatanCounts = $this->countByForeignKey('kegiatan', 'id_posbankum', $ids);
-        $paralegalCounts = $this->countByForeignKey('paralegal_members', 'id_posbankum', $ids);
+        $paralegalCounts = [];
+        if ($this->hasColumn('users', 'id_posbankum')) {
+            $paralegalCounts = DB::table('users')
+                ->select('id_posbankum', DB::raw('COUNT(*) as total'))
+                ->where('role', 'paralegal')
+                ->where('status', 'aktif')
+                ->whereIn('id_posbankum', $ids)
+                ->groupBy('id_posbankum')
+                ->pluck('total', 'id_posbankum')
+                ->map(fn($value) => (int) $value)
+                ->toArray();
+        }
 
         return $posRows->values()->map(function ($row, $index) use ($pengaduanCounts, $kegiatanCounts, $paralegalCounts) {
             $id = $this->getPosbankumId($row);
@@ -257,6 +268,150 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+    private function masterKabupatenRows(): array
+    {
+        if (!$this->hasTable('kabupaten')) {
+            return [];
+        }
+
+        return DB::table('kabupaten')
+            ->select('id_kabupaten', 'nama')
+            ->orderBy('nama')
+            ->get()
+            ->map(fn($row) => [
+                'id_kabupaten' => $row->id_kabupaten,
+                'nama' => $row->nama,
+            ])
+            ->toArray();
+    }
+
+    private function masterKecamatanRows(): array
+    {
+        if (!$this->hasTable('kecamatan')) {
+            return [];
+        }
+
+        return DB::table('kecamatan')
+            ->select('id_kecamatan', 'id_kabupaten', 'nama')
+            ->orderBy('nama')
+            ->get()
+            ->map(fn($row) => [
+                'id_kecamatan' => $row->id_kecamatan,
+                'id_kabupaten' => $row->id_kabupaten,
+                'nama' => $row->nama,
+            ])
+            ->toArray();
+    }
+
+    private function masterKelurahanRows(): array
+    {
+        if (!$this->hasTable('kelurahan')) {
+            return [];
+        }
+
+        $query = DB::table('kelurahan as kel')
+            ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
+            ->select(
+                'kel.id_kelurahan',
+                'kel.id_kecamatan',
+                'kel.nama',
+                'kec.id_kabupaten'
+            )
+            ->orderBy('kel.nama');
+
+        return $query->get()
+            ->map(fn($row) => [
+                'id_kelurahan' => $row->id_kelurahan,
+                'id_kecamatan' => $row->id_kecamatan,
+                'id_kabupaten' => $row->id_kabupaten,
+                'nama' => $row->nama,
+            ])
+            ->toArray();
+    }
+
+    private function masterPosbankumRows(): array
+    {
+        if (!$this->hasTable('posbankum')) {
+            return [];
+        }
+
+        return DB::table('posbankum as p')
+            ->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'p.id_kelurahan')
+            ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
+            ->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'kec.id_kabupaten')
+            ->select(
+                'p.id_posbankum',
+                'p.id_kelurahan',
+                'p.nama',
+                'kel.nama as kelurahan_nama',
+                'kel.id_kecamatan',
+                'kec.nama as kecamatan_nama',
+                'kec.id_kabupaten',
+                'kab.nama as kabupaten_nama'
+            )
+            ->orderBy('p.nama')
+            ->get()
+            ->map(fn($row) => [
+                'id_posbankum' => $row->id_posbankum,
+                'id_kelurahan' => $row->id_kelurahan,
+                'id_kecamatan' => $row->id_kecamatan,
+                'id_kabupaten' => $row->id_kabupaten,
+                'nama' => $row->nama,
+                'kelurahan_nama' => $row->kelurahan_nama,
+                'kecamatan_nama' => $row->kecamatan_nama,
+                'kabupaten_nama' => $row->kabupaten_nama,
+            ])
+            ->toArray();
+    }
+
+    private function accountRows(): array
+    {
+        if (!$this->hasTable('users')) {
+            return [];
+        }
+
+        return DB::table('users as u')
+            ->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'u.id_posbankum')
+            ->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'p.id_kelurahan')
+            ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
+            ->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'kec.id_kabupaten')
+            ->where('u.role', 'paralegal')
+            ->where('u.status', 'aktif')
+            ->select(
+                'u.id_user',
+                'u.nama_lengkap',
+                'u.email',
+                'u.nomor_telepon',
+                'u.status',
+                'u.id_posbankum',
+                'p.nama as posbankum_nama',
+                'p.id_kelurahan',
+                'kel.nama as kelurahan_nama',
+                'kel.id_kecamatan',
+                'kec.nama as kecamatan_nama',
+                'kec.id_kabupaten',
+                'kab.nama as kabupaten_nama'
+            )
+            ->orderBy('u.nama_lengkap')
+            ->get()
+            ->map(fn($row) => [
+                'id_user' => $row->id_user,
+                'nama_lengkap' => $row->nama_lengkap,
+                'email' => $row->email,
+                'nomor_telepon' => $row->nomor_telepon,
+                'status' => $row->status,
+                'id_posbankum' => $row->id_posbankum,
+                'posbankum_nama' => $row->posbankum_nama,
+                'id_kelurahan' => $row->id_kelurahan,
+                'id_kecamatan' => $row->id_kecamatan,
+                'id_kabupaten' => $row->id_kabupaten,
+                'kelurahan_nama' => $row->kelurahan_nama,
+                'kecamatan_nama' => $row->kecamatan_nama,
+                'kabupaten_nama' => $row->kabupaten_nama,
+            ])
+            ->toArray();
+    }
+
     public function admin(Request $request): Response
     {
         $posRows = $this->posbankumRows();
@@ -291,6 +446,11 @@ class DashboardController extends Controller
             'topActive' => $topActive,
             'activities' => $this->latestActivities(),
             'detailRows' => $detailRows,
+            'accountRows' => $this->accountRows(),
+            'kabupatenRows' => $this->masterKabupatenRows(),
+            'kecamatanRows' => $this->masterKecamatanRows(),
+            'kelurahanRows' => $this->masterKelurahanRows(),
+            'posbankumMasterRows' => $this->masterPosbankumRows(),
         ]);
     }
 
