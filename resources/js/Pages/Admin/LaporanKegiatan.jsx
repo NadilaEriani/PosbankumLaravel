@@ -19,7 +19,7 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
-import "../../../css/laporanKegiatan.css";
+import "../../../css/Admin/laporanKegiatan.css";
 
 const PAGE_SIZE = 6;
 

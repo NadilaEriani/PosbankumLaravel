@@ -21,7 +21,7 @@ import { TbFileCheck } from "react-icons/tb";
 import { BsCheck2Circle } from "react-icons/bs";
 import { HiOutlineNewspaper } from "react-icons/hi2";
 
-import "../../../css/adminDashboard.css";
+import "../../../css/Admin/adminDashboard.css";
 
 import DataPosbankum from "./DataPosbankum";
 import ManajemenAkun from "./ManajemenAkun";

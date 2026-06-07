@@ -1,7 +1,7 @@
 <?php
+namespace App\Http\Controllers\Paralegal;
 
-namespace App\Http\Controllers;
-
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -831,13 +831,13 @@ class DashboardController extends Controller
         return (int) ($posbankum['jml_paralegal'] ?? 0);
     }
 
-    public function posbankum(Request $request): Response
+    private function renderPosbankumDashboard(Request $request): Response
     {
         $user = $request->user();
         $idPosbankum = $this->resolveUserPosbankumId($user);
         $posbankum = $this->posbankumById($idPosbankum);
 
-        return Inertia::render('Posbankum/Dashboard', [
+        return Inertia::render('Paralegal/Dashboard', [
             'auth' => [
                 'user' => $user,
             ],
@@ -851,5 +851,15 @@ class DashboardController extends Controller
             'kegiatanTerbaru' => $this->latestKegiatan($idPosbankum),
             'notifications' => $this->notifications($idPosbankum),
         ]);
+    }
+
+    public function paralegal(Request $request): Response
+    {
+        return $this->renderPosbankumDashboard($request);
+    }
+
+    public function posbankum(Request $request): Response
+    {
+        return $this->renderPosbankumDashboard($request);
     }
 }

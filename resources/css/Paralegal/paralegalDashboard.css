@@ -1265,314 +1265,140 @@
         font-size: 10px;
     }
 }
+
 /* =========================================================
-   RESPONSIVE MOBILE FIX - posbankumDashboard.css
-   ========================================================= */
-@media (max-width: 768px) {
-    html,
-    body {
-        overflow-x: hidden;
-    }
-
-    .pb2Root {
-        min-height: 100dvh;
-        display: block;
-        width: 100%;
-        overflow-x: hidden;
-    }
-
-    .pb2Side {
-        width: 100%;
-        min-height: auto;
-        position: relative;
-        z-index: 5;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
-        border-radius: 0 0 22px 22px;
-        overflow: hidden;
-    }
-
-    .pb2Brand,
-    .pb2BrandButton {
-        padding: 16px 14px 12px;
-    }
-
-    .pb2BrandLogoWrap {
-        width: 56px;
-        height: 62px;
-    }
-
-    .pb2BrandName {
-        font-size: 17px;
-    }
-
-    .pb2BrandSub {
-        font-size: 12px;
-    }
-
-    .pb2Nav {
-        display: flex;
-        flex-direction: row;
-        gap: 8px;
-        padding: 12px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-
-    .pb2Nav::-webkit-scrollbar {
-        display: none;
-    }
-
-    .pb2NavItem {
-        flex: 0 0 auto;
-        width: auto;
-        min-width: 148px;
-        min-height: 44px;
-        border-radius: 14px;
-        padding: 10px 14px;
-    }
-
-    .pb2NavLabel {
-        font-size: 13px;
-        white-space: nowrap;
-    }
-
-    .pb2Main,
-    .pb2Content {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .pb2Top {
-        min-height: auto;
-        padding: 16px;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-    .pb2TopTitle {
-        font-size: 24px;
-        line-height: 1.08;
-    }
-
-    .pb2TopSub {
-        font-size: 12px;
-    }
-
-    .pb2TopRight {
-        width: 100%;
-        align-items: stretch;
-        justify-content: space-between;
-    }
-
-    .pb2TopLogoutBtn {
-        flex: 1;
-        min-width: 0;
-        justify-content: center;
-    }
-
-    .pb2Content {
-        padding: 16px;
-        gap: 20px;
-    }
-
-    .pb2Stats,
-    .pb2CaseGrid,
-    .pb2MainGrid,
-    .pb2Grid,
-    .pb2DetailGrid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .pb2StatCard,
-    .pb2Panel,
-    .pb2CaseCard,
-    .pb2KegiatanItem {
-        border-radius: 16px;
-    }
-
-    .pb2StatCard {
-        min-height: 98px;
-        padding: 18px;
-    }
-
-    .pb2StatValue {
-        font-size: 22px;
-    }
-
-    .pb2Panel {
-        padding: 16px;
-    }
-
-    .pb2PanelHead,
-    .pb2PanelHead.row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .pb2KegiatanItem {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .pb2KegiatanIcon {
-        width: 40px;
-        height: 40px;
-    }
-
-    .pb2TableWrap,
-    .pb2TableCard {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .pb2Table {
-        min-width: 760px;
-    }
-
-    .pb2Footer {
-        margin: 4px 16px 0;
-        padding: 18px 0 16px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
+   Laravel Inertia compatibility additions
+   Tetap memakai warna, font, radius, dan style dari referensi.
+========================================================= */
+.pb2InfoGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
 }
 
-@media (max-width: 430px) {
-    .pb2NavItem {
-        min-width: 134px;
-        padding: 10px 12px;
-    }
-
-    .pb2NavLabel {
-        font-size: 12px;
-    }
-
-    .pb2Top,
-    .pb2Content {
-        padding-left: 14px;
-        padding-right: 14px;
-    }
-
-    .pb2TopTitle {
-        font-size: 23px;
-    }
-
-    .pb2StatIcon {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-    }
+.pb2InfoItem {
+    min-height: 86px;
+    padding: 16px 14px;
+    border-radius: 18px;
+    border: 1px solid #e6e9ef;
+    background: #ffffff;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
 }
 
-/* ===== Revisi responsif Dashboard Paralegal sampai mobile kecil ===== */
-@media (max-width: 768px) {
-    .pb2,
-    .pb2Shell,
-    .pb2Main {
-        min-width: 0;
-    }
+.pb2InfoIcon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    background: var(--pb-soft-blue);
+    color: var(--pb-inner-blue);
+    font-size: 18px;
+}
 
-    .pb2Layout,
-    .pb2ContentGrid,
-    .pb2StatsGrid,
-    .pb2ProfileGrid,
-    .pb2FormGrid {
+.pb2InfoLabel {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.pb2InfoValue {
+    margin-top: 6px;
+    color: #151c2e;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.pb2ConfirmOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background: rgba(15, 23, 42, 0.34);
+}
+
+.pb2ConfirmCard {
+    width: min(420px, calc(100vw - 36px));
+    border-radius: 24px;
+    border: 1px solid var(--pb-line);
+    background: #ffffff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
+    padding: 24px;
+    text-align: center;
+}
+
+.pb2ConfirmIcon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 14px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: #ffedd5;
+    color: #c2410c;
+    font-size: 24px;
+}
+
+.pb2ConfirmTitle {
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 700;
+    color: #151c2e;
+}
+
+.pb2ConfirmText {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.pb2ConfirmActions {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.pb2ConfirmCancel,
+.pb2ConfirmDanger {
+    min-height: 42px;
+    border: 0;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.pb2ConfirmCancel {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.pb2ConfirmDanger {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.pb2ConfirmCancel:disabled,
+.pb2ConfirmDanger:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .pb2InfoGrid {
         grid-template-columns: 1fr;
     }
 
-    .pb2Sidebar {
-        width: 100%;
-        position: sticky;
-        top: 0;
-        z-index: 90;
-    }
-
-    .pb2Nav {
-        display: flex;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        gap: 8px;
-        padding: 10px 12px;
-    }
-
-    .pb2NavItem {
-        flex: 0 0 auto;
-        min-width: 140px;
-        white-space: nowrap;
-    }
-
-    .pb2Topbar,
-    .pb2PagePad,
-    .pb2Section,
-    .pb2Card,
-    .pb2Panel {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    .pb2Topbar {
-        height: auto;
-        min-height: 68px;
-        align-items: flex-start;
-        gap: 12px;
-    }
-
-    .pb2PageTitle,
-    .pb2WireTitle {
-        font-size: 23px;
-    }
-
-    .pb2NotifOverlay {
-        padding: 10px;
-        align-items: flex-start;
-    }
-
-    .pb2NotifModal {
-        width: 100%;
-        max-width: calc(100vw - 20px);
-        max-height: calc(100dvh - 20px);
-        border-radius: 16px;
-    }
-
-    .pb2NotifModal.has-detail .pb2NotifBody,
-    .pb2NotifBody,
-    .pb2NotifHead,
-    .pb2NotifFoot {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    .pb2TableWrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .pb2Table {
-        min-width: 720px;
-    }
-}
-
-@media (max-width: 480px) {
-    .pb2Topbar,
-    .pb2PagePad,
-    .pb2Section,
-    .pb2Card,
-    .pb2Panel {
-        padding-left: 14px;
-        padding-right: 14px;
-    }
-
-    .pb2PageTitle,
-    .pb2WireTitle {
-        font-size: 21px;
-    }
-
-    .pb2NotifModal {
-        max-width: calc(100vw - 16px);
-        max-height: calc(100dvh - 16px);
+    .pb2ConfirmActions {
+        grid-template-columns: 1fr;
     }
 }

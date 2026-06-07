@@ -13,7 +13,7 @@ import {
     FiX,
 } from "react-icons/fi";
 import SuccessToast from "../../Components/ui/SuccessToast";
-import "../../../css/kelolaBerita.css";
+import "../../../css/Admin/kelolaBerita.css";
 
 const KATEGORI_OPTIONS = [
     "Kegiatan",

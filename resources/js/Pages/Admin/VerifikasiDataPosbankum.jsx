@@ -20,7 +20,7 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
-import "../../../css/verifikasiDataPosbankum.css";
+import "../../../css/Admin/verifikasiDataPosbankum.css";
 
 const BUCKET = "posbankum-docs";
 

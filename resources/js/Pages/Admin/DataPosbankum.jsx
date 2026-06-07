@@ -16,7 +16,7 @@ import {
 import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import icon from "../../assets/icon.png";
-import "../../../css/dataPosbankum.css";
+import "../../../css/Admin/dataPosbankum.css";
 
 function stripKotaPrefix(value) {
     return String(value || "")

@@ -20,7 +20,7 @@ import { MdOutlineShield } from "react-icons/md";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import posbankum from "../../assets/icon.png";
-import "../../../css/adminProfile.css";
+import "../../../css/Admin/adminProfile.css";
 
 const INITIAL_FORM = {
     full_name: "",

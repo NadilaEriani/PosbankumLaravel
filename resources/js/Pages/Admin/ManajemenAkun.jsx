@@ -19,7 +19,7 @@ import posbankumIcon from "../../assets/icon.png";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
-import "../../../css/manajemenAkun.css";
+import "../../../css/Admin/manajemenAkun.css";
 
 const PAGE_SIZE = 6;
 const EMPTY_LIST = [];
