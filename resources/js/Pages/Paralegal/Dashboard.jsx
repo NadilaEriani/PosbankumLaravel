@@ -29,6 +29,8 @@ import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/paralegalDashboard.css";
 import LaporanPelayanan from "./LaporanPelayanan";
 import KelolaKegiatan from "./KelolaKegiatan";
+import SemuaKasus from "./SemuaKasus";
+import KelolaPosbankum from "./KelolaPosbankum";
 
 function startCase(value) {
     const text = String(value || "").trim();
@@ -342,6 +344,9 @@ export default function PosbankumDashboard({
     kasusTerbaru = [],
     kegiatanTerbaru = [],
     kegiatanRows = [],
+    semuaKasusRows = [],
+    posbankumDocuments = [],
+    posbankumLocation = {},
     notifications = [],
     laporanPelayananRows = [],
     paralegalOptions = [],
@@ -708,117 +713,26 @@ export default function PosbankumDashboard({
     );
 
     const renderSemuaKasus = () => (
-        <section className="pb2Content">
-            <div className="pb2Panel">
-                <div className="pb2PanelHead row">
-                    <div>
-                        <div className="pb2PanelTitle">Semua Kasus</div>
-                        <div className="pb2PanelSub">
-                            Daftar kasus terbaru yang tersedia dari database
-                            Laravel
-                        </div>
-                    </div>
-                    <span className="pb2Status prog">
-                        {caseRows.length} Kasus
-                    </span>
-                </div>
-
-                <div className="pb2CaseGrid">
-                    {caseRows.length ? (
-                        caseRows.map((item) => (
-                            <div className="pb2CaseCard" key={item.id}>
-                                <div
-                                    className={`pb2CaseIcon ${item.selesai ? "green" : "orange"}`}
-                                >
-                                    <FiFileText />
-                                </div>
-                                <div className="pb2CaseBody">
-                                    <div className="pb2CaseTitle">
-                                        {item.judul}
-                                    </div>
-                                    <div className="pb2CaseDesc">
-                                        {clampText(item.deskripsi, 180)}
-                                    </div>
-                                    <div className="pb2CasePills">
-                                        <span className="pb2Pill softBlue">
-                                            {item.kategori}
-                                        </span>
-                                        <span
-                                            className={`pb2Pill ${item.selesai ? "softGreen" : "softOrange"}`}
-                                        >
-                                            {item.status}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <EmptyBox>Belum ada kasus.</EmptyBox>
-                    )}
-                </div>
-            </div>
+        <section className="pb2Content pb2ContentWithHeading">
+            {renderPageHeading("Semua Kasus")}
+            <SemuaKasus
+                cases={semuaKasusRows?.length ? semuaKasusRows : kasusTerbaru}
+                profile={auth?.user || {}}
+                currentPosbankum={currentPosbankum || posbankum}
+            />
         </section>
     );
 
     const renderKelolaPosbankum = () => (
-        <section className="pb2Content">
-            <div className="pb2Panel">
-                <div className="pb2PanelHead">
-                    <div>
-                        <div className="pb2PanelTitle">Kelola Posbankum</div>
-                        <div className="pb2PanelSub">
-                            Informasi dasar akun Posbankum yang sedang login
-                        </div>
-                    </div>
-                </div>
-
-                <div className="pb2InfoGrid">
-                    <div className="pb2InfoItem">
-                        <span className="pb2InfoIcon">
-                            <FiUsers />
-                        </span>
-                        <div>
-                            <div className="pb2InfoLabel">Nama Posbankum</div>
-                            <div className="pb2InfoValue">{headerTitle}</div>
-                        </div>
-                    </div>
-                    <div className="pb2InfoItem">
-                        <span className="pb2InfoIcon">
-                            <FiMapPin />
-                        </span>
-                        <div>
-                            <div className="pb2InfoLabel">Alamat</div>
-                            <div className="pb2InfoValue">
-                                {headerSub || "Belum tersedia"}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="pb2InfoItem">
-                        <span className="pb2InfoIcon">
-                            <FiMail />
-                        </span>
-                        <div>
-                            <div className="pb2InfoLabel">Email Akun</div>
-                            <div className="pb2InfoValue">
-                                {posbankum?.email_akun ||
-                                    auth?.user?.email ||
-                                    "Belum tersedia"}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="pb2InfoItem">
-                        <span className="pb2InfoIcon">
-                            <FiPhone />
-                        </span>
-                        <div>
-                            <div className="pb2InfoLabel">Nomor Telepon</div>
-                            <div className="pb2InfoValue">
-                                {posbankum?.nomor_tlp || "Belum tersedia"}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <section className="pb2Content pb2ContentWithHeading">
+            {renderPageHeading("Kelola Posbankum")}
+            <KelolaPosbankum
+                profile={auth?.user || {}}
+                currentPosbankum={currentPosbankum || posbankum}
+                documents={posbankumDocuments}
+                location={posbankumLocation}
+                flash={flash}
+            />
         </section>
     );
 

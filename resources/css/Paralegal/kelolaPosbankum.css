@@ -1,0 +1,1614 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
+
+.kdpRoot {
+    --nav-blue: #0a2a62;
+    --nav-yellow: #fbbf24;
+
+    --content-blue: #e8f0fe;
+    --inner-blue: #2b3056;
+
+    --content-orange: #ffedd5;
+    --inner-orange: #ea580c;
+
+    --content-red: #fee2e2;
+    --btn-red: #ef4444;
+
+    --radius: 16px;
+    --card: #ffffff;
+    --line: rgba(15, 23, 42, 0.1);
+    --muted: #6b7280;
+    --shadow: 0 10px 24px rgba(17, 24, 39, 0.12);
+
+    padding: 0;
+    font-family:
+        "Outfit",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    font-weight: 500;
+    color: #111827;
+    box-sizing: border-box;
+}
+
+.kdpRoot *,
+.kdpRoot *::before,
+.kdpRoot *::after {
+    box-sizing: border-box;
+}
+
+.kdpRoot .kpPageHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.kdpRoot .kpTitle {
+    font-size: 25px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0;
+    color: #111827;
+}
+
+.kdpRoot .kpTitleUnderline {
+    width: 60px;
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ffd82b 0%, #ffab4a 100%);
+    box-shadow:
+        0 6px 10px rgba(0, 0, 0, 0.35),
+        0 2px 4px rgba(0, 0, 0, 0.18);
+}
+
+/* ====== Stats ====== */
+.kdpRoot .kpStats {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+    margin: 16px 0 18px;
+    align-items: stretch;
+}
+
+.kdpRoot .kpStatCard {
+    border-radius: 16px !important;
+    box-shadow: 0 10px 24px rgba(17, 24, 39, 0.12) !important;
+    padding: 14px 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    min-height: 94px;
+    min-width: 0;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+}
+
+.kdpRoot .kpStatCard.stat-total {
+    background: linear-gradient(
+        135deg,
+        #2b3056 0%,
+        #3a4070 55%,
+        #4a5080 100%
+    ) !important;
+}
+
+.kdpRoot .kpStatCard.stat-ok {
+    background: linear-gradient(
+        135deg,
+        #006a4e 0%,
+        #1b7f5c 55%,
+        #2a8f6a 100%
+    ) !important;
+}
+
+.kdpRoot .kpStatCard.stat-wait {
+    background: linear-gradient(
+        135deg,
+        #ffd82b 0%,
+        #ffab4a 55%,
+        #ff9f2e 100%
+    ) !important;
+}
+
+.kdpRoot .kpStatCard.stat-bad {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+}
+
+.kdpRoot .kpStatCard.stat-none {
+    background: #9ca3af !important;
+    border-top: 1.27px solid #ffffff !important;
+}
+
+.kdpRoot .kpStatIcon {
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 34px !important;
+    flex-shrink: 0;
+    background: transparent !important;
+    border: 0 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.kdpRoot .kpStatIcon.is-stat {
+    background: transparent !important;
+    border: 0 !important;
+    color: #ffffff !important;
+}
+
+.kdpRoot .kpStatText {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.kdpRoot .kpStatLabel {
+    font-size: 14px !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.kdpRoot .kpStatValue {
+    font-size: 34px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    color: #ffffff !important;
+}
+
+/* ====== Hint ====== */
+.kdpRoot .kpHint {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(20, 84, 196, 0.12);
+    color: #051531;
+    border-left: 3px solid #2563eb;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: none;
+}
+
+.kdpRoot .kpHintHead {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+}
+
+.kdpRoot .kpHintContent {
+    min-width: 0;
+}
+
+.kdpRoot .kpHintIcon {
+    width: 24px;
+    height: 24px;
+    border-radius: 0;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    color: #051531;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 20px;
+}
+
+.kdpRoot .kpHintTitle {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #051531;
+}
+
+.kdpRoot .kpHintText {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #051531;
+}
+
+.kdpRoot .kpHintText b {
+    color: #051531;
+    font-weight: 700;
+}
+
+/* ====== Doc cards ====== */
+.kdpRoot .kpDocs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.kdpRoot .kpDocsMain {
+    align-items: stretch;
+}
+
+.kdpRoot .kpDocCard {
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    background: var(--card);
+    padding: 0;
+    min-width: 0;
+    transition: 0.2s ease;
+}
+
+.kdpRoot .kpDocCard.doc-ok {
+    background: #dcfce7;
+    border-bottom: 1.27px solid #bbf7d0;
+}
+
+.kdpRoot .kpDocCard.doc-wait {
+    background: #ffedd5;
+    border-top: 1.27px solid #fed7aa;
+}
+
+.kdpRoot .kpDocCard.doc-bad {
+    background: #fee2e2;
+    border-bottom: 1.27px solid #fecaca;
+}
+
+.kdpRoot .kpDocCard.doc-none {
+    background: #ffffff;
+}
+
+.kdpRoot .kpDocTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 4px;
+    gap: 10px;
+    background: transparent;
+}
+
+.kdpRoot .kpDocTitleWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.kdpRoot .kpDocTitle {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.25;
+    color: #1f2937;
+}
+
+.kdpRoot .kpDocCountBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    color: #2b3056;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.kdpRoot .kpDocCard.doc-ok .kpDocTitle {
+    color: #15803d;
+}
+
+.kdpRoot .kpDocCard.doc-wait .kpDocTitle {
+    color: #c2410c;
+}
+
+.kdpRoot .kpDocCard.doc-bad .kpDocTitle {
+    color: #b91c1c;
+}
+
+.kdpRoot .kpDocMeta {
+    padding: 0 14px 10px;
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 700;
+    background: transparent;
+}
+
+.kdpRoot .kpPreview {
+    padding: 0 14px 12px;
+}
+
+.kdpRoot .kpPreviewImg {
+    width: 100%;
+    height: 146px;
+    object-fit: contain;
+    border-radius: 12px;
+    display: block;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.kdpRoot .kpPreviewImg.is-sapras {
+    object-fit: cover;
+}
+
+.kdpRoot .kpPreviewPh {
+    height: 146px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.56);
+    display: grid;
+    place-items: center;
+    border: 1px dashed rgba(15, 23, 42, 0.12);
+}
+
+.kdpRoot .kpPreviewPdf {
+    width: 100%;
+    height: 146px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    background: #fff;
+    pointer-events: none;
+}
+
+.kdpRoot .kpDocActions {
+    padding: 0 14px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kdpRoot .kpBtnPrimary {
+    height: 40px;
+    border-radius: 12px;
+    border: 0;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1;
+    transition: 0.2s ease;
+    font-family: inherit;
+}
+
+.kdpRoot .kpBtnPrimary.is-blue,
+.kdpRoot .kpBtnPrimary {
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    color: #fff;
+}
+
+.kdpRoot .kpBtnPrimary.is-danger {
+    background: #ef4444;
+    color: #fff;
+}
+
+.kdpRoot .kpBtnPrimary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.kdpRoot .kpBtnIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: #fff;
+    transition: 0.2s ease;
+}
+
+.kdpRoot .kpBtnIcon:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.kdpRoot .kpAdminNote {
+    margin: 0 14px 12px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(185, 28, 28, 0.18);
+    border-radius: 12px;
+    padding: 10px;
+    color: #991b1b;
+}
+
+.kdpRoot .kpAdminNoteTitle {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.kdpRoot .kpAdminNoteText {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+/* ====== Status pill ====== */
+.kdpRoot .kpStatusPill {
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+}
+
+.kdpRoot .kpStatusPill.is-ok {
+    background: #ffffff;
+    color: #15803d;
+    border-color: rgba(21, 128, 61, 0.12);
+}
+
+.kdpRoot .kpStatusPill.is-wait {
+    background: #ffffff;
+    color: #c2410c;
+    border-color: rgba(194, 65, 12, 0.12);
+}
+
+.kdpRoot .kpStatusPill.is-bad {
+    background: #ffffff;
+    color: #b91c1c;
+    border-color: rgba(185, 28, 28, 0.12);
+}
+
+.kdpRoot .kpStatusPill.is-none {
+    background: #ffffff;
+    color: #6b7280;
+    border-color: rgba(107, 114, 128, 0.12);
+}
+
+/* ====== Map card ====== */
+.kdpRoot .kpMapCard .kpPreview {
+    padding-bottom: 10px;
+}
+
+.kdpRoot .kpLocMap {
+    height: 146px;
+    border-radius: 12px;
+    background: #e5e7eb;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.kdpRoot .kpLocMapPreview {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.kdpRoot .kpLocFrame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #e5e7eb;
+    pointer-events: none;
+}
+
+.kdpRoot .kpLocPreviewShield {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: transparent;
+}
+
+.kdpRoot .kpLocMapPh {
+    width: 100%;
+    height: 100%;
+    background: #eef2f7;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.kdpRoot .kpLocMiniCoords {
+    margin: 0 14px 12px;
+    min-height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.72);
+    color: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ====== Modal ====== */
+.kdpRoot .kpModalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    z-index: 999;
+}
+
+.kdpRoot .kpModalCard {
+    width: min(760px, 96vw);
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    max-height: calc(100vh - 36px);
+    display: flex;
+    flex-direction: column;
+}
+
+.kdpRoot .kpModalUpload {
+    width: min(760px, 96vw);
+}
+
+.kdpRoot .kpModalMedium {
+    width: min(1040px, 96vw);
+}
+
+.kdpRoot .kpModalLoc {
+    width: min(1100px, 96vw);
+}
+
+.kdpRoot .kpModalHead {
+    background: linear-gradient(135deg, #204fb3 0%, #3f447f 100%);
+    color: #fff;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.kdpRoot .kpModalHeadTitle {
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.kdpRoot .kpModalClose {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-family: inherit;
+    font-size: 18px;
+}
+
+.kdpRoot .kpModalBody {
+    padding: 18px;
+}
+
+.kdpRoot .kpModalBodyScroll {
+    overflow-y: auto;
+}
+
+.kdpRoot .kpModalBodyPreview {
+    padding-bottom: 12px;
+}
+
+.kdpRoot .kpRuleBox {
+    background: #f8efe5;
+    border: 1px solid rgba(234, 88, 12, 0.25);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.kdpRoot .kpRuleTitle {
+    font-weight: 700;
+    font-size: 13px;
+    color: #7c2d12;
+}
+
+.kdpRoot .kpRuleList {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: #7c2d12;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.kdpRoot .kpDrop {
+    margin-top: 12px;
+    min-height: 180px;
+    border-radius: 12px;
+    border: 2px solid rgba(15, 23, 42, 0.12);
+    background: #ffffff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+}
+
+.kdpRoot .kpDropPreview {
+    background: #fff;
+}
+
+.kdpRoot .kpDrop.is-sapras {
+    place-items: stretch;
+}
+
+.kdpRoot .kpDropEmpty {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.kdpRoot .kpDropIcon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.08);
+    display: grid;
+    place-items: center;
+    color: rgba(15, 23, 42, 0.55);
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.kdpRoot .kpDropText {
+    text-align: center;
+}
+
+.kdpRoot .kpDropMain {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.kdpRoot .kpDropSub {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.kdpRoot .kpUploadPreviewWrap {
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.kdpRoot .kpUploadPreviewImg {
+    width: 100%;
+    max-height: 340px;
+    object-fit: contain;
+    border-radius: 12px;
+    display: block;
+    background: #f8fafc;
+}
+
+.kdpRoot .kpUploadPdfWrap {
+    width: 100%;
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+}
+
+.kdpRoot .kpUploadPdfFrame {
+    width: 100%;
+    height: 300px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 12px;
+    background: #fff;
+    pointer-events: none;
+}
+
+.kdpRoot .kpPdfName {
+    font-weight: 700;
+}
+
+.kdpRoot .kpUploadRemove {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 0;
+    background: #ef4444;
+    color: #fff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 18px rgba(239, 68, 68, 0.2);
+    font-family: inherit;
+}
+
+.kdpRoot .kpSaprasGridWrap {
+    width: 100%;
+}
+
+.kdpRoot .kpSaprasGridHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.kdpRoot .kpSaprasGridCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    color: #2b3056;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.kdpRoot .kpSaprasResetBtn {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(15, 23, 42, 0.08);
+    color: #2b3056;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.kdpRoot .kpSaprasGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.kdpRoot .kpSaprasTile {
+    min-height: 148px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #f8fafc;
+}
+
+.kdpRoot .kpSaprasTileImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.kdpRoot .kpSaprasTilePdf {
+    height: 148px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    background: #ffffff;
+}
+
+.kdpRoot .kpSaprasTilePdfLabel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(15, 63, 147, 0.12);
+    color: #0f3f93;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.kdpRoot .kpSaprasTilePdfName {
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    word-break: break-word;
+}
+
+.kdpRoot .kpModalErr {
+    margin-top: 10px;
+    color: #b91c1c;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.kdpRoot .kpModalActions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.kdpRoot .kpModalActionsPreview {
+    margin-top: 14px;
+}
+
+/* ====== Detail preview ====== */
+.kdpRoot .kpDetailToolbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.kdpRoot .kpDetailCountPill {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 68px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 10px;
+    background: #1f2937;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.kdpRoot .kpDetailNavGroup {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kdpRoot .kpDetailNavBtn {
+    width: 40px;
+    height: 34px;
+    border-radius: 10px;
+    border: 0;
+    background: #1f2937;
+    color: #ffffff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.kdpRoot .kpDetailNavBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.kdpRoot .kpDetailToolbarSpacer {
+    min-height: 1px;
+}
+
+.kdpRoot .kpPreviewBig {
+    height: min(76vh, 820px);
+    border-radius: 12px;
+    background: #f3f4f6;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    overflow: hidden;
+    display: block;
+}
+
+.kdpRoot .kpPreviewBigMedia {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    overflow: hidden;
+}
+
+.kdpRoot .kpPreviewBigFrame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #fff;
+}
+
+.kdpRoot .kpPreviewBigImg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.kdpRoot .kpPreviewBigText {
+    color: rgba(15, 23, 42, 0.6);
+    padding: 16px;
+    text-align: center;
+}
+
+/* ====== Edit lokasi modal ====== */
+.kdpRoot .kpLocSearchRow {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.kdpRoot .kpLocSearch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 16px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    background: #fff;
+    padding: 10px 14px;
+    min-height: 48px;
+}
+
+.kdpRoot .kpLocSearchIcon {
+    color: rgba(15, 23, 42, 0.45);
+    flex-shrink: 0;
+}
+
+.kdpRoot .kpLocSearchInput {
+    border: 0;
+    outline: none;
+    width: 100%;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+}
+
+.kdpRoot .kpLocCariBtn {
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 16px;
+    border: 0;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.kdpRoot .kpLocGpsBtn {
+    width: 58px;
+    height: 48px;
+    border-radius: 16px;
+    border: 0;
+    background: #16a34a;
+    color: #fff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-family: inherit;
+    font-size: 20px;
+}
+
+.kdpRoot .kpMapWrap {
+    margin-top: 16px;
+}
+
+.kdpRoot .kpMapShell {
+    position: relative;
+    min-height: 350px;
+}
+
+.kdpRoot .kpMapInfoCard {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    z-index: 5;
+    width: min(310px, calc(100% - 24px));
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+    padding: 12px 14px;
+}
+
+.kdpRoot .kpMapInfoCoords {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    line-height: 1.35;
+}
+
+.kdpRoot .kpMapInfoAddr {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #6b7280;
+}
+
+.kdpRoot .kpMapInfoLink {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    color: #1454c4;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.kdpRoot .kpMapBox {
+    width: 100%;
+    height: 350px;
+    min-height: 350px;
+    display: block;
+    position: relative;
+    z-index: 1;
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    overflow: hidden;
+    background: #e5e7eb;
+}
+
+.kdpRoot .kpMapBox.has-error {
+    display: grid;
+    place-items: center;
+    background: #f3f4f6;
+}
+
+.kdpRoot .kpMapFallbackText {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 0;
+}
+
+.kdpRoot .kpLocFormGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.kdpRoot .kpField {
+    display: block;
+}
+
+.kdpRoot .kpFieldLabel {
+    font-size: 12px;
+    color: rgba(15, 23, 42, 0.85);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.kdpRoot .kpFieldInput {
+    width: 100%;
+    height: 52px;
+    border-radius: 16px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    padding: 0 16px;
+    outline: none;
+    font-weight: 700;
+    background: #fff;
+    font-family: inherit;
+}
+
+.kdpRoot .kpFieldAlamat {
+    margin-top: 14px;
+}
+
+.kdpRoot .kpFieldTextarea {
+    width: 100%;
+    min-height: 98px;
+    border-radius: 16px;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    padding: 14px 16px;
+    outline: none;
+    font-weight: 700;
+    resize: none;
+    background: #fff;
+    font-family: inherit;
+}
+
+.kdpRoot .kpTip {
+    margin-top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 14px;
+    background: rgba(20, 84, 196, 0.12);
+    color: #0f3f93;
+    border-left: 3px solid #2563eb;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.kdpRoot .kpTip svg {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* ====== Buttons ====== */
+.kdpRoot .kpBtnGhost {
+    height: 44px;
+    border-radius: 14px;
+    border: 0;
+    background: rgba(15, 23, 42, 0.08);
+    color: rgba(15, 23, 42, 0.7);
+    font-weight: 700;
+    padding: 0 18px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.kdpRoot .kpBtnSave {
+    height: 44px;
+    border-radius: 14px;
+    border: 0;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    color: #fff;
+    font-weight: 700;
+    padding: 0 18px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: inherit;
+    box-shadow: 0 10px 24px rgba(43, 48, 86, 0.18);
+}
+
+.kdpRoot .kpBtnSave:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* misc */
+.kdpRoot .kpInlineErr {
+    color: #b91c1c;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.kdpRoot .kpBox {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: var(--shadow);
+}
+
+.kdpRoot .kpError {
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+.kdpRoot .kpLoading {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* Leaflet fix */
+.kdpRoot .leaflet-container {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    display: block;
+    font-family: inherit;
+    z-index: 1;
+    background: #e5e7eb;
+}
+
+.kdpRoot .leaflet-pane,
+.kdpRoot .leaflet-top,
+.kdpRoot .leaflet-bottom {
+    z-index: 1;
+}
+
+.kdpRoot .kpMapBox .leaflet-tile-pane,
+.kdpRoot .kpMapBox .leaflet-overlay-pane,
+.kdpRoot .kpMapBox .leaflet-shadow-pane,
+.kdpRoot .kpMapBox .leaflet-marker-pane,
+.kdpRoot .kpMapBox .leaflet-tooltip-pane,
+.kdpRoot .kpMapBox .leaflet-popup-pane {
+    z-index: 1;
+}
+
+.kdpRoot .kpMapBox .leaflet-map-pane img,
+.kdpRoot .kpMapBox .leaflet-tile-pane img,
+.kdpRoot .kpMapBox .leaflet-marker-pane img,
+.kdpRoot .kpMapBox .leaflet-shadow-pane img {
+    max-width: none !important;
+}
+
+.kdpRoot .leaflet-control-attribution {
+    font-size: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1280px) {
+    .kdpRoot .kpStats {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .kdpRoot .kpStatCard {
+        padding: 12px !important;
+    }
+
+    .kdpRoot .kpStatLabel {
+        font-size: 12px !important;
+    }
+
+    .kdpRoot .kpStatValue {
+        font-size: 28px !important;
+    }
+
+    .kdpRoot .kpStatIcon {
+        font-size: 30px !important;
+    }
+}
+
+@media (max-width: 1100px) {
+    .kdpRoot .kpDocs {
+        grid-template-columns: 1fr;
+    }
+
+    .kdpRoot .kpSaprasGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .kdpRoot .kpStats {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .kdpRoot .kpLocSearchRow,
+    .kdpRoot .kpLocFormGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .kdpRoot .kpMapInfoCard {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 100%;
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 640px) {
+    .kdpRoot {
+        padding: 14px;
+    }
+
+    .kdpRoot .kpTitle {
+        font-size: 24px;
+    }
+
+    .kdpRoot .kpStats {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kdpRoot .kpModalActions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kdpRoot .kpBtnGhost,
+    .kdpRoot .kpBtnSave,
+    .kdpRoot .kpLocCariBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kdpRoot .kpPreviewBig {
+        height: 62vh;
+    }
+
+    .kdpRoot .kpUploadPdfFrame {
+        height: 220px;
+    }
+
+    .kdpRoot .kpSaprasGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .kdpRoot .kpDetailToolbar {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .kdpRoot .kpDetailCountPill,
+    .kdpRoot .kpDetailNavGroup {
+        justify-self: center;
+    }
+}
+
+/* ===== Hover & Action States ===== */
+.kpRoot button,
+.kdpRoot button,
+.kpRoot [role="button"],
+.kdpRoot [role="button"] {
+    transition:
+        background 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease,
+        filter 180ms ease;
+}
+
+.kpRoot button:not(:disabled):hover,
+.kpRoot button:not(:disabled):focus-visible,
+.kdpRoot button:not(:disabled):hover,
+.kdpRoot button:not(:disabled):focus-visible,
+.kpRoot [role="button"]:hover,
+.kpRoot [role="button"]:focus-visible,
+.kdpRoot [role="button"]:hover,
+.kdpRoot [role="button"]:focus-visible {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.kpRoot button:not(:disabled):active,
+.kdpRoot button:not(:disabled):active,
+.kpRoot [role="button"]:active,
+.kdpRoot [role="button"]:active {
+    transform: translateY(0);
+}
+
+/* ===== Revisi: search hover tanpa outline biru ===== */
+.kpLocSearch {
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.kpLocSearch:hover,
+.kpLocSearch:focus-within {
+    border-color: #b8c3d6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.kpLocSearchInput:focus,
+.kpLocSearchInput:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+/* ===== Revisi: alasan penolakan di bawah tombol Ganti ===== */
+.kdpRoot .kpAdminNoteBelowAction {
+    margin: -4px 14px 14px;
+    padding: 12px 13px;
+    border-left: 4px solid #ef4444;
+    border-radius: 12px;
+    background: #fff1f2;
+    border-top: 1px solid rgba(239, 68, 68, 0.14);
+    border-right: 1px solid rgba(239, 68, 68, 0.14);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.14);
+    color: #b91c1c;
+}
+
+.kdpRoot .kpAdminNoteBelowAction .kpAdminNoteTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 6px;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.kdpRoot .kpAdminNoteBelowAction .kpAdminNoteTitle svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.kdpRoot .kpAdminNoteBelowAction .kpAdminNoteText {
+    margin-top: 0;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.48;
+}
+
+/* ===== FIX FINAL: Hilangkan shadow pada area link teks "Lihat semua kasus" ===== */
+
+.pb2Link,
+.pb2LinkBtn {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+    transform: none !important;
+}
+
+.pb2Link:hover,
+.pb2Link:focus,
+.pb2Link:focus-visible,
+.pb2LinkBtn:hover,
+.pb2LinkBtn:focus,
+.pb2LinkBtn:focus-visible {
+    text-decoration: underline !important;
+    text-underline-offset: 3px !important;
+    box-shadow: none !important;
+    filter: none !important;
+    transform: none !important;
+    outline: none !important;
+}
+
+/* shadow abu-abu di bawah link berasal dari pembungkus/panel */
+.pb2Panel:has(.pb2Link),
+.pb2Panel:has(.pb2LinkBtn) {
+    box-shadow: none !important;
+}
+
+/* kalau link berada di footer/list bawah */
+.pb2PanelFooter,
+.pb2LinkWrap,
+.pb2ViewAllWrap {
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* ===== Laravel Inertia integration: heading and content spacing from paralegalDashboard.css ===== */
+.kdpRoot {
+    padding: 0 !important;
+}
+.kdpRoot .kpPageHead {
+    display: none !important;
+}
+.kdpRoot .kpToolbarCard {
+    padding: 18px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    margin-bottom: 18px;
+}
+.kdpRoot .kpToolbarRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.kdpRoot .kpToolbarTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+.kdpRoot .kpToolbarSub {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+.kdpRoot .kpDocGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+.kdpRoot .kpLocationPanel {
+    margin-top: 18px;
+}
+.kdpRoot .kpMapFrame {
+    width: 100%;
+    height: 260px;
+    border: 0;
+    border-radius: 16px;
+    background: #e5e7eb;
+    display: block;
+}
+.kdpRoot .kpModalBody {
+    max-height: calc(100vh - 170px);
+    overflow: auto;
+}
+.kdpRoot .kpInput,
+.kdpRoot .kpTextarea,
+.kdpRoot .kpSelect {
+    width: 100%;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    background: #fff;
+    color: #111827;
+    font: inherit;
+    font-size: 14px;
+    outline: none;
+}
+.kdpRoot .kpInput,
+.kdpRoot .kpSelect {
+    height: 46px;
+    padding: 0 14px;
+}
+.kdpRoot .kpTextarea {
+    min-height: 100px;
+    padding: 12px 14px;
+    resize: vertical;
+}
+.kdpRoot .kpField {
+    margin-bottom: 16px;
+}
+.kdpRoot .kpLabel {
+    display: block;
+    margin-bottom: 8px;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 700;
+}
+.kdpRoot .kpFileDrop {
+    min-height: 160px;
+    border: 1px dashed #b8c3d6;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    background: #f8fafc;
+    cursor: pointer;
+    padding: 20px;
+}
+.kdpRoot .kpFileDrop input {
+    display: none;
+}
+.kdpRoot .kpFileDropIcon {
+    font-size: 42px;
+    color: #9ca3af;
+    margin-bottom: 8px;
+}
+.kdpRoot .kpFileName {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #2b3056;
+}
+@media (max-width: 1100px) {
+    .kdpRoot .kpDocGrid,
+    .kdpRoot .kpStats {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+@media (max-width: 720px) {
+    .kdpRoot .kpDocGrid,
+    .kdpRoot .kpStats,
+    .kdpRoot .kpDocs {
+        grid-template-columns: 1fr !important;
+    }
+    .kdpRoot .kpToolbarRow {
+        align-items: stretch;
+    }
+    .kdpRoot .kpToolbarRow > * {
+        width: 100%;
+    }
+}

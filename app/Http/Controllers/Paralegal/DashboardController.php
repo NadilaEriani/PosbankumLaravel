@@ -153,6 +153,9 @@ class DashboardController extends Controller
             'email_akun' => $this->getPosbankumEmail($row),
             'nomor_tlp' => $this->getPosbankumPhone($row),
             'jml_paralegal' => (int) $this->rowValue($row, ['jml_paralegal', 'jumlah_paralegal'], 0),
+            'latitude' => $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']),
+            'longitude' => $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']),
+            'status_lokasi' => (string) $this->rowValue($row, ['status_lokasi', 'status_tagging', 'status_verifikasi_lokasi', 'status_verifikasi_tagging'], ''),
         ];
     }
 
@@ -535,6 +538,162 @@ class DashboardController extends Controller
         return [];
     }
 
+
+    private function parseCatatanForCase(mixed $value): array
+    {
+        return $this->parseJson($value);
+    }
+
+    private function normalizeCaseStatus(mixed $value): string
+    {
+        $raw = strtolower(trim((string) $value));
+
+        if (in_array($raw, ['selesai', 'done', 'completed', 'complete', 'diterima', 'approved'], true)) {
+            return 'Selesai';
+        }
+
+        if ($raw === 'mediasi' || $raw === 'mediation') {
+            return 'Mediasi';
+        }
+
+        return 'Diproses';
+    }
+
+    private function normalizeCasePriority(mixed $value): string
+    {
+        $raw = strtolower(trim((string) $value));
+
+        if ($raw === 'tinggi' || $raw === 'high') {
+            return 'Tinggi';
+        }
+
+        if ($raw === 'rendah' || $raw === 'low') {
+            return 'Rendah';
+        }
+
+        return 'Sedang';
+    }
+
+    private function normalizeCaseCategory(mixed $value): string
+    {
+        $raw = strtolower(trim((string) $value));
+
+        if (str_contains($raw, 'pidana'))
+            return 'Hukum Pidana';
+        if (str_contains($raw, 'perdata'))
+            return 'Hukum Perdata';
+        if (str_contains($raw, 'keluarga'))
+            return 'Hukum Keluarga';
+        if (str_contains($raw, 'kerja') || str_contains($raw, 'ketenagakerjaan'))
+            return 'Hukum Ketenagakerjaan';
+        if (str_contains($raw, 'waris'))
+            return 'Hukum Waris';
+        if (str_contains($raw, 'tanah') || str_contains($raw, 'pertanahan'))
+            return 'Pertanahan';
+
+        return trim((string) $value) ?: 'Lainnya';
+    }
+
+    private function semuaKasusRows(): array
+    {
+        if (!$this->hasTable('pengaduan')) {
+            return [];
+        }
+
+        $posbankumMap = collect();
+        if ($this->hasTable('posbankum')) {
+            $posbankumMap = DB::table('posbankum')->get()->keyBy(function ($row) {
+                return (string) $this->rowValue($row, ['id_posbankum', 'id']);
+            });
+        }
+
+        $query = DB::table('pengaduan');
+
+        foreach (['created_at', 'tgl_lapor', 'tanggal_kejadian'] as $orderColumn) {
+            if ($this->hasColumn('pengaduan', $orderColumn)) {
+                $query->orderByDesc($orderColumn);
+                break;
+            }
+        }
+
+        return $query->limit(500)->get()->values()->map(function ($row, $index) use ($posbankumMap) {
+            $extra = $this->parseCatatanForCase($this->rowValue($row, ['catatan_admin'], '{}'));
+            $idPosbankum = $this->rowValue($row, ['id_posbankum']);
+            $posRow = $idPosbankum ? $posbankumMap->get((string) $idPosbankum) : null;
+            $status = $this->normalizeCaseStatus($this->rowValue($row, ['status'], $extra['status'] ?? 'Diproses'));
+            $progress = $extra['progress'] ?? ($status === 'Selesai' ? 100 : ($status === 'Mediasi' ? 60 : 25));
+
+            return [
+                'id' => (string) $this->rowValue($row, ['nomor_pengaduan', 'id_pengaduan', 'id'], 'KASUS-' . ($index + 1)),
+                'id_pengaduan' => $this->rowValue($row, ['id_pengaduan', 'id'], $index + 1),
+                'judul' => (string) $this->rowValue($row, ['judul_pengaduan', 'judul_laporan', 'judul', 'jenis_masalah', 'kategori_masalah'], 'Tanpa Judul'),
+                'kategori' => $this->normalizeCaseCategory($this->rowValue($row, ['jenis_masalah', 'kategori_masalah', 'kategori'], $extra['kategori'] ?? 'Lainnya')),
+                'status' => $status,
+                'prioritas' => $this->normalizeCasePriority($this->rowValue($row, ['prioritas'], $extra['prioritas'] ?? 'Sedang')),
+                'progress' => max(0, min(100, (int) $progress)),
+                'posbankum' => (string) $this->rowValue($posRow, ['nama', 'nama_posbankum'], 'Posbankum Belum Dipetakan'),
+                'kota' => (string) $this->rowValue($row, ['lokasi_kejadian', 'lokasi', 'alamat', 'kabupaten_kota', 'kecamatan'], $this->rowValue($posRow, ['alamat'], '-')),
+                'pelapor' => (string) $this->rowValue($row, ['nama_pelapor'], 'Pelapor Belum Diisi'),
+                'paralegal' => (string) ($extra['paralegal_nama'] ?? $this->rowValue($row, ['nama_paralegal_ditugaskan', 'paralegal_nama'], $this->rowValue($posRow, ['nama_paralegal'], 'Paralegal Belum Diisi'))),
+                'paralegalPhone' => (string) ($extra['paralegal_hp'] ?? $this->rowValue($row, ['no_hp_paralegal', 'paralegal_hp'], $this->rowValue($posRow, ['nomor_tlp'], '-'))),
+                'emailPosbankum' => (string) $this->rowValue($posRow, ['email_akun', 'email'], $this->rowValue($row, ['email'], '-')),
+                'tanggalLapor' => $this->rowValue($row, ['created_at', 'tgl_lapor', 'tanggal_kejadian'], now()->toISOString()),
+                'updateTerakhir' => $this->rowValue($row, ['updated_at', 'created_at', 'tgl_lapor'], now()->toISOString()),
+                'deskripsi' => (string) $this->rowValue($row, ['kronologi', 'deskripsi', 'uraian', 'isi_pengaduan'], $extra['catatan_internal'] ?? 'Belum ada deskripsi kasus.'),
+                'sumberData' => 'Website',
+            ];
+        })->toArray();
+    }
+
+    private function posbankumDocumentRows(mixed $idPosbankum = null): array
+    {
+        if (!$idPosbankum || !$this->hasTable('data_posbankum')) {
+            return [];
+        }
+
+        $query = DB::table('data_posbankum');
+
+        if ($this->hasColumn('data_posbankum', 'id_posbankum')) {
+            $query->where('id_posbankum', $idPosbankum);
+        }
+
+        foreach (['tgl_upload', 'created_at', 'updated_at'] as $orderColumn) {
+            if ($this->hasColumn('data_posbankum', $orderColumn)) {
+                $query->orderByDesc($orderColumn);
+                break;
+            }
+        }
+
+        return $query->limit(300)->get()->values()->map(function ($row, $index) {
+            $path = (string) $this->rowValue($row, ['path_berkas', 'path_file', 'path', 'file_path'], '');
+
+            return array_merge((array) $row, [
+                'id' => $this->rowValue($row, ['id_data', 'id'], $index + 1),
+                'id_data' => $this->rowValue($row, ['id_data', 'id'], $index + 1),
+                'kategori' => (string) $this->rowValue($row, ['kategori', 'jenis_dokumen'], 'dokumen'),
+                'path_berkas' => $path,
+                'url' => $this->normalizeStorageUrl($path),
+                'public_url' => $this->normalizeStorageUrl($path),
+                'nama_berkas' => (string) $this->rowValue($row, ['nama_berkas', 'nama_file', 'file_name'], basename($path) ?: 'Dokumen'),
+                'mime_type' => (string) $this->rowValue($row, ['mime_type', 'mime'], ''),
+                'size_bytes' => (int) $this->rowValue($row, ['size_bytes', 'file_size', 'size'], 0),
+                'status_verifikasi' => (string) $this->rowValue($row, ['status_verifikasi', 'status'], 'menunggu'),
+                'catatan_admin' => (string) $this->rowValue($row, ['catatan_admin', 'catatan_penolakan', 'alasan_penolakan', 'catatan'], ''),
+                'tgl_upload' => $this->rowValue($row, ['tgl_upload', 'created_at', 'updated_at'], now()->toISOString()),
+            ]);
+        })->toArray();
+    }
+
+    private function posbankumLocation(array $posbankum): array
+    {
+        return [
+            'lat' => $posbankum['latitude'] ?? '',
+            'lng' => $posbankum['longitude'] ?? '',
+            'alamat' => $posbankum['alamat'] ?? '',
+            'status' => $posbankum['status_lokasi'] ?? '',
+        ];
+    }
+
     private function renderDashboard(Request $request): Response
     {
         $user = $request->user();
@@ -555,6 +714,9 @@ class DashboardController extends Controller
             'kasusTerbaru' => $this->latestPengaduan($idPosbankum),
             'kegiatanTerbaru' => $this->latestKegiatan($idPosbankum),
             'kegiatanRows' => $this->kegiatanRows($idPosbankum),
+            'semuaKasusRows' => $this->semuaKasusRows(),
+            'posbankumDocuments' => $this->posbankumDocumentRows($idPosbankum),
+            'posbankumLocation' => $this->posbankumLocation($posbankum),
             'notifications' => $this->notifications($idPosbankum),
             'laporanPelayananRows' => $this->laporanPelayananRows($idPosbankum),
             'paralegalOptions' => $this->paralegalOptions($idPosbankum),
