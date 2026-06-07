@@ -125,7 +125,21 @@ class DashboardController extends Controller
         $pengaduanCounts = $this->countByForeignKey('pengaduan', 'id_posbankum', $ids);
         $kegiatanCounts = $this->countByForeignKey('kegiatan', 'id_posbankum', $ids);
         $paralegalCounts = [];
-        if ($this->hasColumn('users', 'id_posbankum')) {
+        if ($this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            $query = DB::table('posbankum_paralegal')
+                ->select('id_posbankum', DB::raw('COUNT(*) as total'))
+                ->whereIn('id_posbankum', $ids);
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('status', 'aktif');
+            }
+
+            $paralegalCounts = $query
+                ->groupBy('id_posbankum')
+                ->pluck('total', 'id_posbankum')
+                ->map(fn($value) => (int) $value)
+                ->toArray();
+        } elseif ($this->hasColumn('users', 'id_posbankum')) {
             $paralegalCounts = DB::table('users')
                 ->select('id_posbankum', DB::raw('COUNT(*) as total'))
                 ->where('role', 'paralegal')
@@ -532,6 +546,180 @@ class DashboardController extends Controller
     }
 
 
+
+    private function laporanRows(): array
+    {
+        if (!$this->hasTable('kegiatan')) {
+            return [];
+        }
+
+        $query = DB::table('kegiatan');
+
+        foreach (['tgl_upload', 'created_at', 'updated_at', 'tgl_mulai'] as $orderColumn) {
+            if ($this->hasColumn('kegiatan', $orderColumn)) {
+                $query->orderByDesc($orderColumn);
+                break;
+            }
+        }
+
+        $rows = $query->limit(500)->get();
+
+        $posbankumIds = $rows
+            ->map(fn($row) => $this->rowValue($row, ['id_posbankum', 'posbankum_id']))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $posbankumMap = [];
+        $kelurahanMap = [];
+        $kecamatanMap = [];
+        $kabupatenMap = [];
+
+        if (!empty($posbankumIds) && $this->hasTable('posbankum')) {
+            $posIdColumn = $this->hasColumn('posbankum', 'id_posbankum') ? 'id_posbankum' : 'id';
+            $posRows = DB::table('posbankum')
+                ->whereIn($posIdColumn, $posbankumIds)
+                ->get();
+
+            foreach ($posRows as $pos) {
+                $id = $this->rowValue($pos, [$posIdColumn, 'id_posbankum', 'id']);
+                if ($id) {
+                    $posbankumMap[$id] = $pos;
+                }
+            }
+
+            $kelurahanIds = $posRows
+                ->map(fn($row) => $this->rowValue($row, ['id_kelurahan']))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $kecamatanIds = $posRows
+                ->map(fn($row) => $this->rowValue($row, ['id_kecamatan']))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $kabupatenIds = $posRows
+                ->map(fn($row) => $this->rowValue($row, ['id_kabupaten']))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            if (!empty($kelurahanIds) && $this->hasTable('kelurahan')) {
+                $key = $this->hasColumn('kelurahan', 'id_kelurahan') ? 'id_kelurahan' : 'id';
+                $kelurahanMap = DB::table('kelurahan')
+                    ->whereIn($key, $kelurahanIds)
+                    ->get()
+                    ->keyBy(fn($row) => $this->rowValue($row, [$key, 'id_kelurahan', 'id']))
+                    ->toArray();
+            }
+
+            if (!empty($kecamatanIds) && $this->hasTable('kecamatan')) {
+                $key = $this->hasColumn('kecamatan', 'id_kecamatan') ? 'id_kecamatan' : 'id';
+                $kecamatanMap = DB::table('kecamatan')
+                    ->whereIn($key, $kecamatanIds)
+                    ->get()
+                    ->keyBy(fn($row) => $this->rowValue($row, [$key, 'id_kecamatan', 'id']))
+                    ->toArray();
+            }
+
+            if (!empty($kabupatenIds) && $this->hasTable('kabupaten')) {
+                $key = $this->hasColumn('kabupaten', 'id_kabupaten') ? 'id_kabupaten' : 'id';
+                $kabupatenMap = DB::table('kabupaten')
+                    ->whereIn($key, $kabupatenIds)
+                    ->get()
+                    ->keyBy(fn($row) => $this->rowValue($row, [$key, 'id_kabupaten', 'id']))
+                    ->toArray();
+            }
+        }
+
+        $userIds = $rows
+            ->map(fn($row) => $this->rowValue($row, ['created_by', 'id_user', 'user_id']))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $userMap = [];
+        if (!empty($userIds) && $this->hasTable('users')) {
+            $userKey = $this->hasColumn('users', 'id_user') ? 'id_user' : 'id';
+            $userMap = DB::table('users')
+                ->whereIn($userKey, $userIds)
+                ->get()
+                ->keyBy(fn($row) => $this->rowValue($row, [$userKey, 'id_user', 'id']))
+                ->toArray();
+        }
+
+        return $rows->values()->map(function ($row, $index) use ($posbankumMap, $kelurahanMap, $kecamatanMap, $kabupatenMap, $userMap) {
+            $id = $this->rowValue($row, ['id_kegiatan', 'id'], $index + 1);
+            $idPosbankum = $this->rowValue($row, ['id_posbankum', 'posbankum_id']);
+            $pos = $idPosbankum && isset($posbankumMap[$idPosbankum]) ? $posbankumMap[$idPosbankum] : null;
+
+            $kelurahanId = $this->rowValue($pos, ['id_kelurahan']);
+            $kecamatanId = $this->rowValue($pos, ['id_kecamatan']);
+            $kabupatenId = $this->rowValue($pos, ['id_kabupaten']);
+
+            $kelurahan = $kelurahanId && isset($kelurahanMap[$kelurahanId]) ? $kelurahanMap[$kelurahanId] : null;
+            $kecamatan = $kecamatanId && isset($kecamatanMap[$kecamatanId]) ? $kecamatanMap[$kecamatanId] : null;
+            $kabupaten = $kabupatenId && isset($kabupatenMap[$kabupatenId]) ? $kabupatenMap[$kabupatenId] : null;
+
+            $createdBy = $this->rowValue($row, ['created_by', 'id_user', 'user_id']);
+            $creator = $createdBy && isset($userMap[$createdBy]) ? $userMap[$createdBy] : null;
+
+            $judul = (string) $this->rowValue($row, ['judul', 'nama_kegiatan', 'title', 'tema'], 'Kegiatan #' . ($index + 1));
+            $deskripsi = (string) $this->rowValue($row, ['deskripsi', 'description', 'uraian', 'catatan'], '');
+            $status = (string) $this->rowValue($row, ['status'], 'Menunggu');
+            $thumbnail = (string) $this->rowValue($row, ['thumbnail_path', 'foto', 'gambar', 'dokumentasi', 'image_path'], '');
+            $tglUpload = $this->rowValue($row, ['tgl_upload', 'created_at', 'updated_at'], null);
+            $tglMulai = $this->rowValue($row, ['tgl_mulai', 'tanggal_kegiatan', 'tanggal'], $tglUpload);
+
+            return [
+                'id' => $id,
+                'id_kegiatan' => $id,
+                'id_posbankum' => $idPosbankum,
+                'judul' => $judul,
+                'nama_kegiatan' => $judul,
+                'deskripsi' => $deskripsi,
+                'catatan' => (string) $this->rowValue($row, ['catatan', 'catatan_admin', 'alasan_penolakan'], ''),
+                'hasil_kegiatan' => (string) $this->rowValue($row, ['hasil_kegiatan', 'hasil', 'output', 'result'], ''),
+                'status' => $status,
+                'tgl_upload' => $tglUpload,
+                'created_at' => $this->rowValue($row, ['created_at'], $tglUpload),
+                'updated_at' => $this->rowValue($row, ['updated_at'], $tglUpload),
+                'tgl_mulai' => $tglMulai,
+                'tgl_selesai' => $this->rowValue($row, ['tgl_selesai', 'tanggal_selesai'], null),
+                'thumbnail_path' => $thumbnail,
+                'gambar' => $thumbnail,
+                'lokasi' => (string) $this->rowValue($row, ['lokasi', 'location', 'alamat', 'tempat'], ''),
+                'jumlah_peserta' => (int) $this->rowValue($row, ['jumlah_peserta', 'participants', 'peserta', 'jml_peserta'], 0),
+                'anggota_terlibat' => $this->rowValue($row, ['anggota_terlibat', 'anggota', 'peserta_terlibat'], ''),
+                'kategori' => (string) $this->rowValue($row, ['kategori', 'jenis_kegiatan'], ''),
+                'pelapor' => (string) $this->rowValue($creator, ['nama_lengkap', 'name', 'email'], ''),
+                'posbankum_nama' => (string) $this->rowValue($pos, ['nama', 'name', 'nama_posbankum'], ''),
+                'kecamatan_nama' => (string) $this->rowValue($kecamatan, ['nama', 'name'], ''),
+                'kabupaten_nama' => (string) $this->rowValue($kabupaten, ['nama', 'name'], ''),
+                'posbankum' => [
+                    'nama' => (string) $this->rowValue($pos, ['nama', 'name', 'nama_posbankum'], ''),
+                    'nama_paralegal' => (string) $this->rowValue($creator, ['nama_lengkap', 'name', 'email'], ''),
+                    'kelurahan' => [
+                        'nama' => (string) $this->rowValue($kelurahan, ['nama', 'name'], ''),
+                    ],
+                    'kecamatan' => [
+                        'nama' => (string) $this->rowValue($kecamatan, ['nama', 'name'], ''),
+                    ],
+                    'kabupaten' => [
+                        'nama' => (string) $this->rowValue($kabupaten, ['nama', 'name'], ''),
+                    ],
+                ],
+            ];
+        })->toArray();
+    }
+
     private function beritaRows(): array
     {
         if (!$this->hasTable('berita')) {
@@ -668,6 +856,7 @@ class DashboardController extends Controller
             'posbankumMasterRows' => $this->masterPosbankumRows(),
             'beritaRows' => $this->beritaRows(),
             'verificationRows' => $this->verificationRows(),
+            'laporanRows' => $this->laporanRows(),
         ]);
     }
 
@@ -823,6 +1012,16 @@ class DashboardController extends Controller
     {
         if (!$idPosbankum) {
             return (int) ($posbankum['jml_paralegal'] ?? 0);
+        }
+
+        if ($this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            $query = DB::table('posbankum_paralegal')->where('id_posbankum', $idPosbankum);
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('status', 'aktif');
+            }
+
+            return $query->count();
         }
 
         if ($this->hasColumn('paralegal_members', 'id_posbankum')) {

@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\KelolaBeritaController;
+use App\Http\Controllers\Admin\LaporanKegiatanController;
 use App\Http\Controllers\Admin\ManajemenAkunController;
 use App\Http\Controllers\Admin\VerifikasiDataPosbankumController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Paralegal\DashboardController as ParalegalDashboardController;
+use App\Http\Controllers\Paralegal\KelolaKegiatanController;
+use App\Http\Controllers\Paralegal\KelolaPosbankumController;
 use App\Http\Controllers\Paralegal\LaporanPelayananController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
@@ -81,6 +84,9 @@ Route::middleware(['auth'])->group(function () {
         ->where('id', '[^/]+')
         ->name('admin.laporan-kegiatan.page');
 
+    Route::patch('/admin/laporan-kegiatan/{idKegiatan}/status', [LaporanKegiatanController::class, 'updateStatus'])
+        ->name('admin.laporan-kegiatan.status');
+
     Route::get('/admin/manajemen-akun/{mode?}/{id?}', [AdminDashboardController::class, 'admin'])
         ->where('mode', 'tambah|edit|detail')
         ->where('id', '[^/]+')
@@ -112,6 +118,24 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/posbankum', [ParalegalDashboardController::class, 'posbankum'])
         ->name('posbankum.dashboard');
+
+    Route::post('/paralegal/kelola-kegiatan', [KelolaKegiatanController::class, 'store'])
+        ->name('paralegal.kelola-kegiatan.store');
+
+    Route::put('/paralegal/kelola-kegiatan/{id}', [KelolaKegiatanController::class, 'update'])
+        ->name('paralegal.kelola-kegiatan.update');
+
+    Route::delete('/paralegal/kelola-kegiatan/{id}', [KelolaKegiatanController::class, 'destroy'])
+        ->name('paralegal.kelola-kegiatan.destroy');
+
+    Route::patch('/paralegal/kelola-posbankum/lokasi', [KelolaPosbankumController::class, 'updateLocation'])
+        ->name('paralegal.kelola-posbankum.lokasi');
+
+    Route::post('/paralegal/kelola-posbankum/dokumen', [KelolaPosbankumController::class, 'storeDocument'])
+        ->name('paralegal.kelola-posbankum.dokumen.store');
+
+    Route::delete('/paralegal/kelola-posbankum/dokumen/{id}', [KelolaPosbankumController::class, 'destroyDocument'])
+        ->name('paralegal.kelola-posbankum.dokumen.destroy');
 
     Route::post('/paralegal/laporan-pelayanan', [LaporanPelayananController::class, 'store'])
         ->name('paralegal.laporan-pelayanan.store');

@@ -29,6 +29,8 @@ import VerifikasiDataPosbankum from "./VerifikasiDataPosbankum";
 import LaporanKegiatan from "./LaporanKegiatan";
 import KelolaBerita from "./KelolaBerita";
 import AdminProfile from "./AdminProfile";
+import SuccessToast from "../../Components/ui/SuccessToast";
+import RejectToast from "../../Components/ui/RejectToast";
 
 import posbankumIcon from "../../assets/icon.png";
 import logo from "../../assets/logo.png";
@@ -109,6 +111,16 @@ function pickTone(type) {
 export default function AdminDashboard() {
     const { props, url } = usePage();
 
+    const flashSuccess = props.flash?.success || "";
+    const flashError = props.flash?.error || "";
+    const pageErrors = props.errors || {};
+
+    const firstErrorMessage = useMemo(() => {
+        const values = Object.values(pageErrors).flat().filter(Boolean);
+
+        return values[0] || "";
+    }, [pageErrors]);
+
     const user = props.auth?.user || {};
     const stats = props.stats || {};
     const topActive = props.topActive || [];
@@ -134,6 +146,42 @@ export default function AdminDashboard() {
     const detailPageSize = 6;
     const [selectedPosDetail, setSelectedPosDetail] = useState(null);
     const [activityOpen, setActivityOpen] = useState(false);
+    const [actionToast, setActionToast] = useState(null);
+
+    useEffect(() => {
+        if (flashSuccess) {
+            setActionToast({
+                type: "success",
+                message: flashSuccess,
+            });
+            return;
+        }
+
+        if (flashError) {
+            setActionToast({
+                type: "error",
+                message: flashError,
+            });
+            return;
+        }
+
+        if (firstErrorMessage) {
+            setActionToast({
+                type: "error",
+                message: firstErrorMessage,
+            });
+        }
+    }, [flashSuccess, flashError, firstErrorMessage]);
+
+    useEffect(() => {
+        if (!actionToast) return undefined;
+
+        const timer = window.setTimeout(() => {
+            setActionToast(null);
+        }, 3500);
+
+        return () => window.clearTimeout(timer);
+    }, [actionToast]);
 
     useEffect(() => {
         const currentPath =
@@ -698,6 +746,20 @@ export default function AdminDashboard() {
     return (
         <div className="ad">
             <Head title={pageTitle} />
+
+            {actionToast?.type === "success" ? (
+                <SuccessToast
+                    message={actionToast.message}
+                    onClose={() => setActionToast(null)}
+                />
+            ) : null}
+
+            {actionToast?.type === "error" ? (
+                <RejectToast
+                    message={actionToast.message}
+                    onClose={() => setActionToast(null)}
+                />
+            ) : null}
 
             <aside className="ad-side">
                 <button

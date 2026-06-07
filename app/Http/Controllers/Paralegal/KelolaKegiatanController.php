@@ -73,6 +73,29 @@ class KelolaKegiatanController extends Controller
             }
         }
 
+
+        if ($this->hasTable('posbankum_paralegal')) {
+            $query = DB::table('posbankum_paralegal');
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('status', 'aktif');
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'id_user')) {
+                $userId = $user->id_user ?? $user->id ?? null;
+
+                if ($userId) {
+                    $found = (clone $query)
+                        ->where('id_user', $userId)
+                        ->value('id_posbankum');
+
+                    if ($found) {
+                        return $found;
+                    }
+                }
+            }
+        }
+
         if ($this->hasTable('paralegal_members')) {
             if ($this->hasColumn('paralegal_members', 'id_user') && isset($user->id_user)) {
                 $found = DB::table('paralegal_members')->where('id_user', $user->id_user)->value('id_posbankum');

@@ -79,6 +79,29 @@ class DashboardController extends Controller
             }
         }
 
+
+        if ($this->hasTable('posbankum_paralegal')) {
+            $query = DB::table('posbankum_paralegal');
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('status', 'aktif');
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'id_user')) {
+                $userId = $user->id_user ?? $user->id ?? null;
+
+                if ($userId) {
+                    $found = (clone $query)
+                        ->where('id_user', $userId)
+                        ->value('id_posbankum');
+
+                    if ($found) {
+                        return $found;
+                    }
+                }
+            }
+        }
+
         if ($this->hasTable('paralegal_members')) {
             if ($this->hasColumn('paralegal_members', 'id_user') && isset($user->id_user)) {
                 $found = DB::table('paralegal_members')->where('id_user', $user->id_user)->value('id_posbankum');
@@ -199,6 +222,16 @@ class DashboardController extends Controller
 
     private function paralegalCount(mixed $idPosbankum, array $posbankum): int
     {
+        if ($idPosbankum && $this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            $query = DB::table('posbankum_paralegal')->where('id_posbankum', $idPosbankum);
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('status', 'aktif');
+            }
+
+            return $query->count();
+        }
+
         if ($idPosbankum && $this->hasColumn('paralegal_members', 'id_posbankum')) {
             return DB::table('paralegal_members')->where('id_posbankum', $idPosbankum)->count();
         }
@@ -485,6 +518,44 @@ class DashboardController extends Controller
 
     private function paralegalOptions(mixed $idPosbankum = null): array
     {
+        if ($this->hasTable('posbankum_paralegal') && $this->hasTable('users')) {
+            $query = DB::table('posbankum_paralegal as pp')
+                ->join('users as u', 'u.id_user', '=', 'pp.id_user');
+
+            if ($idPosbankum && $this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+                $query->where('pp.id_posbankum', $idPosbankum);
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('pp.status', 'aktif');
+            }
+
+            if ($this->hasColumn('users', 'role')) {
+                $query->where('u.role', 'paralegal');
+            }
+
+            return $query
+                ->select('u.id_user', 'u.nama_lengkap', 'u.name', 'u.email', 'u.nomor_telepon')
+                ->limit(200)
+                ->get()
+                ->values()
+                ->map(function ($row, $index) {
+                    $id = $this->rowValue($row, ['id_user'], 'user-' . ($index + 1));
+                    $nama = (string) $this->rowValue($row, ['nama_lengkap', 'name', 'email'], 'Paralegal');
+                    $hp = (string) $this->rowValue($row, ['nomor_telepon', 'phone', 'telp'], '');
+
+                    return [
+                        'id' => $id,
+                        'id_paralegal' => $id,
+                        'nama' => $nama,
+                        'nama_paralegal' => $nama,
+                        'hp' => $hp,
+                        'nomor_telepon' => $hp,
+                    ];
+                })
+                ->toArray();
+        }
+
         if ($this->hasTable('paralegal_members')) {
             $query = DB::table('paralegal_members');
 
