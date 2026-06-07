@@ -99,12 +99,16 @@ class KelolaPosbankumController extends Controller
 
         $data = $request->validate([
             'kategori' => ['required', 'string', 'max:80'],
-            'dokumen' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'dokumen' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'dokumen.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ], [
             'kategori.required' => 'Kategori dokumen wajib dipilih.',
-            'dokumen.required' => 'File dokumen wajib dipilih.',
+            'dokumen.file' => 'File dokumen tidak valid.',
             'dokumen.mimes' => 'Format file harus PDF, JPG, JPEG, atau PNG.',
             'dokumen.max' => 'Ukuran file maksimal 5MB.',
+            'dokumen.*.file' => 'Salah satu file dokumen tidak valid.',
+            'dokumen.*.mimes' => 'Format file harus PDF, JPG, JPEG, atau PNG.',
+            'dokumen.*.max' => 'Ukuran file maksimal 5MB.',
         ]);
 
         $idPosbankum = $this->resolveUserPosbankumId($request->user());
@@ -114,40 +118,76 @@ class KelolaPosbankumController extends Controller
             ]);
         }
 
-        $file = $request->file('dokumen');
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'pdf');
-        $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-        $filename = now()->format('YmdHis') . '-' . ($safeName ?: Str::uuid()->toString()) . '.' . $extension;
-        $folder = 'posbankum-docs/' . preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $idPosbankum) . '/' . $data['kategori'];
-        $path = $file->storeAs($folder, $filename, 'public');
+        $files = [];
+        if ($request->hasFile('dokumen')) {
+            $uploaded = $request->file('dokumen');
+            $files = is_array($uploaded) ? $uploaded : [$uploaded];
+        }
 
-        $payload = [];
-        $this->addColumn($payload, 'data_posbankum', 'id_posbankum', $idPosbankum);
-        $this->addColumn($payload, 'data_posbankum', 'kategori', $data['kategori']);
-        $this->addColumn($payload, 'data_posbankum', 'jenis_dokumen', $data['kategori']);
-        $this->addColumn($payload, 'data_posbankum', 'path_berkas', $path);
-        $this->addColumn($payload, 'data_posbankum', 'path_file', $path);
-        $this->addColumn($payload, 'data_posbankum', 'nama_berkas', $file->getClientOriginalName());
-        $this->addColumn($payload, 'data_posbankum', 'nama_file', $file->getClientOriginalName());
-        $this->addColumn($payload, 'data_posbankum', 'mime_type', $file->getMimeType());
-        $this->addColumn($payload, 'data_posbankum', 'size_bytes', $file->getSize());
-        $this->addColumn($payload, 'data_posbankum', 'status_verifikasi', 'menunggu');
-        $this->addColumn($payload, 'data_posbankum', 'status', 'menunggu');
-        $this->addColumn($payload, 'data_posbankum', 'catatan_admin', null);
-        $this->addColumn($payload, 'data_posbankum', 'tgl_upload', now());
-        $this->addColumn($payload, 'data_posbankum', 'created_at', now());
-        $this->addColumn($payload, 'data_posbankum', 'updated_at', now());
+        $files = array_values(array_filter($files));
 
-        if (empty($payload)) {
-            $this->deleteStoredFile($path);
+        if (empty($files)) {
             throw ValidationException::withMessages([
-                'dokumen' => 'Kolom tabel data_posbankum belum sesuai.',
+                'dokumen' => 'File dokumen wajib dipilih.',
             ]);
         }
 
-        DB::table('data_posbankum')->insert($payload);
+        $kategori = (string) $data['kategori'];
+        if (strtolower($kategori) !== 'sarpras' && count($files) > 1) {
+            $files = [reset($files)];
+        }
 
-        return back()->with('success', 'Dokumen berhasil dikirim untuk verifikasi admin.');
+        $storedPaths = [];
+
+        try {
+            foreach ($files as $file) {
+                $extension = strtolower($file->getClientOriginalExtension() ?: 'pdf');
+                $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+                $filename = now()->format('YmdHis') . '-' . Str::random(8) . '-' . ($safeName ?: Str::uuid()->toString()) . '.' . $extension;
+                $folder = 'posbankum-docs/' . preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $idPosbankum) . '/' . $kategori;
+                $path = $file->storeAs($folder, $filename, 'public');
+                $storedPaths[] = $path;
+
+                $payload = [];
+                $this->addColumn($payload, 'data_posbankum', 'id_posbankum', $idPosbankum);
+                $this->addColumn($payload, 'data_posbankum', 'kategori', $kategori);
+                $this->addColumn($payload, 'data_posbankum', 'jenis_dokumen', $kategori);
+                $this->addColumn($payload, 'data_posbankum', 'path_berkas', $path);
+                $this->addColumn($payload, 'data_posbankum', 'path_file', $path);
+                $this->addColumn($payload, 'data_posbankum', 'nama_berkas', $file->getClientOriginalName());
+                $this->addColumn($payload, 'data_posbankum', 'nama_file', $file->getClientOriginalName());
+                $this->addColumn($payload, 'data_posbankum', 'mime_type', $file->getMimeType());
+                $this->addColumn($payload, 'data_posbankum', 'size_bytes', $file->getSize());
+                $this->addColumn($payload, 'data_posbankum', 'status_verifikasi', 'menunggu');
+                $this->addColumn($payload, 'data_posbankum', 'status', 'menunggu');
+                $this->addColumn($payload, 'data_posbankum', 'catatan_admin', null);
+                $this->addColumn($payload, 'data_posbankum', 'catatan_penolakan', null);
+                $this->addColumn($payload, 'data_posbankum', 'alasan_penolakan', null);
+                $this->addColumn($payload, 'data_posbankum', 'tgl_upload', now());
+                $this->addColumn($payload, 'data_posbankum', 'created_at', now());
+                $this->addColumn($payload, 'data_posbankum', 'updated_at', now());
+
+                if (empty($payload)) {
+                    throw ValidationException::withMessages([
+                        'dokumen' => 'Kolom tabel data_posbankum belum sesuai.',
+                    ]);
+                }
+
+                DB::table('data_posbankum')->insert($payload);
+            }
+        } catch (\Throwable $exception) {
+            foreach ($storedPaths as $path) {
+                $this->deleteStoredFile($path);
+            }
+
+            throw $exception;
+        }
+
+        $message = count($files) > 1
+            ? 'Dokumentasi Sapras berhasil dikirim untuk verifikasi admin.'
+            : 'Dokumen berhasil dikirim untuk verifikasi admin.';
+
+        return back()->with('success', $message);
     }
 
     public function destroyDocument(Request $request, mixed $id): RedirectResponse
