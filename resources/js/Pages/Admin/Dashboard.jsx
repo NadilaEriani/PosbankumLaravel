@@ -64,6 +64,10 @@ function getActiveMenuFromPath(pathname = "") {
         return "Manajemen Akun";
     }
 
+    if (path.startsWith("/admin/profile")) {
+        return "Profil Admin";
+    }
+
     return "Beranda";
 }
 
@@ -126,7 +130,6 @@ export default function AdminDashboard() {
     const [detailSearch, setDetailSearch] = useState("");
     const [selectedPosDetail, setSelectedPosDetail] = useState(null);
     const [activityOpen, setActivityOpen] = useState(false);
-    const [showProfile, setShowProfile] = useState(false);
 
     useEffect(() => {
         const currentPath =
@@ -137,7 +140,6 @@ export default function AdminDashboard() {
     useEffect(() => {
         const handlePopState = () => {
             setActive(getActiveMenuFromPath(window.location.pathname));
-            setShowProfile(false);
         };
 
         window.addEventListener("popstate", handlePopState);
@@ -221,7 +223,6 @@ export default function AdminDashboard() {
     };
 
     const handleChangeMenu = (label) => {
-        setShowProfile(false);
         setSelectedPosDetail(null);
         setActivityOpen(false);
         setRangeOpen(false);
@@ -231,6 +232,28 @@ export default function AdminDashboard() {
 
         if (window.location.pathname !== targetPath) {
             window.history.pushState({}, "", targetPath);
+        }
+    };
+
+    const handleOpenProfile = () => {
+        setSelectedPosDetail(null);
+        setActivityOpen(false);
+        setRangeOpen(false);
+        setActive("Profil Admin");
+
+        if (window.location.pathname !== "/admin/profile") {
+            window.history.pushState({}, "", "/admin/profile");
+        }
+    };
+
+    const handleCloseProfile = () => {
+        setSelectedPosDetail(null);
+        setActivityOpen(false);
+        setRangeOpen(false);
+        setActive("Beranda");
+
+        if (window.location.pathname !== "/admin") {
+            window.history.pushState({}, "", "/admin");
         }
     };
 
@@ -496,6 +519,10 @@ export default function AdminDashboard() {
     );
 
     const renderContent = () => {
+        if (active === "Profil Admin") {
+            return <AdminProfile user={user} onBack={handleCloseProfile} />;
+        }
+
         if (active === "Kelola Berita") {
             return (
                 <KelolaBerita
@@ -555,7 +582,7 @@ export default function AdminDashboard() {
                 <button
                     className="ad-brand ad-brandButton"
                     type="button"
-                    onClick={() => setShowProfile(true)}
+                    onClick={handleOpenProfile}
                 >
                     <div className="ad-brandLogoWrap">
                         <img
@@ -856,13 +883,6 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
-            ) : null}
-
-            {showProfile ? (
-                <AdminProfile
-                    user={user}
-                    onClose={() => setShowProfile(false)}
-                />
             ) : null}
         </div>
     );

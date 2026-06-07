@@ -1,0 +1,875 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
+
+.apf-page {
+    display: grid;
+    font-family: "Outfit", sans-serif;
+    gap: 24px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 18px 42px 30px 90px;
+    box-sizing: border-box;
+}
+
+.apf-page *,
+.apf-page *::before,
+.apf-page *::after {
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.apf-headRow {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: 14px;
+    width: 100%;
+    padding-left: 0;
+}
+
+.apf-headRow {
+    margin-left: -55px;
+}
+
+.apf-backBtn,
+.apf-modalClose,
+.apf-eyeBtn {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.apf-backBtn {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    background: #eceff4;
+    color: #6b7280;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    box-shadow: none;
+    flex-shrink: 0;
+}
+
+.apf-headCopy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.apf-headCopy h2 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #151c2e;
+}
+
+.apf-headCopy p {
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 500;
+    color: #6f7789;
+}
+
+.apf-headActions {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 2px;
+    margin-right: -40px;
+    justify-self: end;
+}
+
+.apf-btn {
+    min-height: 56px;
+    border-radius: 18px;
+    border: 0;
+    padding: 0 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 12px 22px rgba(15, 23, 42, 0.14);
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        opacity 0.18s ease;
+}
+
+.apf-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.apf-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.apf-btnBlue {
+    background: #0f3f93;
+    color: #fff;
+}
+
+.apf-headEditBtn {
+    min-height: 54px;
+    height: 54px;
+    padding: 0 28px;
+    border-radius: 20px;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 14px 28px rgba(15, 63, 147, 0.24);
+}
+
+.apf-headEditBtn svg {
+    font-size: 18px;
+}
+
+.apf-btnPrimary {
+    background: #16a34a;
+    color: #fff;
+}
+
+.apf-btnGhost {
+    background: #6b7280;
+    color: #fff;
+    box-shadow: none;
+}
+
+.apf-btnOrange {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    color: #fff;
+    box-shadow: 0 14px 28px rgba(194, 65, 12, 0.22);
+}
+
+.apf-btnModal {
+    min-width: 156px;
+}
+
+.apf-alert {
+    border-radius: 18px;
+    padding: 16px 20px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.apf-alert.is-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.apf-alert.is-warning {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fdba74;
+}
+
+.apf-cardShell {
+    width: calc(100% - 160px);
+    margin-left: 60px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 20px 42px rgba(15, 23, 42, 0.09);
+    border: 1px solid #edf0f4;
+}
+
+.apf-hero {
+    position: relative;
+    min-height: 290px;
+    padding: 30px 34px 28px;
+    background: linear-gradient(135deg, #0f3f93 0%, #0a2a62 100%);
+}
+.apf-hero::before,
+.apf-hero::after {
+    display: none;
+    content: none;
+}
+.apf-badge {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    z-index: 1;
+    min-height: 40px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: #fbbf24;
+    color: #1d2436;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 700;
+}
+.apf-badge svg {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.apf-heroInner {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+    margin: 0 auto;
+    min-height: 230px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 4px;
+}
+
+.apf-avatarWrap {
+    width: 132px;
+    height: 90px;
+    object-fit: contain;
+    object-position: center center;
+    display: block;
+}
+
+.apf-avatar {
+    width: 114px;
+    height: 132px;
+    object-fit: cover;
+    border-radius: 34px;
+    display: block;
+}
+
+.apf-heroInner h3 {
+    font-size: 21px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+}
+
+.apf-roleText,
+.apf-unitText,
+.apf-mailText {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.apf-roleText {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.apf-unitText {
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+.apf-mailText {
+    margin-top: 10px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.apf-body {
+    padding: 28px 28px 28px;
+}
+
+.apf-loading {
+    padding: 24px 6px;
+    color: #475467;
+    font-weight: 700;
+}
+
+.apf-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 20px;
+}
+
+.apf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.apf-field.is-full {
+    grid-column: 1 / -1;
+}
+
+.apf-label {
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.apf-required {
+    color: #ef4444;
+}
+
+.apf-inputWrap {
+    min-height: 56px;
+    border-radius: 16px;
+    border: 1px solid #dde3eb;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+}
+
+.apf-inputWrap.is-textarea {
+    min-height: 110px;
+    align-items: flex-start;
+    padding-top: 16px;
+}
+
+.apf-inputIcon {
+    color: #9aa3b2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.apf-input {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #1f2937;
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    resize: none;
+}
+
+.apf-input:disabled {
+    color: #4b5563;
+    -webkit-text-fill-color: #4b5563;
+    opacity: 1;
+}
+
+.apf-helper,
+.apf-errorText {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.apf-helper {
+    color: #98a2b3;
+}
+
+.apf-errorText {
+    color: #dc2626;
+}
+
+.apf-divider {
+    height: 1px;
+    background: #eaecf0;
+    margin: 30px 0 26px;
+}
+
+.apf-security {
+    display: grid;
+    gap: 18px;
+}
+
+.apf-securityHead,
+.apf-infoHead,
+.apf-passwordInfoTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.apf-securityHead {
+    color: #151c2e;
+    font-size: 17px;
+}
+
+.apf-securityHead svg {
+    color: #ea580c;
+    font-size: 28px;
+}
+
+.apf-securityCard {
+    border-radius: 24px;
+    border: 1px solid #f6c78b;
+    background: #fff8ef;
+    padding: 18px 18px 18px 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 18px;
+}
+
+.apf-securityCopy {
+    min-width: 0;
+}
+
+.apf-securityTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #151c2e;
+}
+
+.apf-securityCard p,
+.apf-infoCard p,
+.apf-passwordInfo p {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.72;
+    color: #42526b;
+}
+
+.apf-securityMeta {
+    margin-top: 14px;
+    color: #d3540b;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.apf-securityAction {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 0;
+}
+
+.apf-passwordBtn {
+    min-width: 228px;
+    min-height: 56px;
+    height: 56px;
+    border-radius: 18px;
+    padding: 0 26px;
+    font-size: 14px;
+    line-height: 1.2;
+    align-self: flex-start;
+    margin-top: 0;
+}
+
+.apf-infoCard {
+    margin-top: 22px;
+    border-radius: 22px;
+    border: 1px solid #9dc0ff;
+    background: #ecf4ff;
+    padding: 24px 26px;
+}
+
+.apf-infoHead {
+    color: #1749a6;
+    font-size: 17px;
+}
+
+.apf-infoHead svg {
+    font-size: 28px;
+}
+
+.apf-infoCard p {
+    color: #1f4b97;
+    margin-top: 12px;
+}
+
+.apf-modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.38);
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    z-index: 2000;
+}
+
+.apf-modal {
+    width: min(100%, 460px);
+    max-height: calc(100vh - 28px);
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.apf-modalHead {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    color: #fff;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.apf-modalTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.apf-modalClose {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.16);
+    display: grid;
+    place-items: center;
+}
+
+.apf-modalBody {
+    padding: 18px 20px 10px;
+    display: grid;
+    gap: 12px;
+    overflow-y: auto;
+}
+
+.apf-eyeBtn {
+    color: #98a2b3;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+}
+
+.apf-ruleList {
+    margin: -2px 0 0;
+    padding-left: 18px;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.apf-passwordInfo {
+    border-radius: 16px;
+    border: 1px solid #fdba74;
+    background: #fff7ed;
+    padding: 14px 16px;
+}
+
+.apf-passwordInfoTitle {
+    color: #c2410c;
+}
+.apf-modalFoot {
+    margin-top: 0;
+    padding: 14px 20px 18px;
+    border-top: 1px solid #eaecf0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+@media (max-width: 920px) {
+    .apf-page {
+        padding: 0 12px 24px;
+    }
+
+    .apf-headRow {
+        grid-template-columns: 1fr;
+    }
+
+    .apf-cardShell {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .apf-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .apf-securityCard {
+        grid-template-columns: 1fr;
+    }
+
+    .apf-securityAction {
+        justify-content: stretch;
+    }
+
+    .apf-passwordBtn,
+    .apf-btn,
+    .apf-btnModal {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .apf-headEditBtn {
+        min-height: 44px;
+        height: 44px;
+    }
+    .apf-modalOverlay {
+        padding: 10px;
+    }
+
+    .apf-modal {
+        width: 100%;
+        max-height: calc(100vh - 20px);
+        border-radius: 20px;
+    }
+
+    .apf-modalBody {
+        padding: 16px 16px 10px;
+    }
+
+    .apf-modalFoot {
+        padding: 12px 16px 16px;
+    }
+}
+
+/* ===== Hover & Action States ===== */
+.apf-page button,
+.apf-page [role="button"] {
+    transition:
+        background 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease,
+        filter 180ms ease;
+}
+
+.apf-page button:not(:disabled):hover,
+.apf-page button:not(:disabled):focus-visible,
+.apf-page [role="button"]:hover,
+.apf-page [role="button"]:focus-visible {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.apf-page button:not(:disabled):active,
+.apf-page [role="button"]:active {
+    transform: translateY(0);
+}
+
+/* Hilangkan icon reveal password bawaan browser agar icon mata tidak dobel */
+.apf-input[type="password"]::-ms-reveal,
+.apf-input[type="password"]::-ms-clear {
+    display: none;
+}
+
+.apf-input[type="password"]::-webkit-credentials-auto-fill-button,
+.apf-input[type="password"]::-webkit-contacts-auto-fill-button {
+    visibility: hidden;
+    display: none !important;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+}
+
+.apf-eyeBtn:hover,
+.apf-eyeBtn:focus-visible {
+    color: #6b7280;
+    box-shadow: none;
+    transform: none;
+}
+/* ===== FIX: hilangkan garis biru input focus ===== */
+.apf-input:focus,
+.apf-input:focus-visible,
+.ppf-input:focus,
+.ppf-input:focus-visible,
+.ppf-select:focus,
+.ppf-select:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* kalau masih muncul dari wrapper */
+.apf-inputWrap:focus-within,
+.ppf-inputWrap:focus-within {
+    box-shadow: none !important;
+    border-color: #dde3eb !important; /* tetap netral */
+}
+/* Revisi avatar profil admin: lingkaran putih, foto tampil jika tersedia. */
+.apf-avatarWrap {
+    width: 118px;
+    height: 118px;
+    border-radius: 999px;
+    background: #ffffff;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    box-shadow: none;
+}
+
+.apf-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+}
+
+.apf-securityHead svg {
+    color: #ea580c;
+    font-size: 28px;
+}
+
+.apf-lastChangedIcon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+}
+
+/* Struktur Informasi Penting: icon di kiri, teks sejajar di kanan. */
+.apf-infoCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.apf-infoIcon {
+    width: 28px;
+    height: 28px;
+    color: #1749a6;
+    flex: 0 0 auto;
+    margin-top: 0;
+}
+
+.apf-infoTextWrap {
+    min-width: 0;
+}
+
+.apf-infoHead {
+    display: block;
+    line-height: 1.25;
+}
+
+.apf-infoCard p {
+    margin-top: 8px;
+}
+
+.apf-ruleList {
+    list-style: none;
+    padding-left: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.apf-ruleList li {
+    position: relative;
+    padding-left: 17px;
+}
+
+.apf-ruleList li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: translateY(-50%);
+}
+
+.apf-ruleList li.is-valid::before {
+    background: #22c55e;
+}
+
+/* Mode edit profil admin: tempat tambah/ganti foto berada di bawah avatar. */
+.apf-avatarEditBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.apf-avatarEditBox.is-editing {
+    margin-bottom: 4px;
+}
+
+.apf-photoInput {
+    display: none;
+}
+
+.apf-photoBtn {
+    min-height: 34px;
+    border: 0;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #0f3f93;
+    padding: 0 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.apf-photoBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.apf-photoHint {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.apf-photoBtn:hover,
+.apf-photoBtn:focus-visible {
+    box-shadow: none !important;
+    transform: none !important;
+    filter: brightness(1.04);
+}
+
+.apf-photoActions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.apf-photoRemoveBtn {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.apf-photoRemoveBtn:hover,
+.apf-photoRemoveBtn:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== FIX: profile sebagai page biasa, card tidak boleh terpotong ===== */
+.apf-page > .apf-cardShell {
+    position: relative !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+}
+
+.apf-page .apf-body,
+.apf-page .apf-grid,
+.apf-page .apf-security,
+.apf-page .apf-infoCard {
+    height: auto !important;
+    max-height: none !important;
+}
+
+.apf-page .apf-body {
+    overflow: visible !important;
+}
