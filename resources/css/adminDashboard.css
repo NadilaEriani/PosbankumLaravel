@@ -44,7 +44,7 @@
 }
 
 .ad-side {
-    width: 272px;
+    width: 292px;
     background: linear-gradient(180deg, #252d61 0%, #444b8a 100%);
     color: #fff;
     display: flex;
@@ -60,7 +60,7 @@
 }
 
 .ad-brand {
-    padding: 20px 14px 18px;
+    padding: 24px 16px 22px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -68,8 +68,8 @@
 }
 
 .ad-brandLogoWrap {
-    width: 66px;
-    height: 72px;
+    width: 76px;
+    height: 82px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -87,20 +87,20 @@
 }
 
 .ad-brandText {
-    margin-top: 10px;
+    margin-top: 12px;
 }
 
 .ad-brandName {
-    font-size: 19px;
-    line-height: 1.1;
+    font-size: 22px;
+    line-height: 1.12;
     font-weight: 700;
     color: #fff;
 }
 
 .ad-brandSub {
-    margin-top: 6px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.84);
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.25;
     font-weight: 500;
 }
 
@@ -110,10 +110,12 @@
 }
 
 .ad-nav {
-    padding: 12px;
+    min-height: 56px;
+    border-radius: 18px;
+    padding: 15px 18px;
+    gap: 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
 }
 
 .ad-navItem {
@@ -141,24 +143,24 @@
 }
 
 .ad-navIcon {
-    width: 22px;
-    height: 22px;
+    width: 25px;
+    height: 25px;
+    font-size: 21px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
     flex: 0 0 auto;
 }
 
 .ad-navLabel {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.2;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 600;
 }
 
 .ad-navMaskIcon {
-    width: 19px;
-    height: 19px;
+    width: 22px;
+    height: 22px;
     display: inline-block;
     background-color: currentColor;
     -webkit-mask-image: var(--mask-url);
@@ -179,44 +181,45 @@
 }
 
 .ad-top {
-    height: 82px;
+    height: 94px;
+    padding: 0 32px;
+    gap: 22px;
     background: #fff;
     border-bottom: 1px solid #dadde5;
-    padding: 0 26px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 18px;
 }
 
 .ad-pageIntroTitle {
-    font-size: 26px;
+    font-size: 31px;
+    line-height: 1.08;
     font-weight: 700;
-    line-height: 1.1;
     color: #171d30;
 }
 
 .ad-pageIntroSub {
-    margin-top: 6px;
-    font-size: 13px;
-    color: #8d93a5;
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.25;
     font-weight: 500;
+    color: #8d93a5;
 }
 
 .ad-topLogoutBtn {
-    min-width: 118px;
-    height: 46px;
-    padding: 0 18px;
+    min-width: 136px;
+    height: 54px;
+    padding: 0 22px;
+    border-radius: 18px;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 700;
     border: 0;
-    border-radius: 16px;
     background: linear-gradient(180deg, #454c89 0%, #363c76 100%);
     color: #fff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 700;
     cursor: pointer;
     box-shadow: 0 8px 20px rgba(53, 60, 118, 0.2);
 }
@@ -231,15 +234,15 @@
 }
 
 .ad-grid {
-    padding: 24px;
+    padding: 30px;
 }
 
 .ad-wireTitle {
-    font-size: 28px;
+    font-size: 32px;
+    margin-bottom: 26px;
     line-height: 1.1;
     font-weight: 700;
     color: #161616;
-    margin-bottom: 22px;
     position: relative;
     width: fit-content;
 }
@@ -256,7 +259,7 @@
 }
 
 .ad-pagePad {
-    padding: 24px;
+    padding: 30px;
 }
 
 .ad-pagePadBerita {
@@ -291,16 +294,16 @@
 .ad-cards {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
+    gap: 24px;
 }
 
 .ad-card {
-    min-height: 108px;
-    border-radius: 18px;
-    padding: 20px 22px;
+    min-height: 126px;
+    border-radius: 22px;
+    padding: 24px 26px;
+    gap: 18px;
     display: flex;
     align-items: flex-start;
-    gap: 16px;
     color: #fff;
     box-shadow: var(--ad-shadow);
 }
@@ -318,14 +321,14 @@
 }
 
 .ad-cardIcon {
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    font-size: 26px;
     display: grid;
     place-items: center;
     background: rgba(255, 255, 255, 0.28);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-    font-size: 22px;
     flex: 0 0 auto;
 }
 
@@ -340,8 +343,8 @@
 }
 
 .ad-cardValue {
-    margin-top: 6px;
-    font-size: 38px;
+    margin-top: 8px;
+    font-size: 44px;
     line-height: 1;
     font-weight: 700;
 }
@@ -351,25 +354,25 @@
 }
 
 .ad-cardAssetIcon {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     object-fit: contain;
     display: block;
 }
 
 .ad-cardHint {
-    margin-top: 6px;
-    font-size: 13px;
+    margin-top: 8px;
+    font-size: 15px;
     line-height: 1.2;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.92);
 }
 
 .ad-panels {
-    margin-top: 18px;
+    margin-top: 22px;
+    gap: 24px;
     display: grid;
     grid-template-columns: minmax(0, 1.9fr) minmax(300px, 1fr);
-    gap: 20px;
     align-items: stretch;
 }
 
@@ -383,7 +386,7 @@
 .ad-panelChart,
 .ad-panelActivity,
 .ad-detailPanel {
-    padding: 18px;
+    padding: 22px;
 }
 
 .ad-panelActivity {
@@ -405,15 +408,15 @@
 }
 
 .ad-panelTitle {
-    font-size: 18px;
-    line-height: 1.15;
+    font-size: 21px;
+    line-height: 1.22;
     font-weight: 700;
     color: #161c2c;
 }
 
 .ad-panelSub {
-    margin-top: 6px;
-    font-size: 14px;
+    margin-top: 7px;
+    font-size: 15px;
     line-height: 1.25;
     color: #8e94a5;
     font-weight: 400;
@@ -630,7 +633,7 @@
     background: transparent;
     padding: 0;
     color: var(--ad-link);
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     cursor: pointer;
     box-shadow: none;
@@ -5226,5 +5229,1633 @@ button.ad-linkBtn {
         max-width: calc(100vw - 16px);
         max-height: calc(100dvh - 16px);
         border-radius: 16px;
+    }
+}
+
+/* =========================================================
+   DASHBOARD EXACT REFERENCE OVERRIDE - copied from provided design
+   ========================================================= */
+
+:root {
+    --ad-bg: #f5f5f5;
+    --ad-surface: #ffffff;
+    --ad-text: #1f2437;
+    --ad-muted: #7d8497;
+    --ad-border: #e9e9ef;
+    --ad-border-soft: #f0f1f5;
+    --ad-navy: #2f3569;
+    --ad-navy-soft: #4d568f;
+    --ad-yellow: #f3bf27;
+    --ad-green: #0aa95b;
+    --ad-green-soft: #d8f5e4;
+    --ad-orange: #f7a53a;
+    --ad-orange-soft: #ffe8c8;
+    --ad-blue-soft: #cfd5e9;
+    --ad-link: #255dd8;
+    --ad-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
+    --ad-shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.12);
+    --ad-radius-xl: 24px;
+    --ad-radius-lg: 20px;
+    --ad-radius-md: 16px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.ad,
+.ad * {
+    font-family: "Outfit", sans-serif;
+}
+
+.ad {
+    min-height: 100vh;
+    display: flex;
+    background: var(--ad-bg);
+    color: var(--ad-text);
+}
+
+.ad-side {
+    width: 272px;
+    background: linear-gradient(180deg, #252d61 0%, #444b8a 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 16px 0 34px rgba(22, 27, 58, 0.1);
+}
+
+.ad-brandButton {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.ad-brand {
+    padding: 20px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.ad-brandLogoWrap {
+    width: 66px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.ad-brandLogo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+}
+
+.ad-brandText {
+    margin-top: 10px;
+}
+
+.ad-brandName {
+    font-size: 19px;
+    line-height: 1.1;
+    font-weight: 700;
+    color: #fff;
+}
+
+.ad-brandSub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.84);
+    font-weight: 500;
+}
+
+.ad-brandDivider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.ad-nav {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ad-navItem {
+    min-height: 48px;
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    padding: 13px 16px;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.ad-navItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.ad-navItem.is-active {
+    background: var(--ad-yellow);
+    color: #111827;
+}
+
+.ad-navIcon {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex: 0 0 auto;
+}
+
+.ad-navLabel {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.ad-navMaskIcon {
+    width: 19px;
+    height: 19px;
+    display: inline-block;
+    background-color: currentColor;
+    -webkit-mask-image: var(--mask-url);
+    mask-image: var(--mask-url);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    mask-position: center;
+}
+
+.ad-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ad-top {
+    height: 82px;
+    background: #fff;
+    border-bottom: 1px solid #dadde5;
+    padding: 0 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.ad-pageIntroTitle {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #171d30;
+}
+
+.ad-pageIntroSub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #8d93a5;
+    font-weight: 500;
+}
+
+.ad-topLogoutBtn {
+    min-width: 118px;
+    height: 46px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #454c89 0%, #363c76 100%);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(53, 60, 118, 0.2);
+}
+
+.ad-topLogoutBtn svg {
+    color: var(--ad-yellow);
+}
+
+.ad-topLogoutBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.ad-grid {
+    padding: 24px;
+}
+
+.ad-wireTitle {
+    font-size: 28px;
+    line-height: 1.1;
+    font-weight: 700;
+    color: var(--ad-navy);
+    margin-bottom: 22px;
+    position: relative;
+    width: fit-content;
+}
+
+.ad-wireTitle::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    width: 48px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--ad-yellow);
+}
+
+.ad-pagePad {
+    padding: 24px;
+}
+
+.ad-pagePadBerita {
+    padding-top: 22px;
+}
+
+.ad-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.ad-card {
+    min-height: 108px;
+    border-radius: 18px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    color: #fff;
+    box-shadow: var(--ad-shadow);
+}
+
+.ad-card.tone-blue {
+    background: linear-gradient(135deg, #32396f 0%, #4b5392 100%);
+}
+
+.ad-card.tone-orange {
+    background: linear-gradient(135deg, #f6c633 0%, #f5a13b 100%);
+}
+
+.ad-card.tone-green {
+    background: linear-gradient(135deg, #0c7d59 0%, #159261 100%);
+}
+
+.ad-cardIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    font-size: 22px;
+    flex: 0 0 auto;
+}
+
+.ad-cardBody {
+    min-width: 0;
+}
+
+.ad-cardTitle {
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.ad-cardValue {
+    margin-top: 6px;
+    font-size: 38px;
+    line-height: 1;
+    font-weight: 700;
+}
+.ad-cardIcon {
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+.ad-cardAssetIcon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
+}
+
+.ad-cardHint {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.ad-panels {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(300px, 1fr);
+    gap: 20px;
+    align-items: stretch;
+}
+
+.ad-panel {
+    background: var(--ad-surface);
+    border: 1px solid var(--ad-border);
+    border-radius: 18px;
+    box-shadow: var(--ad-shadow);
+}
+
+.ad-panelChart,
+.ad-panelActivity,
+.ad-detailPanel {
+    padding: 18px;
+}
+
+.ad-panelActivity {
+    height: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.ad-panelHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.ad-panelHeadActivity {
+    padding-bottom: 4px;
+}
+
+.ad-panelTitle {
+    font-size: 18px;
+    line-height: 1.15;
+    font-weight: 700;
+    color: #161c2c;
+}
+
+.ad-panelSub {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.25;
+    color: #8e94a5;
+    font-weight: 400;
+}
+
+.ad-headActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ad-dd {
+    position: relative;
+}
+
+.ad-filterBtn {
+    min-height: 46px;
+    padding: 0 16px;
+    border-radius: 15px;
+    border: 1px solid #dfe3ea;
+    background: #fff;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.ad-filterBtn.is-open {
+    background: #f8f9fc;
+}
+
+.ad-ddMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 150px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid #e7ebf1;
+    border-radius: 16px;
+    box-shadow: var(--ad-shadow);
+    z-index: 30;
+}
+
+.ad-ddItem {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    border-radius: 12px;
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ad-ddItem:hover {
+    background: #f6f8fb;
+}
+
+.ad-ddItem.is-active {
+    background: var(--ad-navy);
+    color: #fff;
+}
+
+.ad-exportBtn,
+.ad-exportBtn * {
+    font-family: "Arimo", sans-serif;
+}
+
+.ad-exportBtn {
+    min-height: 46px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 15px;
+    background: #0aae52;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(10, 174, 82, 0.2);
+}
+
+.ad-exportBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.ad-errorBox {
+    margin-top: 18px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #c2410c;
+    font-weight: 700;
+    padding: 14px 16px;
+    border-radius: 16px;
+}
+
+.ad-panelChart {
+    position: relative;
+}
+
+/* Tampilan card statistik Posbankum Paling Aktif */
+.ad-activeBars {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 350px;
+    padding: 8px 8px 0;
+}
+
+.ad-activeItem {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    grid-template-rows: 24px 230px 58px 24px;
+    align-items: end;
+    justify-items: center;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    appearance: none;
+}
+
+.ad-activeItem:disabled {
+    cursor: default;
+}
+
+.ad-activeItem:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 93, 216, 0.18);
+    border-radius: 18px;
+}
+
+.ad-activeTop,
+.ad-activeName,
+.ad-activeGrowth {
+    font-family: "Arimo", sans-serif;
+}
+
+.ad-activeTop {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700;
+    color: #161c2c;
+    align-self: end;
+}
+
+.ad-barArea {
+    width: 100%;
+    height: 230px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+/* Bentuk bar hijau pada statistik posbankum */
+.ad-pillBar {
+    width: min(100%, 72px);
+    border-radius: 24px;
+    background: linear-gradient(180deg, #08c45a 0%, #06bc54 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: filter 0.18s ease;
+}
+
+/* Hover bar: cukup ubah kecerahan warna, tanpa shadow */
+.ad-activeItem:not(:disabled):hover .ad-pillBar {
+    filter: brightness(1.06);
+}
+
+.ad-activeName {
+    align-self: start;
+    margin-top: 12px;
+    min-height: 40px;
+    max-width: 100%;
+    padding: 0 4px;
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: 700;
+    text-align: center;
+    color: #243041;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ad-activeGrowth {
+    align-self: start;
+    margin-top: 6px;
+    min-height: 18px;
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.ad-activeGrowth .is-up {
+    color: #05a94d;
+}
+
+.ad-activeGrowth .is-down {
+    color: #e44b4b;
+}
+
+.ad-linkBtn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--ad-link);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.ad-linkBtn:hover,
+.ad-linkBtn:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: var(--ad-link);
+    box-shadow: none;
+    transform: none;
+    filter: none;
+}
+
+.ad-activityList {
+    flex: 1;
+    margin-top: 16px;
+    padding: 2px 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ad-activityItem {
+    min-height: 60px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.ad-activityIconWrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    flex: 0 0 auto;
+}
+
+.ad-activityIconWrap.tone-blue {
+    background: #dce7ff;
+    color: #2563eb;
+}
+
+.ad-activityIconWrap.tone-green {
+    background: #d8f5e4;
+    color: #16a34a;
+}
+
+.ad-activityIconWrap.tone-orange {
+    background: #ffe8cf;
+    color: #f97316;
+}
+
+.ad-activityText {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.ad-activityTitle {
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #1b2234;
+}
+
+.ad-activityDesc {
+    margin-top: 5px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: #536070;
+}
+
+.ad-activityMetaInline,
+.ad-activityTime {
+    margin-top: 3px;
+    font-size: 13px;
+    line-height: 1.2;
+    color: #838a99;
+}
+
+.ad-detailPanel {
+    margin-top: 18px;
+}
+
+.ad-detailHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.ad-searchWrap {
+    position: relative;
+    width: 330px;
+    max-width: 100%;
+}
+
+.ad-searchIcon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0a7b6;
+    font-size: 16px;
+}
+
+.ad-searchInput {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px 0 42px;
+    border-radius: 16px;
+    border: 1px solid #e1e5ec;
+    background: #fff;
+    color: #1f2937;
+    font-size: 14px;
+    outline: none;
+}
+
+.ad-searchInput::placeholder {
+    color: #a0a7b6;
+}
+
+.ad-tableWrap {
+    border: 1px solid var(--ad-border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.ad-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.ad-colPosbankum {
+    width: 34%;
+}
+
+.ad-colTotal {
+    width: 16%;
+}
+
+.ad-colKegiatan,
+.ad-colKasus,
+.ad-colDokumen,
+.ad-colStatus {
+    width: 12.5%;
+}
+
+.ad-table thead th {
+    background: #f7f8fa;
+    padding: 16px 18px;
+    border-bottom: 1px solid #ebedf2;
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    color: #4b5563;
+    font-weight: 700;
+}
+
+.ad-table tbody td {
+    padding: 16px 18px;
+    border-bottom: 1px solid #eef0f4;
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.ad-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.ad-tableRowClickable {
+    cursor: pointer;
+    transition: background 0.16s ease;
+}
+
+.ad-tableRowClickable:hover {
+    background: #fafbff;
+}
+
+.ad-tableRowClickable:focus-visible {
+    outline: none;
+    background: #f8faff;
+}
+
+.ad-table .is-center {
+    text-align: center;
+}
+
+.ad-posCell {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.ad-posName {
+    min-width: 0;
+    font-weight: 700;
+    color: #20273a;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.35;
+}
+
+.ad-totalNum {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700;
+    color: #1d2437;
+}
+
+.ad-pillGreen {
+    min-width: 70px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #d8f5e4;
+    color: #15904d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.ad-pager {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.ad-pagerBtn {
+    min-width: 124px;
+    min-height: 42px;
+    border: 0;
+    border-radius: 12px;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ad-pagerBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.ad-pagerInfo {
+    font-size: 14px;
+    color: #556070;
+    font-weight: 500;
+}
+
+.ad-skel {
+    display: inline-block;
+    background: linear-gradient(90deg, #eef2f6, #f7f8fa, #eef2f6);
+    background-size: 200% 100%;
+    border-radius: 999px;
+    animation: ad-skel 1.2s ease infinite;
+}
+
+.sk-num {
+    width: 84px;
+    height: 42px;
+}
+
+.sk-line {
+    width: 140px;
+    height: 14px;
+}
+
+.sk-mini {
+    width: 58px;
+    height: 14px;
+}
+
+@keyframes ad-skel {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 200% 0;
+    }
+}
+
+.ad-modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+}
+
+.ad-modalBackdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 11, 23, 0.55);
+}
+
+.ad-detailModalCard,
+.ad-modalCard {
+    position: relative;
+    width: min(92vw, 810px);
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+
+.ad-detailModalCard {
+    width: min(92vw, 800px);
+}
+
+.ad-detailModalHead,
+.ad-modalHead {
+    background: linear-gradient(180deg, #32396f 0%, #47508f 100%);
+    padding: 26px 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.ad-detailModalHeadText,
+.ad-modalHeadText {
+    color: #fff;
+}
+
+.ad-detailModalTitle,
+.ad-modalTitle {
+    font-size: 22px;
+    line-height: 1.15;
+    font-weight: 700;
+}
+
+.ad-detailModalSub,
+.ad-modalSub {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 400;
+}
+
+.ad-detailModalCloseBtn,
+.ad-modalHeadIconBtn {
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 20px;
+    flex: 0 0 auto;
+}
+
+.ad-detailModalBody {
+    padding: 24px;
+    background: #f8f8f8;
+}
+
+.ad-detailStatGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.ad-detailStatCard {
+    min-height: 116px;
+    padding: 14px 14px 16px;
+    border-radius: 18px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.ad-detailStatCard.tone-blue,
+.ad-detailStatCard.tone-blueAlt {
+    background: linear-gradient(135deg, #32396f 0%, #4b5392 100%);
+}
+
+.ad-detailStatCard.tone-orange {
+    background: linear-gradient(135deg, #f6c633 0%, #f5a13b 100%);
+}
+
+.ad-detailStatCard.tone-green {
+    background: linear-gradient(135deg, #06b75a 0%, #07a94f 100%);
+}
+
+.ad-detailStatIcon {
+    font-size: 26px;
+}
+
+.ad-detailStatValue {
+    margin-top: 10px;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.ad-detailStatLabel {
+    margin-top: 8px;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.ad-detailInfoCard {
+    margin-top: 22px;
+    border-radius: 18px;
+    background: #fff;
+    padding: 20px;
+}
+
+.ad-detailInfoTitle {
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #171d30;
+}
+
+.ad-detailInfoList {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.ad-detailInfoItem {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.ad-detailInfoIcon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex: 0 0 auto;
+    margin-top: 2px;
+}
+
+.ad-detailInfoIcon.is-blue {
+    color: #2563eb;
+}
+
+.ad-detailInfoIcon.is-green {
+    color: #22c55e;
+}
+
+.ad-detailInfoIcon.is-orange {
+    color: #f97316;
+}
+
+.ad-detailInfoIcon.is-user {
+    color: #ea580c;
+}
+
+.ad-detailInfoLabel {
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.ad-detailInfoValue {
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #596273;
+}
+
+.ad-detailActionRow {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.ad-detailActionBtn {
+    height: 58px;
+    border: 0;
+    border-radius: 18px;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--ad-shadow);
+}
+
+.ad-detailActionBtn.is-green {
+    background: linear-gradient(135deg, #0c7d59 0%, #169464 100%);
+}
+
+.ad-detailActionBtn.is-navy {
+    background: linear-gradient(135deg, #32396f 0%, #47508f 100%);
+}
+
+.ad-modalCard {
+    width: min(92vw, 820px);
+}
+
+.ad-modalFilterRow {
+    padding: 14px 24px 10px;
+    background: #fff;
+}
+
+.ad-modalTabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ad-modalTab {
+    min-height: 36px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 14px;
+    background: #f1f2f5;
+    color: #485160;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ad-modalTab.is-active {
+    background: var(--ad-navy);
+    color: #fff;
+}
+
+.ad-modalList {
+    padding: 10px 24px 24px;
+    overflow: auto;
+}
+
+.ad-modalItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 0;
+    border-top: 1px solid #eceef3;
+}
+
+.ad-modalItem:first-child {
+    border-top: 0;
+}
+
+.ad-modalIconWrap {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    flex: 0 0 auto;
+}
+
+.ad-modalIconWrap.tone-blue {
+    background: #dce7ff;
+    color: #2563eb;
+}
+
+.ad-modalIconWrap.tone-green {
+    background: #d8f5e4;
+    color: #16a34a;
+}
+
+.ad-modalIconWrap.tone-orange {
+    background: #ffe8cf;
+    color: #f97316;
+}
+
+.ad-modalBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.ad-modalItemTitle {
+    font-size: 16px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #1b2234;
+}
+
+.ad-modalItemDesc {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #4d5868;
+}
+
+.ad-modalMeta {
+    margin-top: 12px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ad-modalMetaChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 1.25;
+    color: #7b8494;
+}
+
+.ad-modalBadge {
+    margin-left: auto;
+    align-self: flex-start;
+    min-height: 30px;
+    padding: 0 16px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.ad-modalBadge.tone-blue {
+    background: #dce7ff;
+    color: #2563eb;
+}
+
+.ad-modalBadge.tone-green {
+    background: #d8f5e4;
+    color: #16a34a;
+}
+
+.ad-modalBadge.tone-orange {
+    background: #ffe8cf;
+    color: #f97316;
+}
+
+.ad-modalEmpty {
+    padding: 24px 0 8px;
+    text-align: center;
+    font-size: 14px;
+    color: #7c8595;
+    font-weight: 500;
+}
+
+.ad-assetIcon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+}
+
+.ad-detailInfoAssetIcon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+}
+
+@media (max-width: 1180px) {
+    .ad-cards,
+    .ad-panels {
+        grid-template-columns: 1fr;
+    }
+
+    .ad-activeBars {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 8px;
+    }
+
+    .ad-activeItem {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 900px) {
+    .ad-side {
+        width: 244px;
+    }
+
+    .ad-detailHead {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ad-searchWrap {
+        width: 100%;
+    }
+
+    .ad-detailStatGrid,
+    .ad-detailActionRow {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 680px) {
+    .ad-top {
+        height: auto;
+        padding: 16px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .ad-grid,
+    .ad-pagePad {
+        padding: 16px;
+    }
+
+    .ad-cards {
+        gap: 14px;
+    }
+
+    .ad-cardValue {
+        font-size: 38px;
+    }
+
+    .ad-table {
+        min-width: 760px;
+    }
+
+    .ad-tableWrap {
+        overflow: auto;
+    }
+
+    .ad-pager {
+        flex-direction: column;
+    }
+
+    .ad-detailStatGrid,
+    .ad-detailActionRow {
+        grid-template-columns: 1fr;
+    }
+
+    .ad-detailModalBody,
+    .ad-modalList,
+    .ad-modalFilterRow,
+    .ad-detailModalHead,
+    .ad-modalHead {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .ad-modalItem {
+        flex-direction: column;
+    }
+
+    .ad-modalBadge {
+        margin-left: 0;
+    }
+}
+
+/* ===== Hover & Action States ===== */
+.ad button,
+.ad [role="button"],
+.ad-main button,
+.ad-main [role="button"] {
+    transition:
+        background 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease,
+        filter 180ms ease;
+}
+
+.ad button:not(:disabled):hover,
+.ad button:not(:disabled):focus-visible,
+.ad-main button:not(:disabled):hover,
+.ad-main button:not(:disabled):focus-visible,
+.ad [role="button"]:hover,
+.ad [role="button"]:focus-visible,
+.ad-main [role="button"]:hover,
+.ad-main [role="button"]:focus-visible {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.ad button:not(:disabled):active,
+.ad-main button:not(:disabled):active,
+.ad [role="button"]:active,
+.ad-main [role="button"]:active {
+    transform: translateY(0);
+}
+
+/* Khusus item bar Posbankum Paling Aktif: hilangkan efek hover global agar tidak muncul card putih/drop shadow */
+.ad button.ad-activeItem:not(:disabled):hover,
+.ad-main button.ad-activeItem:not(:disabled):hover,
+.ad button.ad-activeItem:not(:disabled):focus-visible,
+.ad-main button.ad-activeItem:not(:disabled):focus-visible {
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+/* Saat item bar di-hover, yang berubah hanya warna bar hijau saja */
+.ad button.ad-activeItem:not(:disabled):hover .ad-pillBar,
+.ad-main button.ad-activeItem:not(:disabled):hover .ad-pillBar {
+    filter: brightness(1.06);
+}
+
+.ad-link,
+.ad-linkBtn,
+button.ad-link,
+button.ad-linkBtn {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
+    transform: none !important;
+}
+
+/* hover hanya underline */
+.ad-link:hover,
+.ad-link:focus,
+.ad-link:focus-visible,
+.ad-linkBtn:hover,
+.ad-linkBtn:focus,
+.ad-linkBtn:focus-visible {
+    text-decoration: underline !important;
+    text-underline-offset: 3px !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+    outline: none !important;
+}
+.ad-footer {
+    margin: 4px 30px 0;
+    padding: 22px 0 18px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.ad-footerText {
+    font-family: "Outfit", sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #6c6c6c;
+}
+
+@media (max-width: 768px) {
+    .ad-footer {
+        margin: 4px 24px 0;
+        padding: 18px 0 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .ad-footerText {
+        font-size: 10px;
+    }
+}
+/* Hover button pagination tabel */
+.ad-pagerBtn:not(:disabled):hover,
+.ad-pagerBtn:not(:disabled):focus-visible {
+    background: linear-gradient(135deg, #32396f 0%, #4b5392 100%);
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(53, 60, 118, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Efek saat button ditekan */
+.ad-pagerBtn:not(:disabled):active {
+    transform: translateY(0);
+}
+/*  shadow card statistik  */
+.ad-card,
+.ad-panel {
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer reference must keep two text lines and exact sizing */
+.ad-footer {
+    margin: 4px 30px 0;
+    padding: 22px 0 18px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.ad-footerText {
+    font-family: "Outfit", sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #6c6c6c;
+}
+
+@media (max-width: 768px) {
+    .ad-footer {
+        margin: 4px 24px 0;
+        padding: 18px 0 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .ad-footerText {
+        font-size: 10px;
+    }
+}
+/* =========================================================
+   FINAL FIX - SIDEBAR LEBIH RAPI, TEKS MENU 1 BARIS
+   Tujuan: Verifikasi Data Posbankum tidak turun baris
+========================================================= */
+
+@media (min-width: 901px) {
+    .ad-side {
+        width: 300px !important;
+    }
+
+    .ad-brand {
+        padding: 24px 16px 22px !important;
+    }
+
+    .ad-brandLogoWrap {
+        width: 74px !important;
+        height: 82px !important;
+    }
+
+    .ad-brandName {
+        font-size: 22px !important;
+        line-height: 1.12 !important;
+    }
+
+    .ad-brandSub {
+        font-size: 14px !important;
+        line-height: 1.25 !important;
+    }
+
+    .ad-nav {
+        padding: 15px 14px !important;
+        gap: 7px !important;
+    }
+
+    .ad-navItem {
+        min-height: 56px !important;
+        padding: 14px 18px !important;
+        gap: 12px !important;
+        border-radius: 18px !important;
+    }
+
+    .ad-navIcon {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 20px !important;
+    }
+
+    .ad-navMaskIcon {
+        width: 21px !important;
+        height: 21px !important;
+    }
+
+    .ad-navLabel {
+        font-size: 15px !important;
+        line-height: 1.2 !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+    }
+
+    .ad-top {
+        height: 96px !important;
+        padding: 0 32px !important;
+    }
+
+    .ad-pageIntroTitle {
+        font-size: 31px !important;
+        line-height: 1.08 !important;
+    }
+
+    .ad-pageIntroSub {
+        font-size: 14px !important;
+        margin-top: 7px !important;
+    }
+
+    .ad-topLogoutBtn {
+        min-width: 136px !important;
+        height: 52px !important;
+        font-size: 15px !important;
+        border-radius: 18px !important;
     }
 }

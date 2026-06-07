@@ -878,12 +878,6 @@ export default function DataPosbankum({
 
     return (
         <section className="ad-pagePad">
-            <div className="ad-pageHeader">
-                <div className="ad-pageTitleWrap">
-                    <h1 className="ad-wireTitle">Data Posbankum</h1>
-                </div>
-            </div>
-
             <div className="dp">
                 {err ? <div className="dp-errorBox">{err}</div> : null}
 

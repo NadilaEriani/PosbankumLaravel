@@ -1873,14 +1873,6 @@ export default function VerifikasiDataPosbankum({
 
     return (
         <section className="ad-pagePad">
-            <div className="ad-pageHeader">
-                <div className="ad-pageTitleWrap">
-                    <div className="ad-wireTitle">
-                        Verifikasi Data Posbankum
-                    </div>
-                </div>
-            </div>
-
             <div className="vd">
                 <SuccessToast
                     message={successMessage}

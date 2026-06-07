@@ -9,6 +9,7 @@ import {
     FiLogOut,
     FiTrendingUp,
     FiCalendar,
+    FiDownload,
     FiChevronDown,
     FiSearch,
     FiX,
@@ -125,9 +126,12 @@ export default function AdminDashboard() {
     const [active, setActive] = useState(() =>
         getActiveMenuFromPath(window.location.pathname),
     );
+    const [loggingOut, setLoggingOut] = useState(false);
     const [rangeOpen, setRangeOpen] = useState(false);
     const [rangeDays, setRangeDays] = useState(30);
     const [detailSearch, setDetailSearch] = useState("");
+    const [detailPage, setDetailPage] = useState(1);
+    const detailPageSize = 6;
     const [selectedPosDetail, setSelectedPosDetail] = useState(null);
     const [activityOpen, setActivityOpen] = useState(false);
 
@@ -218,8 +222,70 @@ export default function AdminDashboard() {
         );
     }, [detailRows, detailSearch]);
 
+    const detailPageCount = Math.max(
+        1,
+        Math.ceil(filteredDetailRows.length / detailPageSize),
+    );
+    const detailPageSafe = Math.min(detailPage, detailPageCount);
+    const detailPageRows = filteredDetailRows.slice(
+        (detailPageSafe - 1) * detailPageSize,
+        detailPageSafe * detailPageSize,
+    );
+
+    useEffect(() => {
+        setDetailPage(1);
+    }, [detailSearch]);
+
+    const handleExport = () => {
+        const rows = filteredDetailRows.map((row) => ({
+            Posbankum: row.name || "-",
+            Total:
+                (row.activityCount || 0) +
+                (row.caseCount || 0) +
+                (row.documentCount || row.dokumen || 0),
+            Kegiatan: row.activityCount || 0,
+            Kasus: row.caseCount || 0,
+            Dokumen: row.documentCount || row.dokumen || 0,
+            Status: row.status || "Aktif",
+        }));
+
+        const headers = [
+            "Posbankum",
+            "Total",
+            "Kegiatan",
+            "Kasus",
+            "Dokumen",
+            "Status",
+        ];
+        const csv = [
+            headers.join(","),
+            ...rows.map((row) =>
+                headers
+                    .map(
+                        (header) =>
+                            `"${String(row[header] ?? "").replace(/"/g, '""')}"`,
+                    )
+                    .join(","),
+            ),
+        ].join("\n");
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `posbankum-paling-aktif-${rangeDays}hari.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     const handleLogout = () => {
-        router.post("/logout");
+        if (loggingOut) return;
+
+        setLoggingOut(true);
+
+        router.post("/logout", undefined, {
+            onFinish: () => setLoggingOut(false),
+        });
     };
 
     const handleChangeMenu = (label) => {
@@ -261,7 +327,7 @@ export default function AdminDashboard() {
 
     const renderBeranda = () => (
         <section className="ad-grid">
-            <div className="ad-wireTitle">Beranda</div>
+            <div className="ad-wireTitle">Dashboard</div>
 
             <div className="ad-cards">
                 {statDefs.map((item) => (
@@ -273,7 +339,7 @@ export default function AdminDashboard() {
                             <div className="ad-cardValue">
                                 {stats[item.key] ?? 0}
                             </div>
-                            <div className="ad-cardHint">{item.hint}</div>
+                            <div className="ad-cardHint">Update real-time</div>
                         </div>
                     </div>
                 ))}
@@ -287,7 +353,7 @@ export default function AdminDashboard() {
                                 Posbankum Paling Aktif
                             </div>
                             <div className="ad-panelSub">
-                                Berdasarkan data pengaduan dan kegiatan
+                                Total Kegiatan &amp; Kasus Diselesaikan
                             </div>
                         </div>
 
@@ -300,7 +366,8 @@ export default function AdminDashboard() {
                                     }`}
                                     onClick={() => setRangeOpen((v) => !v)}
                                 >
-                                    {rangeDays} Hari
+                                    <FiCalendar />
+                                    <span>{rangeDays} Hari</span>
                                     <FiChevronDown />
                                 </button>
 
@@ -326,6 +393,14 @@ export default function AdminDashboard() {
                                     </div>
                                 ) : null}
                             </div>
+
+                            <button
+                                className="ad-exportBtn"
+                                type="button"
+                                onClick={handleExport}
+                            >
+                                <FiDownload /> Export
+                            </button>
                         </div>
                     </div>
 
@@ -381,9 +456,6 @@ export default function AdminDashboard() {
                             <div className="ad-panelTitle">
                                 Aktivitas Terbaru
                             </div>
-                            <div className="ad-panelSub">
-                                Riwayat terbaru dari database
-                            </div>
                         </div>
 
                         <button
@@ -391,12 +463,12 @@ export default function AdminDashboard() {
                             className="ad-linkBtn"
                             onClick={() => setActivityOpen(true)}
                         >
-                            Lihat Semua
+                            Lihat semua
                         </button>
                     </div>
 
                     <div className="ad-activityList">
-                        {activities.slice(0, 5).map((item, index) => (
+                        {activities.slice(0, 4).map((item, index) => (
                             <div
                                 className="ad-activityItem"
                                 key={`${item.type}-${index}`}
@@ -436,10 +508,10 @@ export default function AdminDashboard() {
                 <div className="ad-detailHead">
                     <div>
                         <div className="ad-panelTitle">
-                            Detail Data Posbankum
+                            Detail Kegiatan Posbankum
                         </div>
                         <div className="ad-panelSub">
-                            Data ringkas seluruh Posbankum
+                            Breakdown per jenis kegiatan
                         </div>
                     </div>
 
@@ -459,52 +531,71 @@ export default function AdminDashboard() {
 
                 <div className="ad-tableWrap">
                     <table className="ad-table">
+                        <colgroup>
+                            <col className="ad-colPosbankum" />
+                            <col className="ad-colTotal" />
+                            <col className="ad-colKegiatan" />
+                            <col className="ad-colKasus" />
+                            <col className="ad-colDokumen" />
+                            <col className="ad-colStatus" />
+                        </colgroup>
+
                         <thead>
                             <tr>
-                                <th className="ad-colPosbankum">Posbankum</th>
-                                <th className="is-center">Paralegal</th>
-                                <th className="is-center">Kegiatan</th>
-                                <th className="is-center">Kasus</th>
-                                <th className="is-center">Status</th>
+                                <th align="left">POSBANKUM</th>
+                                <th className="is-center">TOTAL KEGIATAN</th>
+                                <th className="is-center">KEGIATAN</th>
+                                <th className="is-center">KASUS</th>
+                                <th className="is-center">DOKUMEN</th>
+                                <th className="is-center">STATUS</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            {filteredDetailRows.map((row) => (
-                                <tr
-                                    key={row.id || row.name}
-                                    className="ad-tableRowClickable"
-                                    onClick={() => setSelectedPosDetail(row)}
-                                >
-                                    <td>
-                                        <div className="ad-posCell">
-                                            <span className="ad-posName">
-                                                {row.name}
+                            {detailPageRows.map((row) => {
+                                const dokumen =
+                                    row.documentCount || row.dokumen || 0;
+                                const kegiatan = row.activityCount || 0;
+                                const kasus = row.caseCount || 0;
+                                const total = kegiatan + kasus + dokumen;
+
+                                return (
+                                    <tr
+                                        key={row.id || row.name}
+                                        className="ad-tableRowClickable"
+                                        onClick={() =>
+                                            setSelectedPosDetail(row)
+                                        }
+                                    >
+                                        <td>
+                                            <div className="ad-posCell">
+                                                <span className="ad-posName">
+                                                    {row.name}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="is-center">
+                                            <span className="ad-totalNum">
+                                                {total}
                                             </span>
-                                        </div>
-                                    </td>
-                                    <td className="is-center">
-                                        <span className="ad-totalNum">
-                                            {row.paralegalCount || 0}
-                                        </span>
-                                    </td>
-                                    <td className="is-center">
-                                        {row.activityCount || 0}
-                                    </td>
-                                    <td className="is-center">
-                                        {row.caseCount || 0}
-                                    </td>
-                                    <td className="is-center">
-                                        <span className="ad-pillGreen">
-                                            {row.status || "Aktif"}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                                        </td>
+                                        <td className="is-center">
+                                            {kegiatan}
+                                        </td>
+                                        <td className="is-center">{kasus}</td>
+                                        <td className="is-center">{dokumen}</td>
+                                        <td className="is-center">
+                                            <span className="ad-pillGreen">
+                                                {row.status || "Aktif"}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
 
                             {filteredDetailRows.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5">
+                                    <td colSpan="6">
                                         <div className="ad-emptyMini">
                                             Data Posbankum belum tersedia.
                                         </div>
@@ -513,6 +604,36 @@ export default function AdminDashboard() {
                             ) : null}
                         </tbody>
                     </table>
+                </div>
+
+                <div className="ad-pager">
+                    <button
+                        className="ad-pagerBtn"
+                        type="button"
+                        onClick={() =>
+                            setDetailPage((prev) => Math.max(1, prev - 1))
+                        }
+                        disabled={detailPageSafe <= 1}
+                    >
+                        Sebelumnya
+                    </button>
+
+                    <div className="ad-pagerInfo">
+                        Halaman {detailPageSafe} dari {detailPageCount}
+                    </div>
+
+                    <button
+                        className="ad-pagerBtn"
+                        type="button"
+                        onClick={() =>
+                            setDetailPage((prev) =>
+                                Math.min(detailPageCount, prev + 1),
+                            )
+                        }
+                        disabled={detailPageSafe >= detailPageCount}
+                    >
+                        Selanjutnya
+                    </button>
                 </div>
             </section>
         </section>
@@ -636,9 +757,11 @@ export default function AdminDashboard() {
                             type="button"
                             className="ad-topLogoutBtn"
                             onClick={handleLogout}
+                            disabled={loggingOut}
+                            aria-disabled={loggingOut}
                         >
                             <FiLogOut />
-                            Keluar
+                            <span>{loggingOut ? "Keluar..." : "Keluar"}</span>
                         </button>
                     </div>
                 </header>
@@ -648,6 +771,10 @@ export default function AdminDashboard() {
                 <footer className="ad-footer">
                     <div className="ad-footerText">
                         © 2026 Kementerian Hukum Riau. All rights reserved.
+                    </div>
+
+                    <div className="ad-footerText">
+                        Dikembangkan oleh Politeknik Caltex Riau
                     </div>
                 </footer>
             </main>

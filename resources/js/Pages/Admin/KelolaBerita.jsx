@@ -12,6 +12,7 @@ import {
     FiUser,
     FiX,
 } from "react-icons/fi";
+import SuccessToast from "../../Components/ui/SuccessToast";
 import "../../../css/kelolaBerita.css";
 
 const KATEGORI_OPTIONS = [
@@ -359,7 +360,7 @@ export default function KelolaBerita({
         router.reload({
             only: ["beritaRows"],
             preserveScroll: true,
-            preserveState: false,
+            preserveState: true,
         });
     };
 
@@ -382,7 +383,7 @@ export default function KelolaBerita({
         const options = {
             forceFormData: true,
             preserveScroll: true,
-            preserveState: false,
+            preserveState: true,
             onSuccess: () => {
                 closeFormPage();
                 setToast({
@@ -392,7 +393,6 @@ export default function KelolaBerita({
                             ? "Berita berhasil diperbarui!"
                             : "Berita berhasil ditambah!",
                 });
-                refreshBeritaData();
             },
             onError: (errors) => {
                 setFormError(
@@ -424,7 +424,7 @@ export default function KelolaBerita({
 
         router.delete(beritaUrl(activeItem.id_berita), {
             preserveScroll: true,
-            preserveState: false,
+            preserveState: true,
             onSuccess: () => {
                 setDeleteOpen(false);
                 setActiveItem(null);
@@ -432,7 +432,6 @@ export default function KelolaBerita({
                     type: "success",
                     message: "Berita berhasil dihapus!",
                 });
-                refreshBeritaData();
             },
             onError: (errors) => {
                 setFormError(
@@ -827,24 +826,6 @@ export default function KelolaBerita({
     return (
         <section className="ad-pagePad ad-pagePadBerita">
             <div className="kb-wrap">
-                {toast ? (
-                    <div
-                        className={`kb-toast is-${toast.type || "success"}`}
-                        role="status"
-                    >
-                        <div className="kb-toastIcon">✓</div>
-                        <div className="kb-toastText">{toast.message}</div>
-                        <button
-                            className="kb-toastClose"
-                            type="button"
-                            onClick={() => setToast(null)}
-                            aria-label="Tutup notifikasi"
-                        >
-                            <FiX />
-                        </button>
-                    </div>
-                ) : null}
-
                 <div className="ad-pageHeader">
                     <div className="ad-pageTitleWrap">
                         <h1 className="ad-wireTitle">Kelola Berita</h1>
@@ -856,6 +837,11 @@ export default function KelolaBerita({
                     ? renderFormPage()
                     : null}
                 {pageMode === "detail" ? renderDetailPage() : null}
+
+                <SuccessToast
+                    message={toast?.message || ""}
+                    onClose={() => setToast(null)}
+                />
 
                 {deleteOpen && activeItem ? (
                     <div className="kb-deleteOverlay" role="presentation">

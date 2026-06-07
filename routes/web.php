@@ -104,9 +104,267 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/admin/verifikasi-data-posbankum/tagging/{idPosbankum}/location', [VerifikasiDataPosbankumController::class, 'updateTaggingLocation'])
         ->name('admin.verifikasi-data-posbankum.tagging.location');
 
-    /* Dashboard Paralegal */
-    Route::get('/paralegal', [DashboardController::class, 'paralegal'])
-        ->name('paralegal.dashboard');
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Paralegal
+    |--------------------------------------------------------------------------
+    | Dibuat langsung di route agar tidak error:
+    | Call to undefined method DashboardController::paralegal()
+    */
+    Route::get('/paralegal', function (Request $request) {
+        $user = $request->user();
+
+        if (!$user) {
+            return redirect()->route('home');
+        }
+
+        $getValue = function ($row, array $keys, $default = null) {
+            foreach ($keys as $key) {
+                if (is_object($row) && isset($row->{$key}) && $row->{$key} !== null && $row->{$key} !== '') {
+                    return $row->{$key};
+                }
+
+                if (is_array($row) && isset($row[$key]) && $row[$key] !== null && $row[$key] !== '') {
+                    return $row[$key];
+                }
+            }
+
+            return $default;
+        };
+
+        $hasTable = function (string $table): bool {
+            return Schema::hasTable($table);
+        };
+
+        $hasColumn = function (string $table, string $column): bool {
+            return Schema::hasTable($table) && Schema::hasColumn($table, $column);
+        };
+
+        $idPosbankum = $user->id_posbankum
+            ?? $user->posbankum_id
+            ?? $user->id_posbankum_fk
+            ?? null;
+
+        if (!$idPosbankum && $hasTable('paralegal_members')) {
+            $paralegalQuery = DB::table('paralegal_members');
+
+            if ($hasColumn('paralegal_members', 'id_user') && isset($user->id_user)) {
+                $paralegalQuery->where('id_user', $user->id_user);
+            } elseif ($hasColumn('paralegal_members', 'user_id') && isset($user->id)) {
+                $paralegalQuery->where('user_id', $user->id);
+            } elseif ($hasColumn('paralegal_members', 'email') && isset($user->email)) {
+                $paralegalQuery->where('email', $user->email);
+            } elseif ($hasColumn('paralegal_members', 'email_paralegal') && isset($user->email)) {
+                $paralegalQuery->where('email_paralegal', $user->email);
+            } else {
+                $paralegalQuery = null;
+            }
+
+            if ($paralegalQuery) {
+                $paralegalRow = $paralegalQuery->first();
+                $idPosbankum = $paralegalRow->id_posbankum
+                    ?? $paralegalRow->posbankum_id
+                    ?? null;
+            }
+        }
+
+        $posbankum = null;
+
+        if ($idPosbankum && $hasTable('posbankum')) {
+            $posbankumKey = $hasColumn('posbankum', 'id_posbankum')
+                ? 'id_posbankum'
+                : ($hasColumn('posbankum', 'id') ? 'id' : null);
+
+            if ($posbankumKey) {
+                $posbankum = DB::table('posbankum')
+                    ->where($posbankumKey, $idPosbankum)
+                    ->first();
+            }
+        }
+
+        $stats = [
+            'casesThisMonth' => 0,
+            'completedActivities' => 0,
+            'activeParalegal' => 0,
+        ];
+
+        if ($idPosbankum && $hasTable('pengaduan')) {
+            $pengaduanQuery = DB::table('pengaduan');
+
+            if ($hasColumn('pengaduan', 'id_posbankum')) {
+                $pengaduanQuery->where('id_posbankum', $idPosbankum);
+            }
+
+            if ($hasColumn('pengaduan', 'created_at')) {
+                $pengaduanQuery
+                    ->whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year);
+            }
+
+            $stats['casesThisMonth'] = $pengaduanQuery->count();
+        }
+
+        if ($idPosbankum && $hasTable('kegiatan')) {
+            $kegiatanQuery = DB::table('kegiatan');
+
+            if ($hasColumn('kegiatan', 'id_posbankum')) {
+                $kegiatanQuery->where('id_posbankum', $idPosbankum);
+            }
+
+            if ($hasColumn('kegiatan', 'status')) {
+                $kegiatanQuery->where(function ($query) {
+                    $query->where('status', 'selesai')
+                        ->orWhere('status', 'Selesai')
+                        ->orWhere('status', 'done')
+                        ->orWhere('status', 'completed');
+                });
+            }
+
+            $stats['completedActivities'] = $kegiatanQuery->count();
+        }
+
+        if ($idPosbankum && $hasTable('paralegal_members')) {
+            $paralegalCountQuery = DB::table('paralegal_members');
+
+            if ($hasColumn('paralegal_members', 'id_posbankum')) {
+                $paralegalCountQuery->where('id_posbankum', $idPosbankum);
+            }
+
+            $stats['activeParalegal'] = $paralegalCountQuery->count();
+        }
+
+        $kasusTerbaru = collect();
+
+        if ($idPosbankum && $hasTable('pengaduan')) {
+            $kasusQuery = DB::table('pengaduan');
+
+            if ($hasColumn('pengaduan', 'id_posbankum')) {
+                $kasusQuery->where('id_posbankum', $idPosbankum);
+            }
+
+            if ($hasColumn('pengaduan', 'created_at')) {
+                $kasusQuery->orderByDesc('created_at');
+            } elseif ($hasColumn('pengaduan', 'tgl_lapor')) {
+                $kasusQuery->orderByDesc('tgl_lapor');
+            }
+
+            $kasusTerbaru = $kasusQuery
+                ->limit(4)
+                ->get()
+                ->map(function ($item) use ($getValue) {
+                    return [
+                        'id' => $getValue($item, ['id_pengaduan', 'id']),
+                        'title' => $getValue($item, [
+                            'judul',
+                            'judul_pengaduan',
+                            'judul_laporan',
+                            'kategori_masalah',
+                            'kategori',
+                        ], 'Pengaduan Baru'),
+                        'description' => $getValue($item, [
+                            'deskripsi',
+                            'isi_pengaduan',
+                            'isi_laporan',
+                            'catatan_admin',
+                            'keterangan',
+                        ], 'Belum ada deskripsi.'),
+                        'location' => $getValue($item, [
+                            'lokasi',
+                            'alamat',
+                            'alamat_kejadian',
+                            'tempat_kejadian',
+                        ], 'Posbankum'),
+                        'date' => $getValue($item, [
+                            'created_at',
+                            'tgl_lapor',
+                            'tanggal',
+                            'tgl_kejadian',
+                        ]),
+                        'status' => $getValue($item, ['status'], 'Diproses'),
+                    ];
+                })
+                ->values();
+        }
+
+        $kegiatanTerbaru = collect();
+
+        if ($idPosbankum && $hasTable('kegiatan')) {
+            $kegiatanQuery = DB::table('kegiatan');
+
+            if ($hasColumn('kegiatan', 'id_posbankum')) {
+                $kegiatanQuery->where('id_posbankum', $idPosbankum);
+            }
+
+            if ($hasColumn('kegiatan', 'created_at')) {
+                $kegiatanQuery->orderByDesc('created_at');
+            } elseif ($hasColumn('kegiatan', 'tgl_upload')) {
+                $kegiatanQuery->orderByDesc('tgl_upload');
+            } elseif ($hasColumn('kegiatan', 'tgl_mulai')) {
+                $kegiatanQuery->orderByDesc('tgl_mulai');
+            }
+
+            $kegiatanTerbaru = $kegiatanQuery
+                ->limit(4)
+                ->get()
+                ->map(function ($item) use ($getValue) {
+                    return [
+                        'id' => $getValue($item, ['id_kegiatan', 'id']),
+                        'title' => $getValue($item, ['judul', 'nama_kegiatan'], 'Kegiatan Posbankum'),
+                        'description' => $getValue($item, ['deskripsi', 'keterangan'], 'Belum ada deskripsi.'),
+                        'date' => $getValue($item, ['tgl_mulai', 'tgl_upload', 'created_at', 'tanggal']),
+                        'status' => $getValue($item, ['status'], 'Diproses'),
+                    ];
+                })
+                ->values();
+        }
+
+        $notifications = collect();
+
+        if ($hasTable('notifications')) {
+            $notifQuery = DB::table('notifications');
+
+            if ($hasColumn('notifications', 'notifiable_id')) {
+                $notifQuery->where('notifiable_id', $user->id);
+            }
+
+            if ($hasColumn('notifications', 'created_at')) {
+                $notifQuery->orderByDesc('created_at');
+            }
+
+            $notifications = $notifQuery
+                ->limit(20)
+                ->get()
+                ->map(function ($item) use ($getValue) {
+                    $data = [];
+
+                    if (isset($item->data)) {
+                        $decoded = json_decode($item->data, true);
+                        $data = is_array($decoded) ? $decoded : [];
+                    }
+
+                    return [
+                        'id' => $getValue($item, ['id']),
+                        'title' => $data['title'] ?? $getValue($item, ['title'], 'Notifikasi'),
+                        'message' => $data['message'] ?? $getValue($item, ['message'], 'Ada notifikasi baru.'),
+                        'kategori' => $data['kategori'] ?? $getValue($item, ['kategori', 'type'], 'pengaduan'),
+                        'is_read' => !empty($item->read_at),
+                        'created_at' => $getValue($item, ['created_at']),
+                    ];
+                })
+                ->values();
+        }
+
+        return Inertia::render('Paralegal/Dashboard', [
+            'auth' => [
+                'user' => $user,
+            ],
+            'posbankum' => $posbankum,
+            'stats' => $stats,
+            'kasusTerbaru' => $kasusTerbaru,
+            'kegiatanTerbaru' => $kegiatanTerbaru,
+            'notifications' => $notifications,
+        ]);
+    })->name('paralegal.dashboard');
 
     Route::get('/posbankum', function () {
         return redirect()->route('paralegal.dashboard');
