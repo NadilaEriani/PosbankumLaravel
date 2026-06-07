@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\VerifikasiDataPosbankumController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Paralegal\DashboardController as ParalegalDashboardController;
+use App\Http\Controllers\Paralegal\LaporanPelayananController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -109,9 +110,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/paralegal', [ParalegalDashboardController::class, 'paralegal'])
         ->name('paralegal.dashboard');
 
-    Route::get('/posbankum', function () {
-        return redirect()->route('paralegal.dashboard');
-    })->name('posbankum.dashboard');
+    Route::get('/posbankum', [ParalegalDashboardController::class, 'posbankum'])
+        ->name('posbankum.dashboard');
+
+    Route::post('/paralegal/laporan-pelayanan', [LaporanPelayananController::class, 'store'])
+        ->name('paralegal.laporan-pelayanan.store');
+
+    Route::patch('/paralegal/laporan-pelayanan/{id}/status', [LaporanPelayananController::class, 'updateStatus'])
+        ->name('paralegal.laporan-pelayanan.status');
+
+    Route::delete('/paralegal/laporan-pelayanan/{id}', [LaporanPelayananController::class, 'destroy'])
+        ->name('paralegal.laporan-pelayanan.destroy');
 
     /* Profile Admin */
     Route::get('/admin/profile', [AdminDashboardController::class, 'admin'])

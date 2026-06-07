@@ -1402,3 +1402,52 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================================
+   Judul umum halaman konten paralegal
+   Dipakai oleh menu seperti Kelola Kegiatan dan Laporan Pelayanan.
+   Bukan card, hanya heading standar agar semua menu serasi.
+========================================================= */
+.pb2ContentWithHeading {
+    gap: 22px;
+}
+
+.pb2PageHeading {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.pb2PageHeadingTitle {
+    margin: 0;
+    color: #111827;
+    font-size: 25px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.pb2PageHeadingLine {
+    width: 60px;
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        var(--pb-active-yellow) 0%,
+        #ffab4a 100%
+    );
+    box-shadow:
+        0 6px 10px rgba(0, 0, 0, 0.18),
+        0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 720px) {
+    .pb2ContentWithHeading {
+        gap: 18px;
+    }
+
+    .pb2PageHeadingTitle {
+        font-size: 24px;
+    }
+}

@@ -27,6 +27,8 @@ import {
 import logo from "../../assets/logo.png";
 import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/paralegalDashboard.css";
+import LaporanPelayanan from "./LaporanPelayanan";
+import KelolaKegiatan from "./KelolaKegiatan";
 
 function startCase(value) {
     const text = String(value || "").trim();
@@ -339,7 +341,12 @@ export default function PosbankumDashboard({
     stats = {},
     kasusTerbaru = [],
     kegiatanTerbaru = [],
+    kegiatanRows = [],
     notifications = [],
+    laporanPelayananRows = [],
+    paralegalOptions = [],
+    currentPosbankum = {},
+    flash = {},
 }) {
     const [active, setActive] = useState("Beranda");
     const [loggingOut, setLoggingOut] = useState(false);
@@ -815,125 +822,35 @@ export default function PosbankumDashboard({
         </section>
     );
 
-    const renderKelolaKegiatan = () => (
-        <section className="pb2Content">
-            <div className="pb2Panel">
-                <div className="pb2PanelHead row">
-                    <div>
-                        <div className="pb2PanelTitle">Kelola Kegiatan</div>
-                        <div className="pb2PanelSub">
-                            Data kegiatan terbaru dari Posbankum
-                        </div>
-                    </div>
-                    <span className="pb2Status ok">
-                        {activityRows.length} Kegiatan
-                    </span>
-                </div>
+    const renderPageHeading = (title) => (
+        <div className="pb2PageHeading">
+            <h1 className="pb2PageHeadingTitle">{title}</h1>
+            <div className="pb2PageHeadingLine" />
+        </div>
+    );
 
-                <div className="pb2KegiatanList">
-                    {activityRows.length ? (
-                        activityRows.map((item) => (
-                            <div className="pb2KegiatanItem" key={item.id}>
-                                <div className="pb2KegiatanIcon">
-                                    <FiCheckCircle />
-                                </div>
-                                <div className="pb2KegiatanBody">
-                                    <div className="pb2KegiatanTitle">
-                                        {item.judul}
-                                    </div>
-                                    <div className="pb2KegiatanMeta">
-                                        <span className="pb2MetaChip">
-                                            <FiCalendar />{" "}
-                                            {fmtDateID(item.tanggal)}
-                                        </span>
-                                        {item.lokasi ? (
-                                            <span className="pb2MetaChip">
-                                                <FiMapPin /> {item.lokasi}
-                                            </span>
-                                        ) : null}
-                                    </div>
-                                </div>
-                                <span
-                                    className={`pb2Status ${item.selesai ? "ok" : "prog"}`}
-                                >
-                                    {item.status}
-                                </span>
-                            </div>
-                        ))
-                    ) : (
-                        <EmptyBox>Belum ada kegiatan.</EmptyBox>
-                    )}
-                </div>
-            </div>
+    const renderKelolaKegiatan = () => (
+        <section className="pb2Content pb2ContentWithHeading">
+            {renderPageHeading("Kelola Kegiatan")}
+            <KelolaKegiatan
+                kegiatanRows={kegiatanRows}
+                paralegalOptions={paralegalOptions}
+                currentPosbankum={currentPosbankum || posbankum}
+                flash={flash}
+            />
         </section>
     );
 
     const renderLaporanPelayanan = () => (
-        <section className="pb2Content">
-            <div className="pb2Stats">
-                <div className="pb2StatCard">
-                    <div className="pb2StatIcon blue">
-                        <FiFileText />
-                    </div>
-                    <div className="pb2StatBody">
-                        <div className="pb2StatLabel">Kasus Bulan Ini</div>
-                        <div className="pb2StatValue">
-                            {stats?.casesThisMonth ?? 0}
-                        </div>
-                        <div className="pb2StatHint">Data berjalan</div>
-                    </div>
-                </div>
-                <div className="pb2StatCard">
-                    <div className="pb2StatIcon green">
-                        <FiCheckCircle />
-                    </div>
-                    <div className="pb2StatBody">
-                        <div className="pb2StatLabel">Kegiatan Selesai</div>
-                        <div className="pb2StatValue">
-                            {stats?.completedActivities ?? 0}
-                        </div>
-                        <div className="pb2StatHint">Total diterima</div>
-                    </div>
-                </div>
-                <div className="pb2StatCard">
-                    <div className="pb2StatIcon orange">
-                        <FiUsers />
-                    </div>
-                    <div className="pb2StatBody">
-                        <div className="pb2StatLabel">Paralegal Aktif</div>
-                        <div className="pb2StatValue">
-                            {stats?.activeParalegal ?? 0}
-                        </div>
-                        <div className="pb2StatHint">Terdaftar</div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="pb2Panel">
-                <div className="pb2PanelHead">
-                    <div>
-                        <div className="pb2PanelTitle">
-                            Ringkasan Laporan Pelayanan
-                        </div>
-                        <div className="pb2PanelSub">
-                            Ringkasan data pelayanan berdasarkan data yang
-                            dikirim dari Laravel
-                        </div>
-                    </div>
-                </div>
-                <div
-                    className="pb2InlineErr"
-                    style={{
-                        color: "#4b5563",
-                        background: "#f8fafc",
-                        borderColor: "#e5e7eb",
-                    }}
-                >
-                    Data laporan detail dapat dikembangkan dari tabel kasus,
-                    pengaduan, dan kegiatan tanpa mengubah tampilan dashboard
-                    utama.
-                </div>
-            </div>
+        <section className="pb2Content pb2ContentWithHeading">
+            {renderPageHeading("Laporan Pelayanan")}
+            <LaporanPelayanan
+                profile={auth?.user || {}}
+                reports={laporanPelayananRows}
+                paralegalOptions={paralegalOptions}
+                currentPosbankum={currentPosbankum || posbankum}
+                flash={flash}
+            />
         </section>
     );
 
