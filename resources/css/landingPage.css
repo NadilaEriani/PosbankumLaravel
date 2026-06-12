@@ -5593,3 +5593,124 @@ body,
         max-height: calc(100vh - 92px) !important;
     }
 }
+
+/* ===== Mobile polish - Landing page ===== */
+@media (max-width: 768px) {
+    .lp-page {
+        overflow-x: hidden;
+    }
+
+    .lp-container {
+        width: calc(100% - 28px);
+    }
+
+    .lp-topbar-inner,
+    .lp-header-inner {
+        align-items: flex-start;
+    }
+
+    .lp-header-inner {
+        gap: 12px;
+    }
+
+    .lp-brand {
+        min-width: 0;
+    }
+
+    .lp-brand-title {
+        font-size: clamp(22px, 7vw, 26px);
+    }
+
+    .lp-btn-login,
+    .lp-btn-primary,
+    .lp-btn-outline,
+    .lp-btn-danger,
+    .lp-red-button,
+    .lp-contact-button {
+        min-width: 0;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .lp-hero-actions,
+    .lp-cta-actions,
+    .lp-contact-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .lp-hero-grid,
+    .lp-service-grid,
+    .lp-info-grid,
+    .lp-map-grid,
+    .lp-footer-grid,
+    .lp-detail-stats-grid,
+    .lp-card-grid,
+    .lp-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .lp-hero-card,
+    .lp-service-visual,
+    .lp-info-card,
+    .lp-location-panel,
+    .lp-chatbot-panel {
+        border-radius: 18px !important;
+    }
+
+    .lp-hero-title,
+    .lp-section-title,
+    .lp-blue-title,
+    .lp-map-title,
+    .lp-faq-title,
+    .lp-cta-title {
+        line-height: 1.12;
+        overflow-wrap: anywhere;
+    }
+
+    .lp-location-list,
+    .lp-table-wrap,
+    .lp-all-popup-body {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 480px) {
+    .lp-container {
+        width: calc(100% - 24px);
+    }
+
+    .lp-header-inner {
+        min-height: auto;
+    }
+
+    .lp-brand-logo,
+    .lp-brand-logo img,
+    .lp-brand-bird {
+        width: 42px;
+        height: 42px;
+    }
+
+    .lp-brand-divider {
+        height: 42px;
+    }
+
+    .lp-brand-title {
+        font-size: 22px;
+    }
+
+    .lp-hero,
+    .lp-section,
+    .lp-service-section,
+    .lp-info-section,
+    .lp-map-section,
+    .lp-faq-section,
+    .lp-cta-section {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}

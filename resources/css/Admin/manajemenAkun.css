@@ -1844,3 +1844,76 @@
         max-height: calc(100dvh - 16px);
     }
 }
+
+/* ===== Mobile polish - Manajemen Akun ===== */
+@media (max-width: 768px) {
+    .kpShell {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .kpToolbar,
+    .kpFilterGrid,
+    .kpAccountGrid,
+    .kpStats,
+    .kpFormGrid,
+    .kpDetailGrid,
+    .kpDeleteActions,
+    .kpModalFoot {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kpHead,
+    .kpCardHead,
+    .kpCardFoot,
+    .kpModalHead,
+    .kpModalFoot,
+    .kpDeleteActions {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .kpSearch,
+    .kpSelect,
+    .kpAddTop,
+    .kpBtn,
+    .kpFilterBtn,
+    .kpModalFoot button,
+    .kpDeleteActions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kpTableWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .kpModalOverlay,
+    .kpDeleteOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .kpModal,
+    .kpDeleteModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpPanel,
+    .kpTableCard,
+    .kpAccountCard,
+    .kpStatCard,
+    .kpModal,
+    .kpDeleteModal {
+        border-radius: 16px !important;
+    }
+}

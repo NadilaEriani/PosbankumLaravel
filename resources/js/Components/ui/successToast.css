@@ -102,3 +102,14 @@
         max-width: none;
     }
 }
+
+/* ===== Mobile polish - Success toast ===== */
+@media (max-width: 520px) {
+    .successToast,
+    .success-toast {
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+}

@@ -1451,3 +1451,320 @@
         font-size: 24px;
     }
 }
+
+/* ===== Mobile polish - Paralegal dashboard/layout ===== */
+@media (max-width: 860px) {
+    .pb2Root {
+        display: block;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .pb2Side {
+        width: 100%;
+        min-height: auto;
+        position: sticky;
+        top: 0;
+        z-index: 70;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.18);
+    }
+
+    .pb2Brand,
+    .pb2BrandButton {
+        min-height: auto;
+        padding: 12px 14px;
+        flex-direction: row;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 12px;
+    }
+
+    .pb2BrandLogoWrap {
+        width: 44px;
+        height: 48px;
+        flex: 0 0 auto;
+    }
+
+    .pb2BrandText {
+        margin-top: 0;
+        min-width: 0;
+        text-align: left;
+    }
+
+    .pb2BrandName {
+        font-size: 16px;
+    }
+
+    .pb2BrandSub {
+        margin-top: 4px;
+        font-size: 11px;
+    }
+
+    .pb2Nav {
+        display: flex;
+        gap: 10px;
+        padding: 10px 12px 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .pb2Nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pb2NavItem {
+        width: auto;
+        min-width: max-content;
+        min-height: 42px;
+        padding: 0 13px;
+        border-radius: 14px;
+        flex: 0 0 auto;
+    }
+
+    .pb2NavIcon,
+    .ad-navMaskIcon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+    }
+
+    .pb2NavLabel {
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .pb2Main {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .pb2Top {
+        min-height: auto;
+        padding: 14px;
+        align-items: flex-start;
+        gap: 12px;
+        flex-direction: column;
+    }
+
+    .pb2TopRight {
+        width: 100%;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .pb2TopTitle,
+    .pb2PageHeadingTitle {
+        font-size: clamp(21px, 6.4vw, 25px);
+        line-height: 1.18;
+    }
+
+    .pb2TopSub {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .pb2Content,
+    .pb2ContentWithHeading {
+        width: 100%;
+        min-width: 0;
+        padding: 16px 14px 24px !important;
+        gap: 16px;
+        overflow-x: hidden;
+    }
+
+    .pb2PanelHead,
+    .pb2PanelHead.row,
+    .pb2NotifHead,
+    .pb2NotifToolbar,
+    .pb2NotifDetailHead {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .pb2CaseGrid,
+    .pb2StatsGrid,
+    .pb2InfoGrid,
+    .pb2KegiatanGrid,
+    .pb2ConfirmActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pb2NotifOverlay,
+    .pb2ConfirmOverlay {
+        padding: 12px !important;
+        align-items: flex-start !important;
+    }
+
+    .pb2NotifModal,
+    .pb2ConfirmModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .pb2Brand,
+    .pb2BrandButton {
+        padding: 10px 12px;
+    }
+
+    .pb2BrandLogoWrap {
+        width: 40px;
+        height: 44px;
+    }
+
+    .pb2Nav {
+        padding: 8px 10px 10px;
+    }
+
+    .pb2NavItem {
+        min-height: 40px;
+        padding: 0 12px;
+    }
+
+    .pb2Top,
+    .pb2Content,
+    .pb2ContentWithHeading {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .pb2Panel,
+    .pb2CaseCard,
+    .pb2KegiatanCard,
+    .pb2InfoCard {
+        border-radius: 16px !important;
+    }
+}
+
+/* =========================================================
+   Samakan navbar mobile paralegal dengan tampilan mobile admin
+   Hanya mengubah area sidebar/brand/nav pada ukuran mobile.
+========================================================= */
+@media (max-width: 860px) {
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
+    .pb2Root {
+        min-height: 100dvh;
+        display: block;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .pb2Side {
+        width: 100%;
+        min-height: auto;
+        position: relative;
+        top: auto;
+        z-index: 5;
+        box-shadow: 0 10px 24px rgba(22, 27, 58, 0.14);
+        border-radius: 0 0 22px 22px;
+        overflow: hidden;
+        background: linear-gradient(180deg, #252d61 0%, #444b8a 100%);
+    }
+
+    .pb2Brand,
+    .pb2BrandButton {
+        padding: 16px 14px 12px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 0;
+    }
+
+    .pb2BrandLogoWrap {
+        width: 56px;
+        height: 62px;
+        flex: 0 0 auto;
+    }
+
+    .pb2BrandText {
+        margin-top: 12px;
+        min-width: 0;
+        text-align: center;
+    }
+
+    .pb2BrandName {
+        font-size: 17px;
+        line-height: 1.12;
+        font-weight: 700;
+    }
+
+    .pb2BrandSub {
+        margin-top: 8px;
+        font-size: 12px;
+        line-height: 1.25;
+        font-weight: 500;
+    }
+
+    .pb2BrandDivider {
+        height: 1px;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    .pb2Nav {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        padding: 12px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .pb2Nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pb2NavItem {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 148px;
+        min-height: 44px;
+        border-radius: 14px;
+        padding: 10px 14px;
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .pb2NavIcon,
+    .ad-navMaskIcon {
+        width: 20px;
+        height: 20px;
+        font-size: 17px;
+    }
+
+    .pb2NavLabel {
+        font-size: 13px;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 430px) {
+    .pb2Brand,
+    .pb2BrandButton {
+        padding-top: 14px;
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .pb2NavItem {
+        min-width: 134px;
+        padding: 10px 12px;
+    }
+
+    .pb2NavLabel {
+        font-size: 12px;
+    }
+}

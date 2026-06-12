@@ -1408,3 +1408,80 @@
         max-width: none;
     }
 }
+
+/* ===== Mobile polish - Kelola Berita ===== */
+@media (max-width: 768px) {
+    .kb {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .kb-pageHead,
+    .kb-toolbar,
+    .kb-filterRow,
+    .kb-cardHead,
+    .kb-detailHead,
+    .kb-modalHead,
+    .kb-modalFoot,
+    .kb-deleteActions {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .kb-statGrid,
+    .kb-cardGrid,
+    .kb-formGrid,
+    .kb-detailGrid,
+    .kb-deleteActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kb-search,
+    .kb-select,
+    .kb-btn,
+    .kb-addBtn,
+    .kb-backBtn,
+    .kb-modalFoot button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kb-pageCard,
+    .kb-tableWrap,
+    .kb-listWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .kb-modalOverlay,
+    .kb-deleteOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .kb-modal,
+    .kb-deleteModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kb-pageTitle,
+    .kb-detailTitle {
+        font-size: 21px;
+        line-height: 1.2;
+    }
+
+    .kb-pageCard,
+    .kb-modal,
+    .kb-deleteModal,
+    .kb-emptyCard {
+        border-radius: 16px !important;
+    }
+}

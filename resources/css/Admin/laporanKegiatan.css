@@ -1358,3 +1358,74 @@
         max-height: calc(100dvh - 16px);
     }
 }
+
+/* ===== Mobile polish - Laporan Kegiatan ===== */
+@media (max-width: 768px) {
+    .rk {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .rk-statGrid,
+    .rk-filterGrid,
+    .rk-cardGrid,
+    .rk-detailGrid,
+    .rk-rejectActions,
+    .rk-detailActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .rk-toolbar,
+    .rk-cardHead,
+    .rk-cardFoot,
+    .rk-filterRow,
+    .rk-detailHead,
+    .rk-rejectHead {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .rk-search,
+    .rk-select,
+    .rk-btn,
+    .rk-actionBtn,
+    .rk-rejectActions button,
+    .rk-detailActions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .rk-tableWrap,
+    .rk-listWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .rk-modalOverlay,
+    .rk-rejectOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .rk-detailModal,
+    .rk-rejectModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .rk-card,
+    .rk-filterCard,
+    .rk-statCard,
+    .rk-emptyCard,
+    .rk-detailModal,
+    .rk-rejectModal {
+        border-radius: 16px !important;
+    }
+}

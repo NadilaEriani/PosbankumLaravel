@@ -873,3 +873,98 @@
 .apf-page .apf-body {
     overflow: visible !important;
 }
+
+/* ===== Mobile polish - Admin profile ===== */
+@media (max-width: 768px) {
+    .apf-page {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .apf-headRow,
+    .apf-headActions,
+    .apf-securityCard,
+    .apf-infoCard,
+    .apf-modalFoot {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .apf-headCopy h2 {
+        font-size: clamp(22px, 7vw, 28px);
+        line-height: 1.18;
+    }
+
+    .apf-cardShell,
+    .apf-hero,
+    .apf-body,
+    .apf-security,
+    .apf-infoCard {
+        border-radius: 18px;
+    }
+
+    .apf-heroInner {
+        grid-template-columns: 1fr;
+        text-align: center;
+        justify-items: center;
+        gap: 16px;
+    }
+
+    .apf-grid,
+    .apf-security,
+    .apf-ruleList {
+        grid-template-columns: 1fr !important;
+    }
+
+    .apf-btn,
+    .apf-backBtn,
+    .apf-headEditBtn,
+    .apf-passwordBtn,
+    .apf-btnModal {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .apf-modalOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .apf-modal {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 18px;
+    }
+
+    .apf-modalHead,
+    .apf-modalBody,
+    .apf-modalFoot,
+    .apf-body {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .apf-avatarWrap {
+        width: 112px;
+        height: 112px;
+    }
+
+    .apf-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .apf-hero,
+    .apf-body,
+    .apf-modalHead,
+    .apf-modalBody,
+    .apf-modalFoot {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+}

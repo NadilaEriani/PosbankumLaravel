@@ -1436,3 +1436,82 @@
         width: 100%;
     }
 }
+
+/* ===== Mobile polish - Data Posbankum ===== */
+@media (max-width: 768px) {
+    .dp {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .dp-topBoxes,
+    .dp-filterRow,
+    .dp-toolbar,
+    .dp-tabs,
+    .dp-detailGrid,
+    .dp-mapGrid,
+    .dp-modalGrid,
+    .dp-previewActions,
+    .dp-detailFooter {
+        grid-template-columns: 1fr !important;
+    }
+
+    .dp-toolbar,
+    .dp-filterRow,
+    .dp-cardHead,
+    .dp-previewHead,
+    .dp-previewToolbar,
+    .dp-detailFooter {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .dp-search,
+    .dp-select,
+    .dp-dd,
+    .dp-resetFilterBtn,
+    .dp-clearBtn,
+    .dp-viewBtn,
+    .dp-downloadBtn,
+    .dp-backBtn {
+        width: 100%;
+    }
+
+    .dp-list,
+    .dp-expandShell,
+    .dp-expandTableWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .dp-modalOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .dp-modal,
+    .dp-previewModal,
+    .dp-detailModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .dp-topBoxes,
+    .dp-list {
+        gap: 12px;
+    }
+
+    .dp-filterCard,
+    .dp-card,
+    .dp-modal,
+    .dp-previewModal {
+        border-radius: 16px !important;
+    }
+}

@@ -1,71 +1,71 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
 
 :root {
-  --sk-blue-1: #2b3056;
-  --sk-blue-2: #3a4070;
-  --sk-blue-3: #4a5080;
-  --sk-yellow-1: #ffd82b;
-  --sk-yellow-2: #ffab4a;
-  --sk-yellow-3: #ff9f2e;
-  --sk-green-1: #006a4e;
-  --sk-green-2: #1b7f5c;
-  --sk-green-3: #2a8f6a;
-  --sk-red-1: #dc2626;
-  --sk-red-2: #b91c1c;
-  --sk-orange-1: #f97316;
-  --sk-orange-2: #c2410c;
-  --sk-surface: #ffffff;
-  --sk-bg: #f3f4f6;
-  --sk-text: #111827;
-  --sk-subtext: #4b5563;
-  --sk-border: #e5e7eb;
-  --sk-shadow: 0 10px 24px rgba(17, 24, 39, 0.12);
-  --sk-shadow-soft: 0 8px 20px rgba(17, 24, 39, 0.08);
-  --sk-radius-xl: 24px;
-  --sk-radius-lg: 18px;
-  --sk-radius-md: 16px;
-  --sk-radius-sm: 14px;
+    --sk-blue-1: #2b3056;
+    --sk-blue-2: #3a4070;
+    --sk-blue-3: #4a5080;
+    --sk-yellow-1: #ffd82b;
+    --sk-yellow-2: #ffab4a;
+    --sk-yellow-3: #ff9f2e;
+    --sk-green-1: #006a4e;
+    --sk-green-2: #1b7f5c;
+    --sk-green-3: #2a8f6a;
+    --sk-red-1: #dc2626;
+    --sk-red-2: #b91c1c;
+    --sk-orange-1: #f97316;
+    --sk-orange-2: #c2410c;
+    --sk-surface: #ffffff;
+    --sk-bg: #f3f4f6;
+    --sk-text: #111827;
+    --sk-subtext: #4b5563;
+    --sk-border: #e5e7eb;
+    --sk-shadow: 0 10px 24px rgba(17, 24, 39, 0.12);
+    --sk-shadow-soft: 0 8px 20px rgba(17, 24, 39, 0.08);
+    --sk-radius-xl: 24px;
+    --sk-radius-lg: 18px;
+    --sk-radius-md: 16px;
+    --sk-radius-sm: 14px;
 }
 
 .skWrap {
-  padding: 0;
-  color: var(--sk-text);
-  background: transparent;
-  font-family:
-    "Outfit",
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    Arial,
-    sans-serif;
+    padding: 0;
+    color: var(--sk-text);
+    background: transparent;
+    font-family:
+        "Outfit",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
 }
 
 .skHeaderRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
 }
 
 .skPageTitle {
-  margin: 0;
-  font-size: 25px;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+    margin: 0;
+    font-size: 25px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .skTitleUnderline {
-  width: 60px;
-  height: 4px;
-  margin-top: 8px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #ffd82b 0%, #ffab4a 100%);
-  box-shadow:
-    0 6px 10px rgba(0, 0, 0, 0.353),
-    0 2px 4px rgba(0, 0, 0, 0.571);
+    width: 60px;
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ffd82b 0%, #ffab4a 100%);
+    box-shadow:
+        0 6px 10px rgba(0, 0, 0, 0.353),
+        0 2px 4px rgba(0, 0, 0, 0.571);
 }
 
 .skStatsBtn,
@@ -78,36 +78,36 @@
 .skPageArrow,
 .skOptionBtn,
 .skModalClose {
-  border: 0;
-  cursor: pointer;
-  transition: 0.2s ease;
-  font-family: inherit;
+    border: 0;
+    cursor: pointer;
+    transition: 0.2s ease;
+    font-family: inherit;
 }
 
 .skStatsBtn,
 .skFilterBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 48px;
-  padding: 0 18px;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  background: linear-gradient(
-    135deg,
-    var(--sk-blue-1),
-    var(--sk-blue-2),
-    var(--sk-blue-3)
-  );
-  box-shadow: var(--sk-shadow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 18px;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
+    box-shadow: var(--sk-shadow);
 }
 
 .skStatsBtn svg {
-  font-size: 24px;
-  flex-shrink: 0;
+    font-size: 24px;
+    flex-shrink: 0;
 }
 
 .skStatsBtn:hover,
@@ -115,1109 +115,1290 @@
 .skExportBtn:hover,
 .skDetailBtn:hover,
 .skFooterPrimary:hover {
-  transform: translateY(-1px);
+    transform: translateY(-1px);
 }
 
 .skStatsGrid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
 }
 
 .skStatCard {
-  min-height: 94px;
-  padding: 14px 18px;
-  border-radius: var(--sk-radius-md);
-  color: #fff;
-  box-shadow: var(--sk-shadow);
+    min-height: 94px;
+    padding: 14px 18px;
+    border-radius: var(--sk-radius-md);
+    color: #fff;
+    box-shadow: var(--sk-shadow);
 }
 
 .skBlue {
-  background: linear-gradient(
-    135deg,
-    var(--sk-blue-1),
-    var(--sk-blue-2),
-    var(--sk-blue-3)
-  );
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
 }
 
 .skYellow {
-  background: linear-gradient(
-    135deg,
-    var(--sk-yellow-1),
-    var(--sk-yellow-2),
-    var(--sk-yellow-3)
-  );
+    background: linear-gradient(
+        135deg,
+        var(--sk-yellow-1),
+        var(--sk-yellow-2),
+        var(--sk-yellow-3)
+    );
 }
 
 .skGreen {
-  background: linear-gradient(
-    135deg,
-    var(--sk-green-1),
-    var(--sk-green-2),
-    var(--sk-green-3)
-  );
+    background: linear-gradient(
+        135deg,
+        var(--sk-green-1),
+        var(--sk-green-2),
+        var(--sk-green-3)
+    );
 }
 
 .skRed {
-  background: linear-gradient(135deg, var(--sk-red-1), var(--sk-red-2));
+    background: linear-gradient(135deg, var(--sk-red-1), var(--sk-red-2));
 }
 
 .skOrange {
-  background: linear-gradient(135deg, var(--sk-orange-1), var(--sk-orange-2));
+    background: linear-gradient(135deg, var(--sk-orange-1), var(--sk-orange-2));
 }
 
 .skStatLabel {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.92);
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .skStatValue {
-  margin-top: 6px;
-  font-size: 34px;
-  line-height: 1;
-  font-weight: 700;
+    margin-top: 6px;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 700;
 }
 
 .skToolbarCard {
-  padding: 18px;
-  margin-bottom: 18px;
-  border-radius: 18px;
-  background: var(--sk-surface);
-  box-shadow: var(--sk-shadow);
+    padding: 18px;
+    margin-bottom: 18px;
+    border-radius: 18px;
+    background: var(--sk-surface);
+    box-shadow: var(--sk-shadow);
 }
 
 .skToolbarRow {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 14px;
-  align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 14px;
+    align-items: center;
 }
 
 .skSearchBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  height: 52px;
-  padding: 0 18px;
-  border: 1px solid #d8dde6;
-  border-radius: 16px;
-  background: #fff;
-  color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 52px;
+    padding: 0 18px;
+    border: 1px solid #d8dde6;
+    border-radius: 16px;
+    background: #fff;
+    color: #9ca3af;
 }
 
 .skSearchBox svg {
-  font-size: 18px;
-  color: #9ca3af;
-  stroke-width: 1.67;
-  flex-shrink: 0;
+    font-size: 18px;
+    color: #9ca3af;
+    stroke-width: 1.67;
+    flex-shrink: 0;
 }
 
 .skSearchBox input {
-  width: 100%;
-  border: 0;
-  outline: none;
-  font-size: 14px;
-  color: var(--sk-subtext);
-  background: transparent;
-  font-family: inherit;
+    width: 100%;
+    border: 0;
+    outline: none;
+    font-size: 14px;
+    color: var(--sk-subtext);
+    background: transparent;
+    font-family: inherit;
 }
 
 .skSearchBox input::placeholder {
-  color: #03071280;
+    color: #03071280;
 }
 
 .skExportBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 48px;
-  padding: 0 22px;
-  border-radius: 14px;
-  background: #16a34a;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: var(--sk-shadow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 22px;
+    border-radius: 14px;
+    background: #16a34a;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: var(--sk-shadow);
 }
 
 .skFilterCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+    font-size: 12px;
 }
 
 .skActiveFilterBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--sk-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--sk-border);
 }
 
 .skActiveLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .skActiveLabel {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--sk-subtext);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--sk-subtext);
 }
 
 .skChipWrap {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .skActiveChip {
-  display: inline-flex;
-  align-items: center;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #d1e1fd;
-  color: #0f3f93;
-  font-size: 13px;
-  font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #d1e1fd;
+    color: #0f3f93;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .skResetLink {
-  border: 0;
-  background: transparent;
-  color: #6b7280;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
+    border: 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .skResultText {
-  margin-bottom: 16px;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 500;
+    margin-bottom: 16px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .skResultNumber {
-  font-weight: 700;
-  background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+    font-weight: 700;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 55%, #4a5080 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .skCardGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
 }
 
 .skCaseCard {
-  overflow: hidden;
-  border-radius: 18px;
-  background: #fff;
-  box-shadow: var(--sk-shadow-soft);
-  border: 1px solid rgba(17, 24, 39, 0.05);
+    overflow: hidden;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--sk-shadow-soft);
+    border: 1px solid rgba(17, 24, 39, 0.05);
 }
 
 .skCaseTop {
-  min-height: 134px;
-  padding: 14px 16px 16px;
-  background: linear-gradient(
-    135deg,
-    var(--sk-blue-1),
-    var(--sk-blue-2),
-    var(--sk-blue-3)
-  );
-  color: #fff;
+    min-height: 134px;
+    padding: 14px 16px 16px;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
+    color: #fff;
 }
 
 .skCaseTopRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .skCaseNumber {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .skPriorityPill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
 }
 
 .skPriorityTinggi {
-  background: #dc2626;
+    background: #dc2626;
 }
 
 .skPrioritySedang {
-  background: #b39200;
+    background: #b39200;
 }
 
 .skPriorityRendah {
-  background: #16a34a;
+    background: #16a34a;
 }
 
 .skCaseTitle {
-  margin: 14px 0 12px;
-  font-size: 17px;
-  line-height: 1.35;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  min-height: 46px;
-  color: #ffffff;
+    margin: 14px 0 12px;
+    font-size: 17px;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    min-height: 46px;
+    color: #ffffff;
 }
 
 .skBadgeRow {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .skStatusBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 28px;
-  padding: 0 11px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 0 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .skStatusSelesai {
-  color: #15803d;
-  background: #dcfce7;
-  border-top: 1.27px solid #86efac;
+    color: #15803d;
+    background: #dcfce7;
+    border-top: 1.27px solid #86efac;
 }
 
 .skStatusDiproses {
-  color: #2b3056;
-  background: #d1e1fd;
-  border-top: 1.27px solid #75a5f9;
+    color: #2b3056;
+    background: #d1e1fd;
+    border-top: 1.27px solid #75a5f9;
 }
 
 .skStatusMediasi {
-  color: #2b3056;
-  background: #d1e1fd;
-  border-top: 1.27px solid #75a5f9;
+    color: #2b3056;
+    background: #d1e1fd;
+    border-top: 1.27px solid #75a5f9;
 }
 
 .skCategoryBadge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: #ffffff33;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #ffffff33;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .skCaseBody {
-  padding: 16px 16px 18px;
+    padding: 16px 16px 18px;
 }
 
 .skProgressHead,
 .skDetailProgressHead,
 .skBarHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .skProgressHead {
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--sk-subtext);
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sk-subtext);
 }
 
 .skProgressTrack,
 .skDetailProgressTrack,
 .skBarTrack {
-  width: 100%;
-  overflow: hidden;
-  border-radius: 999px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 999px;
 }
 
 .skProgressTrack,
 .skBarTrack {
-  height: 7px;
-  background: #d9dde3;
+    height: 7px;
+    background: #d9dde3;
 }
 
 .skProgressFill,
 .skBarFill {
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    var(--sk-blue-1),
-    var(--sk-blue-2),
-    var(--sk-blue-3)
-  );
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
 }
 
 .skInfoList {
-  display: grid;
-  gap: 7px;
-  margin-top: 14px;
+    display: grid;
+    gap: 7px;
+    margin-top: 14px;
 }
 
 .skInfoItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--sk-subtext);
-  font-size: 13px;
-  line-height: 1.45;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--sk-subtext);
+    font-size: 13px;
+    line-height: 1.45;
 }
 
 .skInfoItem svg,
 .skMaskIcon {
-  flex: 0 0 auto;
+    flex: 0 0 auto;
 }
 
 .skInfoItem svg {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 .skMaskIcon {
-  width: 14px;
-  height: 14px;
-  display: inline-block;
-  background: currentColor;
-  color: var(--sk-subtext);
-  -webkit-mask-image: var(--mask-url);
-  mask-image: var(--mask-url);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  mask-size: contain;
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    background: currentColor;
+    color: var(--sk-subtext);
+    -webkit-mask-image: var(--mask-url);
+    mask-image: var(--mask-url);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
 }
 
 .skInfoItemPosbankum .skMaskIcon {
-  color: var(--sk-subtext);
+    color: var(--sk-subtext);
 }
 
 .skInfoTextBold {
-  font-weight: 700;
-  color: var(--sk-text);
+    font-weight: 700;
+    color: var(--sk-text);
 }
 
 .skMaskBlue {
-  color: #1d4ed8;
+    color: #1d4ed8;
 }
 
 .skDateIconBold {
-  font-size: 15px !important;
-  stroke-width: 1.8;
-  color: var(--sk-subtext);
-  flex: 0 0 auto;
+    font-size: 15px !important;
+    stroke-width: 1.8;
+    color: var(--sk-subtext);
+    flex: 0 0 auto;
 }
 
 .skDateIconBoldBlue {
-  color: #1d4ed8;
+    color: #1d4ed8;
 }
 
 .skParalegalIconThin {
-  font-size: 15px !important;
-  color: var(--sk-subtext);
-  flex: 0 0 auto;
-  stroke-width: -1;
+    font-size: 15px !important;
+    color: var(--sk-subtext);
+    flex: 0 0 auto;
+    stroke-width: -1;
 }
 
 .skCaseDesc {
-  min-height: 62px;
-  margin: 14px 0 16px;
-  color: var(--sk-subtext);
-  font-size: 13px;
-  line-height: 1.58;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+    min-height: 62px;
+    margin: 14px 0 16px;
+    color: var(--sk-subtext);
+    font-size: 13px;
+    line-height: 1.58;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .skDetailBtn {
-  width: 100%;
-  height: 42px;
-  border-radius: 14px;
-  background: linear-gradient(
-    135deg,
-    var(--sk-blue-1),
-    var(--sk-blue-2),
-    var(--sk-blue-3)
-  );
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+    width: 100%;
+    height: 42px;
+    border-radius: 14px;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .skDetailBtn svg {
-  font-size: 16px;
-  flex: 0 0 auto;
-  position: relative;
-  top: -0.5px;
+    font-size: 16px;
+    flex: 0 0 auto;
+    position: relative;
+    top: -0.5px;
 }
 
 .skPagination {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 22px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 22px;
 }
 
 .skPageBtn,
 .skPageArrow {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: #fff;
-  color: var(--sk-blue-1);
-  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.12);
-  font-weight: 700;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--sk-blue-1);
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.12);
+    font-weight: 700;
 }
 
 .skPageBtn.is-active {
-  background: linear-gradient(
-    135deg,
-    var(--sk-blue-1),
-    var(--sk-blue-2),
-    var(--sk-blue-3)
-  );
-  color: #fff;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
+    color: #fff;
 }
 
 .skPageArrow:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+    opacity: 0.45;
+    cursor: not-allowed;
 }
 
 .skOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(17, 24, 39, 0.48);
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(17, 24, 39, 0.48);
 }
 
 .skDetailModal,
 .skFilterModal,
 .skStatModal {
-  width: 100%;
-  background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-  overflow: hidden;
+    width: 100%;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
 }
 
 .skDetailModal {
-  max-width: 820px;
-  max-height: 92vh;
-  overflow: auto;
+    max-width: 820px;
+    max-height: 92vh;
+    overflow: auto;
 }
 
 .skFilterModal {
-  max-width: 760px;
-  max-height: 92vh;
-  overflow: auto;
+    max-width: 760px;
+    max-height: 92vh;
+    overflow: auto;
 }
 
 .skStatModal {
-  max-width: 900px;
-  max-height: 92vh;
-  overflow: auto;
+    max-width: 900px;
+    max-height: 92vh;
+    overflow: auto;
 }
 
 .skDetailHeader,
 .skModalTopBar {
-  position: relative;
-  color: #fff;
-  background: linear-gradient(135deg, #133a8a 0%, #0f3f93 55%, #163f88 100%);
+    position: relative;
+    color: #fff;
+    background: linear-gradient(135deg, #133a8a 0%, #0f3f93 55%, #163f88 100%);
 }
 
 .skDetailHeader {
-  padding: 22px 24px 24px;
+    padding: 22px 24px 24px;
 }
 
 .skModalTopBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
 }
 
 .skModalTitle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
 }
 
 .skModalClose {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
 }
 
 .skDetailHeader .skModalClose {
-  position: absolute;
-  top: 22px;
-  right: 18px;
+    position: absolute;
+    top: 22px;
+    right: 18px;
 }
 
 .skDetailNumber {
-  margin-bottom: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #ffffffcc;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffffcc;
 }
 
 .skDetailTitle {
-  max-width: calc(100% - 64px);
-  font-size: 22px;
-  line-height: 1.3;
-  font-weight: 700;
+    max-width: calc(100% - 64px);
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 700;
 }
 
 .skDetailBadgeRow {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 14px 0 18px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 14px 0 18px;
 }
 
 .skDetailProgressHead {
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .skDetailProgressHead b {
-  font-size: 13px;
+    font-size: 13px;
 }
 
 .skDetailProgressTrack {
-  height: 12px;
-  background: rgba(255, 255, 255, 0.2);
+    height: 12px;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .skDetailProgressFill {
-  height: 100%;
-  border-radius: inherit;
-  background: #ffffff;
+    height: 100%;
+    border-radius: inherit;
+    background: #ffffff;
 }
 
 .skDetailBody {
-  padding: 26px 24px 18px;
-  background: #ffffff;
+    padding: 26px 24px 18px;
+    background: #ffffff;
 }
 
 .skDetailInfoCard {
-  padding: 18px 18px 16px;
-  border-radius: 18px;
-  background: #eef4ff;
-  border: 1px solid #a3c3fb;
+    padding: 18px 18px 16px;
+    border-radius: 18px;
+    background: #eef4ff;
+    border: 1px solid #a3c3fb;
 }
 
 .skSectionBlock {
-  margin-top: 24px;
+    margin-top: 24px;
 }
 
 .skSectionHead {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  color: var(--sk-blue-1);
-  font-size: 15px;
-  font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    color: var(--sk-blue-1);
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .skSectionHead.is-card {
-  margin-bottom: 14px;
+    margin-bottom: 14px;
 }
 
 .skSectionHead svg,
 .skSectionHead .skMaskIcon {
-  font-size: 20px;
-  width: 18px;
-  height: 18px;
+    font-size: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 .skDetailInfoGrid,
 .skTwoColGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
 }
 
 .skPlainCard,
 .skDescriptionCard {
-  padding: 18px;
-  border-radius: 18px;
-  background: #f8fafc;
+    padding: 18px;
+    border-radius: 18px;
+    background: #f8fafc;
 }
 
 .skDescriptionCard {
-  color: var(--sk-subtext);
-  line-height: 1.75;
-  font-size: 15px;
+    color: var(--sk-subtext);
+    line-height: 1.75;
+    font-size: 15px;
 }
 
 .skDetailLabel {
-  margin-bottom: 8px;
-  color: #6b7280;
-  font-size: 14px;
-  font-weight: 500;
+    margin-bottom: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .skDetailValue {
-  color: var(--sk-text);
-  font-size: 15px;
-  line-height: 1.5;
-  font-weight: 700;
+    color: var(--sk-text);
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 700;
 }
 
 .skIconValue {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .skDetailFooter,
 .skModalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 18px 24px 22px;
-  background: #fff;
-  border-top: 1px solid var(--sk-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 18px 24px 22px;
+    background: #fff;
+    border-top: 1px solid var(--sk-border);
 }
 
 .skFooterGhost {
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: #e5e7eb;
-  color: #374151;
-  font-size: 15px;
-  font-weight: 700;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 16px;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .skFooterPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  height: 48px;
-  padding: 0 24px;
-  border-radius: 16px;
-  background: #1746a2;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 16px;
+    background: #1746a2;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .skFilterBody,
 .skStatModalBody {
-  padding: 24px;
+    padding: 24px;
 }
 
 .skFilterSection + .skFilterSection {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 .skFilterLabel,
 .skStatSectionTitle {
-  margin-bottom: 14px;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--sk-text);
+    margin-bottom: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--sk-text);
 }
 
 .skOptionGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
 }
 
 .skOptionColumn {
-  display: grid;
-  gap: 10px;
+    display: grid;
+    gap: 10px;
 }
 
 .skOptionBtn {
-  min-height: 48px;
-  padding: 12px 16px;
-  border-radius: 16px;
-  background: #f3f4f6;
-  color: #374151;
-  font-size: 15px;
-  font-weight: 700;
-  text-align: center;
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
 }
 
 .skOptionBtn.full {
-  justify-content: flex-start;
-  text-align: left;
+    justify-content: flex-start;
+    text-align: left;
 }
 
 .skOptionBtn.is-active {
-  background: #1746a2;
-  color: #fff;
-  box-shadow: var(--sk-shadow);
+    background: #1746a2;
+    color: #fff;
+    box-shadow: var(--sk-shadow);
 }
 
 .skStatModalBody {
-  background: #fff;
+    background: #fff;
 }
 
 .skStatModalGrid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
 .skStatModalGrid .skStatCard {
-  min-height: 92px;
-  padding: 14px 16px;
-  border-radius: 16px;
+    min-height: 92px;
+    padding: 14px 16px;
+    border-radius: 16px;
 }
 
 .skBarList {
-  display: grid;
-  gap: 14px;
+    display: grid;
+    gap: 14px;
 }
 
 .skBarCard {
-  padding: 16px;
-  border-radius: 18px;
-  background: #f8fafc;
+    padding: 16px;
+    border-radius: 18px;
+    background: #f8fafc;
 }
 
 .skBarHead {
-  margin-bottom: 10px;
-  color: var(--sk-blue-1);
-  font-size: 16px;
-  font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--sk-blue-1);
+    font-size: 16px;
+    font-weight: 700;
 }
 
 .skBarHead b {
-  font-size: 14px;
-  color: var(--sk-blue-2);
+    font-size: 14px;
+    color: var(--sk-blue-2);
 }
 
 .skBarTrack {
-  height: 8px;
-  background: #dfe3e8;
+    height: 8px;
+    background: #dfe3e8;
 }
 
 .skBarFill {
-  min-width: 18px;
+    min-width: 18px;
 }
 
 .skPosbankumGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
 }
 
 .skPosbankumCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border-radius: 18px;
-  background: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 18px;
+    background: #f8fafc;
 }
 
 .skPosbankumLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--sk-blue-1);
-  font-size: 15px;
-  font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--sk-blue-1);
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .skPosbankumCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 34px;
-  height: 34px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: linear-gradient(
-    135deg,
-    var(--sk-blue-1),
-    var(--sk-blue-2),
-    var(--sk-blue-3)
-  );
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 @media (max-width: 1200px) {
-  .skStatsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+    .skStatsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-  .skCardGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+    .skCardGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 900px) {
-  .skToolbarRow {
-    grid-template-columns: 1fr;
-  }
+    .skToolbarRow {
+        grid-template-columns: 1fr;
+    }
 
-  .skDetailInfoGrid,
-  .skTwoColGrid,
-  .skStatModalGrid,
-  .skPosbankumGrid,
-  .skOptionGrid {
-    grid-template-columns: 1fr;
-  }
+    .skDetailInfoGrid,
+    .skTwoColGrid,
+    .skStatModalGrid,
+    .skPosbankumGrid,
+    .skOptionGrid {
+        grid-template-columns: 1fr;
+    }
 
-  .skCardGrid {
-    grid-template-columns: 1fr;
-  }
+    .skCardGrid {
+        grid-template-columns: 1fr;
+    }
 
-  .skHeaderRow,
-  .skActiveFilterBar {
-    flex-direction: column;
-    align-items: stretch;
-  }
+    .skHeaderRow,
+    .skActiveFilterBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
-  .skDetailTitle {
-    max-width: 100%;
-  }
+    .skDetailTitle {
+        max-width: 100%;
+    }
 }
 
 /* ===== Hover & Action States ===== */
 .skWrap button,
 .skWrap [role="button"] {
-  transition:
-    background 180ms ease,
-    color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease,
-    filter 180ms ease;
+    transition:
+        background 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease,
+        filter 180ms ease;
 }
 
 .skWrap button:not(:disabled):hover,
 .skWrap button:not(:disabled):focus-visible,
 .skWrap [role="button"]:hover,
 .skWrap [role="button"]:focus-visible {
-  transform: translateY(-1px);
-  filter: brightness(1.04);
-  box-shadow:
-    0 4px 6px -4px rgba(0, 0, 0, 0.1),
-    0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .skWrap button:not(:disabled):active,
 .skWrap [role="button"]:active {
-  transform: translateY(0);
+    transform: translateY(0);
 }
 
 /* ===== Revisi: empty state & search hover ===== */
 .skSearchBox {
-  transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
 }
 
 .skSearchBox:hover,
 .skSearchBox:focus-within {
-  border-color: #b8c3d6;
-  box-shadow:
-    0 4px 6px -4px rgba(0, 0, 0, 0.1),
-    0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #b8c3d6;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .skSearchBox input:focus,
 .skSearchBox input:focus-visible {
-  outline: none;
-  box-shadow: none;
+    outline: none;
+    box-shadow: none;
 }
 
 .sk-emptyCard {
-  min-height: 376px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #dfe3ea;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 40px 24px;
-  color: #475467;
+    min-height: 376px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #dfe3ea;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+    color: #475467;
 }
 
 .sk-emptyCard.is-loading {
-  min-height: 150px;
-  font-size: 15px;
-  font-weight: 700;
+    min-height: 150px;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .sk-emptyIcon {
-  width: 88px;
-  height: 88px;
-  border-radius: 999px;
-  background: #f2f4f7;
-  display: grid;
-  place-items: center;
-  color: #98a2b3;
-  margin-bottom: 26px;
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    display: grid;
+    place-items: center;
+    color: #98a2b3;
+    margin-bottom: 26px;
 }
 
 .sk-emptyIcon svg {
-  width: 43px;
-  height: 43px;
+    width: 43px;
+    height: 43px;
 }
 
 .sk-emptyCard h2 {
-  margin: 0 0 13px;
-  color: #111827;
-  font-size: 20px;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+    margin: 0 0 13px;
+    color: #111827;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .sk-emptyCard p {
-  margin: 0 0 27px;
-  color: #475467;
-  font-size: 15px;
-  line-height: 1.45;
-  font-weight: 700;
+    margin: 0 0 27px;
+    color: #475467;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 700;
 }
 
 .sk-emptyBtn {
-  min-width: 132px;
-  height: 48px;
-  border: 0;
-  border-radius: 15px;
-  background: #343a73;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 9px 18px rgba(52, 58, 115, 0.25);
+    min-width: 132px;
+    height: 48px;
+    border: 0;
+    border-radius: 15px;
+    background: #343a73;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 9px 18px rgba(52, 58, 115, 0.25);
 }
-
 
 /* ===== Laravel Inertia integration: layout handled by paralegalDashboard.css ===== */
 .skWrap {
-  padding: 0 !important;
-  background: transparent !important;
+    padding: 0 !important;
+    background: transparent !important;
 }
 .skHeaderRow {
-  display: none !important;
+    display: none !important;
 }
 .skModalOverlay,
 .skStatsOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  background: rgba(2, 6, 23, 0.55);
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background: rgba(2, 6, 23, 0.55);
 }
 .skModalCard,
 .skStatsModalCard {
-  width: min(780px, calc(100vw - 36px));
-  max-height: calc(100vh - 36px);
-  overflow: auto;
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(0,0,0,.28);
+    width: min(780px, calc(100vw - 36px));
+    max-height: calc(100vh - 36px);
+    overflow: auto;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.28);
 }
 .skModalHead,
 .skStatsHead {
-  min-height: 64px;
-  padding: 0 22px;
-  background: linear-gradient(135deg, var(--sk-blue-1), var(--sk-blue-2), var(--sk-blue-3));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+    min-height: 64px;
+    padding: 0 22px;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
 }
 .skModalTitle,
-.skStatsTitle { font-size: 20px; font-weight: 700; }
+.skStatsTitle {
+    font-size: 20px;
+    font-weight: 700;
+}
 .skModalBody,
-.skStatsBody { padding: 22px; }
-.skModalClose { width: 38px; height: 38px; border-radius: 12px; background: rgba(255,255,255,.18); color: #fff; display: grid; place-items: center; }
-.skFilterGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
-.skFilterField label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--sk-text); }
-.skFilterField select { width: 100%; height: 46px; border: 1px solid #d8dde6; border-radius: 14px; padding: 0 14px; background: #fff; font: inherit; font-size: 14px; color: var(--sk-text); }
-.skModalActions { padding: 16px 22px; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 12px; }
-.skFooterGhost, .skFooterPrimary { min-width: 110px; height: 44px; border-radius: 14px; font-size: 14px; font-weight: 700; }
-.skFooterGhost { background: #e5e7eb; color: #374151; }
-.skFooterPrimary { background: linear-gradient(135deg, var(--sk-blue-1), var(--sk-blue-2), var(--sk-blue-3)); color: #fff; }
-.skEmptyCard { grid-column: 1/-1; min-height: 300px; border-radius: 18px; background: #fff; box-shadow: var(--sk-shadow-soft); display: grid; place-items: center; text-align: center; padding: 40px 20px; color: #6b7280; }
-.skDetailGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
-.skDetailBlock { padding: 14px; border-radius: 14px; background: #f8fafc; border: 1px solid #e5e7eb; }
-.skDetailLabel { font-size: 12px; font-weight: 700; color: #6b7280; margin-bottom: 6px; }
-.skDetailValue { font-size: 14px; font-weight: 700; color: #111827; line-height: 1.45; }
-.skDetailDesc { margin-top: 16px; padding: 16px; border-radius: 14px; background: #fff; border: 1px solid #e5e7eb; color: #374151; line-height: 1.6; font-size: 14px; }
+.skStatsBody {
+    padding: 22px;
+}
+.skModalClose {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    display: grid;
+    place-items: center;
+}
+.skFilterGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+.skFilterField label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sk-text);
+}
+.skFilterField select {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    padding: 0 14px;
+    background: #fff;
+    font: inherit;
+    font-size: 14px;
+    color: var(--sk-text);
+}
+.skModalActions {
+    padding: 16px 22px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+.skFooterGhost,
+.skFooterPrimary {
+    min-width: 110px;
+    height: 44px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+}
+.skFooterGhost {
+    background: #e5e7eb;
+    color: #374151;
+}
+.skFooterPrimary {
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    );
+    color: #fff;
+}
+.skEmptyCard {
+    grid-column: 1/-1;
+    min-height: 300px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: var(--sk-shadow-soft);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+.skDetailGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+.skDetailBlock {
+    padding: 14px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+}
+.skDetailLabel {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+.skDetailValue {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.45;
+}
+.skDetailDesc {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    line-height: 1.6;
+    font-size: 14px;
+}
 @media (max-width: 720px) {
-  .skFilterGrid, .skDetailGrid { grid-template-columns: 1fr; }
-  .skToolbarRow { grid-template-columns: 1fr; }
-  .skStatsGrid, .skCardGrid { grid-template-columns: 1fr !important; }
+    .skFilterGrid,
+    .skDetailGrid {
+        grid-template-columns: 1fr;
+    }
+    .skToolbarRow {
+        grid-template-columns: 1fr;
+    }
+    .skStatsGrid,
+    .skCardGrid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ===== Mobile polish - Semua Kasus ===== */
+@media (max-width: 768px) {
+    .skWrap {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .skStatsGrid,
+    .skCardGrid,
+    .skFilterGrid,
+    .skDetailGrid,
+    .skSummaryGrid,
+    .skModalActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .skToolbarRow,
+    .skHeaderRow,
+    .skCardHead,
+    .skCardFoot,
+    .skModalHead,
+    .skStatsHead,
+    .skModalActions {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .skSearch,
+    .skSelect,
+    .skStatsBtn,
+    .skFilterBtn,
+    .skDetailBtn,
+    .skExportBtn,
+    .skFooterGhost,
+    .skFooterPrimary,
+    .skEmptyBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .skModalOverlay,
+    .skStatsOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .skModalCard,
+    .skStatsModalCard {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .skCard,
+    .skStatCard,
+    .skEmptyCard,
+    .skModalCard,
+    .skStatsModalCard {
+        border-radius: 16px !important;
+    }
+
+    .skPageTitle {
+        font-size: 21px;
+        line-height: 1.2;
+    }
 }

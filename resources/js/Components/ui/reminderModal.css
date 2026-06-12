@@ -165,3 +165,26 @@
         width: 100%;
     }
 }
+
+/* ===== Mobile polish - Reminder modal ===== */
+@media (max-width: 520px) {
+    .reminderModalOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .reminderModal {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 18px;
+    }
+
+    .reminderModalActions {
+        grid-template-columns: 1fr;
+    }
+
+    .reminderModalActions button {
+        width: 100%;
+    }
+}

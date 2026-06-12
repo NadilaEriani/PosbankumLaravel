@@ -2030,3 +2030,80 @@
         min-height: 260px;
     }
 }
+
+/* ===== Mobile polish - Verifikasi Data Posbankum ===== */
+@media (max-width: 768px) {
+    .vd {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .vd-topBoxes,
+    .vd-filterRow,
+    .vd-cardGrid,
+    .vd-docGrid,
+    .vd-locationGrid,
+    .vd-locationActions,
+    .vd-rejectActions,
+    .vd-locFormGrid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .vd-toolbar,
+    .vd-filterRow,
+    .vd-cardHead,
+    .vd-previewHead,
+    .vd-previewToolbar,
+    .vd-locationHead,
+    .vd-rejectHead {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .vd-search,
+    .vd-select,
+    .vd-dd,
+    .vd-downloadBtn,
+    .vd-locationActions button,
+    .vd-rejectActions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vd-cardDocs,
+    .vd-tableWrap,
+    .vd-listWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .vd-modalOverlay,
+    .vd-previewOverlay,
+    .vd-locationOverlay,
+    .vd-rejectOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .vd-previewModal,
+    .vd-locationModal,
+    .vd-rejectModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .vd-filterCard,
+    .vd-card,
+    .vd-previewModal,
+    .vd-locationModal,
+    .vd-rejectModal {
+        border-radius: 16px !important;
+    }
+}

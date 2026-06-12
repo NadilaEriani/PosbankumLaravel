@@ -1343,3 +1343,80 @@
         padding: 0;
     }
 }
+
+/* ===== Mobile polish - Kelola Kegiatan ===== */
+@media (max-width: 768px) {
+    .kk-wrap {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .kk-stats,
+    .kk-row,
+    .kk-formGrid,
+    .kk-detailGrid,
+    .kk-detail-infoGrid,
+    .kk-memberGrid,
+    .kk-deleteActions,
+    .kk-modalActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kk-headTop,
+    .kk-toolbar,
+    .kk-cardHead,
+    .kk-cardFoot,
+    .kk-modalHead,
+    .kk-modalActions,
+    .kk-detailHead {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .kk-search,
+    .kk-select,
+    .kk-btn,
+    .kk-addBtn,
+    .kk-actionBtn,
+    .kk-modalActions button,
+    .kk-memberSelectChip {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kk-tableWrap,
+    .kk-listWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .kk-modalOverlay,
+    .kk-deleteOverlay,
+    .kk-detailOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .kk-modal,
+    .kk-deleteModal,
+    .kk-detailModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kk-card,
+    .kk-statCard,
+    .kk-emptyCard,
+    .kk-modal,
+    .kk-detailModal,
+    .kk-deleteModal {
+        border-radius: 16px !important;
+    }
+}

@@ -1349,3 +1349,97 @@
         padding-bottom: 0;
     }
 }
+
+/* ===== Mobile polish - Laporan Pelayanan ===== */
+@media (max-width: 768px) {
+    .lpRoot {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .lpStatsGrid,
+    .lpFormGrid,
+    .lpReportGrid,
+    .lpSummaryGrid,
+    .lpDetailGrid,
+    .lpTimelineGrid,
+    .lpDeleteActions,
+    .lpModalActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .lpTopRow,
+    .lpToolbar,
+    .lpFormHead,
+    .lpCardHead,
+    .lpCardFooter,
+    .lpDetailHead,
+    .lpModalHead,
+    .lpModalActions,
+    .lpFilterRow {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .lpSearch,
+    .lpSelect,
+    .lpInputWrap,
+    .lpBtn,
+    .lpAddBtn,
+    .lpActionBtn,
+    .lpTab,
+    .lpModalActions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .lpTabs {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .lpReportList,
+    .lpTableWrap,
+    .lpChartWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .lpModalOverlay,
+    .lpDeleteOverlay,
+    .lpDetailOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .lpModal,
+    .lpDetailModal,
+    .lpDeleteModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .lpStatCard,
+    .lpFormCard,
+    .lpReportCard,
+    .lpEmptyCard,
+    .lpModal,
+    .lpDetailModal,
+    .lpDeleteModal {
+        border-radius: 16px !important;
+    }
+
+    .lpPageTitle {
+        font-size: 21px;
+        line-height: 1.2;
+    }
+}

@@ -19,7 +19,9 @@
     --muted: #6b7280;
     --shadow: 0 10px 24px rgba(17, 24, 39, 0.12);
 
-    padding: 28px 18px 24px;
+    padding: 0;
+    width: 100%;
+    min-width: 0;
     font-family:
         "Outfit",
         system-ui,
@@ -1481,4 +1483,80 @@
 .pb2ViewAllWrap {
     box-shadow: none !important;
     background: transparent !important;
+}
+
+/* ===== Mobile polish - Kelola Posbankum ===== */
+@media (max-width: 768px) {
+    .kdpRoot {
+        width: 100%;
+        min-width: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .kdpRoot .kpPageHead,
+    .kdpRoot .kpToolbar,
+    .kdpRoot .kpCardHead,
+    .kdpRoot .kpDocRow,
+    .kdpRoot .kpModalHead,
+    .kdpRoot .kpModalActions,
+    .kdpRoot .kpLocationActions {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .kdpRoot .kpStats,
+    .kdpRoot .kpGrid,
+    .kdpRoot .kpInfoGrid,
+    .kdpRoot .kpFormGrid,
+    .kdpRoot .kpLocationGrid,
+    .kdpRoot .kpModalActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kdpRoot .kpSearch,
+    .kdpRoot .kpSelect,
+    .kdpRoot .kpBtn,
+    .kdpRoot .kpActionBtn,
+    .kdpRoot .kpUploadBtn,
+    .kdpRoot .kpLocationActions button,
+    .kdpRoot .kpModalActions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kdpRoot .kpTableWrap,
+    .kdpRoot .kpDocList,
+    .kdpRoot .kpMapWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .kdpRoot .kpModalOverlay,
+    .kdpRoot .kpDetailOverlay,
+    .kdpRoot .kpDeleteOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .kdpRoot .kpModal,
+    .kdpRoot .kpDetailModal,
+    .kdpRoot .kpDeleteModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kdpRoot .kpCard,
+    .kdpRoot .kpStatCard,
+    .kdpRoot .kpModal,
+    .kdpRoot .kpDetailModal,
+    .kdpRoot .kpDeleteModal {
+        border-radius: 16px !important;
+    }
 }

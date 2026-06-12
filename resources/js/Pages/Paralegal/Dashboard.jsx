@@ -724,13 +724,15 @@ export default function PosbankumDashboard({
     );
 
     const renderKelolaPosbankum = () => (
-        <KelolaPosbankum
-            profile={auth?.user || {}}
-            currentPosbankum={currentPosbankum || posbankum}
-            documents={posbankumDocuments}
-            location={posbankumLocation}
-            flash={flash}
-        />
+        <section className="pb2Content pb2ContentWithHeading">
+            <KelolaPosbankum
+                profile={auth?.user || {}}
+                currentPosbankum={currentPosbankum || posbankum}
+                documents={posbankumDocuments}
+                location={posbankumLocation}
+                flash={flash}
+            />
+        </section>
     );
 
     const renderPageHeading = (title) => (
