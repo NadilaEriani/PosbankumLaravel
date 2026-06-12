@@ -10,6 +10,7 @@ use App\Http\Controllers\Paralegal\DashboardController as ParalegalDashboardCont
 use App\Http\Controllers\Paralegal\KelolaKegiatanController;
 use App\Http\Controllers\Paralegal\KelolaPosbankumController;
 use App\Http\Controllers\Paralegal\LaporanPelayananController;
+use App\Http\Controllers\Paralegal\ProfileController as ParalegalProfileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -103,6 +104,15 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.manajemen-akun.paralegal.destroy');
 
     /* Verifikasi Data Posbankum */
+    Route::get('/admin/verifikasi-data-posbankum/dokumen/{id}/preview', [VerifikasiDataPosbankumController::class, 'previewDokumen'])
+        ->name('admin.verifikasi-data-posbankum.dokumen.preview');
+
+    Route::get('/admin/verifikasi-data-posbankum/dokumen-preview', [VerifikasiDataPosbankumController::class, 'previewDokumenPath'])
+        ->name('admin.verifikasi-data-posbankum.dokumen.preview-path');
+
+    Route::patch('/admin/verifikasi-data-posbankum/dokumen-status-by-path', [VerifikasiDataPosbankumController::class, 'updateDokumenStatusByPath'])
+        ->name('admin.verifikasi-data-posbankum.dokumen.status-by-path');
+
     Route::patch('/admin/verifikasi-data-posbankum/dokumen/{id}/status', [VerifikasiDataPosbankumController::class, 'updateDokumenStatus'])
         ->name('admin.verifikasi-data-posbankum.dokumen.status');
 
@@ -118,6 +128,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/posbankum', [ParalegalDashboardController::class, 'posbankum'])
         ->name('posbankum.dashboard');
+
+    Route::put('/paralegal/profile', [ParalegalProfileController::class, 'update'])
+        ->name('paralegal.profile.update');
 
     Route::post('/paralegal/kelola-kegiatan', [KelolaKegiatanController::class, 'store'])
         ->name('paralegal.kelola-kegiatan.store');

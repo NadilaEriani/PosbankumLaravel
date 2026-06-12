@@ -20,6 +20,7 @@ import "../../../css/Paralegal/kelolaPosbankum.css";
 const DOC_STATUS_PROCESS = "menunggu";
 const MAX_FILE = 5 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["application/pdf", "image/jpeg", "image/png"]);
+const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png"];
 const SAPRAS_PREVIEW_LIMIT = 8;
 const LEAFLET_CSS_URLS = [
     "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
@@ -459,7 +460,16 @@ function isImageMime(mimeType, name = "") {
 
 function validateOneFile(file) {
     if (!file) return "Pilih file dulu.";
-    if (!ALLOWED_MIME.has(file.type)) return "Format file harus PDF/JPG/PNG.";
+
+    const mime = String(file.type || "").toLowerCase();
+    const name = String(file.name || "").toLowerCase();
+    const allowedByMime = ALLOWED_MIME.has(mime);
+    const allowedByExt = ALLOWED_EXTENSIONS.some((ext) => name.endsWith(ext));
+
+    if (!allowedByMime && !allowedByExt) {
+        return "Format file harus PDF/JPG/PNG.";
+    }
+
     if (file.size > MAX_FILE) return "Ukuran maksimal 5MB.";
     return "";
 }

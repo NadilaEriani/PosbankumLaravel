@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class VerifikasiDataPosbankumController extends Controller
@@ -38,6 +40,142 @@ class VerifikasiDataPosbankumController extends Controller
         if ($this->hasColumn($table, $column)) {
             $payload[$column] = $value;
         }
+    }
+
+    private function rowValue(array|object|null $row, array $keys, mixed $default = null): mixed
+    {
+        $data = (array) ($row ?? []);
+
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $data) && $data[$key] !== null && $data[$key] !== '') {
+                return $data[$key];
+            }
+        }
+
+        return $default;
+    }
+
+    private function normalizePublicStoragePath(mixed $path): string
+    {
+        $clean = str_replace('\\', '/', trim((string) $path));
+        $clean = preg_replace('#^https?://[^/]+/#i', '', $clean);
+        $clean = preg_replace('#^/storage/#', '', $clean);
+        $clean = preg_replace('#^storage/#', '', $clean);
+        $clean = preg_replace('#^public/#', '', $clean);
+        $clean = preg_replace('#^app/public/#', '', $clean);
+        $clean = ltrim($clean, '/');
+
+        return $clean ?: '';
+    }
+
+    private function publicStorageAbsolutePath(string $clean): string
+    {
+        $root = (string) config('filesystems.disks.public.root', storage_path('app/public'));
+
+        return rtrim($root, DIRECTORY_SEPARATOR . '/\\')
+            . DIRECTORY_SEPARATOR
+            . str_replace('/', DIRECTORY_SEPARATOR, ltrim($clean, '/'));
+    }
+
+    private function detectMimeType(string $absolutePath): string
+    {
+        $mime = function_exists('mime_content_type')
+            ? mime_content_type($absolutePath)
+            : false;
+
+        return $mime ?: 'application/octet-stream';
+    }
+
+    private function safeInlineFileName(string $name): string
+    {
+        $cleanName = trim(str_replace(['"', "\r", "\n"], '', $name));
+
+        return $cleanName !== '' ? $cleanName : 'dokumen';
+    }
+
+    private function streamPublicDocument(string $clean, ?string $name = null, ?string $mime = null)
+    {
+        $absolutePath = $this->publicStorageAbsolutePath($clean);
+
+        if (!is_file($absolutePath)) {
+            abort(404, 'Berkas dokumen tidak ditemukan.');
+        }
+
+        $fileName = $this->safeInlineFileName($name ?: basename($clean));
+        $fileMime = trim((string) ($mime ?: '')) ?: $this->detectMimeType($absolutePath);
+
+        return response()->file($absolutePath, [
+            'Content-Type' => $fileMime,
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
+    private function makeNotificationPrimaryKey(array &$payload): void
+    {
+        foreach (['id_notifikasi', 'uuid'] as $column) {
+            if ($this->hasColumn('notifikasi', $column) && empty($payload[$column])) {
+                $payload[$column] = (string) Str::uuid();
+                return;
+            }
+        }
+    }
+
+    public function previewDokumen(Request $request, string|int $id)
+    {
+        if (!$this->hasTable('data_posbankum')) {
+            abort(404);
+        }
+
+        $idColumn = $this->firstExistingColumn('data_posbankum', ['id_data', 'id', 'uuid']);
+
+        if (!$idColumn) {
+            abort(404);
+        }
+
+        $row = DB::table('data_posbankum')->where($idColumn, $id)->first();
+
+        if (!$row) {
+            abort(404);
+        }
+
+        $path = (string) $this->rowValue($row, ['path_berkas', 'path_file', 'path', 'file_path', 'file_url', 'url', 'public_url'], '');
+
+        if (preg_match('/^https?:\/\//i', $path)) {
+            return redirect()->away($path);
+        }
+
+        $clean = $this->normalizePublicStoragePath($path);
+
+        if (!$clean || str_contains($clean, '..')) {
+            abort(403);
+        }
+
+        $name = (string) $this->rowValue($row, ['nama_berkas', 'nama_file', 'file_name', 'name'], basename($clean));
+        $mime = (string) $this->rowValue($row, ['mime_type', 'mime'], '');
+
+        return $this->streamPublicDocument($clean, $name, $mime);
+    }
+
+
+    public function previewDokumenPath(Request $request)
+    {
+        $path = (string) $request->query('path', '');
+
+        if (preg_match('/^https?:\/\//i', $path)) {
+            return redirect()->away($path);
+        }
+
+        $clean = $this->normalizePublicStoragePath($path);
+
+        if (!$clean || str_contains($clean, '..')) {
+            abort(403);
+        }
+
+        $name = (string) $request->query('name', basename($clean));
+        $mime = (string) $request->query('mime', '');
+
+        return $this->streamPublicDocument($clean, $name, $mime);
     }
 
     public function updateDokumenStatus(Request $request, string|int $id): RedirectResponse
@@ -103,6 +241,106 @@ class VerifikasiDataPosbankumController extends Controller
             $request->input('kategori', 'Dokumen'),
             'data_posbankum',
             $id,
+            $note
+        );
+
+        return back()->with('success', 'Status dokumen berhasil diperbarui.');
+    }
+
+
+    public function updateDokumenStatusByPath(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'path' => ['required', 'string'],
+            'status' => ['required', Rule::in(['disetujui', 'ditolak', 'menunggu'])],
+            'catatan' => ['nullable', 'string', 'max:5000'],
+            'kategori' => ['nullable', 'string', 'max:100'],
+            'id_posbankum' => ['nullable'],
+        ]);
+
+        if (!$this->hasTable('data_posbankum')) {
+            return back()->withErrors([
+                'verifikasi' => 'Tabel data_posbankum tidak ditemukan.',
+            ]);
+        }
+
+        $pathColumns = array_values(array_filter(
+            ['path_berkas', 'path_file', 'path', 'file_path', 'file_url', 'url', 'public_url'],
+            fn($column) => $this->hasColumn('data_posbankum', $column)
+        ));
+
+        if (empty($pathColumns)) {
+            return back()->withErrors([
+                'verifikasi' => 'Kolom path dokumen tidak ditemukan di tabel data_posbankum.',
+            ]);
+        }
+
+        $rawPath = trim((string) $validated['path']);
+        $cleanPath = $this->normalizePublicStoragePath($rawPath);
+
+        if (!$cleanPath || str_contains($cleanPath, '..')) {
+            return back()->withErrors([
+                'verifikasi' => 'Path dokumen tidak valid.',
+            ]);
+        }
+
+        $pathValues = array_values(array_unique(array_filter([
+            $rawPath,
+            $cleanPath,
+            'storage/' . $cleanPath,
+            '/storage/' . $cleanPath,
+            'public/' . $cleanPath,
+        ])));
+
+        $query = DB::table('data_posbankum')->where(function ($inner) use ($pathColumns, $pathValues) {
+            foreach ($pathColumns as $column) {
+                $inner->orWhereIn($column, $pathValues);
+            }
+        });
+
+        $row = (clone $query)->first();
+
+        if (!$row) {
+            return back()->withErrors([
+                'verifikasi' => 'Dokumen tidak ditemukan.',
+            ]);
+        }
+
+        $status = $validated['status'];
+        $note = trim((string) ($validated['catatan'] ?? ''));
+        $now = now();
+        $payload = [];
+
+        $this->addIfExists($payload, 'data_posbankum', 'status_verifikasi', $status);
+        $this->addIfExists($payload, 'data_posbankum', 'status', $status);
+        $this->addIfExists($payload, 'data_posbankum', 'tgl_verifikasi', $now);
+        $this->addIfExists($payload, 'data_posbankum', 'tanggal_verifikasi', $now);
+        $this->addIfExists($payload, 'data_posbankum', 'verified_at', $now);
+        $this->addIfExists($payload, 'data_posbankum', 'id_user_verifikator', Auth::id());
+        $this->addIfExists($payload, 'data_posbankum', 'verified_by', Auth::id());
+        $this->addIfExists($payload, 'data_posbankum', 'updated_at', $now);
+
+        foreach (['catatan_verifikasi', 'catatan_admin', 'alasan_penolakan', 'catatan_penolakan'] as $column) {
+            $this->addIfExists($payload, 'data_posbankum', $column, $status === 'ditolak' ? $note : null);
+        }
+
+        if (empty($payload)) {
+            return back()->withErrors([
+                'verifikasi' => 'Tidak ada kolom status verifikasi yang bisa diperbarui di tabel data_posbankum.',
+            ]);
+        }
+
+        $query->update($payload);
+
+        $idColumn = $this->firstExistingColumn('data_posbankum', ['id_data', 'id', 'uuid']);
+        $refId = $idColumn ? ($row->{$idColumn} ?? $cleanPath) : $cleanPath;
+
+        $this->createNotification(
+            $request->input('id_posbankum'),
+            $status,
+            $request->input('kategori', 'Dokumen'),
+            'data_posbankum',
+            $refId ?: $cleanPath,
             $note
         );
 
@@ -357,6 +595,7 @@ class VerifikasiDataPosbankumController extends Controller
             : $label . ' ditolak oleh admin.' . ($note ? ' Catatan: ' . $note : '');
 
         $payload = [];
+        $this->makeNotificationPrimaryKey($payload);
         $this->addIfExists($payload, 'notifikasi', 'id_posbankum', $idPosbankum);
         $this->addIfExists($payload, 'notifikasi', 'judul', $approved ? 'Dokumen Disetujui' : 'Dokumen Ditolak');
         $this->addIfExists($payload, 'notifikasi', 'pesan', $message);

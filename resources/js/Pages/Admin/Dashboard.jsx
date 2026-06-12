@@ -847,7 +847,11 @@ export default function AdminDashboard() {
                         className="ad-modalBackdrop"
                         onClick={() => setSelectedPosDetail(null)}
                     />
-                    <div className="ad-detailModalCard">
+                    <div
+                        className="ad-detailModalCard"
+                        onWheel={(event) => event.stopPropagation()}
+                        onTouchMove={(event) => event.stopPropagation()}
+                    >
                         <div className="ad-detailModalHead">
                             <div className="ad-detailModalHeadText">
                                 <div className="ad-detailModalTitle">
@@ -1005,7 +1009,11 @@ export default function AdminDashboard() {
                         className="ad-modalBackdrop"
                         onClick={() => setActivityOpen(false)}
                     />
-                    <div className="ad-modalCard">
+                    <div
+                        className="ad-modalCard"
+                        onWheel={(event) => event.stopPropagation()}
+                        onTouchMove={(event) => event.stopPropagation()}
+                    >
                         <div className="ad-modalHead">
                             <div className="ad-modalHeadText">
                                 <div className="ad-modalTitle">

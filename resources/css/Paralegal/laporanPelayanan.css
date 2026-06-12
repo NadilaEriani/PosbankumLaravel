@@ -1443,3 +1443,47 @@
         line-height: 1.2;
     }
 }
+
+/* ===== Revisi modal mobile Laporan Pelayanan: konten modal tidak melempar scroll ke belakang ===== */
+.lpModalOverlay,
+.lpPreviewOverlay,
+.lpDeleteOverlay,
+.lpDetailOverlay {
+    overscroll-behavior: contain;
+}
+
+.lpModal,
+.lpPreviewModal,
+.lpDeleteModal,
+.lpDetailModal {
+    max-height: calc(100dvh - 28px);
+    display: flex;
+    flex-direction: column;
+}
+
+.lpModalBody,
+.lpPreviewBody,
+.lpDetailBody {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+    .lpModalOverlay,
+    .lpPreviewOverlay,
+    .lpDeleteOverlay,
+    .lpDetailOverlay {
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .lpModal,
+    .lpPreviewModal,
+    .lpDeleteModal,
+    .lpDetailModal {
+        width: 100%;
+        max-height: calc(100dvh - 20px);
+    }
+}

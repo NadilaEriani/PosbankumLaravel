@@ -411,7 +411,8 @@ export default function VerifikasiDataPosbankum({
         "";
 
     const pickMime = (u) => u?.mime_type ?? u?.mime ?? "";
-    const pickName = (u) => u?.nama_berkas ?? u?.name ?? "";
+    const pickName = (u) =>
+        u?.nama_berkas ?? u?.nama_file ?? u?.file_name ?? u?.name ?? "";
     const pickUploadId = (u) => u?.id_data ?? u?.id ?? u?.uuid ?? null;
 
     const formatTanggal = (ts) => {
@@ -1250,13 +1251,28 @@ export default function VerifikasiDataPosbankum({
             const items = (
                 await Promise.all(
                     cleanFiles.map(async (item) => {
-                        const url = await makeSignedUrl(pickPath(item));
+                        const uploadId = pickUploadId(item) || doc.uploadId;
+                        const rawPath = pickPath(item);
+                        const fileName = pickName(item) || doc.name || "Berkas";
+                        const fileMime = pickMime(item) || doc.mime || "";
+                        const url = uploadId
+                            ? `/admin/verifikasi-data-posbankum/dokumen/${encodeURIComponent(
+                                  uploadId,
+                              )}/preview`
+                            : rawPath
+                              ? `/admin/verifikasi-data-posbankum/dokumen-preview?path=${encodeURIComponent(
+                                    rawPath,
+                                )}&name=${encodeURIComponent(
+                                    fileName,
+                                )}&mime=${encodeURIComponent(fileMime)}`
+                              : await makeSignedUrl(rawPath);
+
                         if (!url) return null;
 
                         return {
                             url,
-                            mime: pickMime(item) || doc.mime || "",
-                            name: pickName(item) || doc.name || "Berkas",
+                            mime: fileMime,
+                            name: fileName,
                             kategori: item?.kategori || doc.label || "",
                             raw: item,
                         };
@@ -1739,22 +1755,33 @@ export default function VerifikasiDataPosbankum({
     };
 
     const updateFileVerification = async (status, reason = "") => {
-        if (!selectedDoc?.uploadId) {
+        const payload = {
+            status,
+            catatan: reason,
+            kategori: selectedDoc.key,
+            id_posbankum: selectedDoc.posId,
+        };
+
+        if (selectedDoc?.uploadId) {
+            await patchRequest(
+                `/admin/verifikasi-data-posbankum/dokumen/${encodeURIComponent(
+                    selectedDoc.uploadId,
+                )}/status`,
+                payload,
+                "Gagal memperbarui status dokumen.",
+            );
+        } else if (selectedDoc?.path) {
+            await patchRequest(
+                "/admin/verifikasi-data-posbankum/dokumen-status-by-path",
+                {
+                    ...payload,
+                    path: selectedDoc.path,
+                },
+                "Gagal memperbarui status dokumen.",
+            );
+        } else {
             throw new Error("ID dokumen tidak ditemukan.");
         }
-
-        await patchRequest(
-            `/admin/verifikasi-data-posbankum/dokumen/${encodeURIComponent(
-                selectedDoc.uploadId,
-            )}/status`,
-            {
-                status,
-                catatan: reason,
-                kategori: selectedDoc.key,
-                id_posbankum: selectedDoc.posId,
-            },
-            "Gagal memperbarui status dokumen.",
-        );
 
         if (selectedDoc?.posId && selectedDoc?.key) {
             setDocStatusLocal(

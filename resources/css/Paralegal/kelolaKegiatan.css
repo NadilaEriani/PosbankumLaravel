@@ -1420,3 +1420,53 @@
         border-radius: 16px !important;
     }
 }
+
+/* ===== Revisi modal mobile Kelola Kegiatan: scroll dikunci di modal ===== */
+.kk-modal-overlay,
+.kk-detail-overlay,
+.kk-resubmit-overlay,
+.kk-modalOverlay,
+.kk-deleteOverlay,
+.kk-detailOverlay {
+    overscroll-behavior: contain;
+}
+
+.kk-modal.kk-modal-modern,
+.kk-detail-modal.kk-detail-modern,
+.kk-modal,
+.kk-deleteModal,
+.kk-detailModal {
+    max-height: calc(100dvh - 28px);
+    display: flex;
+    flex-direction: column;
+}
+
+.kk-modal-body,
+.kk-modalBody,
+.kk-detailBody {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+    .kk-modal-overlay,
+    .kk-detail-overlay,
+    .kk-resubmit-overlay,
+    .kk-modalOverlay,
+    .kk-deleteOverlay,
+    .kk-detailOverlay {
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .kk-modal.kk-modal-modern,
+    .kk-detail-modal.kk-detail-modern,
+    .kk-modal,
+    .kk-deleteModal,
+    .kk-detailModal {
+        width: 100%;
+        max-height: calc(100dvh - 20px);
+    }
+}

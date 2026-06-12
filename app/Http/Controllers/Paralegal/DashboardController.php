@@ -765,6 +765,212 @@ class DashboardController extends Controller
         ];
     }
 
+
+    private function currentUserId($user): ?string
+    {
+        if (!$user) {
+            return null;
+        }
+
+        foreach (['id_user', 'id'] as $key) {
+            if (!empty($user->{$key})) {
+                return (string) $user->{$key};
+            }
+        }
+
+        return null;
+    }
+
+    private function userKeyColumn(): string
+    {
+        return $this->hasColumn('users', 'id_user') ? 'id_user' : 'id';
+    }
+
+    private function paralegalProfilePayload($user, mixed $idPosbankum, array $posbankum): array
+    {
+        $userId = $this->currentUserId($user);
+
+        return [
+            'user' => [
+                'id' => $userId,
+                'id_user' => $userId,
+                'name' => (string) ($user->nama_lengkap ?? $user->name ?? 'Paralegal'),
+                'nama_lengkap' => (string) ($user->nama_lengkap ?? $user->name ?? 'Paralegal'),
+                'email' => (string) ($user->email ?? ''),
+                'nomor_telepon' => (string) ($user->nomor_telepon ?? $user->phone ?? ''),
+                'phone' => (string) ($user->nomor_telepon ?? $user->phone ?? ''),
+                'role' => (string) ($user->role ?? 'paralegal'),
+                'status' => (string) ($user->status ?? 'aktif'),
+            ],
+            'posbankum' => $this->posbankumProfileInfo($idPosbankum, $posbankum),
+            'team' => $this->paralegalTeamRows($idPosbankum, $userId, $user),
+        ];
+    }
+
+    private function posbankumProfileInfo(mixed $idPosbankum, array $fallback): array
+    {
+        $info = $fallback;
+        $row = null;
+
+        if ($idPosbankum && $this->hasTable('posbankum')) {
+            $idColumn = $this->hasColumn('posbankum', 'id_posbankum') ? 'id_posbankum' : 'id';
+            $row = DB::table('posbankum')->where($idColumn, $idPosbankum)->first();
+
+            if ($row) {
+                $info = array_merge($info, [
+                    'id' => $this->getPosbankumId($row),
+                    'id_posbankum' => $this->getPosbankumId($row),
+                    'nama' => $this->getPosbankumName($row),
+                    'alamat' => $this->getPosbankumAddress($row),
+                    'email_akun' => $this->getPosbankumEmail($row),
+                    'nomor_tlp' => $this->getPosbankumPhone($row),
+                    'kode_pos' => (string) $this->rowValue($row, ['kode_pos'], ''),
+                    'latitude' => $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']),
+                    'longitude' => $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']),
+                    'status_tagging_area' => (string) $this->rowValue($row, ['status_verifikasi_tagging_area', 'status_lokasi', 'status_tagging'], ''),
+                ]);
+            }
+        }
+
+        $kelurahanId = $row ? $this->rowValue($row, ['id_kelurahan']) : null;
+        $kelurahan = null;
+        $kecamatan = null;
+        $kabupaten = null;
+
+        if ($kelurahanId && $this->hasTable('kelurahan')) {
+            $kelurahan = DB::table('kelurahan')->where('id_kelurahan', $kelurahanId)->first();
+        }
+
+        if ($kelurahan && $this->hasTable('kecamatan')) {
+            $idKecamatan = $this->rowValue($kelurahan, ['id_kecamatan']);
+            if ($idKecamatan) {
+                $kecamatan = DB::table('kecamatan')->where('id_kecamatan', $idKecamatan)->first();
+            }
+        }
+
+        if ($kecamatan && $this->hasTable('kabupaten')) {
+            $idKabupaten = $this->rowValue($kecamatan, ['id_kabupaten']);
+            if ($idKabupaten) {
+                $kabupaten = DB::table('kabupaten')->where('id_kabupaten', $idKabupaten)->first();
+            }
+        }
+
+        $info['kelurahan'] = (string) $this->rowValue($kelurahan, ['nama'], $info['kelurahan'] ?? '');
+        $info['kecamatan'] = (string) $this->rowValue($kecamatan, ['nama'], $info['kecamatan'] ?? '');
+        $info['kabupaten'] = (string) $this->rowValue($kabupaten, ['nama'], $info['kabupaten'] ?? '');
+        $info['status_tagging_area'] = (string) ($info['status_tagging_area'] ?? $info['status_lokasi'] ?? 'menunggu');
+
+        return $info;
+    }
+
+    private function paralegalTeamRows(mixed $idPosbankum, ?string $currentUserId, $currentUser): array
+    {
+        $rows = collect();
+
+        if ($idPosbankum && $this->hasTable('posbankum_paralegal') && $this->hasTable('users')) {
+            $userKey = $this->userKeyColumn();
+            $query = DB::table('posbankum_paralegal as pp')
+                ->join('users as u', 'u.' . $userKey, '=', 'pp.id_user')
+                ->where('pp.id_posbankum', $idPosbankum);
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('pp.status', 'aktif');
+            }
+
+            if ($this->hasColumn('users', 'role')) {
+                $query->whereIn('u.role', ['paralegal', 'posbankum']);
+            }
+
+            $select = [
+                'u.' . $userKey . ' as id_user',
+                'u.email',
+            ];
+
+            foreach (['nama_lengkap', 'name', 'nomor_telepon', 'phone', 'status', 'role'] as $column) {
+                if ($this->hasColumn('users', $column)) {
+                    $select[] = 'u.' . $column;
+                }
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'is_primary')) {
+                $select[] = 'pp.is_primary';
+                $query->orderByDesc('pp.is_primary');
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'assigned_at')) {
+                $select[] = 'pp.assigned_at';
+                $query->orderBy('pp.assigned_at');
+            }
+
+            $rows = $query->select($select)->limit(200)->get();
+        }
+
+        if ($rows->isEmpty() && $idPosbankum && $this->hasTable('users') && $this->hasColumn('users', 'id_posbankum')) {
+            $userKey = $this->userKeyColumn();
+            $query = DB::table('users')->where('id_posbankum', $idPosbankum);
+
+            if ($this->hasColumn('users', 'role')) {
+                $query->whereIn('role', ['paralegal', 'posbankum']);
+            }
+
+            if ($this->hasColumn('users', 'status')) {
+                $query->where('status', 'aktif');
+            }
+
+            $rows = $query->select('*', $userKey . ' as id_user')->limit(200)->get();
+        }
+
+        if ($rows->isEmpty() && $idPosbankum && $this->hasTable('paralegal_members') && $this->hasColumn('paralegal_members', 'id_posbankum')) {
+            $query = DB::table('paralegal_members')->where('id_posbankum', $idPosbankum);
+
+            if ($this->hasColumn('paralegal_members', 'is_primary')) {
+                $query->orderByDesc('is_primary');
+            }
+
+            $rows = $query->limit(200)->get();
+        }
+
+        $mapped = $rows->values()->map(function ($row, $index) use ($currentUserId) {
+            $id = (string) $this->rowValue($row, ['id_user', 'id_paralegal', 'id'], 'paralegal-' . ($index + 1));
+            $name = (string) $this->rowValue($row, ['nama_lengkap', 'name', 'nama_paralegal', 'nama', 'email'], 'Paralegal');
+            $phone = (string) $this->rowValue($row, ['nomor_telepon', 'phone', 'hp', 'no_hp'], '');
+
+            return [
+                'id' => $id,
+                'id_user' => $id,
+                'name' => $name,
+                'nama' => $name,
+                'email' => (string) $this->rowValue($row, ['email', 'email_akun', 'email_paralegal'], ''),
+                'phone' => $phone,
+                'nomor_telepon' => $phone,
+                'status' => (string) $this->rowValue($row, ['status', 'rel_status'], 'aktif'),
+                'role' => (string) $this->rowValue($row, ['role'], 'paralegal'),
+                'is_primary' => (bool) $this->rowValue($row, ['is_primary'], false),
+                'is_current' => $currentUserId !== null && $id === $currentUserId,
+                'assigned_at' => $this->rowValue($row, ['assigned_at', 'created_at'], null),
+            ];
+        })->unique('id')->values();
+
+        if ($currentUser && $currentUserId && !$mapped->contains(fn($row) => (string) $row['id'] === $currentUserId)) {
+            $mapped->prepend([
+                'id' => $currentUserId,
+                'id_user' => $currentUserId,
+                'name' => (string) ($currentUser->nama_lengkap ?? $currentUser->name ?? 'Paralegal'),
+                'nama' => (string) ($currentUser->nama_lengkap ?? $currentUser->name ?? 'Paralegal'),
+                'email' => (string) ($currentUser->email ?? ''),
+                'phone' => (string) ($currentUser->nomor_telepon ?? $currentUser->phone ?? ''),
+                'nomor_telepon' => (string) ($currentUser->nomor_telepon ?? $currentUser->phone ?? ''),
+                'status' => (string) ($currentUser->status ?? 'aktif'),
+                'role' => (string) ($currentUser->role ?? 'paralegal'),
+                'is_primary' => false,
+                'is_current' => true,
+                'assigned_at' => null,
+            ]);
+        }
+
+        return $mapped->values()->toArray();
+    }
+
     private function renderDashboard(Request $request): Response
     {
         $user = $request->user();
@@ -791,6 +997,7 @@ class DashboardController extends Controller
             'notifications' => $this->notifications($idPosbankum),
             'laporanPelayananRows' => $this->laporanPelayananRows($idPosbankum),
             'paralegalOptions' => $this->paralegalOptions($idPosbankum),
+            'paralegalProfile' => $this->paralegalProfilePayload($user, $idPosbankum, $posbankum),
             'flash' => [
                 'success' => session('success'),
             ],

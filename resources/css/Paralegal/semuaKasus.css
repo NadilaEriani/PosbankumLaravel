@@ -1402,3 +1402,47 @@
         line-height: 1.2;
     }
 }
+
+/* ===== Revisi modal mobile Semua Kasus: modal detail/filter/statistik bisa discroll rapi ===== */
+.skOverlay,
+.skModalOverlay,
+.skStatsOverlay {
+    overscroll-behavior: contain;
+}
+
+.skDetailModal,
+.skFilterModal,
+.skStatModal,
+.skModalCard,
+.skStatsModalCard {
+    max-height: calc(100dvh - 28px);
+    display: flex;
+    flex-direction: column;
+}
+
+.skModalBody,
+.skStatModalBody,
+.skDetailBody {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+    .skOverlay,
+    .skModalOverlay,
+    .skStatsOverlay {
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .skDetailModal,
+    .skFilterModal,
+    .skStatModal,
+    .skModalCard,
+    .skStatsModalCard {
+        width: 100%;
+        max-height: calc(100dvh - 20px);
+    }
+}

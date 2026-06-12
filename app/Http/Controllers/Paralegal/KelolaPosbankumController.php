@@ -112,6 +112,89 @@ class KelolaPosbankumController extends Controller
         }
     }
 
+    private function canonicalKategori(mixed $value): string
+    {
+        $raw = strtolower(trim((string) $value));
+        $raw = preg_replace('/[\s\-]+/', '_', $raw);
+
+        return match ($raw) {
+            'sk_posbankum', 'sk_pos_bankum' => 'sk_posbankum',
+            'sk_kadarkum', 'sk_kab_kota', 'sk_kabupaten_kota' => 'sk_kadarkum',
+            'sapras', 'sarpras', 'dokumentasi_sapras', 'dokumentasi_sarpras' => 'sarpras',
+            default => $raw,
+        };
+    }
+
+    private function isSaprasCategory(mixed $value): bool
+    {
+        return $this->canonicalKategori($value) === 'sarpras';
+    }
+
+    private function fileStatusKind(mixed $status): string
+    {
+        $value = strtolower(trim((string) $status));
+
+        if (in_array($value, ['diterima', 'disetujui', 'approved', 'valid'], true)) {
+            return 'ok';
+        }
+
+        if (in_array($value, ['ditolak', 'rejected', 'tolak'], true)) {
+            return 'bad';
+        }
+
+        return 'wait';
+    }
+
+    private function uploadedDokumenFiles(Request $request): array
+    {
+        if (!$request->hasFile('dokumen')) {
+            return [];
+        }
+
+        $uploaded = $request->file('dokumen');
+        $files = is_array($uploaded) ? $uploaded : [$uploaded];
+
+        return array_values(array_filter($files));
+    }
+
+    private function matchingCategoryQuery(mixed $idPosbankum, string $kategori)
+    {
+        $query = DB::table('data_posbankum');
+
+        if ($this->hasColumn('data_posbankum', 'id_posbankum')) {
+            $query->where('id_posbankum', $idPosbankum);
+        }
+
+        $aliases = match ($kategori) {
+            'sk_posbankum' => ['sk_posbankum', 'sk posbankum', 'sk pos bankum'],
+            'sk_kadarkum' => ['sk_kadarkum', 'sk kadarkum', 'sk kab/kota', 'sk kab kota', 'sk kabupaten/kota'],
+            'sarpras' => ['sarpras', 'sapras', 'dokumentasi sarpras', 'dokumentasi sapras', 'dokumentasi_sarpras', 'dokumentasi_sapras'],
+            default => [$kategori],
+        };
+
+        $categoryColumns = array_values(array_filter(['kategori', 'jenis_dokumen', 'jenis', 'tipe'], fn($column) => $this->hasColumn('data_posbankum', $column)));
+
+        if (!empty($categoryColumns)) {
+            $query->where(function ($inner) use ($categoryColumns, $aliases) {
+                foreach ($categoryColumns as $column) {
+                    $inner->orWhereIn($column, $aliases);
+                }
+            });
+        }
+
+        return $query;
+    }
+
+    private function makeDataPrimaryKey(array &$payload): void
+    {
+        foreach (['id_data', 'uuid'] as $column) {
+            if ($this->hasColumn('data_posbankum', $column) && empty($payload[$column])) {
+                $payload[$column] = (string) Str::uuid();
+                return;
+            }
+        }
+    }
+
     public function storeDocument(Request $request): RedirectResponse
     {
         if (!$this->hasTable('data_posbankum')) {
@@ -122,17 +205,37 @@ class KelolaPosbankumController extends Controller
 
         $data = $request->validate([
             'kategori' => ['required', 'string', 'max:80'],
-            'dokumen' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'dokumen.*' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ], [
             'kategori.required' => 'Kategori dokumen wajib dipilih.',
-            'dokumen.file' => 'File dokumen tidak valid.',
-            'dokumen.mimes' => 'Format file harus PDF, JPG, JPEG, atau PNG.',
-            'dokumen.max' => 'Ukuran file maksimal 5MB.',
-            'dokumen.*.file' => 'Salah satu file dokumen tidak valid.',
-            'dokumen.*.mimes' => 'Format file harus PDF, JPG, JPEG, atau PNG.',
-            'dokumen.*.max' => 'Ukuran file maksimal 5MB.',
         ]);
+
+        $files = $this->uploadedDokumenFiles($request);
+
+        if (empty($files)) {
+            throw ValidationException::withMessages([
+                'dokumen' => 'File dokumen wajib dipilih.',
+            ]);
+        }
+
+        if (is_array($request->file('dokumen'))) {
+            $request->validate([
+                'dokumen' => ['required', 'array'],
+                'dokumen.*' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            ], [
+                'dokumen.array' => 'File dokumen tidak valid.',
+                'dokumen.*.file' => 'Salah satu file dokumen tidak valid.',
+                'dokumen.*.mimes' => 'Format file harus PDF, JPG, JPEG, atau PNG.',
+                'dokumen.*.max' => 'Ukuran file maksimal 5MB.',
+            ]);
+        } else {
+            $request->validate([
+                'dokumen' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            ], [
+                'dokumen.file' => 'File dokumen tidak valid.',
+                'dokumen.mimes' => 'Format file harus PDF, JPG, JPEG, atau PNG.',
+                'dokumen.max' => 'Ukuran file maksimal 5MB.',
+            ]);
+        }
 
         $idPosbankum = $this->resolveUserPosbankumId($request->user());
         if (!$idPosbankum) {
@@ -141,26 +244,32 @@ class KelolaPosbankumController extends Controller
             ]);
         }
 
-        $files = [];
-        if ($request->hasFile('dokumen')) {
-            $uploaded = $request->file('dokumen');
-            $files = is_array($uploaded) ? $uploaded : [$uploaded];
-        }
+        $kategori = $this->canonicalKategori($data['kategori']);
+        $isSapras = $this->isSaprasCategory($kategori);
 
-        $files = array_values(array_filter($files));
-
-        if (empty($files)) {
-            throw ValidationException::withMessages([
-                'dokumen' => 'File dokumen wajib dipilih.',
-            ]);
-        }
-
-        $kategori = (string) $data['kategori'];
-        if (strtolower($kategori) !== 'sarpras' && count($files) > 1) {
+        if (!$isSapras && count($files) > 1) {
             $files = [reset($files)];
         }
 
+        $existingRows = collect();
+        if (!$isSapras) {
+            $existingRows = $this->matchingCategoryQuery($idPosbankum, $kategori)->get();
+
+            $hasApproved = $existingRows->contains(function ($row) {
+                return $this->fileStatusKind($row->status_verifikasi ?? $row->status ?? '') === 'ok';
+            });
+
+            if ($hasApproved) {
+                throw ValidationException::withMessages([
+                    'dokumen' => 'Dokumen yang sudah diterima tidak dapat diganti.',
+                ]);
+            }
+        }
+
         $storedPaths = [];
+        $oldPaths = [];
+        $insertPayloads = [];
+        $keyColumn = $this->dataKeyColumn();
 
         try {
             foreach ($files as $file) {
@@ -172,6 +281,7 @@ class KelolaPosbankumController extends Controller
                 $storedPaths[] = $path;
 
                 $payload = [];
+                $this->makeDataPrimaryKey($payload);
                 $this->addColumn($payload, 'data_posbankum', 'id_posbankum', $idPosbankum);
                 $this->addColumn($payload, 'data_posbankum', 'kategori', $kategori);
                 $this->addColumn($payload, 'data_posbankum', 'jenis_dokumen', $kategori);
@@ -196,8 +306,33 @@ class KelolaPosbankumController extends Controller
                     ]);
                 }
 
-                DB::table('data_posbankum')->insert($payload);
+                $insertPayloads[] = $payload;
             }
+
+            DB::transaction(function () use ($isSapras, $existingRows, $keyColumn, $insertPayloads, $idPosbankum, $kategori, &$oldPaths) {
+                if (!$isSapras && $existingRows->isNotEmpty()) {
+                    $idsToDelete = [];
+
+                    foreach ($existingRows as $row) {
+                        $rowId = $row->{$keyColumn} ?? null;
+                        if ($rowId !== null && $rowId !== '') {
+                            $idsToDelete[] = $rowId;
+                        }
+
+                        $oldPaths[] = $row->path_berkas ?? $row->path_file ?? $row->path ?? null;
+                    }
+
+                    if (!empty($idsToDelete)) {
+                        DB::table('data_posbankum')->whereIn($keyColumn, $idsToDelete)->delete();
+                    } else {
+                        $this->matchingCategoryQuery($idPosbankum, $kategori)->delete();
+                    }
+                }
+
+                foreach ($insertPayloads as $payload) {
+                    DB::table('data_posbankum')->insert($payload);
+                }
+            });
         } catch (\Throwable $exception) {
             foreach ($storedPaths as $path) {
                 $this->deleteStoredFile($path);
@@ -206,7 +341,11 @@ class KelolaPosbankumController extends Controller
             throw $exception;
         }
 
-        $message = count($files) > 1
+        foreach ($oldPaths as $path) {
+            $this->deleteStoredFile($path);
+        }
+
+        $message = $isSapras && count($files) > 1
             ? 'Dokumentasi Sapras berhasil dikirim untuk verifikasi admin.'
             : 'Dokumen berhasil dikirim untuk verifikasi admin.';
 

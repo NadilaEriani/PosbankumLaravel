@@ -1560,3 +1560,35 @@
         border-radius: 16px !important;
     }
 }
+
+/* ===== Revisi modal mobile Kelola Posbankum: konten panjang bisa discroll di modal ===== */
+.kdpRoot .kpModalOverlay {
+    overscroll-behavior: contain;
+}
+
+.kdpRoot .kpModalCard {
+    max-height: calc(100dvh - 28px);
+    display: flex;
+    flex-direction: column;
+}
+
+.kdpRoot .kpModalBody,
+.kdpRoot .kpModalBodyScroll,
+.kdpRoot .kpModalBodyPreview {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+    .kdpRoot .kpModalOverlay {
+        padding: 10px;
+        overflow: hidden;
+    }
+
+    .kdpRoot .kpModalCard {
+        width: 100%;
+        max-height: calc(100dvh - 20px);
+    }
+}

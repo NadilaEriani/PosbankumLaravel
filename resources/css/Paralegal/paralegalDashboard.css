@@ -1768,3 +1768,207 @@
         font-size: 12px;
     }
 }
+
+/* ===== Revisi modal mobile paralegal: area scroll tetap di dalam modal ===== */
+.pb2NotifOverlay,
+.pb2ConfirmOverlay {
+    overscroll-behavior: contain;
+}
+
+.pb2NotifModal,
+.pb2ConfirmCard {
+    max-height: calc(100dvh - 28px);
+}
+
+.pb2ConfirmCard {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 860px) {
+    .pb2NotifOverlay {
+        overflow: hidden;
+    }
+
+    .pb2NotifModal {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr) auto;
+    }
+
+    .pb2NotifBody {
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .pb2NotifListWrap,
+    .pb2NotifDetail {
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+}
+
+@media (max-width: 430px) {
+    .pb2ConfirmOverlay {
+        padding: 10px;
+    }
+
+    .pb2ConfirmCard {
+        width: 100%;
+        max-height: calc(100dvh - 20px);
+        padding: 20px 16px;
+        border-radius: 20px;
+    }
+}
+
+/* =========================================================
+   FINAL FIX - Mobile navbar paralegal mengikuti pola admin
+   Logo menjadi pemicu profil paralegal.
+========================================================= */
+@media (max-width: 768px) {
+    .pb2Root {
+        display: block;
+        min-height: 100dvh;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .pb2Side {
+        width: 100%;
+        min-height: auto;
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        border-radius: 0;
+        overflow: hidden;
+        background: linear-gradient(180deg, #252d61 0%, #444b8a 100%);
+        box-shadow: 0 12px 26px rgba(22, 27, 58, 0.14);
+    }
+
+    .pb2Brand,
+    .pb2BrandButton {
+        min-height: auto;
+        padding: 12px 14px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 12px;
+    }
+
+    .pb2BrandButton:not(:disabled):hover,
+    .pb2BrandButton:not(:disabled):focus-visible {
+        box-shadow: none;
+        transform: none;
+        filter: none;
+    }
+
+    .pb2BrandLogoWrap {
+        width: 46px;
+        height: 50px;
+        flex: 0 0 auto;
+    }
+
+    .pb2BrandText {
+        margin-top: 0;
+        min-width: 0;
+        text-align: left;
+    }
+
+    .pb2BrandName {
+        font-size: 17px;
+        line-height: 1.12;
+        font-weight: 700;
+    }
+
+    .pb2BrandSub {
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.25;
+        font-weight: 500;
+    }
+
+    .pb2BrandDivider {
+        height: 1px;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    .pb2Nav {
+        min-height: auto;
+        padding: 10px 12px 12px;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .pb2Nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pb2NavItem {
+        min-width: max-content;
+        min-height: 42px;
+        padding: 10px 13px;
+        border-radius: 14px;
+        flex: 0 0 auto;
+    }
+
+    .pb2NavIcon,
+    .ad-navMaskIcon {
+        width: 19px;
+        height: 19px;
+        font-size: 18px;
+    }
+
+    .pb2NavLabel {
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .pb2Main {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 430px) {
+    .pb2Brand,
+    .pb2BrandButton {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .pb2BrandLogoWrap {
+        width: 44px;
+        height: 48px;
+    }
+
+    .pb2BrandName {
+        font-size: 16px;
+    }
+
+    .pb2BrandSub {
+        font-size: 11px;
+    }
+
+    .pb2Nav {
+        padding: 9px 10px 11px;
+        gap: 8px;
+    }
+
+    .pb2NavItem {
+        padding: 9px 12px;
+        min-height: 40px;
+    }
+
+    .pb2NavLabel {
+        font-size: 12px;
+    }
+}

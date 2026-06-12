@@ -31,6 +31,7 @@ import LaporanPelayanan from "./LaporanPelayanan";
 import KelolaKegiatan from "./KelolaKegiatan";
 import SemuaKasus from "./SemuaKasus";
 import KelolaPosbankum from "./KelolaPosbankum";
+import ParalegalProfile from "./ParalegalProfile";
 
 function startCase(value) {
     const text = String(value || "").trim();
@@ -351,6 +352,7 @@ export default function PosbankumDashboard({
     laporanPelayananRows = [],
     paralegalOptions = [],
     currentPosbankum = {},
+    paralegalProfile = {},
     flash = {},
 }) {
     const [active, setActive] = useState("Beranda");
@@ -468,7 +470,9 @@ export default function PosbankumDashboard({
     const pageSub =
         active === "Beranda"
             ? headerSub
-            : "Kelola data Posbankum secara bertahap";
+            : active === "Profil"
+              ? "Informasi akun dan Posbankum terhubung"
+              : "Kelola data Posbankum secara bertahap";
 
     const handleLogout = () => {
         if (loggingOut) return;
@@ -767,12 +771,22 @@ export default function PosbankumDashboard({
         </section>
     );
 
+    const renderParalegalProfile = () => (
+        <section className="pb2Content pb2ContentWithHeading">
+            <ParalegalProfile
+                profile={paralegalProfile}
+                onBack={() => setActive("Beranda")}
+            />
+        </section>
+    );
+
     const renderActivePage = () => {
         if (active === "Beranda") return renderBeranda();
         if (active === "Semua Kasus") return renderSemuaKasus();
         if (active === "Kelola Posbankum") return renderKelolaPosbankum();
         if (active === "Kelola Kegiatan") return renderKelolaKegiatan();
         if (active === "Laporan Pelayanan") return renderLaporanPelayanan();
+        if (active === "Profil") return renderParalegalProfile();
 
         return (
             <div className="pb2Soon">
@@ -789,7 +803,8 @@ export default function PosbankumDashboard({
                 <button
                     className="pb2Brand pb2BrandButton"
                     type="button"
-                    onClick={() => setActive("Beranda")}
+                    onClick={() => setActive("Profil")}
+                    aria-label="Buka profil paralegal"
                 >
                     <div className="pb2BrandLogoWrap">
                         <img

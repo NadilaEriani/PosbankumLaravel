@@ -66,6 +66,58 @@ class LaporanPelayananController extends Controller
         return preg_replace('/\D+/', '', (string) ($value ?? ''));
     }
 
+    private function authUserId(Request $request): mixed
+    {
+        $user = $request->user();
+
+        return $user->id_user ?? $user->id ?? $user?->getKey() ?? null;
+    }
+
+    private function normalizePriorityForDatabase(mixed $value): string
+    {
+        $raw = strtolower(trim((string) $value));
+
+        if (str_contains($raw, 'sangat')) {
+            return 'Sangat Tinggi';
+        }
+
+        if (str_contains($raw, 'tinggi') || $raw === 'high') {
+            return 'Tinggi';
+        }
+
+        if (str_contains($raw, 'rendah') || $raw === 'low') {
+            return 'Rendah';
+        }
+
+        if (str_contains($raw, 'sedang') || str_contains($raw, 'menengah') || $raw === 'medium') {
+            return 'Menengah';
+        }
+
+        return 'Normal';
+    }
+
+    private function makePengaduanPrimaryKey(array &$payload): ?string
+    {
+        foreach (['id_pengaduan', 'uuid'] as $column) {
+            if ($this->hasColumn('pengaduan', $column) && empty($payload[$column])) {
+                $payload[$column] = (string) Str::uuid();
+                return $payload[$column];
+            }
+        }
+
+        return null;
+    }
+
+    private function makeLampiranPrimaryKey(array &$payload, string $table): void
+    {
+        foreach (['id_lampiran', 'uuid'] as $column) {
+            if ($this->hasColumn($table, $column) && empty($payload[$column])) {
+                $payload[$column] = (string) Str::uuid();
+                return;
+            }
+        }
+    }
+
     private function resolveUserPosbankumId($user): mixed
     {
         if (!$user) {
@@ -232,7 +284,9 @@ class LaporanPelayananController extends Controller
             $path = $file->storeAs('laporan-pelayanan/' . $idPengaduan, $filename, 'public');
 
             $payload = [];
+            $this->makeLampiranPrimaryKey($payload, $table);
             $this->addColumn($payload, $table, $foreignKey, $idPengaduan);
+            $this->addColumn($payload, $table, 'created_by', $this->authUserId($request));
             $this->addColumn($payload, $table, 'nama_file', $file->getClientOriginalName());
             $this->addColumn($payload, $table, 'file_name', $file->getClientOriginalName());
             $this->addColumn($payload, $table, 'path_file', $path);
@@ -297,6 +351,7 @@ class LaporanPelayananController extends Controller
             'waktu_kejadian' => ['required', 'date_format:H:i'],
             'lokasi_kejadian' => ['required', 'string', 'max:255'],
             'id_paralegal' => ['required', 'string', 'max:100'],
+            'masyarakat_id' => ['nullable', 'string', 'max:100'],
             'paralegal_nama' => ['nullable', 'string', 'max:255'],
             'paralegal_hp' => ['nullable', 'string', 'max:30'],
             'catatan_internal' => ['nullable', 'string'],
@@ -321,6 +376,7 @@ class LaporanPelayananController extends Controller
         ]);
 
         $idPosbankum = $this->resolveUserPosbankumId($request->user());
+        $createdBy = $this->authUserId($request);
 
         if (!$idPosbankum) {
             throw ValidationException::withMessages([
@@ -328,11 +384,21 @@ class LaporanPelayananController extends Controller
             ]);
         }
 
+        if (!$createdBy) {
+            throw ValidationException::withMessages([
+                'created_by' => 'Sesi pengguna tidak valid. Silakan login ulang.',
+            ]);
+        }
+
         $payload = [];
+        $idPengaduan = $this->makePengaduanPrimaryKey($payload);
         $this->addColumn($payload, 'pengaduan', 'id_posbankum', $idPosbankum);
         $this->addColumn($payload, 'pengaduan', 'id_paralegal', $validated['id_paralegal']);
+        $this->addColumn($payload, 'pengaduan', 'created_by', $createdBy);
+        $this->addColumn($payload, 'pengaduan', 'masyarakat_id', $this->blankToNull($validated['masyarakat_id'] ?? null));
         $this->addColumn($payload, 'pengaduan', 'nomor_pengaduan', $this->generateNomorPengaduan($idPosbankum));
         $this->addColumn($payload, 'pengaduan', 'nama_pelapor', $validated['nama_pelapor']);
+        $this->addColumn($payload, 'pengaduan', 'nik', $this->digitsOnly($validated['nik']));
         $this->addColumn($payload, 'pengaduan', 'nomor_telepon', $this->digitsOnly($validated['nomor_telepon']));
         $this->addColumn($payload, 'pengaduan', 'jenis_masalah', $validated['jenis_masalah']);
         $this->addColumn($payload, 'pengaduan', 'kategori_masalah', $validated['jenis_masalah']);
@@ -345,7 +411,8 @@ class LaporanPelayananController extends Controller
         $this->addColumn($payload, 'pengaduan', 'lokasi_kejadian', $validated['lokasi_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'lokasi', $validated['lokasi_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'status', 'diproses');
-        $this->addColumn($payload, 'pengaduan', 'prioritas', $validated['prioritas']);
+        $this->addColumn($payload, 'pengaduan', 'prioritas', $this->normalizePriorityForDatabase($validated['prioritas']));
+        $this->addColumn($payload, 'pengaduan', 'catatan_internal', $this->blankToNull($validated['catatan_internal'] ?? null));
         $this->addColumn($payload, 'pengaduan', 'catatan_admin', $this->buildCatatanAdmin($request));
         $this->addColumn($payload, 'pengaduan', 'created_at', now());
         $this->addColumn($payload, 'pengaduan', 'updated_at', now());
@@ -356,9 +423,16 @@ class LaporanPelayananController extends Controller
             ]);
         }
 
-        $idColumn = $this->pengaduanKeyColumn();
-        $idPengaduan = DB::table('pengaduan')->insertGetId($payload, $idColumn);
-        $this->storeLampiran($request, $idPengaduan);
+        DB::transaction(function () use ($request, $payload, &$idPengaduan) {
+            if ($idPengaduan) {
+                DB::table('pengaduan')->insert($payload);
+            } else {
+                $idColumn = $this->pengaduanKeyColumn();
+                $idPengaduan = DB::table('pengaduan')->insertGetId($payload, $idColumn);
+            }
+
+            $this->storeLampiran($request, $idPengaduan);
+        });
 
         return redirect()->back()->with('success', 'Laporan berhasil disimpan.');
     }
