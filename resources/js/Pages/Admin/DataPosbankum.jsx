@@ -116,14 +116,24 @@ function assetUrl(path) {
     const value = String(path ?? "").trim();
     if (!value) return "";
 
-    if (/^(https?:)?\/\//i.test(value) || value.startsWith("data:")) {
+    if (/^(data:|blob:)/i.test(value)) return value;
+    if (value.startsWith("/file-preview")) return value;
+    if (/^https?:\/\//i.test(value) && !/\/storage\//i.test(value)) {
         return value;
     }
 
-    const clean = value.replace(/^public\//, "").replace(/^\/+/, "");
-    if (clean.startsWith("storage/")) return `/${clean}`;
+    const clean = value
+        .replace(/^https?:\/\/[^/]+\/storage\//i, "")
+        .replace(/^https?:\/\/[^/]+\//i, "")
+        .replace(/[?#].*$/, "")
+        .replace(/^public\//i, "")
+        .replace(/^storage\//i, "")
+        .replace(/^app\/public\//i, "")
+        .replace(/^\/+/, "");
 
-    return `/storage/${clean}`;
+    if (!clean || clean.includes("..")) return "";
+
+    return `/file-preview?path=${encodeURIComponent(clean)}`;
 }
 
 function hasTaggingArea(pos) {

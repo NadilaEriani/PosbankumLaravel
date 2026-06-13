@@ -53,15 +53,19 @@ function assetUrl(path) {
     if (!value) return "";
 
     if (isExternalUrl(value) || isDataOrBlob(value)) return value;
-    if (value.startsWith("/storage/")) return value;
-    if (value.startsWith("storage/")) return `/${value}`;
+    if (value.startsWith("/file-preview")) return value;
 
     const clean = value
-        .replace(/^public\//, "")
+        .replace(/^https?:\/\/[^/]+/i, "")
+        .replace(/^\/storage\//, "")
         .replace(/^storage\//, "")
+        .replace(/^public\//, "")
+        .replace(/^app\/public\//, "")
         .replace(/^\/+/, "");
 
-    return `/storage/${clean}`;
+    if (!clean) return "";
+
+    return `/file-preview?path=${encodeURIComponent(clean)}`;
 }
 
 function pickBeritaImagePath(item) {
@@ -442,158 +446,35 @@ export default function KelolaBerita({
         });
     };
 
-    const renderFormPage = () => (
-        <section className="kb-pageShell kb-formPage">
-            <div className="kb-pageHead">
-                <div>
-                    <h2 className="kb-pageTitle">
-                        {modalMode === "edit"
-                            ? "Edit Berita"
-                            : "Tambah Berita Baru"}
-                    </h2>
-                    <p className="kb-pageSub">
-                        {modalMode === "edit"
-                            ? "Perbarui informasi berita tanpa mengubah tampilan utama."
-                            : "Lengkapi data berita baru yang akan ditampilkan."}
-                    </p>
-                </div>
-                <button
-                    className="kb-pageBackBtn"
-                    type="button"
-                    onClick={closeFormPage}
-                    disabled={saving}
-                >
-                    Kembali
-                </button>
-            </div>
+    const renderFormPage = () => {
+        const isEdit = modalMode === "edit";
+        const pageTitle = isEdit ? "Edit Berita" : "Tambah Berita";
+        const submitLabel = isEdit ? "Simpan Perubahan" : "Simpan";
 
-            <div className="kb-modal kb-pageCard">
-                <div className="kb-modalHead">
-                    <div className="kb-modalTitle">
-                        {modalMode === "edit"
-                            ? "Edit Berita"
-                            : "Tambah Berita Baru"}
-                    </div>
-                </div>
+        return (
+            <section className="kb-pageShell kb-formPage kb-contentOnlyPage">
+                <nav className="kb-breadcrumb" aria-label="Breadcrumb">
+                    <button
+                        className="kb-breadcrumbLink"
+                        type="button"
+                        onClick={closeFormPage}
+                        disabled={saving}
+                    >
+                        Kelola Berita
+                    </button>
+                    <span className="kb-breadcrumbSep">›</span>
+                    <span className="kb-breadcrumbCurrent">{pageTitle}</span>
+                </nav>
 
-                <div className="kb-modalBody">
-                    <div className="kb-field">
-                        <label className="kb-label">
-                            Judul Berita <span>*</span>
-                        </label>
-                        <input
-                            className="kb-input"
-                            type="text"
-                            value={form.judul}
-                            onChange={(event) =>
-                                setForm((prev) => ({
-                                    ...prev,
-                                    judul: event.target.value,
-                                }))
-                            }
-                            placeholder="Masukkan judul berita..."
-                        />
+                <div className="kb-contentHead">
+                    <div>
+                        <h2 className="kb-contentTitle">{pageTitle}</h2>
+                        <span className="kb-contentUnderline" />
                     </div>
 
-                    <div className="kb-formGrid">
-                        <div className="kb-field">
-                            <label className="kb-label">Thumbnail</label>
-                            <div className="kb-uploadWrap">
-                                <label
-                                    className={`kb-uploadBox ${
-                                        imagePreview ? "has-image" : ""
-                                    }`}
-                                    style={
-                                        imagePreview
-                                            ? {
-                                                  backgroundImage: `url("${imagePreview}")`,
-                                              }
-                                            : undefined
-                                    }
-                                >
-                                    {!imagePreview ? (
-                                        <div className="kb-uploadEmpty">
-                                            <CgImage className="kb-uploadIcon" />
-                                            <div className="kb-uploadText">
-                                                Klik untuk upload gambar
-                                            </div>
-                                            <div className="kb-uploadNote">
-                                                PNG, JPG, JPEG, WEBP (Max 5MB)
-                                            </div>
-                                        </div>
-                                    ) : null}
-                                    <input
-                                        ref={fileInputRef}
-                                        className="kb-fileInput"
-                                        type="file"
-                                        accept="image/png,image/jpeg,image/jpg,image/webp"
-                                        onChange={handlePickImage}
-                                    />
-                                </label>
-
-                                {imagePreview ? (
-                                    <button
-                                        className="kb-removeImage"
-                                        type="button"
-                                        onClick={clearImage}
-                                        aria-label="Hapus gambar"
-                                    >
-                                        <FiX />
-                                    </button>
-                                ) : null}
-                            </div>
-                        </div>
-
-                        <div className="kb-field">
-                            <label className="kb-label">Kategori</label>
-                            <div className="kb-selectWrap">
-                                <select
-                                    className="kb-select"
-                                    value={form.kategori}
-                                    onChange={(event) =>
-                                        setForm((prev) => ({
-                                            ...prev,
-                                            kategori: event.target.value,
-                                        }))
-                                    }
-                                >
-                                    <option value="" disabled>
-                                        Pilih Kategori Berita
-                                    </option>
-                                    {KATEGORI_OPTIONS.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="kb-field">
-                        <label className="kb-label">
-                            Isi Berita <span>*</span>
-                        </label>
-                        <textarea
-                            className="kb-textarea"
-                            value={form.isi}
-                            onChange={(event) =>
-                                setForm((prev) => ({
-                                    ...prev,
-                                    isi: event.target.value,
-                                }))
-                            }
-                            placeholder="Tulis isi berita..."
-                        />
-                    </div>
-
-                    {formError ? (
-                        <div className="kb-formError">{formError}</div>
-                    ) : null}
-
-                    <div className="kb-modalActions">
+                    <div className="kb-contentActions">
                         <button
-                            className="kb-btnGhost"
+                            className="kb-btnCancelPage"
                             type="button"
                             onClick={closeFormPage}
                             disabled={saving}
@@ -601,95 +482,229 @@ export default function KelolaBerita({
                             Batal
                         </button>
                         <button
-                            className="kb-btnPrimary"
+                            className="kb-btnSavePage"
                             type="button"
                             onClick={handleSubmit}
                             disabled={saving}
                         >
-                            {saving ? "Menyimpan..." : "Simpan"}
+                            {saving ? "Menyimpan..." : submitLabel}
                         </button>
                     </div>
                 </div>
-            </div>
-        </section>
-    );
+
+                <div className="kb-formContentCard">
+                    <div className="kb-formContentHead">Informasi Berita</div>
+
+                    <div className="kb-formContentBody">
+                        <div className="kb-field kb-titleField">
+                            <label className="kb-label" htmlFor="judul-berita">
+                                Judul Berita
+                            </label>
+                            <input
+                                id="judul-berita"
+                                className="kb-input kb-cleanInput"
+                                type="text"
+                                value={form.judul}
+                                onChange={(event) =>
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        judul: event.target.value,
+                                    }))
+                                }
+                                placeholder="Masukkan judul berita yang akan ditampilkan kepada pengguna"
+                            />
+                        </div>
+
+                        <div className="kb-formMiddleGrid">
+                            <div className="kb-field kb-categoryField">
+                                <label
+                                    className="kb-label"
+                                    htmlFor="kategori-berita"
+                                >
+                                    Kategori
+                                </label>
+                                <div className="kb-selectWrap kb-cleanSelectWrap">
+                                    <select
+                                        id="kategori-berita"
+                                        className="kb-select kb-cleanSelect"
+                                        value={form.kategori}
+                                        onChange={(event) =>
+                                            setForm((prev) => ({
+                                                ...prev,
+                                                kategori: event.target.value,
+                                            }))
+                                        }
+                                    >
+                                        <option value="" disabled>
+                                            Pilih Kategori Berita
+                                        </option>
+                                        {KATEGORI_OPTIONS.map((option) => (
+                                            <option key={option} value={option}>
+                                                {option}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="kb-field kb-thumbnailField">
+                                <label
+                                    className="kb-label"
+                                    htmlFor="thumbnail-berita"
+                                >
+                                    Thumbnail
+                                </label>
+                                <div className="kb-uploadWrap kb-cleanUploadWrap">
+                                    <label
+                                        className={`kb-uploadBox kb-cleanUploadBox ${
+                                            imagePreview ? "has-image" : ""
+                                        }`}
+                                        style={
+                                            imagePreview
+                                                ? {
+                                                      backgroundImage: `url("${imagePreview}")`,
+                                                  }
+                                                : undefined
+                                        }
+                                        htmlFor="thumbnail-berita"
+                                    >
+                                        {!imagePreview ? (
+                                            <div className="kb-uploadEmpty kb-cleanUploadEmpty">
+                                                <CgImage className="kb-uploadIcon kb-cleanUploadIcon" />
+                                                <div className="kb-uploadText">
+                                                    Klik untuk upload gambar
+                                                </div>
+                                                <div className="kb-uploadNote">
+                                                    PNG, JPG, JPEG, WEBP (Max
+                                                    5MB)
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                        <input
+                                            id="thumbnail-berita"
+                                            ref={fileInputRef}
+                                            className="kb-fileInput"
+                                            type="file"
+                                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                                            onChange={handlePickImage}
+                                        />
+                                    </label>
+
+                                    {imagePreview ? (
+                                        <button
+                                            className="kb-removeImage kb-cleanRemoveImage"
+                                            type="button"
+                                            onClick={clearImage}
+                                            aria-label="Hapus gambar"
+                                        >
+                                            <FiX />
+                                        </button>
+                                    ) : null}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="kb-field kb-contentField">
+                            <label className="kb-label" htmlFor="isi-berita">
+                                Isi Berita
+                            </label>
+                            <textarea
+                                id="isi-berita"
+                                className="kb-textarea kb-cleanTextarea"
+                                value={form.isi}
+                                onChange={(event) =>
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        isi: event.target.value,
+                                    }))
+                                }
+                                placeholder="Tuliskan isi berita secara lengkap. Gunakan paragraf yang jelas dan mudah dipahami oleh pembaca..."
+                            />
+                        </div>
+
+                        {formError ? (
+                            <div className="kb-formError">{formError}</div>
+                        ) : null}
+                    </div>
+                </div>
+            </section>
+        );
+    };
 
     const renderDetailPage = () => {
         if (!activeItem) return null;
 
         const detailImagePath = pickBeritaImagePath(activeItem);
         const detailImageUrl = activeItem.imageUrl || assetUrl(detailImagePath);
+        const detailParagraphs = String(activeItem.isi || "")
+            .split(/\n{2,}/)
+            .map((paragraph) => paragraph.trim())
+            .filter(Boolean);
 
         return (
-            <section className="kb-pageShell kb-detailPage">
-                <div className="kb-pageHead">
-                    <div>
-                        <h2 className="kb-pageTitle">Detail Berita</h2>
-                        <p className="kb-pageSub">
-                            Lihat informasi berita dengan tampilan penuh
-                            halaman.
-                        </p>
-                    </div>
+            <section className="kb-pageShell kb-detailPage kb-contentOnlyPage">
+                <nav className="kb-breadcrumb" aria-label="Breadcrumb">
                     <button
-                        className="kb-pageBackBtn"
+                        className="kb-breadcrumbLink"
                         type="button"
                         onClick={closeDetail}
                     >
-                        Kembali
+                        Kelola Berita
+                    </button>
+                    <span className="kb-breadcrumbSep">›</span>
+                    <span className="kb-breadcrumbCurrent">Detail Berita</span>
+                </nav>
+
+                <div className="kb-contentHead">
+                    <div>
+                        <h2 className="kb-contentTitle">Detail Berita</h2>
+                        <span className="kb-contentUnderline" />
+                    </div>
+
+                    <button
+                        className="kb-btnSavePage kb-btnCloseDetail"
+                        type="button"
+                        onClick={closeDetail}
+                    >
+                        Tutup
                     </button>
                 </div>
 
-                <article className="kb-detailModal kb-pageCard">
+                <article className="kb-newsDetailCard">
                     <div
-                        className={`kb-detailHero ${
+                        className={`kb-newsHero ${
                             !detailImageUrl ? "is-placeholder" : ""
                         }`}
                         style={
                             detailImageUrl
                                 ? {
-                                      backgroundImage: `linear-gradient(180deg, rgba(17, 24, 39, 0.08) 0%, rgba(17, 24, 39, 0.65) 100%), url("${detailImageUrl}")`,
+                                      backgroundImage: `url("${detailImageUrl}")`,
                                   }
                                 : undefined
                         }
-                    >
-                        <div className="kb-detailOverlay" />
-                        <div className="kb-detailContent">
-                            <span className="kb-badge is-detail">
-                                {activeItem.kategori || "Kegiatan"}
-                            </span>
-                            <h3 className="kb-detailTitle">
-                                {activeItem.judul || "Tanpa Judul"}
-                            </h3>
-                            <div className="kb-detailMeta">
-                                <span className="kb-metaItem">
-                                    <FiCalendar />
-                                    {formatDateID(activeItem.tgl_publish)}
-                                </span>
-                                <span className="kb-detailAuthor">
-                                    <FiUser />
-                                    {activeItem.authorName || "Admin"}
-                                </span>
-                            </div>
+                    />
+
+                    <div className="kb-newsDetailBody">
+                        <span className="kb-newsBadge">
+                            {activeItem.kategori || "Kegiatan"}
+                        </span>
+                        <h3 className="kb-newsTitle">
+                            {activeItem.judul || "Tanpa Judul"}
+                        </h3>
+                        <div className="kb-newsMeta">
+                            {formatDateID(activeItem.tgl_publish)} •{" "}
+                            {activeItem.authorName || "Admin"}
                         </div>
-                    </div>
 
-                    <div className="kb-detailBody">
-                        {String(activeItem.isi || "")
-                            .split(/\n{2,}/)
-                            .filter(Boolean)
-                            .map((paragraph, index) => (
-                                <p key={index}>{paragraph.trim()}</p>
-                            ))}
-                    </div>
-
-                    <div className="kb-detailFooter">
-                        <button
-                            className="kb-btnGhost large"
-                            type="button"
-                            onClick={closeDetail}
-                        >
-                            Kembali
-                        </button>
+                        <div className="kb-newsContent">
+                            {detailParagraphs.length > 0 ? (
+                                detailParagraphs.map((paragraph, index) => (
+                                    <p key={index}>{paragraph}</p>
+                                ))
+                            ) : (
+                                <p>Isi berita belum tersedia.</p>
+                            )}
+                        </div>
                     </div>
                 </article>
             </section>
@@ -826,11 +841,13 @@ export default function KelolaBerita({
     return (
         <section className="ad-pagePad ad-pagePadBerita">
             <div className="kb-wrap">
-                <div className="ad-pageHeader">
-                    <div className="ad-pageTitleWrap">
-                        <h1 className="ad-wireTitle">Kelola Berita</h1>
+                {pageMode === "list" ? (
+                    <div className="ad-pageHeader">
+                        <div className="ad-pageTitleWrap">
+                            <h1 className="ad-wireTitle">Kelola Berita</h1>
+                        </div>
                     </div>
-                </div>
+                ) : null}
 
                 {pageMode === "list" ? renderListPage() : null}
                 {pageMode === "create" || pageMode === "edit"

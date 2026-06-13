@@ -56,7 +56,7 @@ class DashboardController extends Controller
             $raw = $urlPath;
         }
 
-        $clean = preg_replace('#[?#].*$#', '', $raw);
+        $clean = preg_replace('~[?#].*$~', '', $raw);
         $clean = preg_replace('#^/+#', '', (string) $clean);
         $clean = preg_replace('#^(storage|public|app/public)/#i', '', $clean);
         $clean = ltrim(str_replace('\\', '/', (string) $clean), '/');

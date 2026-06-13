@@ -63,7 +63,8 @@ $streamPublicFile = static function (Request $request, ?string $path = null) {
         $rawPath = $urlPath;
     }
 
-    $cleanPath = preg_replace('#[?#].*$#', '', $rawPath);
+    $cleanPath = strtok($rawPath, '?#');
+    $cleanPath = $cleanPath === false ? $rawPath : $cleanPath;
     $cleanPath = preg_replace('#^/+#', '', $cleanPath);
     $cleanPath = preg_replace('#^(storage|public|app/public)/#i', '', $cleanPath);
     $cleanPath = ltrim(str_replace('\\', '/', (string) $cleanPath), '/');

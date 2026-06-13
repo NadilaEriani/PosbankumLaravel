@@ -525,16 +525,26 @@ export default function VerifikasiDataPosbankum({
     const makeSignedUrl = async (path) => {
         const raw = String(path || "").trim();
         if (!raw) return "";
-        if (/^(https?:)?\/\//i.test(raw) || raw.startsWith("data:")) return raw;
+        if (/^(data:|blob:)/i.test(raw)) return raw;
+        if (
+            raw.startsWith("/file-preview") ||
+            raw.startsWith("/admin/verifikasi-data-posbankum/dokumen")
+        )
+            return raw;
+        if (/^https?:\/\//i.test(raw) && !/\/storage\//i.test(raw)) return raw;
 
         const clean = stripBucketPrefix(raw)
-            .replace(/^public\//, "")
+            .replace(/^https?:\/\/[^/]+\/storage\//i, "")
+            .replace(/^https?:\/\/[^/]+\//i, "")
+            .replace(/[?#].*$/, "")
+            .replace(/^public\//i, "")
+            .replace(/^storage\//i, "")
+            .replace(/^app\/public\//i, "")
             .replace(/^\/+/, "");
 
-        if (!clean) return "";
-        if (clean.startsWith("storage/")) return `/${clean}`;
+        if (!clean || clean.includes("..")) return "";
 
-        return `/storage/${clean}`;
+        return `/file-preview?path=${encodeURIComponent(clean)}`;
     };
 
     const isImagePreview = (item) => {

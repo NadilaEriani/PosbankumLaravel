@@ -68,39 +68,13 @@ class VerifikasiDataPosbankumController extends Controller
         return $clean ?: '';
     }
 
-    private function publicStorageAbsolutePath(string $clean): ?string
+    private function publicStorageAbsolutePath(string $clean): string
     {
-        $clean = ltrim(str_replace('\\', '/', trim($clean)), '/');
+        $root = (string) config('filesystems.disks.public.root', storage_path('app/public'));
 
-        if ($clean === '' || str_contains($clean, "\0") || str_contains($clean, '..')) {
-            return null;
-        }
-
-        $roots = array_values(array_unique(array_filter([
-            (string) config('filesystems.disks.public.root', storage_path('app/public')),
-            public_path('storage'),
-            public_path(),
-        ])));
-
-        foreach ($roots as $root) {
-            $root = rtrim((string) $root, DIRECTORY_SEPARATOR . '/\\');
-            $candidate = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $clean);
-            $realRoot = realpath($root);
-            $realPath = realpath($candidate);
-
-            if (!$realRoot || !$realPath || !is_file($realPath)) {
-                continue;
-            }
-
-            $normalizedRoot = rtrim(str_replace('\\', '/', $realRoot), '/') . '/';
-            $normalizedPath = str_replace('\\', '/', $realPath);
-
-            if (str_starts_with($normalizedPath, $normalizedRoot)) {
-                return $realPath;
-            }
-        }
-
-        return null;
+        return rtrim($root, DIRECTORY_SEPARATOR . '/\\')
+            . DIRECTORY_SEPARATOR
+            . str_replace('/', DIRECTORY_SEPARATOR, ltrim($clean, '/'));
     }
 
     private function detectMimeType(string $absolutePath): string
@@ -121,13 +95,45 @@ class VerifikasiDataPosbankumController extends Controller
 
     private function streamPublicDocument(string $clean, ?string $name = null, ?string $mime = null)
     {
-        $absolutePath = $this->publicStorageAbsolutePath($clean);
+        $cleanPath = ltrim(str_replace('\\', '/', trim($clean)), '/');
 
-        if (!$absolutePath || !is_file($absolutePath)) {
+        if ($cleanPath === '' || str_contains($cleanPath, "\0") || str_contains($cleanPath, '..')) {
+            abort(403, 'Path dokumen tidak valid.');
+        }
+
+        $candidateRoots = array_values(array_unique(array_filter([
+            (string) config('filesystems.disks.public.root', storage_path('app/public')),
+            storage_path('app/public'),
+            public_path('storage'),
+            public_path(),
+        ])));
+
+        $absolutePath = null;
+
+        foreach ($candidateRoots as $root) {
+            $root = rtrim((string) $root, DIRECTORY_SEPARATOR . '/\\');
+            $candidate = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
+            $realRoot = realpath($root);
+            $realCandidate = realpath($candidate);
+
+            if (!$realRoot || !$realCandidate || !is_file($realCandidate)) {
+                continue;
+            }
+
+            $normalizedRoot = rtrim(str_replace('\\', '/', $realRoot), '/') . '/';
+            $normalizedCandidate = str_replace('\\', '/', $realCandidate);
+
+            if (str_starts_with($normalizedCandidate, $normalizedRoot)) {
+                $absolutePath = $realCandidate;
+                break;
+            }
+        }
+
+        if (!$absolutePath) {
             abort(404, 'Berkas dokumen tidak ditemukan.');
         }
 
-        $fileName = $this->safeInlineFileName($name ?: basename($clean));
+        $fileName = $this->safeInlineFileName($name ?: basename($cleanPath));
         $fileMime = trim((string) ($mime ?: '')) ?: $this->detectMimeType($absolutePath);
 
         return response()->file($absolutePath, [

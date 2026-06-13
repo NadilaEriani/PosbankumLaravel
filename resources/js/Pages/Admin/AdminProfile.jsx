@@ -89,13 +89,22 @@ function getProfilePhotoUrl(value) {
     const path = safeTrim(value).replace(/\\/g, "/");
 
     if (!path) return "";
-    if (isExternalUrl(path) || isDataOrBlob(path)) return path;
-    if (path.startsWith("/storage/")) return path;
-    if (path.startsWith("storage/")) return `/${path}`;
-    if (path.startsWith("public/"))
-        return `/storage/${path.replace(/^public\//, "")}`;
+    if (isDataOrBlob(path)) return path;
+    if (path.startsWith("/file-preview")) return path;
+    if (isExternalUrl(path) && !/\/storage\//i.test(path)) return path;
 
-    return `/storage/${path.replace(/^\/+/, "")}`;
+    const clean = path
+        .replace(/^https?:\/\/[^/]+\/storage\//i, "")
+        .replace(/^https?:\/\/[^/]+\//i, "")
+        .replace(/[?#].*$/, "")
+        .replace(/^public\//i, "")
+        .replace(/^storage\//i, "")
+        .replace(/^app\/public\//i, "")
+        .replace(/^\/+/, "");
+
+    if (!clean || clean.includes("..")) return "";
+
+    return `/file-preview?path=${encodeURIComponent(clean)}`;
 }
 
 function buildFormData(data = {}, fallbackUser = {}) {
