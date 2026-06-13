@@ -50,7 +50,79 @@ Route::get('/dashboard', function () {
     return redirect()->route('home');
 })->middleware(['auth'])->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+$streamPublicFile = static function (Request $request, ?string $path = null) {
+    $rawPath = $path !== null ? $path : (string) $request->query('path', '');
+    $rawPath = rawurldecode(str_replace('\\', '/', trim((string) $rawPath)));
+
+    if ($rawPath === '') {
+        abort(404, 'Berkas tidak ditemukan.');
+    }
+
+    if (preg_match('/^https?:\/\//i', $rawPath)) {
+        $urlPath = parse_url($rawPath, PHP_URL_PATH) ?: '';
+        $rawPath = $urlPath;
+    }
+
+    $cleanPath = preg_replace('#[?#].*$#', '', $rawPath);
+    $cleanPath = preg_replace('#^/+#', '', $cleanPath);
+    $cleanPath = preg_replace('#^(storage|public|app/public)/#i', '', $cleanPath);
+    $cleanPath = ltrim(str_replace('\\', '/', (string) $cleanPath), '/');
+
+    if ($cleanPath === '' || str_contains($cleanPath, "\0") || str_contains($cleanPath, '..')) {
+        abort(403, 'Path berkas tidak valid.');
+    }
+
+    $candidateRoots = array_values(array_unique(array_filter([
+        storage_path('app/public'),
+        public_path('storage'),
+        public_path(),
+    ])));
+
+    $realPath = null;
+
+    foreach ($candidateRoots as $root) {
+        $root = rtrim((string) $root, DIRECTORY_SEPARATOR . '/\\');
+        $candidate = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
+        $realRoot = realpath($root);
+        $candidateRealPath = realpath($candidate);
+
+        if (!$realRoot || !$candidateRealPath || !is_file($candidateRealPath)) {
+            continue;
+        }
+
+        $normalizedRoot = rtrim(str_replace('\\', '/', $realRoot), '/') . '/';
+        $normalizedPath = str_replace('\\', '/', $candidateRealPath);
+
+        if (str_starts_with($normalizedPath, $normalizedRoot)) {
+            $realPath = $candidateRealPath;
+            break;
+        }
+    }
+
+    if (!$realPath) {
+        abort(404, 'Berkas tidak ditemukan.');
+    }
+
+    $mime = function_exists('mime_content_type') ? mime_content_type($realPath) : false;
+    $fileName = trim((string) $request->query('name', basename($realPath)));
+    $fileName = str_replace(['"', "\r", "\n"], '', $fileName) ?: basename($realPath);
+    $disposition = $request->boolean('download') ? 'attachment' : 'inline';
+
+    return response()->file($realPath, [
+        'Content-Type' => $mime ?: 'application/octet-stream',
+        'Content-Disposition' => $disposition . '; filename="' . addcslashes($fileName, '"\\') . '"',
+        'Cache-Control' => 'private, max-age=0, must-revalidate',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+};
+
+Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
+    Route::get('/file-preview', $streamPublicFile)->name('file.preview');
+
+    Route::get('/storage/{path}', $streamPublicFile)
+        ->where('path', '.*')
+        ->name('storage.inline');
+
     /* Admin Dashboard */
     Route::get('/admin', [AdminDashboardController::class, 'admin'])
         ->name('admin.dashboard');

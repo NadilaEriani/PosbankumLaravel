@@ -68,13 +68,39 @@ class VerifikasiDataPosbankumController extends Controller
         return $clean ?: '';
     }
 
-    private function publicStorageAbsolutePath(string $clean): string
+    private function publicStorageAbsolutePath(string $clean): ?string
     {
-        $root = (string) config('filesystems.disks.public.root', storage_path('app/public'));
+        $clean = ltrim(str_replace('\\', '/', trim($clean)), '/');
 
-        return rtrim($root, DIRECTORY_SEPARATOR . '/\\')
-            . DIRECTORY_SEPARATOR
-            . str_replace('/', DIRECTORY_SEPARATOR, ltrim($clean, '/'));
+        if ($clean === '' || str_contains($clean, "\0") || str_contains($clean, '..')) {
+            return null;
+        }
+
+        $roots = array_values(array_unique(array_filter([
+            (string) config('filesystems.disks.public.root', storage_path('app/public')),
+            public_path('storage'),
+            public_path(),
+        ])));
+
+        foreach ($roots as $root) {
+            $root = rtrim((string) $root, DIRECTORY_SEPARATOR . '/\\');
+            $candidate = $root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $clean);
+            $realRoot = realpath($root);
+            $realPath = realpath($candidate);
+
+            if (!$realRoot || !$realPath || !is_file($realPath)) {
+                continue;
+            }
+
+            $normalizedRoot = rtrim(str_replace('\\', '/', $realRoot), '/') . '/';
+            $normalizedPath = str_replace('\\', '/', $realPath);
+
+            if (str_starts_with($normalizedPath, $normalizedRoot)) {
+                return $realPath;
+            }
+        }
+
+        return null;
     }
 
     private function detectMimeType(string $absolutePath): string
@@ -97,7 +123,7 @@ class VerifikasiDataPosbankumController extends Controller
     {
         $absolutePath = $this->publicStorageAbsolutePath($clean);
 
-        if (!is_file($absolutePath)) {
+        if (!$absolutePath || !is_file($absolutePath)) {
             abort(404, 'Berkas dokumen tidak ditemukan.');
         }
 
@@ -106,7 +132,8 @@ class VerifikasiDataPosbankumController extends Controller
 
         return response()->file($absolutePath, [
             'Content-Type' => $fileMime,
-            'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+            'Content-Disposition' => 'inline; filename="' . addcslashes($fileName, '"\\') . '"',
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

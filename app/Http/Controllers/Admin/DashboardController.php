@@ -34,6 +34,46 @@ class DashboardController extends Controller
 
         return $default;
     }
+    private function publicPreviewUrl(mixed $path, ?string $name = null): string
+    {
+        $raw = trim(str_replace('\\', '/', (string) $path));
+
+        if ($raw === '') {
+            return '';
+        }
+
+        if (preg_match('/^(data:|blob:)/i', $raw)) {
+            return $raw;
+        }
+
+        if (preg_match('/^https?:\/\//i', $raw)) {
+            $urlPath = parse_url($raw, PHP_URL_PATH) ?: '';
+
+            if (!preg_match('#/(storage|public|app/public)/#i', $urlPath)) {
+                return $raw;
+            }
+
+            $raw = $urlPath;
+        }
+
+        $clean = preg_replace('#[?#].*$#', '', $raw);
+        $clean = preg_replace('#^/+#', '', (string) $clean);
+        $clean = preg_replace('#^(storage|public|app/public)/#i', '', $clean);
+        $clean = ltrim(str_replace('\\', '/', (string) $clean), '/');
+
+        if ($clean === '' || str_contains($clean, "\0") || str_contains($clean, '..')) {
+            return '';
+        }
+
+        $query = ['path' => $clean];
+
+        if ($name !== null && trim($name) !== '') {
+            $query['name'] = trim($name);
+        }
+
+        return '/file-preview?' . http_build_query($query);
+    }
+
 
     private function tableCount(string $table): int
     {
@@ -694,6 +734,7 @@ class DashboardController extends Controller
                 'tgl_mulai' => $tglMulai,
                 'tgl_selesai' => $this->rowValue($row, ['tgl_selesai', 'tanggal_selesai'], null),
                 'thumbnail_path' => $thumbnail,
+                'thumbnail_url' => $this->publicPreviewUrl($thumbnail),
                 'gambar' => $thumbnail,
                 'lokasi' => (string) $this->rowValue($row, ['lokasi', 'location', 'alamat', 'tempat'], ''),
                 'jumlah_peserta' => (int) $this->rowValue($row, ['jumlah_peserta', 'participants', 'peserta', 'jml_peserta'], 0),
@@ -805,6 +846,7 @@ class DashboardController extends Controller
                 'content' => $content,
                 'gambar' => $image,
                 'image' => $image,
+                'imageUrl' => $this->publicPreviewUrl($image),
                 'tgl_publish' => $publishedAt,
                 'date' => $publishedAt,
                 'kategori' => $category,

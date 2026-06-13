@@ -60,11 +60,13 @@ class DashboardController extends Controller
         }
 
         $clean = str_replace('\\', '/', $clean);
-        $clean = preg_replace('#^public/#', '', $clean);
-        $clean = preg_replace('#^storage/#', '', $clean);
         $clean = preg_replace('#^/storage/#', '', $clean);
+        $clean = preg_replace('#^storage/#', '', $clean);
+        $clean = preg_replace('#^public/#', '', $clean);
+        $clean = preg_replace('#^app/public/#', '', $clean);
+        $clean = ltrim($clean, '/');
 
-        return Storage::url($clean);
+        return $clean !== '' ? '/file-preview?path=' . rawurlencode($clean) : '';
     }
 
     private function resolveUserPosbankumId($user): mixed

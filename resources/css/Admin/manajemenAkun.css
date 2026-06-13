@@ -1917,3 +1917,213 @@
         border-radius: 16px !important;
     }
 }
+
+/* ===== Revisi tata letak filter Manajemen Akun: laptop/desktop tetap satu baris ===== */
+@media (min-width: 769px) {
+    .kpToolbar {
+        display: grid !important;
+        grid-template-columns: minmax(430px, 1fr) minmax(205px, 235px) minmax(
+                205px,
+                235px
+            ) !important;
+        align-items: center !important;
+        gap: 18px !important;
+        padding: 0 !important;
+    }
+
+    .kpFilters {
+        display: contents !important;
+    }
+
+    .kpSearch,
+    .kpFilterDropdown {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1040px) {
+    .kpPanel {
+        padding: 22px !important;
+    }
+
+    .kpToolbar {
+        grid-template-columns: minmax(340px, 1fr) minmax(184px, 215px) minmax(
+                184px,
+                215px
+            ) !important;
+        gap: 14px !important;
+    }
+
+    .kpDropdownBtn {
+        padding-left: 13px;
+        padding-right: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .kpFilters {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+}
+
+/* ===== Final layout fix: Manajemen Akun search + filter tetap satu baris di laptop/tablet ===== */
+@media (min-width: 640px) {
+    .kpPanel .kpToolbar,
+    .kpPanel .kpToolbarSingleLine {
+        display: grid !important;
+        grid-template-columns: minmax(260px, 1fr) minmax(170px, 230px) minmax(
+                170px,
+                230px
+            ) !important;
+        align-items: center !important;
+        gap: 14px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        flex-direction: initial !important;
+    }
+
+    .kpPanel .kpFilters,
+    .kpPanel .kpFiltersInline {
+        display: contents !important;
+    }
+
+    .kpPanel .kpSearch,
+    .kpPanel .kpFilterDropdown {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .kpPanel .kpDropdownBtn {
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 820px) {
+    .kpPanel {
+        padding: 18px !important;
+    }
+
+    .kpPanel .kpToolbar,
+    .kpPanel .kpToolbarSingleLine {
+        grid-template-columns: minmax(235px, 1fr) minmax(155px, 195px) minmax(
+                155px,
+                195px
+            ) !important;
+        gap: 10px !important;
+    }
+
+    .kpPanel .kpDropdownBtn {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}
+
+@media (max-width: 639px) {
+    .kpPanel .kpToolbar,
+    .kpPanel .kpToolbarSingleLine {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .kpPanel .kpFilters,
+    .kpPanel .kpFiltersInline {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+}
+
+/* ===== Final fix Manajemen Akun: search dan filter satu garis pada laptop/desktop ===== */
+@media (min-width: 769px) {
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: stretch !important;
+        gap: 18px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline > .kpSearch {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: none !important;
+        min-width: 320px !important;
+        height: 52px !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline > .kpFilters.kpFiltersInline {
+        flex: 0 0 auto !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 16px !important;
+        width: auto !important;
+        min-width: 430px !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline .kpFilterDropdown {
+        width: 207px !important;
+        min-width: 207px !important;
+        max-width: 235px !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline .kpDropdownBtn {
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline {
+        gap: 12px !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline > .kpSearch {
+        min-width: 260px !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline > .kpFilters.kpFiltersInline {
+        gap: 12px !important;
+        min-width: 360px !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline .kpFilterDropdown {
+        width: 174px !important;
+        min-width: 174px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline > .kpSearch,
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline .kpFilterDropdown {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline > .kpFilters.kpFiltersInline {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
