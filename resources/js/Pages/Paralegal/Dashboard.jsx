@@ -466,13 +466,10 @@ export default function PosbankumDashboard({
         );
     }, [posbankum?.alamat, posbankum?.address, auth?.user?.email]);
 
-    const pageTitle = active === "Beranda" ? headerTitle : active;
-    const pageSub =
-        active === "Beranda"
-            ? headerSub
-            : active === "Profil"
-              ? "Informasi akun dan Posbankum terhubung"
-              : "Kelola data Posbankum secara bertahap";
+    // Navbar/topbar harus tetap menampilkan identitas Posbankum seperti halaman Beranda,
+    // meskipun menu konten yang dibuka berbeda.
+    const pageTitle = headerTitle;
+    const pageSub = headerSub;
 
     const handleLogout = () => {
         if (loggingOut) return;

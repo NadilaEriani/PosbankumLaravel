@@ -7,13 +7,11 @@ import {
     FiChevronRight,
     FiChevronDown,
     FiEdit2,
+    FiEye,
     FiTrash2,
     FiPlus,
-    FiMail,
-    FiMapPin,
     FiFilter,
     FiCheck,
-    FiUser,
 } from "react-icons/fi";
 import posbankumIcon from "../../assets/icon.png";
 import SuccessToast from "../../Components/ui/SuccessToast";
@@ -211,9 +209,9 @@ function toOptionRows(rows, valueKeys, labelKeys, extraMapper = null) {
 }
 
 function formatLocation(row) {
-    const kelurahan = cleanText(row.kelurahan_nama);
-    const kecamatan = cleanText(row.kecamatan_nama);
-    const kabupaten = cleanText(row.kabupaten_nama);
+    const kelurahan = cleanText(row?.kelurahan_nama);
+    const kecamatan = cleanText(row?.kecamatan_nama);
+    const kabupaten = cleanText(row?.kabupaten_nama);
 
     if (kelurahan && kecamatan && kabupaten) {
         return `${kelurahan}, ${kecamatan}, ${kabupaten}`;
@@ -223,7 +221,11 @@ function formatLocation(row) {
     if (kecamatan) return kecamatan;
     if (kabupaten) return kabupaten;
 
-    return cleanText(row.lokasi, "-");
+    return cleanText(row?.lokasi, "-");
+}
+
+function displayValue(value) {
+    return cleanText(value, "-");
 }
 
 function KpDropdown({
@@ -484,6 +486,7 @@ export default function ManajemenAkun({
     const [pageMode, setPageMode] = useState("list");
     const [mode, setMode] = useState("add");
     const [editingId, setEditingId] = useState(null);
+    const [detailTarget, setDetailTarget] = useState(null);
     const [saving, setSaving] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [deleting, setDeleting] = useState(false);
@@ -779,18 +782,50 @@ export default function ManajemenAkun({
         setFPosbankumId("");
     };
 
+    const showError = (message) => {
+        setErr(message);
+        setRejectMessage(message);
+    };
+
+    const refreshRows = () => {
+        router.reload({
+            only: [
+                "accountRows",
+                "rows",
+                "paralegalRows",
+                "posbankumMasterRows",
+                "posbankumRows",
+            ],
+            preserveScroll: true,
+            preserveState: true,
+        });
+    };
+
     const openTambah = () => {
         setErr("");
+        setRejectMessage("");
         setMode("add");
         setEditingId(null);
+        setDetailTarget(null);
         resetForm();
         setPageMode("add");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const openDetail = (row) => {
+        setErr("");
+        setRejectMessage("");
+        setDetailTarget(row);
+        setPageMode("detail");
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const openEdit = (row) => {
         setErr("");
+        setRejectMessage("");
         setMode("edit");
         setEditingId(row.id_user);
+        setDetailTarget(null);
 
         setFNama(row.nama_lengkap ?? "");
         setFEmail(row.email === "-" ? "" : (row.email ?? ""));
@@ -801,13 +836,16 @@ export default function ManajemenAkun({
         setFPosbankumId(row.id_posbankum ?? "");
 
         setPageMode("edit");
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const backToList = () => {
         if (saving) return;
         setErr("");
+        setRejectMessage("");
         resetForm();
         setEditingId(null);
+        setDetailTarget(null);
         setPageMode("list");
     };
 
@@ -842,22 +880,22 @@ export default function ManajemenAkun({
         const emailParalegal = fEmail.trim();
         const nomorTelepon = sanitizePhoneInput(fTelepon);
 
-        if (!namaParalegal) return setErr("Nama paralegal wajib diisi.");
+        if (!namaParalegal) return showError("Nama paralegal wajib diisi.");
         if (namaParalegal.length < 3) {
-            return setErr("Nama paralegal minimal 3 karakter.");
+            return showError("Nama paralegal minimal 3 karakter.");
         }
-        if (!emailParalegal) return setErr("Email wajib diisi.");
+        if (!emailParalegal) return showError("Email wajib diisi.");
         if (!isValidEmail(emailParalegal)) {
-            return setErr("Format email tidak valid.");
+            return showError("Format email tidak valid.");
         }
         if (!isValidOptionalPhone(nomorTelepon)) {
-            return setErr(
+            return showError(
                 "Nomor telepon hanya boleh berisi angka, minimal 8 digit dan maksimal 15 digit.",
             );
         }
-        if (!fKabupatenId) return setErr("Kabupaten wajib dipilih.");
-        if (!fKecamatanId) return setErr("Kecamatan wajib dipilih.");
-        if (!fKelurahanId) return setErr("Kelurahan wajib dipilih.");
+        if (!fKabupatenId) return showError("Kabupaten wajib dipilih.");
+        if (!fKecamatanId) return showError("Kecamatan wajib dipilih.");
+        if (!fKelurahanId) return showError("Kelurahan wajib dipilih.");
 
         const payload = {
             nama_lengkap: namaParalegal,
@@ -887,12 +925,13 @@ export default function ManajemenAkun({
                 setErr("");
                 resetForm();
                 setEditingId(null);
+                setDetailTarget(null);
                 setPageMode("list");
+                refreshRows();
             },
             onError: (errors) => {
                 const message = getFirstError(errors);
-                setErr(message);
-                setRejectMessage(message);
+                showError(message);
             },
             onFinish: () => setSaving(false),
         };
@@ -906,6 +945,7 @@ export default function ManajemenAkun({
 
     const onHapus = (row) => {
         setErr("");
+        setRejectMessage("");
         setDeleteTarget(row);
     };
 
@@ -923,15 +963,22 @@ export default function ManajemenAkun({
                 onStart: () => setDeleting(true),
                 onSuccess: () => {
                     setSuccessMessage("Akun paralegal berhasil dihapus.");
+                    setLocalRows((prev) =>
+                        prev.filter(
+                            (row) =>
+                                String(row.id_user) !==
+                                String(deleteTarget.id_user),
+                        ),
+                    );
                     setDeleteTarget(null);
+                    refreshRows();
                 },
                 onError: (errors) => {
                     const message = getFirstError(
                         errors,
                         "Gagal menghapus akun paralegal.",
                     );
-                    setErr(message);
-                    setRejectMessage(message);
+                    showError(message);
                 },
                 onFinish: () => setDeleting(false),
             },
@@ -939,39 +986,90 @@ export default function ManajemenAkun({
     };
 
     const formTitle = mode === "add" ? "Tambah Paralegal" : "Edit Paralegal";
+    const formCrumb = mode === "add" ? "Tambah Paralegal" : "Edit Paralegal";
+
+    const renderBreadcrumb = (current) => (
+        <div className="kpBreadcrumb" aria-label="Breadcrumb">
+            <button
+                type="button"
+                onClick={backToList}
+                className="kpBreadcrumbLink"
+            >
+                Manajemen Akun
+            </button>
+            <span className="kpBreadcrumbDivider">›</span>
+            <span className="kpBreadcrumbCurrent">{current}</span>
+        </div>
+    );
+
+    const renderPageTitle = ({ current, title, action }) => (
+        <div className="kpPageTop">
+            <div className="kpPageTitleSide">
+                {renderBreadcrumb(current)}
+                <h1 className="kpPageTitle">{title}</h1>
+                <span className="kpTitleUnderline" />
+            </div>
+            {action ? <div className="kpPageActions">{action}</div> : null}
+        </div>
+    );
+
     const renderFormPage = () => (
         <div className="kpFormPage">
+            {renderPageTitle({
+                current: formCrumb,
+                title: formTitle,
+                action: (
+                    <>
+                        <button
+                            className="kpPageBtnGhost"
+                            type="button"
+                            onClick={backToList}
+                            disabled={saving}
+                        >
+                            Batal
+                        </button>
+                        <button
+                            className="kpPageBtnPrimary kpSaveBtn"
+                            type="button"
+                            onClick={onSimpan}
+                            disabled={saving}
+                        >
+                            {saving
+                                ? "Menyimpan..."
+                                : mode === "edit"
+                                  ? "Simpan Perubahan"
+                                  : "Simpan"}
+                        </button>
+                    </>
+                ),
+            })}
+
             <div className="kpFormCard">
                 <div className="kpFormPageHead">
-                    <div>
-                        <h2 className="kpFormPageTitle">{formTitle}</h2>
-                        <p className="kpFormPageSub">
-                            Lengkapi data akun dan wilayah paralegal.
-                        </p>
-                    </div>
+                    <h2 className="kpFormPageTitle">Informasi Paralegal</h2>
                 </div>
 
                 <div className="kpFormPageBody">
-                    <div className="kpFormGroup">
-                        <label className="kpLabel" htmlFor="nama-paralegal">
-                            Nama Paralegal
-                        </label>
-                        <input
-                            id="nama-paralegal"
-                            name="paralegal_nama_lengkap_input"
-                            className="kpInput"
-                            placeholder="Contoh: Siti Aminah"
-                            value={fNama}
-                            onChange={(e) => setFNama(e.target.value)}
-                            maxLength={255}
-                            autoComplete="off"
-                            autoCorrect="off"
-                            autoCapitalize="off"
-                            spellCheck={false}
-                        />
-                    </div>
+                    <div className="kpGrid2 kpGridFormRow">
+                        <div className="kpFormGroup">
+                            <label className="kpLabel" htmlFor="nama-paralegal">
+                                Nama Paralegal
+                            </label>
+                            <input
+                                id="nama-paralegal"
+                                name="paralegal_nama_lengkap_input"
+                                className="kpInput"
+                                placeholder="Masukkan nama paralegal"
+                                value={fNama}
+                                onChange={(e) => setFNama(e.target.value)}
+                                maxLength={255}
+                                autoComplete="off"
+                                autoCorrect="off"
+                                autoCapitalize="off"
+                                spellCheck={false}
+                            />
+                        </div>
 
-                    <div className="kpGrid2">
                         <div className="kpFormGroup">
                             <label
                                 className="kpLabel"
@@ -984,7 +1082,7 @@ export default function ManajemenAkun({
                                 name="paralegal_email_input"
                                 type="email"
                                 className="kpInput"
-                                placeholder="paralegal@gmail.com"
+                                placeholder="contoh@gmail.com"
                                 value={fEmail}
                                 onChange={(e) => setFEmail(e.target.value)}
                                 maxLength={255}
@@ -994,7 +1092,9 @@ export default function ManajemenAkun({
                                 spellCheck={false}
                             />
                         </div>
+                    </div>
 
+                    <div className="kpGrid2 kpGridFormRow">
                         <div className="kpFormGroup">
                             <label
                                 className="kpLabel"
@@ -1010,7 +1110,7 @@ export default function ManajemenAkun({
                                 pattern="[0-9]*"
                                 maxLength={15}
                                 className="kpInput"
-                                placeholder="08xxxxxxxxxx"
+                                placeholder="Masukkan nomor telepon"
                                 value={fTelepon}
                                 onChange={(e) =>
                                     setFTelepon(
@@ -1023,9 +1123,7 @@ export default function ManajemenAkun({
                                 spellCheck={false}
                             />
                         </div>
-                    </div>
 
-                    <div className="kpGrid2">
                         <div className="kpFormGroup">
                             <label className="kpLabel">Kabupaten</label>
                             <KpDropdown
@@ -1037,7 +1135,9 @@ export default function ManajemenAkun({
                                 options={kabupatenOpts}
                             />
                         </div>
+                    </div>
 
+                    <div className="kpGrid2 kpGridFormRow">
                         <div className="kpFormGroup">
                             <label className="kpLabel">Kecamatan</label>
                             <KpDropdown
@@ -1050,9 +1150,7 @@ export default function ManajemenAkun({
                                 options={fKecamatanOpts}
                             />
                         </div>
-                    </div>
 
-                    <div className="kpGrid2">
                         <div className="kpFormGroup">
                             <label className="kpLabel">Kelurahan</label>
                             <KpDropdown
@@ -1067,50 +1165,113 @@ export default function ManajemenAkun({
                                 options={fKelurahanOpts}
                             />
                         </div>
-
-                        <div className="kpFormGroup">
-                            <label className="kpLabel">Posbankum</label>
-                            <input
-                                className="kpInput kpInputReadonly"
-                                name="posbankum_display_readonly_input"
-                                value={autoPosbankumLabel}
-                                placeholder="Mengikuti kelurahan"
-                                readOnly
-                                autoComplete="off"
-                                autoCorrect="off"
-                                autoCapitalize="off"
-                                spellCheck={false}
-                            />
-                        </div>
                     </div>
-                </div>
 
-                <div className="kpFormPageFoot">
-                    <button
-                        className="kpBtnGhost"
-                        type="button"
-                        onClick={backToList}
-                        disabled={saving}
-                    >
-                        Batal
-                    </button>
-                    <button
-                        className="kpBtnPrimary"
-                        type="button"
-                        onClick={onSimpan}
-                        disabled={saving}
-                    >
-                        {saving ? "Menyimpan..." : "Simpan"}
-                    </button>
+                    <div className="kpFormGroup kpFormGroupFull">
+                        <label className="kpLabel">Posbankum</label>
+                        <input
+                            className="kpInput kpInputReadonly"
+                            name="posbankum_display_readonly_input"
+                            value={autoPosbankumLabel}
+                            placeholder="Mengikuti Kelurahan"
+                            readOnly
+                            autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck={false}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
     );
 
+    const renderDetailPage = () => {
+        if (!detailTarget) return null;
+
+        return (
+            <div className="kpDetailPage">
+                {renderPageTitle({
+                    current: "Detail Paralegal",
+                    title: "Detail Paralegal",
+                    action: (
+                        <button
+                            className="kpPageBtnPrimary kpDetailBackBtn"
+                            type="button"
+                            onClick={backToList}
+                        >
+                            Kembali ke Daftar
+                        </button>
+                    ),
+                })}
+
+                <article className="kpDetailCard">
+                    <div className="kpDetailCardHead">
+                        <h2>{displayValue(detailTarget.nama_lengkap)}</h2>
+                        <p>
+                            {detailTarget.posbankum_nama
+                                ? formatPosbankumName(
+                                      detailTarget.posbankum_nama,
+                                  )
+                                : "Posbankum belum tersedia"}
+                        </p>
+                    </div>
+
+                    <div className="kpDetailGrid">
+                        <div className="kpDetailItem">
+                            <span>Nama Paralegal</span>
+                            <strong>
+                                {displayValue(detailTarget.nama_lengkap)}
+                            </strong>
+                        </div>
+                        <div className="kpDetailItem">
+                            <span>Email</span>
+                            <strong>{displayValue(detailTarget.email)}</strong>
+                        </div>
+                        <div className="kpDetailItem">
+                            <span>No. Telepon</span>
+                            <strong>
+                                {displayValue(detailTarget.nomor_telepon)}
+                            </strong>
+                        </div>
+                        <div className="kpDetailItem">
+                            <span>Posbankum</span>
+                            <strong>
+                                {detailTarget.posbankum_nama
+                                    ? formatPosbankumName(
+                                          detailTarget.posbankum_nama,
+                                      )
+                                    : "-"}
+                            </strong>
+                        </div>
+                        <div className="kpDetailItem">
+                            <span>Kabupaten</span>
+                            <strong>
+                                {displayValue(detailTarget.kabupaten_nama)}
+                            </strong>
+                        </div>
+                        <div className="kpDetailItem">
+                            <span>Kecamatan</span>
+                            <strong>
+                                {displayValue(detailTarget.kecamatan_nama)}
+                            </strong>
+                        </div>
+                        <div className="kpDetailItem">
+                            <span>Kelurahan</span>
+                            <strong>
+                                {displayValue(detailTarget.kelurahan_nama)}
+                            </strong>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        );
+    };
+
     const renderListPage = () => (
         <>
             <div className="kpPanel">
-                <div className="kpToolbar">
+                <div className="kpToolbar kpToolbarInline">
                     <div className="kpSearch">
                         <FiSearch className="kpSearchIco" />
                         <input
@@ -1136,7 +1297,7 @@ export default function ManajemenAkun({
                         ) : null}
                     </div>
 
-                    <div className="kpFilters">
+                    <div className="kpFilters kpFiltersInline">
                         <KpDropdown
                             className="kpFilterDropdown"
                             value={kabupatenId}
@@ -1180,23 +1341,14 @@ export default function ManajemenAkun({
                             pageRows.map((r) => (
                                 <tr key={r.id_user}>
                                     <td>
-                                        <div className="kpPosCell">
-                                            <span
-                                                className="kpPosIconBox kpUserIconBox"
-                                                aria-hidden="true"
-                                            >
-                                                <FiUser />
-                                            </span>
-                                            <span className="kpPosName">
-                                                {r.nama_lengkap}
-                                            </span>
-                                        </div>
+                                        <span className="kpNameCell">
+                                            {r.nama_lengkap}
+                                        </span>
                                     </td>
                                     <td>
-                                        <div className="kpInfoCell">
-                                            <FiMail />
-                                            <span>{r.email ?? "-"}</span>
-                                        </div>
+                                        <span className="kpTextCell">
+                                            {r.email ?? "-"}
+                                        </span>
                                     </td>
                                     <td>
                                         <span className="kpTextCell">
@@ -1204,19 +1356,25 @@ export default function ManajemenAkun({
                                         </span>
                                     </td>
                                     <td>
-                                        <div className="kpInfoCell">
-                                            <FiMapPin />
-                                            <span>
-                                                {r.posbankum_nama
-                                                    ? formatPosbankumName(
-                                                          r.posbankum_nama,
-                                                      )
-                                                    : "-"}
-                                            </span>
-                                        </div>
+                                        <span className="kpTextCell">
+                                            {r.posbankum_nama
+                                                ? formatPosbankumName(
+                                                      r.posbankum_nama,
+                                                  )
+                                                : "-"}
+                                        </span>
                                     </td>
                                     <td>
                                         <div className="kpActions">
+                                            <button
+                                                className="kpIcoBtn is-view"
+                                                type="button"
+                                                onClick={() => openDetail(r)}
+                                                aria-label="Detail"
+                                                title="Detail"
+                                            >
+                                                <FiEye />
+                                            </button>
                                             <button
                                                 className="kpIcoBtn is-edit"
                                                 type="button"
@@ -1320,12 +1478,12 @@ export default function ManajemenAkun({
     return (
         <section className="ad-pagePad">
             <div className="kpShell">
-                <div className="ad-pageHeader">
-                    <div className="ad-pageTitleWrap">
-                        <h1 className="ad-wireTitle">Kelola Posbankum</h1>
-                    </div>
+                {pageMode === "list" ? (
+                    <div className="ad-pageHeader kpListHead">
+                        <div className="ad-pageTitleWrap">
+                            <h1 className="ad-wireTitle">Manajemen Akun</h1>
+                        </div>
 
-                    {pageMode === "list" ? (
                         <button
                             className="kpAddTop"
                             type="button"
@@ -1334,23 +1492,28 @@ export default function ManajemenAkun({
                             <FiPlus />
                             <span>Tambah Paralegal</span>
                         </button>
-                    ) : null}
-                </div>
+                    </div>
+                ) : null}
 
                 {err ? <div className="kpError">{err}</div> : null}
 
-                {pageMode === "list" ? renderListPage() : renderFormPage()}
+                {pageMode === "list" ? renderListPage() : null}
+                {pageMode === "add" || pageMode === "edit"
+                    ? renderFormPage()
+                    : null}
+                {pageMode === "detail" ? renderDetailPage() : null}
 
                 <DeleteConfirmModal
                     open={Boolean(deleteTarget)}
                     title="Hapus Paralegal?"
-                    message={
+                    subtitle="Data yang dihapus tidak dapat dikembalikan"
+                    description={
                         deleteTarget
-                            ? `Anda yakin ingin menghapus ${deleteTarget.nama_lengkap}? Data yang dihapus tidak dapat dikembalikan.`
+                            ? `Anda yakin ingin menghapus ${deleteTarget.nama_lengkap}?`
                             : ""
                     }
-                    confirmText={deleting ? "Menghapus..." : "Hapus"}
-                    cancelText="Batal"
+                    confirmLabel={deleting ? "Menghapus..." : "Hapus"}
+                    cancelLabel="Batal"
                     loading={deleting}
                     onCancel={() => !deleting && setDeleteTarget(null)}
                     onConfirm={confirmHapus}
