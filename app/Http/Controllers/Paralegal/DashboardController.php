@@ -60,11 +60,16 @@ class DashboardController extends Controller
         }
 
         $clean = str_replace('\\', '/', $clean);
-        $clean = preg_replace('#^/storage/#', '', $clean);
-        $clean = preg_replace('#^storage/#', '', $clean);
-        $clean = preg_replace('#^public/#', '', $clean);
-        $clean = preg_replace('#^app/public/#', '', $clean);
-        $clean = ltrim($clean, '/');
+
+        if (str_starts_with($clean, '/file-preview') || str_starts_with($clean, 'file-preview')) {
+            return str_starts_with($clean, '/') ? $clean : '/' . $clean;
+        }
+
+        $clean = strtok($clean, '?#');
+        $clean = $clean === false ? '' : $clean;
+        $clean = preg_replace('#^/+#', '', $clean);
+        $clean = preg_replace('#^(storage|public|app/public)/#i', '', $clean);
+        $clean = ltrim((string) $clean, '/');
 
         return $clean !== '' ? '/file-preview?path=' . rawurlencode($clean) : '';
     }

@@ -239,10 +239,18 @@ function getThumbUrl(itemOrPath) {
 
     if (!clean) return null;
     if (/^(https?:|blob:|data:)/i.test(clean)) return clean;
-    if (clean.startsWith("/storage/")) return clean;
-    if (clean.startsWith("storage/")) return `/${clean}`;
+    if (clean.startsWith("/file-preview")) return clean;
+    if (clean.startsWith("file-preview")) return `/${clean}`;
 
-    return `/storage/${clean.replace(/^public\//, "")}`;
+    const pathOnly = clean.split("#")[0].split("?")[0];
+    const normalized = pathOnly
+        .replace(/\\/g, "/")
+        .replace(/^\/+/, "")
+        .replace(/^(storage|public|app\/public)\//i, "")
+        .replace(/^\/+/, "");
+
+    if (!normalized) return null;
+    return `/file-preview?path=${encodeURIComponent(normalized)}`;
 }
 
 function getKegiatanId(item) {

@@ -168,6 +168,24 @@ function isImageFile(file) {
     );
 }
 
+function normalizePreviewUrl(raw) {
+    const clean = String(raw || "").trim();
+    if (!clean) return "";
+    if (/^(https?:|blob:|data:)/i.test(clean)) return clean;
+    if (clean.startsWith("/file-preview")) return clean;
+    if (clean.startsWith("file-preview")) return `/${clean}`;
+
+    const pathOnly = clean.split("#")[0].split("?")[0];
+    const normalized = pathOnly
+        .replace(/\\/g, "/")
+        .replace(/^\/+/, "")
+        .replace(/^(storage|public|app\/public)\//i, "")
+        .replace(/^\/+/, "");
+
+    if (!normalized) return "";
+    return `/file-preview?path=${encodeURIComponent(normalized)}`;
+}
+
 function isAllowedFileType(file) {
     const mimeType = String(file?.type || "").toLowerCase();
     const name = String(file?.name || "").toLowerCase();
@@ -636,7 +654,9 @@ export default function LaporanPelayanan({
     };
 
     const handleOpenLampiran = (file) => {
-        const url = file?.url || file?.public_url || file?.path_file || "";
+        const url = normalizePreviewUrl(
+            file?.url || file?.public_url || file?.path_file || "",
+        );
         if (!url) return;
         if (isImageFile(file)) {
             setPreviewFile({ ...file, signedUrl: url });
@@ -646,7 +666,9 @@ export default function LaporanPelayanan({
     };
 
     const handleDownloadLampiran = (file) => {
-        const url = file?.url || file?.public_url || file?.path_file || "";
+        const url = normalizePreviewUrl(
+            file?.url || file?.public_url || file?.path_file || "",
+        );
         if (!url) return;
         window.open(url, "_blank", "noopener,noreferrer");
     };
