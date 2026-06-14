@@ -1970,3 +1970,22 @@
         margin-top: 20px;
     }
 }
+
+/* Revisi tombol Simpan Perubahan agar teks tidak padat */
+.kb-contentActions {
+    flex-wrap: wrap;
+}
+
+.kb-btnSavePage {
+    min-width: 178px;
+    padding: 0 26px;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .kb-btnSavePage {
+        min-width: 0;
+        padding: 0 18px;
+        white-space: normal;
+    }
+}

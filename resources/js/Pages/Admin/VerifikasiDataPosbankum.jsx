@@ -324,6 +324,8 @@ export default function VerifikasiDataPosbankum({
 
     const [rejectOpen, setRejectOpen] = useState(false);
     const [rejectReason, setRejectReason] = useState("");
+    const [reviewDetailOpen, setReviewDetailOpen] = useState(false);
+    const [reviewDecision, setReviewDecision] = useState("");
 
     const [locQuery, setLocQuery] = useState("");
     const [locDraft, setLocDraft] = useState({ lat: "", lng: "", alamat: "" });
@@ -391,6 +393,36 @@ export default function VerifikasiDataPosbankum({
         if (["tolak", "ditolak", "rejected", "reject", "bad"].includes(x))
             return "ditolak";
         return "menunggu";
+    };
+
+    const statusTone = (status) => {
+        const value = normalizeStatus(status);
+        if (value === "disetujui") return "is-ok";
+        if (value === "ditolak") return "is-no";
+        return "is-wait";
+    };
+
+    const statusLabel = (status) => {
+        const value = normalizeStatus(status);
+        if (value === "disetujui") return "Setuju";
+        if (value === "ditolak") return "Tolak";
+        return "Menunggu";
+    };
+
+    const pickRejectReason = (doc) => {
+        const raw = doc?.raw || {};
+
+        return (
+            doc?.catatan_admin ||
+            doc?.catatan_verifikasi ||
+            doc?.alasan_penolakan ||
+            doc?.catatan_penolakan ||
+            raw?.catatan_admin ||
+            raw?.catatan_verifikasi ||
+            raw?.alasan_penolakan ||
+            raw?.catatan_penolakan ||
+            ""
+        );
     };
 
     const pickTimestamp = (u) =>
@@ -1204,12 +1236,108 @@ export default function VerifikasiDataPosbankum({
         setVerifyBusy(false);
         setRejectOpen(false);
         setRejectReason("");
+        setReviewDecision("");
         setLocQuery("");
         setLocDraft({ lat: "", lng: "", alamat: "" });
         setLocErr("");
         setLocSearching(false);
         setLocDirty(false);
         destroyMap();
+    };
+
+    const closeReviewDetail = () => {
+        setReviewDetailOpen(false);
+        setPreviewMode("file");
+        setPreviewItems([]);
+        setPreviewIndex(0);
+        setPreviewLoading(false);
+        setSelectedDoc(null);
+        setVerifyBusy(false);
+        setRejectOpen(false);
+        setRejectReason("");
+        setReviewDecision("");
+        setErr("");
+    };
+
+    const openReviewDetail = async (doc, posId) => {
+        setErr("");
+        if (!doc?.path) return;
+
+        const p = posById[posId];
+        const posName = p?.nama || "-";
+        const kabName =
+            stripKnownAddressPrefix(kabupatenNameById[p?.id_kabupaten]) ||
+            stripKnownAddressPrefix(p?.kabupaten_nama) ||
+            "-";
+        const kecName =
+            stripKnownAddressPrefix(kecamatanNameById[p?.id_kecamatan]) ||
+            stripKnownAddressPrefix(p?.kecamatan_nama) ||
+            "-";
+
+        const nextSelected = {
+            ...doc,
+            posId,
+            posName,
+            kabName,
+            kecName,
+            status: normalizeStatus(doc?.status),
+        };
+
+        setSelectedDoc(nextSelected);
+        setPreviewIndex(0);
+        setPreviewItems([]);
+        setPreviewMode("file");
+        setPreviewLoading(true);
+        setRejectReason(pickRejectReason(nextSelected) || "");
+        setReviewDecision("");
+        setReviewDetailOpen(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+        try {
+            const files =
+                Array.isArray(doc.files) && doc.files.length
+                    ? doc.files
+                    : [doc.raw || doc];
+            const cleanFiles = files.filter((item) => pickPath(item));
+
+            const items = (
+                await Promise.all(
+                    cleanFiles.map(async (item) => {
+                        const uploadId = pickUploadId(item) || doc.uploadId;
+                        const rawPath = pickPath(item);
+                        const fileName = pickName(item) || doc.name || "Berkas";
+                        const fileMime = pickMime(item) || doc.mime || "";
+                        const url = uploadId
+                            ? `/admin/verifikasi-data-posbankum/dokumen/${encodeURIComponent(
+                                  uploadId,
+                              )}/preview`
+                            : rawPath
+                              ? `/admin/verifikasi-data-posbankum/dokumen-preview?path=${encodeURIComponent(
+                                    rawPath,
+                                )}&name=${encodeURIComponent(
+                                    fileName,
+                                )}&mime=${encodeURIComponent(fileMime)}`
+                              : await makeSignedUrl(rawPath);
+
+                        if (!url) return null;
+
+                        return {
+                            url,
+                            mime: fileMime,
+                            name: fileName,
+                            kategori: item?.kategori || doc.label || "",
+                            raw: item,
+                        };
+                    }),
+                )
+            ).filter(Boolean);
+
+            setPreviewItems(items);
+        } catch (e) {
+            setErr(e?.message || "Gagal membuka berkas");
+        } finally {
+            setPreviewLoading(false);
+        }
     };
 
     const openPreview = async (doc, posId) => {
@@ -1814,8 +1942,43 @@ export default function VerifikasiDataPosbankum({
                 await updateFileVerification(status, reason);
             }
 
-            closePreview();
-            if (status === "disetujui") {
+            const nextStatus = normalizeStatus(status);
+
+            if (reviewDetailOpen) {
+                setSelectedDoc((prev) =>
+                    prev
+                        ? {
+                              ...prev,
+                              status: nextStatus,
+                              catatan_admin:
+                                  nextStatus === "ditolak" ? reason : "",
+                              catatan_verifikasi:
+                                  nextStatus === "ditolak" ? reason : "",
+                              alasan_penolakan:
+                                  nextStatus === "ditolak" ? reason : "",
+                              raw: {
+                                  ...(prev.raw || {}),
+                                  status_verifikasi: nextStatus,
+                                  status: nextStatus,
+                                  catatan_admin:
+                                      nextStatus === "ditolak" ? reason : null,
+                                  catatan_verifikasi:
+                                      nextStatus === "ditolak" ? reason : null,
+                                  alasan_penolakan:
+                                      nextStatus === "ditolak" ? reason : null,
+                              },
+                          }
+                        : prev,
+                );
+                setReviewDecision("");
+                setRejectOpen(false);
+                setRejectReason(nextStatus === "ditolak" ? reason : "");
+                setVerifyBusy(false);
+            } else {
+                closePreview();
+            }
+
+            if (nextStatus === "disetujui") {
                 setSuccessMessage(
                     "Data berhasil disetujui dan tersimpan di database!",
                 );
@@ -1908,6 +2071,265 @@ export default function VerifikasiDataPosbankum({
         );
     };
 
+    const renderReviewPreview = () => {
+        if (previewLoading) {
+            return <div className="vd-reviewEmpty">Memuat preview...</div>;
+        }
+
+        const items = Array.isArray(previewItems) ? previewItems : [];
+
+        if (!items.length) {
+            return (
+                <div className="vd-reviewEmpty">
+                    <FiFileText />
+                    <span>Berkas tidak tersedia.</span>
+                </div>
+            );
+        }
+
+        const allImages = items.every((item) => isImagePreview(item));
+
+        return (
+            <div
+                className={`vd-reviewPaper ${allImages ? "is-gallery" : "is-document"}`}
+            >
+                {items.map((item, index) => {
+                    const itemName =
+                        item?.name ||
+                        selectedDoc?.name ||
+                        `Dokumen ${index + 1}`;
+
+                    if (isImagePreview(item)) {
+                        return (
+                            <img
+                                key={`${item.url}-${index}`}
+                                className="vd-reviewImg"
+                                src={item.url}
+                                alt={itemName}
+                            />
+                        );
+                    }
+
+                    return (
+                        <iframe
+                            key={`${item.url}-${index}`}
+                            className="vd-reviewFrame"
+                            src={item.url}
+                            title={itemName}
+                            loading="lazy"
+                        />
+                    );
+                })}
+            </div>
+        );
+    };
+
+    const renderReviewDecisionCard = () => {
+        if (!selectedDoc) return null;
+
+        const currentStatus = normalizeStatus(selectedDoc.status);
+        const rejectReasonText = pickRejectReason(selectedDoc);
+        const isApproved = currentStatus === "disetujui";
+        const isRejected = currentStatus === "ditolak";
+        const isPending = currentStatus === "menunggu";
+        const wantsApprove = reviewDecision === "disetujui";
+        const wantsReject = reviewDecision === "ditolak";
+        const canConfirmReject = wantsReject && rejectReason.trim();
+        const canConfirmApprove = wantsApprove;
+
+        return (
+            <aside className="vd-reviewDecisionCard">
+                <h3>Keputusan Verifikasi</h3>
+                <p>
+                    Berikan keputusan setelah dokumen selesai diperiksa. Dokumen
+                    yang sudah diputuskan tidak menampilkan aksi ulang.
+                </p>
+
+                {isApproved ? (
+                    <div className="vd-reviewFinalBox is-ok">
+                        Dokumen ini sudah berstatus Setuju.
+                    </div>
+                ) : null}
+
+                {isRejected ? (
+                    <>
+                        <div className="vd-reviewFinalBox is-no">
+                            Dokumen ini sudah berstatus Tolak.
+                        </div>
+                        <div className="vd-reviewReasonBox">
+                            <b>Alasan Penolakan</b>
+                            <span>{rejectReasonText || "-"}</span>
+                        </div>
+                    </>
+                ) : null}
+
+                {isPending ? (
+                    <>
+                        <div className="vd-reviewChoiceRow">
+                            <button
+                                type="button"
+                                className={`vd-reviewChoiceBtn is-reject ${wantsReject ? "is-active" : ""}`}
+                                onClick={() => setReviewDecision("ditolak")}
+                                disabled={verifyBusy}
+                            >
+                                <AiOutlineCloseCircle />
+                                <span>Tolak</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`vd-reviewChoiceBtn is-approve ${wantsApprove ? "is-active" : ""}`}
+                                onClick={() => setReviewDecision("disetujui")}
+                                disabled={verifyBusy}
+                            >
+                                <BsCheck2Circle />
+                                <span>Setujui</span>
+                            </button>
+                        </div>
+
+                        {wantsApprove ? (
+                            <div className="vd-reviewInfoBox is-approve">
+                                Dokumen akan ditandai sebagai disetujui.
+                                Pastikan seluruh data pada pratinjau sudah
+                                sesuai.
+                            </div>
+                        ) : null}
+
+                        {wantsReject ? (
+                            <div className="vd-reviewRejectForm">
+                                <label htmlFor="vd-review-reason">
+                                    Alasan Penolakan
+                                </label>
+                                <textarea
+                                    id="vd-review-reason"
+                                    className="vd-reviewTextarea"
+                                    placeholder="Contoh: dokumen tidak terbaca jelas atau belum sesuai dengan wilayah Posbankum."
+                                    value={rejectReason}
+                                    onChange={(event) =>
+                                        setRejectReason(event.target.value)
+                                    }
+                                    disabled={verifyBusy}
+                                />
+                                <div className="vd-reviewHintText">
+                                    Alasan wajib diisi agar Posbankum mengetahui
+                                    perbaikan yang diperlukan.
+                                </div>
+                            </div>
+                        ) : null}
+
+                        <div className="vd-reviewDivider" />
+
+                        <button
+                            type="button"
+                            className={`vd-reviewConfirmBtn ${wantsReject ? "is-reject" : "is-approve"}`}
+                            disabled={
+                                verifyBusy ||
+                                (!canConfirmApprove && !canConfirmReject)
+                            }
+                            onClick={() => {
+                                if (wantsApprove) {
+                                    updateVerification("disetujui");
+                                    return;
+                                }
+
+                                if (wantsReject) {
+                                    confirmReject();
+                                }
+                            }}
+                        >
+                            {wantsReject ? (
+                                <AiOutlineCloseCircle />
+                            ) : (
+                                <BsCheck2Circle />
+                            )}
+                            <span>
+                                {verifyBusy
+                                    ? "Memproses..."
+                                    : wantsReject
+                                      ? "Konfirmasi Tolak"
+                                      : "Konfirmasi Setujui"}
+                            </span>
+                        </button>
+                    </>
+                ) : null}
+            </aside>
+        );
+    };
+
+    const renderReviewDetail = () => {
+        if (!selectedDoc) return null;
+
+        const currentStatus = normalizeStatus(selectedDoc.status);
+        const tone = statusTone(currentStatus);
+        const statusIcon =
+            currentStatus === "disetujui" ? (
+                <BsCheck2Circle />
+            ) : currentStatus === "ditolak" ? (
+                <AiOutlineCloseCircle />
+            ) : (
+                <FiClock />
+            );
+        const docName =
+            selectedDoc.name || `${selectedDoc.label || "Dokumen"}.pdf`;
+        const docMeta = [
+            selectedDoc.label,
+            selectedDoc.kabName,
+            selectedDoc.kecName,
+        ]
+            .filter(Boolean)
+            .join(" • ");
+
+        return (
+            <section className="vd-reviewPage">
+                <div className="vd-reviewTop">
+                    <div>
+                        <nav
+                            className="vd-reviewBreadcrumb"
+                            aria-label="Breadcrumb"
+                        >
+                            <span>Verifikasi Data Posbankum</span>
+                            <span>/</span>
+                            <b>Review Dokumen</b>
+                        </nav>
+                        <h2>Review Dokumen Posbankum</h2>
+                        <span className="vd-reviewUnderline" />
+                    </div>
+
+                    <button
+                        type="button"
+                        className="vd-reviewBackBtn"
+                        onClick={closeReviewDetail}
+                        disabled={verifyBusy}
+                    >
+                        Kembali ke Daftar
+                    </button>
+                </div>
+
+                {err ? <div className="vd-error">{err}</div> : null}
+
+                <div className="vd-reviewGrid">
+                    <article className="vd-reviewDocCard">
+                        <header className="vd-reviewDocHead">
+                            <div className="vd-reviewDocTitleWrap">
+                                <h3>{docName}</h3>
+                                <p>{docMeta || "Dokumen Posbankum"}</p>
+                            </div>
+                            <span className={`vd-reviewStatus ${tone}`}>
+                                {statusIcon}
+                                <b>{statusLabel(currentStatus)}</b>
+                            </span>
+                        </header>
+
+                        <div className="vd-reviewDocBody">
+                            {renderReviewPreview()}
+                        </div>
+                    </article>
+
+                    {renderReviewDecisionCard()}
+                </div>
+            </section>
+        );
+    };
+
     return (
         <section className="ad-pagePad">
             <div className="vd">
@@ -1920,285 +2342,316 @@ export default function VerifikasiDataPosbankum({
                     onClose={() => setRejectToastMessage("")}
                 />
 
-                <div className="vd-topBoxes">
-                    <div className="vd-topBox">
-                        <div className="vd-topBoxInner">
-                            <div
-                                className="vd-topIcon is-wait"
-                                aria-hidden="true"
-                            >
-                                <FiClock />
-                            </div>
-                            <div className="vd-topText">
-                                <div className="vd-topTitle">
-                                    Menunggu Verifikasi
-                                </div>
-                                <div className="vd-topValue">
-                                    {stats.menunggu}
-                                </div>
-                                <div className="vd-topHint">
-                                    Dokumen Perlu Ditinjau
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="vd-topBox">
-                        <div className="vd-topBoxInner">
-                            <div
-                                className="vd-topIcon is-ok"
-                                aria-hidden="true"
-                            >
-                                <BsCheck2Circle />
-                            </div>
-                            <div className="vd-topText">
-                                <div className="vd-topTitle">Disetujui</div>
-                                <div className="vd-topValue">
-                                    {stats.disetujui}
-                                </div>
-                                <div className="vd-topHint">
-                                    Dokumen Terverifikasi
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="vd-topBox">
-                        <div className="vd-topBoxInner">
-                            <div
-                                className="vd-topIcon is-no"
-                                aria-hidden="true"
-                            >
-                                <AiOutlineCloseCircle />
-                            </div>
-                            <div className="vd-topText">
-                                <div className="vd-topTitle">Ditolak</div>
-                                <div className="vd-topValue">
-                                    {stats.ditolak}
-                                </div>
-                                <div className="vd-topHint">
-                                    Perlu Diperbaiki
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="vd-filterCard">
-                    <div className="vd-toolbar">
-                        <div className="vd-search">
-                            <FiSearch className="vd-searchIcon" />
-                            <input
-                                className="vd-searchInput"
-                                placeholder="Pencarian..."
-                                value={q}
-                                onChange={(e) => setQ(e.target.value)}
-                            />
-                            {q && (
-                                <button
-                                    className="vd-clearBtn"
-                                    type="button"
-                                    onClick={() => setQ("")}
-                                    aria-label="Clear"
-                                >
-                                    <FiX />
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="vd-filterRow">
-                            <VdDropdown
-                                value={kabupatenId}
-                                onChange={(val) => setKabupatenId(val)}
-                                placeholder="Pilih Kabupaten"
-                                searchPlaceholder="Cari kabupaten..."
-                                options={[
-                                    { value: "", label: "Semua" },
-                                    ...kabupatenOpts.map((k) => ({
-                                        value: k.id_kabupaten,
-                                        label: k.nama,
-                                    })),
-                                ]}
-                            />
-
-                            <VdDropdown
-                                value={kecamatanId}
-                                onChange={(val) => setKecamatanId(val)}
-                                placeholder="Pilih Kecamatan"
-                                searchPlaceholder="Cari kecamatan..."
-                                disabled={!kabupatenId}
-                                options={[
-                                    { value: "", label: "Semua" },
-                                    ...kecamatanOpts.map((kc) => ({
-                                        value: kc.id_kecamatan,
-                                        label: kc.nama,
-                                    })),
-                                ]}
-                            />
-
-                            {(kabupatenId || kecamatanId) && (
-                                <button
-                                    className="vd-resetBtn"
-                                    type="button"
-                                    onClick={() => {
-                                        setKabupatenId("");
-                                        setKecamatanId("");
-                                    }}
-                                    title="Reset filter"
-                                >
-                                    <FiX />
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    {err && <div className="vd-error">{err}</div>}
-                </div>
-
-                <div className="vd-grid">
-                    {loading ? (
-                        <div className="vd-loading">Memuat data...</div>
-                    ) : pageItems.length ? (
-                        pageItems.map((p) => {
-                            const kabName = stripKnownAddressPrefix(
-                                kabupatenNameById[p.id_kabupaten] ?? "",
-                            );
-                            const kecName = stripKnownAddressPrefix(
-                                kecamatanNameById[p.id_kecamatan] ?? "",
-                            );
-                            const loc =
-                                [kabName, kecName]
-                                    .filter(Boolean)
-                                    .join(" • ") || "-";
-
-                            return (
-                                <div key={p.id_posbankum} className="vd-card">
-                                    <div className="vd-cardHead">
-                                        <div className="vd-cardTitle">
-                                            {p.nama}
+                {reviewDetailOpen && selectedDoc ? (
+                    renderReviewDetail()
+                ) : (
+                    <>
+                        <div className="vd-topBoxes">
+                            <div className="vd-topBox">
+                                <div className="vd-topBoxInner">
+                                    <div
+                                        className="vd-topIcon is-wait"
+                                        aria-hidden="true"
+                                    >
+                                        <FiClock />
+                                    </div>
+                                    <div className="vd-topText">
+                                        <div className="vd-topTitle">
+                                            Menunggu Verifikasi
                                         </div>
-                                        <div className="vd-cardSub">{loc}</div>
-                                    </div>
-
-                                    <div className="vd-docs">
-                                        {p.docs.map((d) => {
-                                            const tone =
-                                                d.status === "disetujui"
-                                                    ? "is-ok"
-                                                    : d.status === "ditolak"
-                                                      ? "is-no"
-                                                      : "is-wait";
-
-                                            return (
-                                                <div
-                                                    key={d.key}
-                                                    className={`vd-docPill ${tone}`}
-                                                >
-                                                    <div className="vd-docLeft">
-                                                        <span
-                                                            className={`vd-docStatus ${tone}`}
-                                                            title={d.status}
-                                                        >
-                                                            {renderDocIcon(
-                                                                d.status,
-                                                            )}
-                                                        </span>
-                                                        <div className="vd-docMeta">
-                                                            <div className="vd-docLabel">
-                                                                {d.label}
-                                                            </div>
-                                                            <div className="vd-docDate">
-                                                                {d.tanggal}
-                                                                {d.fileCount > 1
-                                                                    ? ` • ${d.fileCount} Foto`
-                                                                    : ""}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <button
-                                                        className="vd-eyeBtn"
-                                                        type="button"
-                                                        disabled={
-                                                            !d.path &&
-                                                            d.key !==
-                                                                "tagging_area"
-                                                        }
-                                                        title={
-                                                            !d.path &&
-                                                            d.key !==
-                                                                "tagging_area"
-                                                                ? "Belum ada berkas"
-                                                                : "Lihat"
-                                                        }
-                                                        onClick={() =>
-                                                            openPreview(
-                                                                d,
-                                                                p.id_posbankum,
-                                                            )
-                                                        }
-                                                    >
-                                                        <FiEye />
-                                                    </button>
-                                                </div>
-                                            );
-                                        })}
+                                        <div className="vd-topValue">
+                                            {stats.menunggu}
+                                        </div>
+                                        <div className="vd-topHint">
+                                            Dokumen Perlu Ditinjau
+                                        </div>
                                     </div>
                                 </div>
-                            );
-                        })
-                    ) : (
-                        <div className="vd-emptyCard">
-                            <div className="vd-emptyIcon">
-                                <FiFileText />
                             </div>
-                            <h2>Tidak Ada Data Ditemukan</h2>
-                            <p>
-                                Tidak ada data posbankum yang sesuai dengan
-                                filter yang dipilih.
-                            </p>
+
+                            <div className="vd-topBox">
+                                <div className="vd-topBoxInner">
+                                    <div
+                                        className="vd-topIcon is-ok"
+                                        aria-hidden="true"
+                                    >
+                                        <BsCheck2Circle />
+                                    </div>
+                                    <div className="vd-topText">
+                                        <div className="vd-topTitle">
+                                            Disetujui
+                                        </div>
+                                        <div className="vd-topValue">
+                                            {stats.disetujui}
+                                        </div>
+                                        <div className="vd-topHint">
+                                            Dokumen Terverifikasi
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="vd-topBox">
+                                <div className="vd-topBoxInner">
+                                    <div
+                                        className="vd-topIcon is-no"
+                                        aria-hidden="true"
+                                    >
+                                        <AiOutlineCloseCircle />
+                                    </div>
+                                    <div className="vd-topText">
+                                        <div className="vd-topTitle">
+                                            Ditolak
+                                        </div>
+                                        <div className="vd-topValue">
+                                            {stats.ditolak}
+                                        </div>
+                                        <div className="vd-topHint">
+                                            Perlu Diperbaiki
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    )}
-                </div>
 
-                <div className="vd-pagination">
-                    <button
-                        className="vd-pageNav"
-                        type="button"
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        disabled={pageClamped <= 1}
-                        aria-label="Prev"
-                    >
-                        <FiChevronLeft />
-                    </button>
+                        <div className="vd-filterCard">
+                            <div className="vd-toolbar">
+                                <div className="vd-search">
+                                    <FiSearch className="vd-searchIcon" />
+                                    <input
+                                        className="vd-searchInput"
+                                        placeholder="Pencarian..."
+                                        value={q}
+                                        onChange={(e) => setQ(e.target.value)}
+                                    />
+                                    {q && (
+                                        <button
+                                            className="vd-clearBtn"
+                                            type="button"
+                                            onClick={() => setQ("")}
+                                            aria-label="Clear"
+                                        >
+                                            <FiX />
+                                        </button>
+                                    )}
+                                </div>
 
-                    {Array.from(
-                        { length: Math.min(3, totalPages) },
-                        (_, i) => i + 1,
-                    ).map((n) => (
-                        <button
-                            key={n}
-                            className={`vd-pageBtn ${pageClamped === n ? "is-active" : ""}`}
-                            type="button"
-                            onClick={() => setPage(n)}
-                            disabled={n > totalPages}
-                        >
-                            {n}
-                        </button>
-                    ))}
+                                <div className="vd-filterRow">
+                                    <VdDropdown
+                                        value={kabupatenId}
+                                        onChange={(val) => setKabupatenId(val)}
+                                        placeholder="Pilih Kabupaten"
+                                        searchPlaceholder="Cari kabupaten..."
+                                        options={[
+                                            { value: "", label: "Semua" },
+                                            ...kabupatenOpts.map((k) => ({
+                                                value: k.id_kabupaten,
+                                                label: k.nama,
+                                            })),
+                                        ]}
+                                    />
 
-                    <button
-                        className="vd-pageNav"
-                        type="button"
-                        onClick={() =>
-                            setPage((p) => Math.min(totalPages, p + 1))
-                        }
-                        disabled={pageClamped >= totalPages}
-                        aria-label="Next"
-                    >
-                        <FiChevronRight />
-                    </button>
-                </div>
+                                    <VdDropdown
+                                        value={kecamatanId}
+                                        onChange={(val) => setKecamatanId(val)}
+                                        placeholder="Pilih Kecamatan"
+                                        searchPlaceholder="Cari kecamatan..."
+                                        disabled={!kabupatenId}
+                                        options={[
+                                            { value: "", label: "Semua" },
+                                            ...kecamatanOpts.map((kc) => ({
+                                                value: kc.id_kecamatan,
+                                                label: kc.nama,
+                                            })),
+                                        ]}
+                                    />
+
+                                    {(kabupatenId || kecamatanId) && (
+                                        <button
+                                            className="vd-resetBtn"
+                                            type="button"
+                                            onClick={() => {
+                                                setKabupatenId("");
+                                                setKecamatanId("");
+                                            }}
+                                            title="Reset filter"
+                                        >
+                                            <FiX />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {err && <div className="vd-error">{err}</div>}
+                        </div>
+
+                        <div className="vd-grid">
+                            {loading ? (
+                                <div className="vd-loading">Memuat data...</div>
+                            ) : pageItems.length ? (
+                                pageItems.map((p) => {
+                                    const kabName = stripKnownAddressPrefix(
+                                        kabupatenNameById[p.id_kabupaten] ?? "",
+                                    );
+                                    const kecName = stripKnownAddressPrefix(
+                                        kecamatanNameById[p.id_kecamatan] ?? "",
+                                    );
+                                    const loc =
+                                        [kabName, kecName]
+                                            .filter(Boolean)
+                                            .join(" • ") || "-";
+
+                                    return (
+                                        <div
+                                            key={p.id_posbankum}
+                                            className="vd-card"
+                                        >
+                                            <div className="vd-cardHead">
+                                                <div className="vd-cardTitle">
+                                                    {p.nama}
+                                                </div>
+                                                <div className="vd-cardSub">
+                                                    {loc}
+                                                </div>
+                                            </div>
+
+                                            <div className="vd-docs">
+                                                {p.docs.map((d) => {
+                                                    const tone =
+                                                        d.status === "disetujui"
+                                                            ? "is-ok"
+                                                            : d.status ===
+                                                                "ditolak"
+                                                              ? "is-no"
+                                                              : "is-wait";
+
+                                                    return (
+                                                        <div
+                                                            key={d.key}
+                                                            className={`vd-docPill ${tone}`}
+                                                        >
+                                                            <div className="vd-docLeft">
+                                                                <span
+                                                                    className={`vd-docStatus ${tone}`}
+                                                                    title={
+                                                                        d.status
+                                                                    }
+                                                                >
+                                                                    {renderDocIcon(
+                                                                        d.status,
+                                                                    )}
+                                                                </span>
+                                                                <div className="vd-docMeta">
+                                                                    <div className="vd-docLabel">
+                                                                        {
+                                                                            d.label
+                                                                        }
+                                                                    </div>
+                                                                    <div className="vd-docDate">
+                                                                        {
+                                                                            d.tanggal
+                                                                        }
+                                                                        {d.fileCount >
+                                                                        1
+                                                                            ? ` • ${d.fileCount} Foto`
+                                                                            : ""}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <button
+                                                                className="vd-eyeBtn"
+                                                                type="button"
+                                                                disabled={
+                                                                    !d.path &&
+                                                                    d.key !==
+                                                                        "tagging_area"
+                                                                }
+                                                                title={
+                                                                    !d.path &&
+                                                                    d.key !==
+                                                                        "tagging_area"
+                                                                        ? "Belum ada berkas"
+                                                                        : "Lihat"
+                                                                }
+                                                                onClick={() =>
+                                                                    d.viewerType ===
+                                                                    "tagging_area"
+                                                                        ? openPreview(
+                                                                              d,
+                                                                              p.id_posbankum,
+                                                                          )
+                                                                        : openReviewDetail(
+                                                                              d,
+                                                                              p.id_posbankum,
+                                                                          )
+                                                                }
+                                                            >
+                                                                <FiEye />
+                                                            </button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="vd-emptyCard">
+                                    <div className="vd-emptyIcon">
+                                        <FiFileText />
+                                    </div>
+                                    <h2>Tidak Ada Data Ditemukan</h2>
+                                    <p>
+                                        Tidak ada data posbankum yang sesuai
+                                        dengan filter yang dipilih.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="vd-pagination">
+                            <button
+                                className="vd-pageNav"
+                                type="button"
+                                onClick={() =>
+                                    setPage((p) => Math.max(1, p - 1))
+                                }
+                                disabled={pageClamped <= 1}
+                                aria-label="Prev"
+                            >
+                                <FiChevronLeft />
+                            </button>
+
+                            {Array.from(
+                                { length: Math.min(3, totalPages) },
+                                (_, i) => i + 1,
+                            ).map((n) => (
+                                <button
+                                    key={n}
+                                    className={`vd-pageBtn ${pageClamped === n ? "is-active" : ""}`}
+                                    type="button"
+                                    onClick={() => setPage(n)}
+                                    disabled={n > totalPages}
+                                >
+                                    {n}
+                                </button>
+                            ))}
+
+                            <button
+                                className="vd-pageNav"
+                                type="button"
+                                onClick={() =>
+                                    setPage((p) => Math.min(totalPages, p + 1))
+                                }
+                                disabled={pageClamped >= totalPages}
+                                aria-label="Next"
+                            >
+                                <FiChevronRight />
+                            </button>
+                        </div>
+                    </>
+                )}
 
                 {previewOpen && previewMode === "file" && (
                     <div

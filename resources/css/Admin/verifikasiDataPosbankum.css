@@ -2107,3 +2107,524 @@
         border-radius: 16px !important;
     }
 }
+
+/* ===== Review Dokumen Posbankum - detail verifikasi ===== */
+.vd-reviewPage {
+    width: 100%;
+}
+
+.vd-reviewTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 22px;
+}
+
+.vd-reviewBreadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.vd-reviewBreadcrumb b {
+    color: #111827;
+    font-weight: 700;
+}
+
+.vd-reviewTop h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+}
+
+.vd-reviewUnderline {
+    display: block;
+    width: 64px;
+    height: 4px;
+    margin-top: 14px;
+    border-radius: 999px;
+    background: #fe9a00;
+}
+
+.vd-reviewBackBtn {
+    min-width: 166px;
+    height: 44px;
+    padding: 0 22px;
+    border: 1.5px solid #1454c4;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #1454c4;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.vd-reviewBackBtn:disabled {
+    opacity: 0.68;
+    cursor: not-allowed;
+}
+
+.vd-reviewGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 338px;
+    align-items: start;
+    gap: 22px;
+}
+
+.vd-reviewDocCard,
+.vd-reviewDecisionCard {
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+}
+
+.vd-reviewDocHead {
+    min-height: 76px;
+    padding: 20px 22px 18px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.vd-reviewDocTitleWrap {
+    min-width: 0;
+}
+
+.vd-reviewDocTitleWrap h3 {
+    margin: 0 0 6px;
+    color: #111827;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    word-break: break-word;
+}
+
+.vd-reviewDocTitleWrap p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.vd-reviewStatus {
+    min-width: 104px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1.5px solid transparent;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 700;
+    background: #ffffff;
+}
+
+.vd-reviewStatus svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.4;
+}
+
+.vd-reviewStatus.is-ok {
+    border-color: #22c55e;
+    color: #0b7f59;
+    background: #ecfdf5;
+}
+
+.vd-reviewStatus.is-no {
+    border-color: #fb2c36;
+    color: #e7000b;
+    background: #fef2f2;
+}
+
+.vd-reviewStatus.is-wait {
+    border-color: #e5e7eb;
+    color: #374151;
+    background: #f8fafc;
+}
+
+.vd-reviewStatus.is-wait svg {
+    color: #fe9a00;
+}
+
+.vd-reviewDocBody {
+    padding: 28px 30px 30px;
+    background: #ffffff;
+}
+
+.vd-reviewPaper {
+    width: 100%;
+    min-height: 620px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+.vd-reviewPaper.is-document {
+    padding: 0;
+}
+
+.vd-reviewPaper.is-gallery {
+    padding: 48px 48px 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.vd-reviewFrame {
+    display: block;
+    width: 100%;
+    min-height: 820px;
+    border: 0;
+    background: #ffffff;
+}
+
+.vd-reviewImg {
+    display: block;
+    width: min(100%, 640px);
+    max-height: 460px;
+    object-fit: contain;
+    background: #ffffff;
+}
+
+.vd-reviewEmpty {
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.vd-reviewEmpty svg {
+    width: 40px;
+    height: 40px;
+    color: #94a3b8;
+}
+
+.vd-reviewDecisionCard {
+    padding: 28px 26px 24px;
+}
+
+.vd-reviewDecisionCard h3 {
+    margin: 0 0 10px;
+    color: #111827;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.vd-reviewDecisionCard > p {
+    margin: 0 0 22px;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.8;
+}
+
+.vd-reviewChoiceRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.vd-reviewChoiceBtn {
+    height: 44px;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #374151;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.vd-reviewChoiceBtn svg {
+    width: 15px;
+    height: 15px;
+}
+
+.vd-reviewChoiceBtn:disabled,
+.vd-reviewConfirmBtn:disabled {
+    cursor: not-allowed;
+}
+
+.vd-reviewChoiceBtn.is-reject.is-active {
+    border-color: #fb2c36;
+    color: #e7000b;
+    background: #fef2f2;
+}
+
+.vd-reviewChoiceBtn.is-approve.is-active {
+    border-color: #1454c4;
+    color: #1454c4;
+    background: #eef2ff;
+}
+
+.vd-reviewInfoBox,
+.vd-reviewFinalBox,
+.vd-reviewReasonBox {
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.65;
+}
+
+.vd-reviewInfoBox {
+    padding: 16px 18px;
+    margin-bottom: 20px;
+}
+
+.vd-reviewInfoBox.is-approve {
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    background: rgba(37, 99, 235, 0.12);
+    color: #0f3f93;
+}
+
+.vd-reviewFinalBox {
+    padding: 17px 18px;
+}
+
+.vd-reviewFinalBox.is-ok {
+    border: 1.5px solid #22c55e;
+    background: #ecfdf5;
+    color: #0b7f59;
+}
+
+.vd-reviewFinalBox.is-no {
+    border: 1.5px solid #fb2c36;
+    background: #fef2f2;
+    color: #b91c1c;
+    margin-bottom: 18px;
+}
+
+.vd-reviewReasonBox {
+    padding: 16px 18px;
+    border: 1px solid rgba(251, 44, 54, 0.22);
+    background: rgba(254, 226, 226, 0.55);
+    color: #b91c1c;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.vd-reviewReasonBox b {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.vd-reviewReasonBox span {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.vd-reviewRejectForm {
+    margin-bottom: 20px;
+}
+
+.vd-reviewRejectForm label {
+    display: block;
+    margin-bottom: 8px;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.vd-reviewTextarea {
+    width: 100%;
+    min-height: 116px;
+    padding: 15px 16px;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    outline: none;
+    resize: vertical;
+    color: #111827;
+    background: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+.vd-reviewTextarea::placeholder {
+    color: #98a2b3;
+}
+
+.vd-reviewTextarea:focus {
+    border-color: #1454c4;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.vd-reviewHintText {
+    margin-top: 10px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+.vd-reviewDivider {
+    width: 100%;
+    height: 1px;
+    margin: 20px 0;
+    background: #e5e7eb;
+}
+
+.vd-reviewConfirmBtn {
+    width: 100%;
+    height: 46px;
+    border: 0;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.vd-reviewConfirmBtn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.vd-reviewConfirmBtn.is-approve {
+    background: #1454c4;
+    box-shadow: 0 12px 22px rgba(15, 63, 147, 0.18);
+}
+
+.vd-reviewConfirmBtn.is-approve:disabled {
+    background: rgba(20, 84, 196, 0.45);
+    box-shadow: none;
+}
+
+.vd-reviewConfirmBtn.is-reject {
+    background: #fb2c36;
+    box-shadow: 0 12px 22px rgba(251, 44, 54, 0.16);
+}
+
+.vd-reviewConfirmBtn.is-reject:disabled {
+    background: rgba(251, 44, 54, 0.45);
+    box-shadow: none;
+}
+
+@media (max-width: 1100px) {
+    .vd-reviewGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-reviewDecisionCard {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .vd-reviewTop {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 18px;
+    }
+
+    .vd-reviewTop h2 {
+        font-size: 22px;
+    }
+
+    .vd-reviewBackBtn {
+        width: 100%;
+    }
+
+    .vd-reviewDocHead {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px;
+    }
+
+    .vd-reviewStatus {
+        min-width: 0;
+    }
+
+    .vd-reviewDocBody {
+        padding: 18px;
+    }
+
+    .vd-reviewPaper {
+        min-height: 420px;
+        border-radius: 14px;
+    }
+
+    .vd-reviewPaper.is-gallery {
+        padding: 28px 20px 34px;
+        gap: 24px;
+    }
+
+    .vd-reviewFrame {
+        min-height: 620px;
+    }
+
+    .vd-reviewDecisionCard {
+        padding: 22px 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vd-reviewBreadcrumb {
+        font-size: 12px;
+        gap: 6px;
+    }
+
+    .vd-reviewTop h2 {
+        font-size: 20px;
+    }
+
+    .vd-reviewChoiceRow {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-reviewDocBody {
+        padding: 14px;
+    }
+
+    .vd-reviewPaper.is-gallery {
+        padding: 22px 14px 28px;
+    }
+
+    .vd-reviewFrame {
+        min-height: 540px;
+    }
+
+    .vd-reviewImg {
+        max-height: 340px;
+    }
+}
