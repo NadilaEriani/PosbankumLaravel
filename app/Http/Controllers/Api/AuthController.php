@@ -19,7 +19,6 @@ class AuthController extends Controller
     {
         $request->validate(['id_token' => 'required|string']);
 
-        // 1. Verifikasi ke Google
         $response = Http::get("https://oauth2.googleapis.com/tokeninfo?id_token=" . $request->id_token);
         if ($response->failed()) {
             return response()->json(['status' => false, 'message' => 'Token Google tidak valid'], 401);
@@ -33,7 +32,7 @@ class AuthController extends Controller
             $user = User::where('google_id', $googleId)->orWhere('email', $email)->first();
 
             if (!$user) {
-                // Biarkan DB Trigger handle UUID (id_user kosong)
+                // 1. Simpan User
                 $user = User::create([
                     'nama_lengkap'  => $googleData['name'],
                     'email'         => $email,
@@ -44,7 +43,10 @@ class AuthController extends Controller
                     'foto_profile'  => $googleData['picture'] ?? null,
                 ]);
 
-                // OTOMATIS INSERT KE TABEL MASYARAKAT
+                // 🚀 PENTING: Refresh data agar Laravel mengambil id_user yang dibuat oleh Trigger DB
+                $user->refresh();
+
+                // 2. Insert ke Masyarakat menggunakan id_user yang sudah terisi
                 DB::table('masyarakat')->insert([
                     'id_user'    => $user->id_user,
                     'created_at' => now(),
@@ -67,9 +69,6 @@ class AuthController extends Controller
         });
     }
 
-    /**
-     * Register Manual (Jika masih dibutuhkan)
-     */
     public function register(Request $request)
     {
         $request->validate([
@@ -79,7 +78,6 @@ class AuthController extends Controller
         ]);
 
         return DB::transaction(function () use ($request) {
-            // Biarkan DB Trigger handle UUID
             $user = User::create([
                 'nama_lengkap'  => $request->nama_lengkap,
                 'email'         => $request->email,
@@ -88,7 +86,9 @@ class AuthController extends Controller
                 'status'        => 'aktif',
             ]);
 
-            // OTOMATIS INSERT KE TABEL MASYARAKAT
+            // 🚀 Refresh data agar Laravel mengambil id_user yang dibuat oleh Trigger DB
+            $user->refresh();
+
             DB::table('masyarakat')->insert([
                 'id_user'    => $user->id_user,
                 'created_at' => now(),
