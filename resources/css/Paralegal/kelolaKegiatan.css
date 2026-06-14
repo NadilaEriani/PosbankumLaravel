@@ -1470,3 +1470,612 @@
         max-height: calc(100dvh - 20px);
     }
 }
+
+/* =========================================================
+   Revisi content Kelola Kegiatan Paralegal: tambah, edit, detail
+   Mengikuti template halaman penuh, bukan modal overlay.
+========================================================= */
+.kk-pageMode,
+.kk-listPageHeading {
+    font-family:
+        "Outfit",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+}
+
+.kk-pageMode {
+    width: 100%;
+    display: block;
+    color: #151c2e;
+}
+
+.kk-listPageHeading {
+    width: 100%;
+    margin: 0 0 22px;
+}
+
+.kk-pageTop {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 0 0 22px;
+}
+
+.kk-pageTopDetail {
+    margin-bottom: 24px;
+}
+
+.kk-pageTitleBlock {
+    min-width: 0;
+}
+
+.kk-breadcrumb {
+    min-height: 22px;
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    color: #8a93a3;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-breadcrumb button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #0f4aa4;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.2;
+}
+
+.kk-breadcrumb strong {
+    color: #111827;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-pageTitle {
+    margin: 0;
+    color: #111827;
+    font-size: 29px;
+    line-height: 1.14;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+}
+
+.kk-pageLine {
+    width: 58px;
+    height: 4px;
+    margin-top: 14px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        var(--kk-yellow-1) 0%,
+        var(--kk-yellow-2) 100%
+    );
+}
+
+.kk-pageActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 35px;
+    flex: 0 0 auto;
+}
+
+.kk-topBtn {
+    min-width: 74px;
+    height: 42px;
+    padding: 0 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #151c2e;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.kk-topBtn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.kk-topBtnGhost {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    color: #374151;
+    box-shadow: 0 3px 7px rgba(15, 23, 42, 0.14);
+}
+
+.kk-topBtnPrimary {
+    background: #0f4aa4;
+    color: #ffffff;
+    box-shadow: 0 8px 18px rgba(15, 74, 164, 0.22);
+}
+
+.kk-closeDetailBtn {
+    min-width: 76px;
+    margin-top: 36px;
+}
+
+.kk-formPageCard {
+    width: 100%;
+    max-width: none;
+    overflow: hidden;
+    border: 1px solid #dfe3ea;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+}
+
+.kk-formPageHead {
+    min-height: 58px;
+    padding: 20px 22px 18px;
+    border-bottom: 1px solid #dfe3ea;
+    color: #151c2e;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.kk-formPageBody {
+    padding: 22px 22px 27px;
+}
+
+.kk-formGroup {
+    margin: 0 0 22px;
+}
+
+.kk-formGroupLast {
+    margin-bottom: 0;
+}
+
+.kk-formLabel {
+    display: block;
+    margin: 0 0 9px;
+    color: #374151;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-formInput,
+.kk-formTextarea {
+    width: 100%;
+    border: 1px solid #dfe3ea;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #111827;
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 500;
+    outline: none;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.kk-formInput {
+    height: 44px;
+    padding: 0 16px;
+}
+
+.kk-formTextarea {
+    resize: vertical;
+    padding: 13px 16px;
+}
+
+.kk-formTextareaDescription {
+    min-height: 150px;
+}
+
+.kk-formTextareaResult {
+    min-height: 128px;
+}
+
+.kk-formInput::placeholder,
+.kk-formTextarea::placeholder {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.kk-formInput:focus,
+.kk-formTextarea:focus {
+    border-color: #b8c3d6;
+    box-shadow: 0 0 0 3px rgba(15, 74, 164, 0.08);
+}
+
+.kk-formTwoCols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.kk-formDateWrap {
+    position: relative;
+}
+
+.kk-formDateInput {
+    padding-right: 48px;
+}
+
+.kk-formDateInput::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    width: 48px;
+    height: 42px;
+    cursor: pointer;
+}
+
+.kk-formDateIcon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #111827;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.kk-documentWrap {
+    position: relative;
+}
+
+.kk-documentUpload {
+    width: 100%;
+    min-height: 132px;
+    border: 1px dashed #cfd6e1;
+    border-radius: 14px;
+    background: #ffffff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.kk-documentUpload.has-file {
+    border-style: solid;
+}
+
+.kk-documentUpload.has-image {
+    min-height: 166px;
+}
+
+.kk-documentEmpty {
+    min-height: 116px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 6px;
+    text-align: center;
+    color: #98a2b3;
+}
+
+.kk-documentIcon {
+    width: 40px;
+    height: 40px;
+    color: #98a2b3;
+    stroke-width: 1.5;
+}
+
+.kk-documentTitle {
+    margin-top: 4px;
+    color: #111827;
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-documentHint {
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.kk-documentFilePreview,
+.kk-detailFilePreview {
+    min-height: 116px;
+    padding: 16px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 10px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.kk-documentFilePreview svg,
+.kk-detailFilePreview svg {
+    width: 38px;
+    height: 38px;
+    color: #98a2b3;
+}
+
+.kk-documentRemove {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #ffffff;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
+}
+
+.kk-documentRemove svg {
+    width: 16px;
+    height: 16px;
+}
+
+.kk-formPageError {
+    margin: 18px 0 0;
+}
+
+.kk-detailPageCard {
+    width: 100%;
+    max-width: none;
+    overflow: hidden;
+    border: 1px solid #dfe3ea;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+}
+
+.kk-detailPageHero {
+    width: 100%;
+    min-height: 400px;
+    background: #e5e7eb;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: grid;
+    place-items: center;
+}
+
+.kk-detailPageBody {
+    padding: 28px 30px 34px;
+}
+
+.kk-detailPageStatus {
+    min-height: 22px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-detailPageStatus.is-accept {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.kk-detailPageStatus.is-process {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.kk-detailPageStatus.is-reject {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.kk-detailPageTitle {
+    margin: 18px 0 20px;
+    color: #151c2e;
+    font-size: 22px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.kk-detailSummaryGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+    margin: 0 0 25px;
+}
+
+.kk-detailSummaryCard {
+    min-height: 92px;
+    padding: 16px 17px;
+    border: 1px solid #dfe3ea;
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.kk-detailSummaryLabel {
+    margin: 0 0 7px;
+    color: #6b7280;
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-detailSummaryValue {
+    color: #151c2e;
+    font-size: 14px;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+.kk-detailTextSection {
+    margin: 0 0 24px;
+}
+
+.kk-detailTextSection h3 {
+    margin: 0 0 14px;
+    color: #111827;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-detailTextSection p {
+    margin: 0;
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.85;
+    font-weight: 500;
+    white-space: pre-wrap;
+}
+
+.kk-detailRejectNotice {
+    margin-top: 26px;
+    padding: 20px 18px 21px;
+    border: 1px solid #ef4444;
+    border-radius: 14px;
+    background: #fff1f2;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 14px;
+}
+
+.kk-detailRejectIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: #fecdd3;
+    color: #ef4444;
+    display: grid;
+    place-items: center;
+}
+
+.kk-detailRejectIcon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.kk-detailRejectTitle {
+    color: #991b1b;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kk-detailRejectSub {
+    margin-top: 5px;
+    color: #dc2626;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.kk-detailRejectText {
+    margin-top: 17px;
+    color: #b91c1c;
+    font-size: 14px;
+    line-height: 1.75;
+    font-weight: 500;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 920px) {
+    .kk-formPageCard,
+    .kk-detailPageCard {
+        max-width: none;
+    }
+
+    .kk-pageTop {
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 768px) {
+    .kk-pageTop {
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .kk-pageActions,
+    .kk-closeDetailBtn {
+        width: 100%;
+        padding-top: 0;
+        margin-top: 0;
+    }
+
+    .kk-pageActions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .kk-topBtn {
+        width: 100%;
+    }
+
+    .kk-pageTitle {
+        font-size: 25px;
+    }
+
+    .kk-formTwoCols,
+    .kk-detailSummaryGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .kk-formPageBody,
+    .kk-detailPageBody {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .kk-detailPageHero {
+        min-height: 220px;
+    }
+
+    .kk-detailPageTitle {
+        font-size: 20px;
+    }
+
+    .kk-detailRejectNotice {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .kk-breadcrumb {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .kk-formPageHead {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .kk-documentUpload.has-image {
+        min-height: 140px;
+    }
+}

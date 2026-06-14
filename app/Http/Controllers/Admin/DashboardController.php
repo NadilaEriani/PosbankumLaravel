@@ -74,6 +74,49 @@ class DashboardController extends Controller
         return '/file-preview?' . http_build_query($query);
     }
 
+    private function firstPersonName(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if (is_string($item) && trim($item) !== '') {
+                    return trim($item);
+                }
+
+                if (is_array($item) || is_object($item)) {
+                    $name = (string) $this->rowValue($item, ['nama', 'name', 'nama_lengkap'], '');
+                    if (trim($name) !== '') {
+                        return trim($name);
+                    }
+                }
+            }
+
+            return '';
+        }
+
+        if (is_object($value)) {
+            return trim((string) $this->rowValue($value, ['nama', 'name', 'nama_lengkap'], ''));
+        }
+
+        $raw = trim((string) $value);
+        if ($raw === '') {
+            return '';
+        }
+
+        $decoded = json_decode($raw, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $name = $this->firstPersonName($decoded);
+            if ($name !== '') {
+                return $name;
+            }
+        }
+
+        return trim($raw, " []\t\n\r\0\x0B\"'");
+    }
+
 
     private function tableCount(string $table): int
     {
@@ -604,6 +647,18 @@ class DashboardController extends Controller
 
         $rows = $query->limit(500)->get();
 
+        $verifikatorColumn = $this->firstExistingColumn('kegiatan', [
+            'id_user_verifikator',
+            'verified_by',
+            'verifikator_id',
+        ]);
+
+        $verificationDateColumn = $this->firstExistingColumn('kegiatan', [
+            'tgl_verifikasi',
+            'verified_at',
+            'tanggal_verifikasi',
+        ]);
+
         $posbankumIds = $rows
             ->map(fn($row) => $this->rowValue($row, ['id_posbankum', 'posbankum_id']))
             ->filter()
@@ -679,8 +734,17 @@ class DashboardController extends Controller
         }
 
         $userIds = $rows
-            ->map(fn($row) => $this->rowValue($row, ['created_by', 'id_user', 'user_id']))
-            ->filter()
+            ->flatMap(function ($row) use ($verifikatorColumn) {
+                $ids = [
+                    $this->rowValue($row, ['created_by', 'id_user', 'user_id']),
+                ];
+
+                if ($verifikatorColumn) {
+                    $ids[] = $this->rowValue($row, [$verifikatorColumn]);
+                }
+
+                return array_filter($ids);
+            })
             ->unique()
             ->values()
             ->all();
@@ -695,7 +759,38 @@ class DashboardController extends Controller
                 ->toArray();
         }
 
-        return $rows->values()->map(function ($row, $index) use ($posbankumMap, $kelurahanMap, $kecamatanMap, $kabupatenMap, $userMap) {
+        $paralegalMap = [];
+        if (!empty($posbankumIds) && $this->hasTable('users')) {
+            $userPosColumn = $this->firstExistingColumn('users', ['id_posbankum', 'posbankum_id']);
+
+            if ($userPosColumn) {
+                $paralegalQuery = DB::table('users')->whereIn($userPosColumn, $posbankumIds);
+
+                if ($this->hasColumn('users', 'role')) {
+                    $paralegalQuery->where('role', 'paralegal');
+                }
+
+                if ($this->hasColumn('users', 'status')) {
+                    $paralegalQuery->where('status', 'aktif');
+                }
+
+                $nameColumn = $this->firstExistingColumn('users', ['nama_lengkap', 'name', 'email']);
+                if ($nameColumn) {
+                    $paralegalQuery->orderBy($nameColumn);
+                }
+
+                foreach ($paralegalQuery->get() as $paralegal) {
+                    $posId = $this->rowValue($paralegal, [$userPosColumn, 'id_posbankum', 'posbankum_id']);
+                    $name = trim((string) $this->rowValue($paralegal, ['nama_lengkap', 'name', 'email'], ''));
+
+                    if ($posId && $name !== '' && !isset($paralegalMap[$posId])) {
+                        $paralegalMap[$posId] = $name;
+                    }
+                }
+            }
+        }
+
+        return $rows->values()->map(function ($row, $index) use ($posbankumMap, $kelurahanMap, $kecamatanMap, $kabupatenMap, $userMap, $paralegalMap, $verifikatorColumn, $verificationDateColumn) {
             $id = $this->rowValue($row, ['id_kegiatan', 'id'], $index + 1);
             $idPosbankum = $this->rowValue($row, ['id_posbankum', 'posbankum_id']);
             $pos = $idPosbankum && isset($posbankumMap[$idPosbankum]) ? $posbankumMap[$idPosbankum] : null;
@@ -710,6 +805,9 @@ class DashboardController extends Controller
 
             $createdBy = $this->rowValue($row, ['created_by', 'id_user', 'user_id']);
             $creator = $createdBy && isset($userMap[$createdBy]) ? $userMap[$createdBy] : null;
+            $verifikatorId = $verifikatorColumn ? $this->rowValue($row, [$verifikatorColumn]) : null;
+            $verifikator = $verifikatorId && isset($userMap[$verifikatorId]) ? $userMap[$verifikatorId] : null;
+            $tanggalVerifikasi = $verificationDateColumn ? $this->rowValue($row, [$verificationDateColumn]) : null;
 
             $judul = (string) $this->rowValue($row, ['judul', 'nama_kegiatan', 'title', 'tema'], 'Kegiatan #' . ($index + 1));
             $deskripsi = (string) $this->rowValue($row, ['deskripsi', 'description', 'uraian', 'catatan'], '');
@@ -717,6 +815,11 @@ class DashboardController extends Controller
             $thumbnail = (string) $this->rowValue($row, ['thumbnail_path', 'foto', 'gambar', 'dokumentasi', 'image_path'], '');
             $tglUpload = $this->rowValue($row, ['tgl_upload', 'created_at', 'updated_at'], null);
             $tglMulai = $this->rowValue($row, ['tgl_mulai', 'tanggal_kegiatan', 'tanggal'], $tglUpload);
+            $anggotaTerlibat = $this->rowValue($row, ['anggota_terlibat', 'anggota', 'peserta_terlibat'], '');
+            $creatorName = trim((string) $this->rowValue($creator, ['nama_lengkap', 'name', 'email'], ''));
+            $anggotaName = $this->firstPersonName($anggotaTerlibat);
+            $defaultParalegalName = $idPosbankum && isset($paralegalMap[$idPosbankum]) ? $paralegalMap[$idPosbankum] : '';
+            $pelaporName = $creatorName ?: $anggotaName ?: $defaultParalegalName;
 
             return [
                 'id' => $id,
@@ -728,6 +831,9 @@ class DashboardController extends Controller
                 'catatan' => (string) $this->rowValue($row, ['catatan', 'catatan_admin', 'alasan_penolakan'], ''),
                 'hasil_kegiatan' => (string) $this->rowValue($row, ['hasil_kegiatan', 'hasil', 'output', 'result'], ''),
                 'status' => $status,
+                'tgl_verifikasi' => $tanggalVerifikasi,
+                'id_user_verifikator' => $verifikatorId,
+                'admin_penanggung_jawab' => (string) $this->rowValue($verifikator, ['nama_lengkap', 'name', 'email'], ''),
                 'tgl_upload' => $tglUpload,
                 'created_at' => $this->rowValue($row, ['created_at'], $tglUpload),
                 'updated_at' => $this->rowValue($row, ['updated_at'], $tglUpload),
@@ -738,15 +844,15 @@ class DashboardController extends Controller
                 'gambar' => $thumbnail,
                 'lokasi' => (string) $this->rowValue($row, ['lokasi', 'location', 'alamat', 'tempat'], ''),
                 'jumlah_peserta' => (int) $this->rowValue($row, ['jumlah_peserta', 'participants', 'peserta', 'jml_peserta'], 0),
-                'anggota_terlibat' => $this->rowValue($row, ['anggota_terlibat', 'anggota', 'peserta_terlibat'], ''),
+                'anggota_terlibat' => $anggotaTerlibat,
                 'kategori' => (string) $this->rowValue($row, ['kategori', 'jenis_kegiatan'], ''),
-                'pelapor' => (string) $this->rowValue($creator, ['nama_lengkap', 'name', 'email'], ''),
+                'pelapor' => $pelaporName,
                 'posbankum_nama' => (string) $this->rowValue($pos, ['nama', 'name', 'nama_posbankum'], ''),
                 'kecamatan_nama' => (string) $this->rowValue($kecamatan, ['nama', 'name'], ''),
                 'kabupaten_nama' => (string) $this->rowValue($kabupaten, ['nama', 'name'], ''),
                 'posbankum' => [
                     'nama' => (string) $this->rowValue($pos, ['nama', 'name', 'nama_posbankum'], ''),
-                    'nama_paralegal' => (string) $this->rowValue($creator, ['nama_lengkap', 'name', 'email'], ''),
+                    'nama_paralegal' => $pelaporName,
                     'kelurahan' => [
                         'nama' => (string) $this->rowValue($kelurahan, ['nama', 'name'], ''),
                     ],

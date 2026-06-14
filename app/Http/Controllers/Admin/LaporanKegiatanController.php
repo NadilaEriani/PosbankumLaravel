@@ -136,7 +136,7 @@ class LaporanKegiatanController extends Controller
             ->update($payload);
 
         return redirect()
-            ->to('/admin/laporan-kegiatan')
+            ->back()
             ->with('success', $message);
     }
 }

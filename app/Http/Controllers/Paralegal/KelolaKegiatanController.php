@@ -217,7 +217,7 @@ class KelolaKegiatanController extends Controller
         }
 
         $items = collect($items)
-            ->map(fn ($item) => trim((string) $item))
+            ->map(fn($item) => trim((string) $item))
             ->filter()
             ->unique()
             ->values()
@@ -238,7 +238,7 @@ class KelolaKegiatanController extends Controller
                 'jumlah_peserta' => ['nullable', 'integer', 'min:0'],
                 'hasil_kegiatan' => ['nullable', 'string', 'max:5000'],
                 'anggota_terlibat' => ['nullable'],
-                'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+                'thumbnail' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
                 'remove_thumbnail' => ['nullable', 'boolean'],
                 'resubmit_rejected' => ['nullable', 'boolean'],
             ],
@@ -248,8 +248,8 @@ class KelolaKegiatanController extends Controller
                 'tgl_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
                 'lokasi.required' => 'Lokasi wajib diisi.',
                 'jumlah_peserta.integer' => 'Jumlah peserta harus berupa angka.',
-                'thumbnail.image' => 'Thumbnail harus berupa gambar.',
-                'thumbnail.mimes' => 'Thumbnail harus berformat JPG, JPEG, PNG, atau WEBP.',
+                'thumbnail.file' => 'Dokumentasi harus berupa file yang valid.',
+                'thumbnail.mimes' => 'Dokumentasi harus berformat JPG, JPEG, PNG, WEBP, atau PDF.',
                 'thumbnail.max' => 'Ukuran thumbnail maksimal 5MB.',
             ]
         );
@@ -304,8 +304,10 @@ class KelolaKegiatanController extends Controller
 
         if ($isCreate) {
             $idPosbankum = $this->resolveUserPosbankumId($request->user());
+            $userId = $request->user()?->id_user ?? $request->user()?->id ?? null;
 
             $this->addColumn($payload, 'kegiatan', 'id_posbankum', $idPosbankum);
+            $this->addColumn($payload, 'kegiatan', 'created_by', $userId);
             $this->addColumn($payload, 'kegiatan', 'status', 'Diproses');
             $this->addColumn($payload, 'kegiatan', 'tgl_upload', now());
             $this->addColumn($payload, 'kegiatan', 'created_at', now());
@@ -396,8 +398,8 @@ class KelolaKegiatanController extends Controller
             ->with(
                 'success',
                 $request->boolean('resubmit_rejected')
-                    ? 'Kegiatan berhasil dikirim ulang untuk ditinjau admin!'
-                    : 'Kegiatan berhasil diperbarui!'
+                ? 'Kegiatan berhasil dikirim ulang untuk ditinjau admin!'
+                : 'Kegiatan berhasil diperbarui!'
             );
     }
 

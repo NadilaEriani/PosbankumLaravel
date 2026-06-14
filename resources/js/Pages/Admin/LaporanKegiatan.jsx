@@ -10,7 +10,6 @@ import {
     FiChevronRight,
     FiClock,
     FiFileText,
-    FiUsers,
     FiThumbsUp,
     FiThumbsDown,
     FiMessageSquare,
@@ -29,6 +28,8 @@ const TABS = [
     { key: "approved", label: "Disetujui" },
     { key: "rejected", label: "Ditolak" },
 ];
+
+const DEFAULT_ADMIN_NAME = "Admin Kemenkum Riau";
 
 const norm = (value) =>
     String(value ?? "")
@@ -56,6 +57,7 @@ function normalizePosbankum(value) {
         return {
             nama: "",
             nama_paralegal: "",
+            kelurahan: { nama: "" },
             kecamatan: { nama: "" },
             kabupaten: { nama: "" },
         };
@@ -69,6 +71,14 @@ function normalizePosbankum(value) {
             ["nama_paralegal", "paralegal_nama", "pelapor"],
             "",
         ),
+        kelurahan: {
+            ...(value.kelurahan || {}),
+            nama: firstValue(
+                value.kelurahan || {},
+                ["nama", "name"],
+                firstValue(value, ["kelurahan_nama"], ""),
+            ),
+        },
         kecamatan: {
             ...(value.kecamatan || {}),
             nama: firstValue(
@@ -93,6 +103,7 @@ function normalizeRow(row, index = 0) {
         row?.posbankum || {
             nama: firstValue(row, ["posbankum_nama", "posbankumName"], ""),
             nama_paralegal: firstValue(row, ["nama_paralegal", "pelapor"], ""),
+            kelurahan_nama: firstValue(row, ["kelurahan_nama"], ""),
             kecamatan_nama: firstValue(row, ["kecamatan_nama"], ""),
             kabupaten_nama: firstValue(row, ["kabupaten_nama"], ""),
         },
@@ -106,7 +117,7 @@ function normalizeRow(row, index = 0) {
     );
     const deskripsi = firstValue(
         row,
-        ["deskripsi", "description", "uraian", "catatan"],
+        ["deskripsi", "description", "uraian", "catatan_kegiatan"],
         "Belum ada deskripsi kegiatan.",
     );
     const tglUpload = firstValue(
@@ -123,11 +134,6 @@ function normalizeRow(row, index = 0) {
         row,
         ["lokasi", "location", "alamat", "tempat"],
         "-",
-    );
-    const jumlahPeserta = firstValue(
-        row,
-        ["jumlah_peserta", "participants", "peserta", "jml_peserta"],
-        0,
     );
 
     return {
@@ -150,6 +156,26 @@ function normalizeRow(row, index = 0) {
         tgl_upload: tglUpload,
         tgl_mulai: tglMulai,
         tgl_selesai: firstValue(row, ["tgl_selesai", "tanggal_selesai"], null),
+        tgl_verifikasi: firstValue(
+            row,
+            ["tgl_verifikasi", "verified_at", "tanggal_verifikasi"],
+            null,
+        ),
+        id_user_verifikator: firstValue(
+            row,
+            ["id_user_verifikator", "verified_by", "verifikator_id"],
+            null,
+        ),
+        admin_penanggung_jawab: firstValue(
+            row,
+            [
+                "admin_penanggung_jawab",
+                "admin_verifikator",
+                "nama_verifikator",
+                "verifikator_nama",
+            ],
+            "",
+        ),
         thumbnail_path: firstValue(
             row,
             ["thumbnail_path", "foto", "gambar", "dokumentasi", "image_path"],
@@ -161,7 +187,6 @@ function normalizeRow(row, index = 0) {
             "",
         ),
         lokasi,
-        jumlah_peserta: jumlahPeserta,
         anggota_terlibat: firstValue(row, ["anggota_terlibat"], ""),
         kategori: firstValue(row, ["kategori", "jenis_kegiatan"], ""),
         posbankum,
@@ -169,6 +194,11 @@ function normalizeRow(row, index = 0) {
             row,
             ["posbankumName", "posbankum_nama"],
             posbankum.nama,
+        ),
+        pelapor: firstValue(
+            row,
+            ["pelapor", "nama_pelapor", "created_by_name"],
+            posbankum.nama_paralegal,
         ),
     };
 }
@@ -180,6 +210,7 @@ function uiStatusKey(statusDb) {
         [
             "diterima",
             "disetujui",
+            "setuju",
             "approve",
             "approved",
             "valid",
@@ -206,8 +237,9 @@ function uiStatusLabel(statusDb) {
 function uiStatusIcon(statusDb, className = "rk-statusIcon") {
     const key = uiStatusKey(statusDb);
     if (key === "approved") return <BsCheck2Circle className={className} />;
-    if (key === "rejected")
+    if (key === "rejected") {
         return <AiOutlineCloseCircle className={className} />;
+    }
     return <FiClock className={className} />;
 }
 
@@ -261,12 +293,140 @@ function kegiatanStatusUrl(idKegiatan) {
     return `/admin/laporan-kegiatan/${encodeURIComponent(idKegiatan)}/status`;
 }
 
+function kegiatanDetailUrl(idKegiatan) {
+    return `/admin/laporan-kegiatan/detail/${encodeURIComponent(idKegiatan)}`;
+}
+
 function errorMessageFromPayload(errors, fallback) {
     if (!errors || typeof errors !== "object") return fallback;
 
     const messages = Object.values(errors).flat().filter(Boolean).join(" ");
 
     return messages || fallback;
+}
+
+function readDetailIdFromPath() {
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    const menuIndex = parts.findIndex((part) => part === "laporan-kegiatan");
+
+    if (menuIndex === -1) return null;
+
+    const mode = parts[menuIndex + 1];
+    const id = parts[menuIndex + 2];
+
+    if (mode === "detail" && id) {
+        try {
+            return decodeURIComponent(id);
+        } catch {
+            return id;
+        }
+    }
+
+    return null;
+}
+
+function selectedPosNameForRow(item) {
+    const name = safeText(
+        item?.posbankum?.nama || item?.posbankumName || item?.posbankum_nama,
+    );
+    if (name === "-") return name;
+    return /^posbankum\b/i.test(name) ? name : `Posbankum ${name}`;
+}
+
+function selectedRegionText(item) {
+    const kecamatan = safeText(item?.posbankum?.kecamatan?.nama, "");
+    const kabupaten = safeText(item?.posbankum?.kabupaten?.nama, "");
+
+    return [kecamatan, kabupaten].filter(Boolean).join(", ");
+}
+
+function parseFirstPersonName(value) {
+    if (value === undefined || value === null) return "";
+
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            if (typeof item === "string" && item.trim()) return item.trim();
+            if (item && typeof item === "object") {
+                const name = firstValue(
+                    item,
+                    ["nama", "name", "nama_lengkap"],
+                    "",
+                );
+                if (String(name).trim()) return String(name).trim();
+            }
+        }
+
+        return "";
+    }
+
+    if (typeof value === "object") {
+        const name = firstValue(value, ["nama", "name", "nama_lengkap"], "");
+        return String(name ?? "").trim();
+    }
+
+    const raw = String(value ?? "").trim();
+    if (!raw) return "";
+
+    try {
+        const parsed = JSON.parse(raw);
+        const fromJson = parseFirstPersonName(parsed);
+        if (fromJson) return fromJson;
+    } catch {
+        // Abaikan jika bukan JSON valid.
+    }
+
+    return raw
+        .replace(/^\[+|\]+$/g, "")
+        .replace(/^['\"]+|['\"]+$/g, "")
+        .trim();
+}
+
+function detailPelaporText(item) {
+    const posName = selectedPosNameForRow(item);
+    const posNamePlain = safeText(
+        item?.posbankum?.nama || item?.posbankumName || item?.posbankum_nama,
+        "",
+    );
+
+    const candidates = [
+        item?.pelapor,
+        item?.nama_pelapor,
+        item?.created_by_name,
+        item?.posbankum?.nama_paralegal,
+        parseFirstPersonName(item?.anggota_terlibat),
+    ];
+
+    const reporter = candidates
+        .map((value) => String(value ?? "").trim())
+        .find(
+            (value) =>
+                value &&
+                value !== "-" &&
+                norm(value) !== norm(posName) &&
+                norm(value) !== norm(posNamePlain),
+        );
+
+    const reporterName =
+        reporter || parseFirstPersonName(item?.anggota_terlibat) || "-";
+
+    if (!posName || posName === "-") {
+        return reporterName;
+    }
+
+    if (reporterName === "-") {
+        return posName;
+    }
+
+    return `${reporterName} (${posName})`;
+}
+
+function shortStatusDateText(status, value) {
+    const key = uiStatusKey(status);
+    const date = formatDate(value);
+
+    if (key === "approved") return `Disetujui ${date}`;
+    if (key === "rejected") return `Ditolak ${date}`;
+    return `Diajukan ${date}`;
 }
 
 export default function LaporanKegiatan({ rows = [] }) {
@@ -276,12 +436,10 @@ export default function LaporanKegiatan({ rows = [] }) {
     const [page, setPage] = useState(1);
 
     const [err, setErr] = useState("");
-    const [detailOpen, setDetailOpen] = useState(false);
-    const [selected, setSelected] = useState(null);
     const [saving, setSaving] = useState(false);
-
-    const [rejectOpen, setRejectOpen] = useState(false);
+    const [rejectMode, setRejectMode] = useState(false);
     const [rejectNote, setRejectNote] = useState("");
+    const [statusOverrides, setStatusOverrides] = useState({});
 
     const [successToast, setSuccessToast] = useState({
         title: "",
@@ -289,10 +447,31 @@ export default function LaporanKegiatan({ rows = [] }) {
     });
     const [rejectToast, setRejectToast] = useState("");
 
+    const detailId = readDetailIdFromPath();
+    const isDetailPage = Boolean(detailId);
+
     const normalizedRows = useMemo(
         () => (Array.isArray(rows) ? rows : []).map(normalizeRow),
         [rows],
     );
+
+    const displayRows = useMemo(
+        () =>
+            normalizedRows.map((row) => ({
+                ...row,
+                ...(statusOverrides[row.id_kegiatan] || {}),
+            })),
+        [normalizedRows, statusOverrides],
+    );
+
+    const detailItem = useMemo(() => {
+        if (!detailId) return null;
+        return (
+            displayRows.find(
+                (row) => String(row.id_kegiatan) === String(detailId),
+            ) || null
+        );
+    }, [displayRows, detailId]);
 
     const getThumbUrl = (item) => {
         if (!item) return null;
@@ -309,29 +488,20 @@ export default function LaporanKegiatan({ rows = [] }) {
     }, [tab, debouncedQ]);
 
     useEffect(() => {
-        if (!detailOpen && !rejectOpen) return undefined;
-
-        const onKeyDown = (event) => {
-            if (event.key === "Escape") {
-                if (rejectOpen) closeRejectModal();
-                else closeDetailModal();
-            }
-        };
-
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [detailOpen, rejectOpen, saving]);
+        setRejectMode(false);
+        setRejectNote("");
+        setErr("");
+    }, [detailId]);
 
     const stats = useMemo(() => {
         const base = {
-            total: normalizedRows.length,
+            total: displayRows.length,
             pending: 0,
             approved: 0,
             rejected: 0,
         };
 
-        for (const row of normalizedRows) {
+        for (const row of displayRows) {
             const key = uiStatusKey(row?.status);
             if (key === "approved") base.approved += 1;
             else if (key === "rejected") base.rejected += 1;
@@ -339,18 +509,20 @@ export default function LaporanKegiatan({ rows = [] }) {
         }
 
         return base;
-    }, [normalizedRows]);
+    }, [displayRows]);
 
     const searchedRows = useMemo(() => {
         const search = norm(debouncedQ);
-        if (!search) return normalizedRows;
+        if (!search) return displayRows;
 
-        return normalizedRows.filter((row) => {
+        return displayRows.filter((row) => {
             const haystack = [
                 row?.judul,
                 row?.deskripsi,
                 row?.lokasi,
                 row?.kategori,
+                row?.pelapor,
+                row?.anggota_terlibat,
                 row?.posbankum?.nama,
                 row?.posbankum?.kecamatan?.nama,
                 row?.posbankum?.kabupaten?.nama,
@@ -360,7 +532,7 @@ export default function LaporanKegiatan({ rows = [] }) {
 
             return haystack.includes(search);
         });
-    }, [normalizedRows, debouncedQ]);
+    }, [displayRows, debouncedQ]);
 
     const tabCounts = useMemo(() => {
         const counts = {
@@ -391,36 +563,6 @@ export default function LaporanKegiatan({ rows = [] }) {
         return filteredRows.slice(start, start + PAGE_SIZE);
     }, [filteredRows, pageClamped]);
 
-    const openDetailModal = (item) => {
-        setSelected(item);
-        setDetailOpen(true);
-        setRejectOpen(false);
-        setRejectNote("");
-        setErr("");
-    };
-
-    const closeDetailModal = () => {
-        if (saving) return;
-        setDetailOpen(false);
-        setRejectOpen(false);
-        setRejectNote("");
-        setSelected(null);
-    };
-
-    const openRejectModal = () => {
-        setRejectNote(
-            isRejected(selected?.status) ? selected?.catatan || "" : "",
-        );
-        setRejectOpen(true);
-        setErr("");
-    };
-
-    const closeRejectModal = () => {
-        if (saving) return;
-        setRejectOpen(false);
-        setRejectNote("");
-    };
-
     const resetFilters = () => {
         setQ("");
         setDebouncedQ("");
@@ -432,26 +574,43 @@ export default function LaporanKegiatan({ rows = [] }) {
         setSaving(false);
     };
 
-    const approve = () => {
-        if (!selected?.id_kegiatan) return;
+    const applyLocalStatus = (idKegiatan, payload) => {
+        setStatusOverrides((prev) => ({
+            ...prev,
+            [idKegiatan]: {
+                ...(prev[idKegiatan] || {}),
+                ...payload,
+            },
+        }));
+    };
+
+    const approve = (item = detailItem) => {
+        if (!item?.id_kegiatan) return;
+
+        const verificationAt = new Date().toISOString();
 
         setSaving(true);
         setErr("");
 
         router.patch(
-            kegiatanStatusUrl(selected.id_kegiatan),
+            kegiatanStatusUrl(item.id_kegiatan),
             { status: "Diterima" },
             {
                 preserveScroll: true,
                 preserveState: true,
                 onSuccess: () => {
-                    setDetailOpen(false);
-                    setRejectOpen(false);
+                    applyLocalStatus(item.id_kegiatan, {
+                        status: "Diterima",
+                        catatan: "",
+                        tgl_verifikasi: item.tgl_verifikasi || verificationAt,
+                        admin_penanggung_jawab:
+                            item.admin_penanggung_jawab || DEFAULT_ADMIN_NAME,
+                    });
+                    setRejectMode(false);
                     setRejectNote("");
-                    setSelected(null);
                     setSuccessToast({
                         title: "Laporan Kegiatan Disetujui!",
-                        message: "Laporan kegiatan telah berhasil di setujui",
+                        message: "Laporan kegiatan telah berhasil disetujui",
                     });
                 },
                 onError: (errors) => {
@@ -467,8 +626,8 @@ export default function LaporanKegiatan({ rows = [] }) {
         );
     };
 
-    const reject = () => {
-        if (!selected?.id_kegiatan) return;
+    const reject = (item = detailItem) => {
+        if (!item?.id_kegiatan) return;
 
         const note = rejectNote.trim();
         if (!note) {
@@ -476,20 +635,27 @@ export default function LaporanKegiatan({ rows = [] }) {
             return;
         }
 
+        const verificationAt = new Date().toISOString();
+
         setSaving(true);
         setErr("");
 
         router.patch(
-            kegiatanStatusUrl(selected.id_kegiatan),
+            kegiatanStatusUrl(item.id_kegiatan),
             { status: "Ditolak", catatan: note },
             {
                 preserveScroll: true,
                 preserveState: true,
                 onSuccess: () => {
-                    setDetailOpen(false);
-                    setRejectOpen(false);
+                    applyLocalStatus(item.id_kegiatan, {
+                        status: "Ditolak",
+                        catatan: note,
+                        tgl_verifikasi: item.tgl_verifikasi || verificationAt,
+                        admin_penanggung_jawab:
+                            item.admin_penanggung_jawab || DEFAULT_ADMIN_NAME,
+                    });
+                    setRejectMode(false);
                     setRejectNote("");
-                    setSelected(null);
                     setRejectToast("Kegiatan Berhasil Ditolak");
                 },
                 onError: (errors) => {
@@ -516,36 +682,89 @@ export default function LaporanKegiatan({ rows = [] }) {
         );
     };
 
-    const selectedThumb = selected ? getThumbUrl(selected) : null;
-    const selectedStatusKey = uiStatusKey(selected?.status);
-    const selectedPosName = selectedPosNameForRow(selected);
-    const selectedPelapor = safeText(
-        selected?.posbankum?.nama_paralegal ||
-            selected?.pelapor ||
-            selected?.posbankum?.nama,
+    const renderToasts = () => (
+        <>
+            <SuccessToast
+                title={successToast.title}
+                message={successToast.message}
+                onClose={() => setSuccessToast({ title: "", message: "" })}
+            />
+            <RejectToast
+                message={rejectToast}
+                onClose={() => setRejectToast("")}
+            />
+        </>
     );
-    const selectedLokasi = safeText(selected?.lokasi);
-    const selectedPeserta = Number(selected?.jumlah_peserta);
-    const selectedPesertaText = Number.isFinite(selectedPeserta)
-        ? `${selectedPeserta} Orang`
-        : "-";
-    const selectedDokumentasi =
-        selected?.thumbnail_path || selected?.thumbnail_url
-            ? "1 Foto"
-            : "0 Foto";
+
+    if (isDetailPage) {
+        return (
+            <section className="ad-pagePad rk-detailPad">
+                <div className="rk-wrap">
+                    {renderToasts()}
+
+                    {!detailItem ? (
+                        <div className="rk-detailPage">
+                            <div className="rk-detailTopbar">
+                                <div className="rk-headingBlock">
+                                    <h1>Detail Kegiatan</h1>
+                                    <span />
+                                </div>
+                                <button
+                                    className="rk-backBtn"
+                                    type="button"
+                                    onClick={() =>
+                                        router.visit("/admin/laporan-kegiatan")
+                                    }
+                                >
+                                    Kembali ke Daftar
+                                </button>
+                            </div>
+
+                            <div className="rk-emptyCard">
+                                <div className="rk-emptyIcon">
+                                    <FiFileText />
+                                </div>
+                                <h2>Laporan Tidak Ditemukan</h2>
+                                <p>
+                                    Data laporan kegiatan yang diminta tidak
+                                    tersedia.
+                                </p>
+                                <button
+                                    className="rk-emptyBtn"
+                                    type="button"
+                                    onClick={() =>
+                                        router.visit("/admin/laporan-kegiatan")
+                                    }
+                                >
+                                    Kembali ke Daftar
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <DetailPage
+                            item={detailItem}
+                            err={err}
+                            saving={saving}
+                            rejectMode={rejectMode}
+                            rejectNote={rejectNote}
+                            setRejectNote={setRejectNote}
+                            setRejectMode={setRejectMode}
+                            setErr={setErr}
+                            approve={approve}
+                            reject={reject}
+                            renderStatusPill={renderStatusPill}
+                            getThumbUrl={getThumbUrl}
+                        />
+                    )}
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="ad-pagePad">
             <div className="rk-wrap">
-                <SuccessToast
-                    title={successToast.title}
-                    message={successToast.message}
-                    onClose={() => setSuccessToast({ title: "", message: "" })}
-                />
-                <RejectToast
-                    message={rejectToast}
-                    onClose={() => setRejectToast("")}
-                />
+                {renderToasts()}
 
                 <div className="ad-pageHeader">
                     <div className="ad-pageTitleWrap">
@@ -557,7 +776,7 @@ export default function LaporanKegiatan({ rows = [] }) {
 
                 <div className="rk-statGrid">
                     <div className="rk-statCard is-total">
-                        <div className="rk-statIcon" aria-hidden="true">
+                        <div className="rk-statIconBox" aria-hidden="true">
                             <FiFileText />
                         </div>
                         <div className="rk-statBody">
@@ -567,7 +786,7 @@ export default function LaporanKegiatan({ rows = [] }) {
                     </div>
 
                     <div className="rk-statCard is-pending">
-                        <div className="rk-statIcon" aria-hidden="true">
+                        <div className="rk-statIconBox" aria-hidden="true">
                             <FiClock />
                         </div>
                         <div className="rk-statBody">
@@ -577,7 +796,7 @@ export default function LaporanKegiatan({ rows = [] }) {
                     </div>
 
                     <div className="rk-statCard is-approved">
-                        <div className="rk-statIcon" aria-hidden="true">
+                        <div className="rk-statIconBox" aria-hidden="true">
                             <BsCheck2Circle />
                         </div>
                         <div className="rk-statBody">
@@ -587,7 +806,7 @@ export default function LaporanKegiatan({ rows = [] }) {
                     </div>
 
                     <div className="rk-statCard is-rejected">
-                        <div className="rk-statIcon" aria-hidden="true">
+                        <div className="rk-statIconBox" aria-hidden="true">
                             <AiOutlineCloseCircle />
                         </div>
                         <div className="rk-statBody">
@@ -666,10 +885,6 @@ export default function LaporanKegiatan({ rows = [] }) {
                         <div className="rk-cardGrid">
                             {pageItems.map((item) => {
                                 const thumbUrl = getThumbUrl(item);
-                                const peserta = Number(item.jumlah_peserta);
-                                const pesertaText = Number.isFinite(peserta)
-                                    ? `${peserta} Peserta`
-                                    : "0 Peserta";
                                 const rejected = isRejected(item.status);
 
                                 return (
@@ -717,11 +932,6 @@ export default function LaporanKegiatan({ rows = [] }) {
                                                 </span>
                                             </div>
 
-                                            <div className="rk-cardMeta">
-                                                <FiUsers />
-                                                <span>{pesertaText}</span>
-                                            </div>
-
                                             {rejected && item.catatan ? (
                                                 <div className="rk-reasonBox">
                                                     <div className="rk-reasonTitle">
@@ -738,7 +948,11 @@ export default function LaporanKegiatan({ rows = [] }) {
                                                 className="rk-detailBtn"
                                                 type="button"
                                                 onClick={() =>
-                                                    openDetailModal(item)
+                                                    router.visit(
+                                                        kegiatanDetailUrl(
+                                                            item.id_kegiatan,
+                                                        ),
+                                                    )
                                                 }
                                             >
                                                 <FiEye />
@@ -800,260 +1014,256 @@ export default function LaporanKegiatan({ rows = [] }) {
                         ) : null}
                     </>
                 )}
-
-                {detailOpen && selected ? (
-                    <div
-                        className="rk-modalOverlay"
-                        onMouseDown={closeDetailModal}
-                    >
-                        <section
-                            className="rk-detailModal"
-                            role="dialog"
-                            aria-modal="true"
-                            aria-label="Detail laporan kegiatan"
-                            onMouseDown={(event) => event.stopPropagation()}
-                        >
-                            <div
-                                className="rk-detailHero"
-                                style={
-                                    selectedThumb
-                                        ? {
-                                              backgroundImage: `url(${selectedThumb})`,
-                                          }
-                                        : undefined
-                                }
-                            >
-                                <div className="rk-detailHeroShade" />
-
-                                {renderStatusPill(
-                                    selected.status,
-                                    "rk-detailStatus",
-                                )}
-
-                                <button
-                                    className="rk-detailClose"
-                                    type="button"
-                                    onClick={closeDetailModal}
-                                    disabled={saving}
-                                    aria-label="Tutup detail"
-                                >
-                                    <FiX />
-                                </button>
-
-                                <div className="rk-detailHeroText">
-                                    <h2>{safeText(selected.judul)}</h2>
-                                    <div className="rk-detailHeroMeta">
-                                        <span>
-                                            <FiMapPin />
-                                            {selectedPosName}
-                                        </span>
-                                        <span>
-                                            <FiCalendar />
-                                            {formatDate(
-                                                selected.tgl_mulai ||
-                                                    selected.tgl_upload,
-                                            )}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="rk-detailContent">
-                                <div className="rk-detailInfoGrid">
-                                    <div className="rk-infoBox">
-                                        <span>Tanggal Pelaksanaan</span>
-                                        <strong>
-                                            {formatDate(selected.tgl_mulai)}
-                                        </strong>
-                                    </div>
-
-                                    <div className="rk-infoBox">
-                                        <span>Tanggal Laporan</span>
-                                        <strong>
-                                            {formatDate(selected.tgl_upload)}
-                                        </strong>
-                                    </div>
-
-                                    <div className="rk-infoBox">
-                                        <span>Lokasi Kegiatan</span>
-                                        <strong>{selectedLokasi}</strong>
-                                    </div>
-
-                                    <div className="rk-infoBox">
-                                        <span>Jumlah Peserta</span>
-                                        <strong>{selectedPesertaText}</strong>
-                                    </div>
-
-                                    <div className="rk-infoBox">
-                                        <span>Pelapor</span>
-                                        <strong>{selectedPelapor}</strong>
-                                    </div>
-
-                                    <div className="rk-infoBox">
-                                        <span>Dokumentasi</span>
-                                        <strong>{selectedDokumentasi}</strong>
-                                    </div>
-                                </div>
-
-                                <div className="rk-detailSection">
-                                    <h3>Deskripsi Kegiatan</h3>
-                                    <p>{safeText(selected.deskripsi)}</p>
-                                </div>
-
-                                {selectedStatusKey === "rejected" ? (
-                                    <div className="rk-detailSection rk-detailSectionReject">
-                                        <h3>Catatan Penolakan</h3>
-                                        <p>{safeText(selected.catatan)}</p>
-                                    </div>
-                                ) : (
-                                    <div className="rk-detailSection rk-detailSectionResult">
-                                        <h3>Hasil Kegiatan</h3>
-                                        <p>
-                                            {safeText(selected.hasil_kegiatan)}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {selectedStatusKey === "pending" ? (
-                                <div className="rk-detailActions">
-                                    <button
-                                        className="rk-actionBtn is-neutral"
-                                        type="button"
-                                        onClick={closeDetailModal}
-                                        disabled={saving}
-                                    >
-                                        Tutup
-                                    </button>
-
-                                    <button
-                                        className="rk-actionBtn is-reject"
-                                        type="button"
-                                        onClick={openRejectModal}
-                                        disabled={saving}
-                                    >
-                                        <FiThumbsDown />
-                                        Tolak
-                                    </button>
-
-                                    <button
-                                        className="rk-actionBtn is-approve"
-                                        type="button"
-                                        onClick={approve}
-                                        disabled={saving}
-                                    >
-                                        <FiThumbsUp />
-                                        Terima
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="rk-detailActions">
-                                    <button
-                                        className="rk-actionBtn is-neutral"
-                                        type="button"
-                                        onClick={closeDetailModal}
-                                        disabled={saving}
-                                    >
-                                        Tutup
-                                    </button>
-                                </div>
-                            )}
-
-                            {rejectOpen ? (
-                                <div
-                                    className="rk-rejectOverlay"
-                                    onMouseDown={closeRejectModal}
-                                >
-                                    <section
-                                        className="rk-rejectModal"
-                                        role="dialog"
-                                        aria-modal="true"
-                                        aria-label="Tolak laporan kegiatan"
-                                        onMouseDown={(event) =>
-                                            event.stopPropagation()
-                                        }
-                                    >
-                                        <div className="rk-rejectHead">
-                                            <div className="rk-rejectHeadIcon">
-                                                <FiMessageSquare />
-                                            </div>
-                                            <div>
-                                                <h2>Tolak Laporan Kegiatan</h2>
-                                                <p>
-                                                    Berikan catatan untuk
-                                                    perbaikan laporan
-                                                </p>
-                                            </div>
-
-                                            <button
-                                                className="rk-rejectClose"
-                                                type="button"
-                                                onClick={closeRejectModal}
-                                                disabled={saving}
-                                                aria-label="Tutup popup penolakan"
-                                            >
-                                                <FiX />
-                                            </button>
-                                        </div>
-
-                                        <div className="rk-rejectBody">
-                                            <label
-                                                className="rk-rejectLabel"
-                                                htmlFor="rkRejectNote"
-                                            >
-                                                Catatan Penolakan <span>*</span>
-                                            </label>
-                                            <textarea
-                                                id="rkRejectNote"
-                                                className="rk-rejectTextarea"
-                                                value={rejectNote}
-                                                onChange={(event) =>
-                                                    setRejectNote(
-                                                        event.target.value,
-                                                    )
-                                                }
-                                                placeholder="Jelaskan alasan penolakan dan apa yang perlu diperbaiki oleh paralegal..."
-                                            />
-                                            <p className="rk-rejectHelp">
-                                                Catatan ini akan dikirimkan ke
-                                                paralegal untuk perbaikan
-                                                laporan kegiatan.
-                                            </p>
-
-                                            <div className="rk-rejectActions">
-                                                <button
-                                                    className="rk-rejectCancel"
-                                                    type="button"
-                                                    onClick={closeRejectModal}
-                                                    disabled={saving}
-                                                >
-                                                    Batal
-                                                </button>
-                                                <button
-                                                    className="rk-rejectSubmit"
-                                                    type="button"
-                                                    onClick={reject}
-                                                    disabled={saving}
-                                                >
-                                                    Tolak Laporan
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </section>
-                                </div>
-                            ) : null}
-                        </section>
-                    </div>
-                ) : null}
             </div>
         </section>
     );
 }
 
-function selectedPosNameForRow(item) {
-    const name = safeText(
-        item?.posbankum?.nama || item?.posbankumName || item?.posbankum_nama,
+function DetailPage({
+    item,
+    err,
+    saving,
+    rejectMode,
+    rejectNote,
+    setRejectNote,
+    setRejectMode,
+    setErr,
+    approve,
+    reject,
+    renderStatusPill,
+    getThumbUrl,
+}) {
+    const statusKey = uiStatusKey(item?.status);
+    const thumbUrl = getThumbUrl(item);
+    const posName = selectedPosNameForRow(item);
+    const region = selectedRegionText(item);
+    const pelapor = detailPelaporText(item);
+    const verificationDate = item?.tgl_verifikasi || item?.updated_at || null;
+    const verificationAdmin = safeText(
+        item?.admin_penanggung_jawab,
+        DEFAULT_ADMIN_NAME,
     );
-    if (name === "-") return name;
-    return /^posbankum\b/i.test(name) ? name : `Posbankum ${name}`;
+    const showVerification =
+        statusKey === "approved" || statusKey === "rejected";
+
+    const openRejectPanel = () => {
+        setRejectNote(statusKey === "rejected" ? item?.catatan || "" : "");
+        setRejectMode(true);
+        setErr("");
+    };
+
+    return (
+        <div className="rk-detailPage">
+            <div className="rk-breadcrumb" aria-label="Breadcrumb">
+                <button
+                    type="button"
+                    onClick={() => router.visit("/admin/laporan-kegiatan")}
+                >
+                    Riwayat Pengajuan Kegiatan
+                </button>
+                <FiChevronRight aria-hidden="true" />
+                <span>Detail Kegiatan</span>
+            </div>
+
+            <div className="rk-detailTopbar">
+                <div className="rk-headingBlock">
+                    <h1>Detail Kegiatan</h1>
+                    <span />
+                </div>
+
+                <button
+                    className="rk-backBtn"
+                    type="button"
+                    onClick={() => router.visit("/admin/laporan-kegiatan")}
+                >
+                    Kembali ke Daftar
+                </button>
+            </div>
+
+            {err ? <div className="rk-errorBox">{err}</div> : null}
+
+            <article className={`rk-detailCard is-${statusKey}`}>
+                <div
+                    className="rk-detailBanner"
+                    style={
+                        thumbUrl
+                            ? {
+                                  backgroundImage: `url(${thumbUrl})`,
+                              }
+                            : undefined
+                    }
+                    aria-label="Foto kegiatan"
+                />
+
+                <div className="rk-detailBody">
+                    <div className="rk-detailMetaLine">
+                        {renderStatusPill(item.status, "rk-detailStatusPill")}
+                        <span>
+                            {shortStatusDateText("Menunggu", item.tgl_upload)}
+                        </span>
+                    </div>
+
+                    <h2 className="rk-detailTitleText">
+                        {safeText(item.judul)}
+                    </h2>
+                    <p className="rk-detailSubtitle">
+                        {posName}
+                        {region ? ` • ${region}` : ""}
+                    </p>
+
+                    <div className="rk-detailFactGrid">
+                        <div className="rk-detailFact">
+                            <span>Nama Pelapor</span>
+                            <strong>{pelapor}</strong>
+                        </div>
+                        <div className="rk-detailFact">
+                            <span>Tanggal Pelaksanaan</span>
+                            <strong>{formatDate(item.tgl_mulai)}</strong>
+                        </div>
+                        <div className="rk-detailFact">
+                            <span>Lokasi</span>
+                            <strong>{safeText(item.lokasi)}</strong>
+                        </div>
+                    </div>
+
+                    <section className="rk-textSection">
+                        <h3>Deskripsi</h3>
+                        <p>{safeText(item.deskripsi)}</p>
+                    </section>
+
+                    <section className="rk-textSection">
+                        <h3>Hasil Kegiatan</h3>
+                        <p>{safeText(item.hasil_kegiatan)}</p>
+                    </section>
+
+                    {statusKey === "pending" && !rejectMode ? (
+                        <>
+                            <div className="rk-actionDivider" />
+                            <div className="rk-detailActionsInline">
+                                <button
+                                    className="rk-outlineDangerBtn"
+                                    type="button"
+                                    onClick={openRejectPanel}
+                                    disabled={saving}
+                                >
+                                    <FiThumbsDown />
+                                    Tolak Laporan
+                                </button>
+                                <button
+                                    className="rk-solidApproveBtn"
+                                    type="button"
+                                    onClick={() => approve(item)}
+                                    disabled={saving}
+                                >
+                                    <FiThumbsUp />
+                                    Setujui Laporan
+                                </button>
+                            </div>
+                        </>
+                    ) : null}
+
+                    {statusKey === "pending" && rejectMode ? (
+                        <div className="rk-rejectInlinePanel">
+                            <div className="rk-rejectInlineHead">
+                                <div
+                                    className="rk-rejectInlineIcon"
+                                    aria-hidden="true"
+                                >
+                                    <FiMessageSquare />
+                                </div>
+                                <div>
+                                    <h3>Tolak Laporan Kegiatan</h3>
+                                    <p>
+                                        Berikan catatan untuk perbaikan laporan
+                                    </p>
+                                </div>
+                            </div>
+
+                            <label
+                                className="rk-rejectInlineLabel"
+                                htmlFor="rkRejectNote"
+                            >
+                                Catatan Penolakan <span>*</span>
+                            </label>
+                            <textarea
+                                id="rkRejectNote"
+                                className="rk-rejectInlineTextarea"
+                                value={rejectNote}
+                                onChange={(event) =>
+                                    setRejectNote(event.target.value)
+                                }
+                                placeholder="Jelaskan alasan penolakan dan apa yang perlu diperbaiki oleh paralegal..."
+                            />
+
+                            <div className="rk-rejectInlineActions">
+                                <button
+                                    className="rk-cancelInlineBtn"
+                                    type="button"
+                                    onClick={() => {
+                                        if (saving) return;
+                                        setRejectMode(false);
+                                        setRejectNote("");
+                                        setErr("");
+                                    }}
+                                    disabled={saving}
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    className="rk-submitRejectBtn"
+                                    type="button"
+                                    onClick={() => reject(item)}
+                                    disabled={saving}
+                                >
+                                    <FiThumbsDown />
+                                    Tolak Laporan
+                                </button>
+                            </div>
+                        </div>
+                    ) : null}
+
+                    {showVerification ? (
+                        <div className="rk-verificationBox">
+                            <h3>Informasi Verifikasi</h3>
+                            <div className="rk-verificationGrid">
+                                <div>
+                                    <span>Tanggal Keputusan</span>
+                                    <strong>
+                                        {formatDate(verificationDate)}
+                                    </strong>
+                                </div>
+                                <div>
+                                    <span>Admin Penanggung Jawab</span>
+                                    <strong>{verificationAdmin}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    ) : null}
+
+                    {statusKey === "rejected" ? (
+                        <div className="rk-rejectionNoteBox">
+                            <div className="rk-rejectionNoteHead">
+                                <div
+                                    className="rk-rejectionNoteIcon"
+                                    aria-hidden="true"
+                                >
+                                    <FiMessageSquare />
+                                </div>
+                                <div>
+                                    <h3>Catatan Penolakan dari Admin</h3>
+                                    <p>
+                                        Harap perhatikan catatan berikut untuk
+                                        perbaikan laporan
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="rk-rejectionNoteText">
+                                {safeText(item.catatan)}
+                            </div>
+                        </div>
+                    ) : null}
+                </div>
+            </article>
+        </div>
+    );
 }

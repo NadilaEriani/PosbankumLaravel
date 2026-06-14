@@ -745,11 +745,11 @@ export default function PosbankumDashboard({
 
     const renderKelolaKegiatan = () => (
         <section className="pb2Content pb2ContentWithHeading">
-            {renderPageHeading("Kelola Kegiatan")}
             <KelolaKegiatan
                 kegiatanRows={kegiatanRows}
                 paralegalOptions={paralegalOptions}
                 currentPosbankum={currentPosbankum || posbankum}
+                profile={auth?.user || {}}
                 flash={flash}
             />
         </section>

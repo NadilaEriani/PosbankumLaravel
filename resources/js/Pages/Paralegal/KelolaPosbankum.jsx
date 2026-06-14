@@ -627,7 +627,7 @@ export default function KelolaPosbankum({
     const [detailLoading, setDetailLoading] = useState(false);
     const [detailErr, setDetailErr] = useState("");
 
-    const [successMessage, setSuccessMessage] = useState(flash?.success || "");
+    const [successMessage, setSuccessMessage] = useState("");
 
     const [editLocOpen, setEditLocOpen] = useState(false);
     const [locQuery, setLocQuery] = useState("");
@@ -732,7 +732,12 @@ export default function KelolaPosbankum({
     }, [documents, docTypes]);
 
     useEffect(() => {
-        if (flash?.success) setSuccessMessage(flash.success);
+        /*
+         * Jangan langsung menampilkan flash success saat halaman baru dibuka.
+         * Pesan sukses dari session Laravel/Inertia kadang masih tersisa dari aksi sebelumnya,
+         * sehingga toast bisa muncul sendiri saat user hanya masuk ke menu.
+         * Notifikasi sukses untuk aksi di halaman ini tetap ditampilkan lewat onSuccess router.
+         */
     }, [flash?.success]);
 
     const hasSavedCoords =
