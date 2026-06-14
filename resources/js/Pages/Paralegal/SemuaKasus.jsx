@@ -1,26 +1,29 @@
-import { HiOutlineScale } from "react-icons/hi";
 import { AiOutlineBarChart } from "react-icons/ai";
-import { useEffect, useMemo, useState } from "react";
+import { HiOutlineScale } from "react-icons/hi";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+    FiCalendar,
     FiCheckCircle,
+    FiChevronLeft,
+    FiChevronRight,
     FiClock,
     FiDownload,
     FiEye,
-    FiMail,
+    FiFileText,
     FiMapPin,
     FiSearch,
     FiUser,
     FiUsers,
     FiX,
-    FiChevronLeft,
-    FiChevronRight,
-    FiCalendar,
 } from "react-icons/fi";
-import { BsSliders2, BsTelephone } from "react-icons/bs";
+import { BsSliders2 } from "react-icons/bs";
+import SuccessToast from "../../Components/ui/SuccessToast";
+import RejectToast from "../../Components/ui/RejectToast";
 import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/semuaKasus.css";
 
 const PAGE_SIZE = 9;
+
 const CATEGORY_OPTIONS = [
     "Semua",
     "Hukum Pidana",
@@ -29,7 +32,9 @@ const CATEGORY_OPTIONS = [
     "Hukum Ketenagakerjaan",
     "Hukum Waris",
     "Pertanahan",
+    "Lainnya",
 ];
+
 const STATUS_OPTIONS = ["Semua", "Diproses", "Mediasi", "Selesai"];
 const PRIORITY_OPTIONS = ["Semua", "Rendah", "Sedang", "Tinggi"];
 const SORT_OPTIONS = ["Terbaru", "Terlama", "Prioritas Tertinggi"];
@@ -37,14 +42,26 @@ const SORT_OPTIONS = ["Terbaru", "Terlama", "Prioritas Tertinggi"];
 function firstFilled(...values) {
     for (const value of values) {
         const text = String(value ?? "").trim();
-        if (text && text.toLowerCase() !== "null" && text !== "-") return text;
+        if (text && text.toLowerCase() !== "null" && text !== "-") {
+            return text;
+        }
     }
+
     return "-";
 }
 
+function numberOr(value, fallback = 0) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return fallback;
+    return number;
+}
+
 function formatShortDateID(value) {
+    if (!value) return "-";
+
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "-";
+
     return date.toLocaleDateString("id-ID", {
         day: "numeric",
         month: "long",
@@ -61,14 +78,17 @@ function getPriorityWeight(value) {
 function normalizeKategori(value) {
     const text = String(value || "").trim();
     const raw = text.toLowerCase();
+
     if (raw.includes("pidana")) return "Hukum Pidana";
     if (raw.includes("perdata")) return "Hukum Perdata";
     if (raw.includes("keluarga")) return "Hukum Keluarga";
-    if (raw.includes("ketenagakerjaan") || raw.includes("kerja"))
+    if (raw.includes("ketenagakerjaan") || raw.includes("kerja")) {
         return "Hukum Ketenagakerjaan";
+    }
     if (raw.includes("waris")) return "Hukum Waris";
     if (raw.includes("tanah") || raw.includes("pertanahan"))
         return "Pertanahan";
+
     return text || "Lainnya";
 }
 
@@ -76,8 +96,12 @@ function normalizePrioritas(value) {
     const raw = String(value || "")
         .trim()
         .toLowerCase();
-    if (raw === "tinggi" || raw === "high") return "Tinggi";
-    if (raw === "rendah" || raw === "low") return "Rendah";
+
+    if (["tinggi", "sangat tinggi", "high", "urgent"].includes(raw)) {
+        return "Tinggi";
+    }
+    if (["rendah", "low", "normal"].includes(raw)) return "Rendah";
+
     return "Sedang";
 }
 
@@ -85,9 +109,14 @@ function normalizeStatus(value) {
     const raw = String(value || "")
         .trim()
         .toLowerCase();
-    if (["selesai", "done", "completed", "complete", "diterima"].includes(raw))
+
+    if (
+        ["selesai", "done", "completed", "complete", "diterima"].includes(raw)
+    ) {
         return "Selesai";
+    }
     if (raw === "mediasi" || raw === "mediation") return "Mediasi";
+
     return "Diproses";
 }
 
@@ -96,6 +125,20 @@ function ensurePosbankumPrefix(value) {
     if (!text || text === "-") return "Posbankum Belum Dipetakan";
     if (text.toLowerCase().startsWith("posbankum")) return text;
     return `Posbankum ${text}`;
+}
+
+function removePosbankumPrefix(value) {
+    return String(value || "")
+        .trim()
+        .replace(/^posbankum\s+/i, "")
+        .trim();
+}
+
+function clampText(value, limit = 120) {
+    const text = String(value || "").trim();
+    if (!text) return "Belum ada deskripsi kasus.";
+    if (text.length <= limit) return text;
+    return `${text.slice(0, limit).trim()}...`;
 }
 
 function getStatusIcon(status) {
@@ -107,6 +150,28 @@ function getStatusIcon(status) {
 function normalizeCase(row, index = 0) {
     const status = normalizeStatus(row?.status);
     const prioritas = normalizePrioritas(row?.prioritas || row?.priority);
+    const progress = Number.isFinite(Number(row?.progress))
+        ? Math.max(0, Math.min(100, Number(row.progress)))
+        : status === "Selesai"
+          ? 100
+          : status === "Mediasi"
+            ? 60
+            : 45;
+
+    const posbankum = ensurePosbankumPrefix(
+        row?.posbankum || row?.nama_posbankum || row?.posbankum_nama,
+    );
+
+    const kota = firstFilled(
+        row?.kota,
+        row?.kabupaten_kota,
+        row?.wilayah,
+        row?.lokasi_kejadian,
+        row?.lokasi,
+        row?.alamat,
+        row?.location,
+    );
+
     return {
         id: firstFilled(
             row?.nomor_pengaduan,
@@ -114,6 +179,22 @@ function normalizeCase(row, index = 0) {
             row?.id_kasus,
             row?.id,
             `KASUS-${index + 1}`,
+        ),
+        sourceIds: [
+            row?.nomor_pengaduan,
+            row?.id_pengaduan,
+            row?.id_kasus,
+            row?.id,
+        ].filter(
+            (value) =>
+                value !== undefined &&
+                value !== null &&
+                String(value).trim() !== "",
+        ),
+        id_pengaduan: firstFilled(
+            row?.id_pengaduan,
+            row?.id,
+            `kasus-${index + 1}`,
         ),
         judul: firstFilled(
             row?.judul,
@@ -128,28 +209,23 @@ function normalizeCase(row, index = 0) {
         ),
         status,
         prioritas,
-        progress: Number.isFinite(Number(row?.progress))
-            ? Math.max(0, Math.min(100, Number(row.progress)))
-            : status === "Selesai"
-              ? 100
-              : status === "Mediasi"
-                ? 60
-                : 25,
-        posbankum: ensurePosbankumPrefix(
-            row?.posbankum || row?.nama_posbankum || row?.posbankum_nama,
-        ),
-        kota: firstFilled(
+        progress,
+        posbankum,
+        posbankumPlain: removePosbankumPrefix(posbankum),
+        kota,
+        provinsi: firstFilled(row?.provinsi, "Riau"),
+        wilayah: firstFilled(
+            row?.wilayah,
+            row?.kabupaten_kota,
             row?.kota,
-            row?.lokasi_kejadian,
-            row?.lokasi,
-            row?.alamat,
-            row?.location,
+            kota,
         ),
         pelapor: firstFilled(row?.pelapor, row?.nama_pelapor),
         paralegal: firstFilled(
             row?.paralegal,
             row?.paralegal_nama,
             row?.nama_paralegal,
+            row?.nama_paralegal_ditugaskan,
             "Paralegal Belum Diisi",
         ),
         paralegalPhone: firstFilled(
@@ -192,11 +268,13 @@ function exportCsv(rows) {
         "Kategori",
         "Status",
         "Prioritas",
+        "Progress",
         "Posbankum",
-        "Kota",
+        "Wilayah",
         "Pelapor",
         "Paralegal",
         "Tanggal Lapor",
+        "Update Terakhir",
     ];
     const escapeValue = (value) =>
         `"${String(value ?? "").replace(/"/g, '""')}"`;
@@ -209,11 +287,13 @@ function exportCsv(rows) {
                 row.kategori,
                 row.status,
                 row.prioritas,
+                `${row.progress}%`,
                 row.posbankum,
-                row.kota,
+                row.wilayah,
                 row.pelapor,
                 row.paralegal,
                 formatShortDateID(row.tanggalLapor),
+                formatShortDateID(row.updateTerakhir),
             ]
                 .map(escapeValue)
                 .join(","),
@@ -228,12 +308,66 @@ function exportCsv(rows) {
     URL.revokeObjectURL(url);
 }
 
-export default function SemuaKasus({ cases = [] }) {
+function percent(value, total) {
+    if (!total) return 0;
+    return Math.round((value / total) * 1000) / 10;
+}
+
+function StatCard({ label, value, tone }) {
+    return (
+        <div className={`skStatCard skStat-${tone}`}>
+            <div className="skStatLabel">{label}</div>
+            <div className="skStatValue">{value}</div>
+        </div>
+    );
+}
+
+function SectionCard({ icon, title, children, className = "" }) {
+    return (
+        <section className={`skSectionCard ${className}`.trim()}>
+            <div className="skSectionHead">
+                <div className="skSectionIcon" aria-hidden="true">
+                    {icon}
+                </div>
+                <div>
+                    <h3>{title}</h3>
+                    <span />
+                </div>
+            </div>
+            {children}
+        </section>
+    );
+}
+
+function FieldItem({ label, value }) {
+    return (
+        <div className="skFieldItem">
+            <span>{label}</span>
+            <strong>{value}</strong>
+        </div>
+    );
+}
+
+function ProgressBar({ value, className = "" }) {
+    const width = Math.max(0, Math.min(100, numberOr(value)));
+
+    return (
+        <div className={`skProgressTrack ${className}`.trim()}>
+            <div className="skProgressFill" style={{ width: `${width}%` }} />
+        </div>
+    );
+}
+
+export default function SemuaKasus({
+    cases = [],
+    flash = {},
+    openDetailId = null,
+    openDetailTick = 0,
+}) {
     const [search, setSearch] = useState("");
     const [selectedCase, setSelectedCase] = useState(null);
-    const [showDetail, setShowDetail] = useState(false);
+    const [view, setView] = useState("list");
     const [showFilter, setShowFilter] = useState(false);
-    const [showStat, setShowStat] = useState(false);
     const [page, setPage] = useState(1);
     const [filters, setFilters] = useState({
         kategori: "Semua",
@@ -242,8 +376,30 @@ export default function SemuaKasus({ cases = [] }) {
         urutkan: "Terbaru",
     });
     const [draftFilters, setDraftFilters] = useState(filters);
+    const [successToast, setSuccessToast] = useState({
+        title: "",
+        message: "",
+    });
+    const [rejectToast, setRejectToast] = useState("");
+    const lastAutoDetailRef = useRef(null);
 
-    const rows = useMemo(() => (cases || []).map(normalizeCase), [cases]);
+    const rows = useMemo(
+        () => (Array.isArray(cases) ? cases : []).map(normalizeCase),
+        [cases],
+    );
+
+    useEffect(() => {
+        if (flash?.success) {
+            setSuccessToast({
+                title: "Berhasil!",
+                message: String(flash.success),
+            });
+        }
+
+        if (flash?.error || flash?.reject) {
+            setRejectToast(String(flash.error || flash.reject));
+        }
+    }, [flash]);
 
     const stats = useMemo(() => {
         const total = rows.length;
@@ -255,7 +411,36 @@ export default function SemuaKasus({ cases = [] }) {
         const tinggi = rows.filter(
             (item) => item.prioritas === "Tinggi",
         ).length;
+
         return { total, selesai, diproses, mediasi, tinggi };
+    }, [rows]);
+
+    const categoryStats = useMemo(() => {
+        const map = new Map();
+        rows.forEach((item) => {
+            map.set(item.kategori, (map.get(item.kategori) || 0) + 1);
+        });
+
+        return Array.from(map.entries())
+            .map(([name, count]) => ({
+                name,
+                count,
+                percent: percent(count, rows.length),
+            }))
+            .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    }, [rows]);
+
+    const posbankumStats = useMemo(() => {
+        const map = new Map();
+        rows.forEach((item) => {
+            const name =
+                removePosbankumPrefix(item.posbankum) || "Belum Dipetakan";
+            map.set(name, (map.get(name) || 0) + 1);
+        });
+
+        return Array.from(map.entries())
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
     }, [rows]);
 
     const activeFilterCount = useMemo(
@@ -282,6 +467,7 @@ export default function SemuaKasus({ cases = [] }) {
             ]
                 .join(" ")
                 .toLowerCase();
+
             return (
                 (!keyword || combined.includes(keyword)) &&
                 (filters.kategori === "Semua" ||
@@ -292,25 +478,34 @@ export default function SemuaKasus({ cases = [] }) {
                     item.prioritas === filters.prioritas)
             );
         });
+
         result = [...result].sort((a, b) => {
-            if (filters.urutkan === "Terlama")
+            if (filters.urutkan === "Terlama") {
                 return new Date(a.tanggalLapor) - new Date(b.tanggalLapor);
-            if (filters.urutkan === "Prioritas Tertinggi")
+            }
+
+            if (filters.urutkan === "Prioritas Tertinggi") {
                 return (
                     getPriorityWeight(b.prioritas) -
                     getPriorityWeight(a.prioritas)
                 );
+            }
+
             return new Date(b.tanggalLapor) - new Date(a.tanggalLapor);
         });
+
         return result;
     }, [filters, rows, search]);
 
-    useEffect(() => setPage(1), [filters, search]);
+    useEffect(() => {
+        setPage(1);
+    }, [filters, search]);
 
     const totalPages = Math.max(1, Math.ceil(filteredCases.length / PAGE_SIZE));
+    const pageClamped = Math.min(Math.max(page, 1), totalPages);
     const pagedCases = filteredCases.slice(
-        (page - 1) * PAGE_SIZE,
-        page * PAGE_SIZE,
+        (pageClamped - 1) * PAGE_SIZE,
+        pageClamped * PAGE_SIZE,
     );
 
     const applyFilters = () => {
@@ -327,55 +522,127 @@ export default function SemuaKasus({ cases = [] }) {
         };
         setDraftFilters(next);
         setFilters(next);
+        setSearch("");
     };
 
     const openDetail = (item) => {
         setSelectedCase(item);
-        setShowDetail(true);
+        setView("detail");
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
+
+    const openStatistics = () => {
+        setView("statistik");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const backToList = () => {
+        setView("list");
+        setSelectedCase(null);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        if (!openDetailId) return;
+
+        const key = `${openDetailTick}-${openDetailId}`;
+        if (lastAutoDetailRef.current === key) return;
+
+        const found = rows.find((item) =>
+            [item.id, item.id_pengaduan, ...(item.sourceIds || [])].some(
+                (value) => String(value || "") === String(openDetailId),
+            ),
+        );
+
+        if (!found) return;
+
+        lastAutoDetailRef.current = key;
+        openDetail(found);
+    }, [openDetailId, openDetailTick, rows]);
+
+    const renderToasts = () => (
+        <>
+            <SuccessToast
+                title={successToast.title}
+                message={successToast.message}
+                onClose={() => setSuccessToast({ title: "", message: "" })}
+            />
+            <RejectToast
+                message={rejectToast}
+                onClose={() => setRejectToast("")}
+            />
+        </>
+    );
+
+    if (view === "detail" && selectedCase) {
+        return (
+            <div className="skWrap">
+                {renderToasts()}
+                <CaseDetail item={selectedCase} onBack={backToList} />
+            </div>
+        );
+    }
+
+    if (view === "statistik") {
+        return (
+            <div className="skWrap">
+                {renderToasts()}
+                <StatisticsPage
+                    stats={stats}
+                    categoryStats={categoryStats}
+                    posbankumStats={posbankumStats}
+                    onBack={backToList}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="skWrap">
+            {renderToasts()}
+
             <div className="skHeaderRow">
                 <div>
-                    <h1 className="skPageTitle">Semua Kasus</h1>
+                    <h1 className="skPageTitle">Semua Kasus Posbankum Riau</h1>
                     <div className="skTitleUnderline" />
                 </div>
+
+                <button
+                    className="skStatsBtn"
+                    type="button"
+                    onClick={openStatistics}
+                >
+                    <AiOutlineBarChart /> Statistik
+                </button>
             </div>
 
             <div className="skStatsGrid">
-                <div className="skStatCard skBlue">
-                    <div className="skStatLabel">Total Kasus</div>
-                    <div className="skStatValue">{stats.total}</div>
-                </div>
-                <div className="skStatCard skYellow">
-                    <div className="skStatLabel">Diproses</div>
-                    <div className="skStatValue">{stats.diproses}</div>
-                </div>
-                <div className="skStatCard skOrange">
-                    <div className="skStatLabel">Mediasi</div>
-                    <div className="skStatValue">{stats.mediasi}</div>
-                </div>
-                <div className="skStatCard skGreen">
-                    <div className="skStatLabel">Selesai</div>
-                    <div className="skStatValue">{stats.selesai}</div>
-                </div>
-                <div className="skStatCard skRed">
-                    <div className="skStatLabel">Prioritas Tinggi</div>
-                    <div className="skStatValue">{stats.tinggi}</div>
-                </div>
+                <StatCard label="Total Kasus" value={stats.total} tone="blue" />
+                <StatCard
+                    label="Diproses"
+                    value={stats.diproses}
+                    tone="yellow"
+                />
+                <StatCard label="Mediasi" value={stats.mediasi} tone="navy" />
+                <StatCard label="Selesai" value={stats.selesai} tone="green" />
+                <StatCard
+                    label="Prioritas Tinggi"
+                    value={stats.tinggi}
+                    tone="red"
+                />
             </div>
 
             <div className="skToolbarCard">
                 <div className="skToolbarRow">
-                    <div className="skSearchBox">
+                    <label className="skSearchBox" aria-label="Cari kasus">
                         <FiSearch />
                         <input
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Cari kasus, pelapor, posbankum..."
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Cari berdasarkan nomor kasus, judul, pelapor, atau paralegal..."
                         />
-                    </div>
+                    </label>
+
                     <button
                         className="skFilterBtn"
                         type="button"
@@ -384,21 +651,23 @@ export default function SemuaKasus({ cases = [] }) {
                             setShowFilter(true);
                         }}
                     >
-                        <BsSliders2 /> Filter{" "}
+                        <BsSliders2 /> Filter & Urutkan
                         {activeFilterCount ? (
                             <span className="skFilterCount">
                                 {activeFilterCount}
                             </span>
                         ) : null}
                     </button>
+
                     <button
                         className="skExportBtn"
                         type="button"
                         onClick={() => exportCsv(filteredCases)}
                     >
-                        <FiDownload /> Export
+                        <FiDownload /> Export CSV
                     </button>
                 </div>
+
                 {activeFilterCount ? (
                     <div className="skActiveFilterBar">
                         <div className="skActiveLeft">
@@ -434,6 +703,7 @@ export default function SemuaKasus({ cases = [] }) {
 
             <div className="skResultText">
                 Menampilkan{" "}
+                <span className="skResultNumber">{pagedCases.length}</span> dari{" "}
                 <span className="skResultNumber">{filteredCases.length}</span>{" "}
                 kasus
             </div>
@@ -441,72 +711,11 @@ export default function SemuaKasus({ cases = [] }) {
             <div className="skCardGrid">
                 {pagedCases.length ? (
                     pagedCases.map((item) => (
-                        <article className="skCaseCard" key={item.id}>
-                            <div className="skCaseTop">
-                                <div className="skCaseTopRow">
-                                    <span className="skCaseNumber">
-                                        {item.id}
-                                    </span>
-                                    <span
-                                        className={`skPriorityPill skPriority${item.prioritas}`}
-                                    >
-                                        {item.prioritas}
-                                    </span>
-                                </div>
-                                <div className="skCaseTitle">{item.judul}</div>
-                                <div className="skBadgeRow">
-                                    <span
-                                        className={`skStatusBadge skStatus${item.status}`}
-                                    >
-                                        {getStatusIcon(item.status)}{" "}
-                                        {item.status}
-                                    </span>
-                                    <span className="skCategoryBadge">
-                                        {item.kategori}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="skCaseBody">
-                                <div className="skProgressHead">
-                                    <span>Progress</span>
-                                    <span>{item.progress}%</span>
-                                </div>
-                                <div className="skProgressTrack">
-                                    <div
-                                        className="skProgressFill"
-                                        style={{ width: `${item.progress}%` }}
-                                    />
-                                </div>
-                                <div className="skInfoList">
-                                    <div className="skInfoItem">
-                                        <FiMapPin /> {item.posbankum}
-                                    </div>
-                                    <div className="skInfoItem">
-                                        <span
-                                            className="skMaskIcon"
-                                            style={{
-                                                "--mask-url": `url(${posbankumIcon})`,
-                                            }}
-                                        />{" "}
-                                        {item.kota}
-                                    </div>
-                                    <div className="skInfoItem">
-                                        <FiUser /> {item.pelapor}
-                                    </div>
-                                    <div className="skInfoItem">
-                                        <FiCalendar />{" "}
-                                        {formatShortDateID(item.tanggalLapor)}
-                                    </div>
-                                </div>
-                                <button
-                                    className="skDetailBtn"
-                                    type="button"
-                                    onClick={() => openDetail(item)}
-                                >
-                                    <FiEye /> Lihat Detail
-                                </button>
-                            </div>
-                        </article>
+                        <CaseCard
+                            key={`${item.id}-${item.id_pengaduan}`}
+                            item={item}
+                            onDetail={openDetail}
+                        />
                     ))
                 ) : (
                     <div className="skEmptyCard">
@@ -522,169 +731,448 @@ export default function SemuaKasus({ cases = [] }) {
                 )}
             </div>
 
-            {filteredCases.length > PAGE_SIZE && (
-                <div className="skPagination">
+            {filteredCases.length > PAGE_SIZE ? (
+                <div className="skPagination" aria-label="Paginasi semua kasus">
                     <button
                         className="skPageArrow"
                         type="button"
-                        disabled={page <= 1}
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={pageClamped <= 1}
+                        onClick={() =>
+                            setPage((value) => Math.max(1, value - 1))
+                        }
+                        aria-label="Halaman sebelumnya"
                     >
                         <FiChevronLeft />
                     </button>
-                    <span className="skPageInfo">
-                        Halaman {page} dari {totalPages}
-                    </span>
+
+                    {Array.from(
+                        { length: totalPages },
+                        (_, index) => index + 1,
+                    ).map((pageNumber) => (
+                        <button
+                            key={pageNumber}
+                            type="button"
+                            className={`skPageBtn ${pageClamped === pageNumber ? "is-active" : ""}`}
+                            onClick={() => setPage(pageNumber)}
+                        >
+                            {pageNumber}
+                        </button>
+                    ))}
+
                     <button
                         className="skPageArrow"
                         type="button"
-                        disabled={page >= totalPages}
+                        disabled={pageClamped >= totalPages}
                         onClick={() =>
-                            setPage((p) => Math.min(totalPages, p + 1))
+                            setPage((value) => Math.min(totalPages, value + 1))
                         }
+                        aria-label="Halaman berikutnya"
                     >
                         <FiChevronRight />
                     </button>
                 </div>
-            )}
+            ) : null}
 
-            {showFilter && (
-                <div className="skModalOverlay" role="dialog" aria-modal="true">
-                    <div className="skModalCard">
-                        <div className="skModalHead">
-                            <div className="skModalTitle">Filter Kasus</div>
-                            <button
-                                className="skModalClose"
-                                type="button"
-                                onClick={() => setShowFilter(false)}
+            {showFilter ? (
+                <FilterPanel
+                    draftFilters={draftFilters}
+                    setDraftFilters={setDraftFilters}
+                    onClose={() => setShowFilter(false)}
+                    onApply={applyFilters}
+                    onReset={resetFilters}
+                />
+            ) : null}
+        </div>
+    );
+}
+
+function CaseCard({ item, onDetail }) {
+    return (
+        <article className="skCaseCard">
+            <div className="skCaseTop">
+                <div className="skCaseTopRow">
+                    <span className="skCaseNumber">{item.id}</span>
+                    <span
+                        className={`skPriorityPill skPriority${item.prioritas}`}
+                    >
+                        {item.prioritas}
+                    </span>
+                </div>
+
+                <h2 className="skCaseTitle">{item.judul}</h2>
+
+                <div className="skBadgeRow">
+                    <span className={`skStatusBadge skStatus${item.status}`}>
+                        {getStatusIcon(item.status)} {item.status}
+                    </span>
+                    <span className="skCategoryBadge">{item.kategori}</span>
+                </div>
+            </div>
+
+            <div className="skCaseBody">
+                <div className="skProgressHead">
+                    <span>Progress</span>
+                    <span>{item.progress}%</span>
+                </div>
+                <ProgressBar value={item.progress} />
+
+                <div className="skInfoList">
+                    <div className="skInfoItem">
+                        <span className="skSmallIconBox" aria-hidden="true">
+                            <span
+                                className="skMaskIcon"
+                                style={{
+                                    "--mask-url": `url(${posbankumIcon})`,
+                                }}
+                            />
+                        </span>
+                        <strong>{item.posbankum}</strong>
+                    </div>
+                    <div className="skInfoItem">
+                        <FiMapPin /> {item.wilayah}
+                    </div>
+                    <div className="skInfoItem">
+                        <FiUser /> Pelapor: {item.pelapor}
+                    </div>
+                    <div className="skInfoItem">
+                        <HiOutlineScale /> Paralegal: {item.paralegal}
+                    </div>
+                    <div className="skInfoItem">
+                        <FiCalendar /> {formatShortDateID(item.tanggalLapor)}
+                    </div>
+                </div>
+
+                <p className="skCaseDesc">{clampText(item.deskripsi, 118)}</p>
+
+                <button
+                    className="skDetailBtn"
+                    type="button"
+                    onClick={() => onDetail(item)}
+                >
+                    <FiEye /> Lihat Detail
+                </button>
+            </div>
+        </article>
+    );
+}
+
+function FilterPanel({
+    draftFilters,
+    setDraftFilters,
+    onClose,
+    onApply,
+    onReset,
+}) {
+    const fields = [
+        ["kategori", CATEGORY_OPTIONS, "Kategori"],
+        ["status", STATUS_OPTIONS, "Status"],
+        ["prioritas", PRIORITY_OPTIONS, "Prioritas"],
+        ["urutkan", SORT_OPTIONS, "Urutkan"],
+    ];
+
+    return (
+        <div className="skModalOverlay" role="dialog" aria-modal="true">
+            <div className="skFilterCard">
+                <div className="skModalHead">
+                    <div className="skModalTitle">Filter & Urutkan</div>
+                    <button
+                        className="skModalClose"
+                        type="button"
+                        onClick={onClose}
+                    >
+                        <FiX />
+                    </button>
+                </div>
+
+                <div className="skModalBody skFilterGrid">
+                    {fields.map(([key, options, label]) => (
+                        <div className="skFilterField" key={key}>
+                            <label>{label}</label>
+                            <select
+                                value={draftFilters[key]}
+                                onChange={(event) =>
+                                    setDraftFilters((previous) => ({
+                                        ...previous,
+                                        [key]: event.target.value,
+                                    }))
+                                }
                             >
-                                <FiX />
-                            </button>
+                                {options.map((item) => (
+                                    <option key={item} value={item}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-                        <div className="skModalBody skFilterGrid">
-                            {[
-                                ["kategori", CATEGORY_OPTIONS, "Kategori"],
-                                ["status", STATUS_OPTIONS, "Status"],
-                                ["prioritas", PRIORITY_OPTIONS, "Prioritas"],
-                                ["urutkan", SORT_OPTIONS, "Urutkan"],
-                            ].map(([key, options, label]) => (
-                                <div className="skFilterField" key={key}>
-                                    <label>{label}</label>
-                                    <select
-                                        value={draftFilters[key]}
-                                        onChange={(e) =>
-                                            setDraftFilters((p) => ({
-                                                ...p,
-                                                [key]: e.target.value,
-                                            }))
-                                        }
-                                    >
-                                        {options.map((item) => (
-                                            <option key={item} value={item}>
-                                                {item}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            ))}
+                    ))}
+                </div>
+
+                <div className="skModalActions">
+                    <button
+                        className="skFooterGhost"
+                        type="button"
+                        onClick={onReset}
+                    >
+                        Reset
+                    </button>
+                    <button
+                        className="skFooterPrimary"
+                        type="button"
+                        onClick={onApply}
+                    >
+                        Terapkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function CaseDetail({ item, onBack }) {
+    return (
+        <div className="skDetailPage">
+            <div className="skBreadcrumb" aria-label="Breadcrumb">
+                <button type="button" onClick={onBack}>
+                    Semua Kasus Riau
+                </button>
+                <FiChevronRight aria-hidden="true" />
+                <span>Detail Kasus</span>
+            </div>
+
+            <div className="skDetailTopbar">
+                <div>
+                    <h1 className="skPageTitle">Detail Kasus</h1>
+                    <div className="skTitleUnderline" />
+                </div>
+
+                <button className="skBackBtn" type="button" onClick={onBack}>
+                    Kembali ke Daftar
+                </button>
+            </div>
+
+            <article className="skDetailHeroCard">
+                <div className="skDetailHeroHead">
+                    <div className="skDetailHeroInfo">
+                        <div className="skCaseNoText">No. Kasus: {item.id}</div>
+                        <h2>{item.judul}</h2>
+                        <div className="skBadgeRow is-detail">
+                            <span
+                                className={`skStatusBadge skStatus${item.status}`}
+                            >
+                                {getStatusIcon(item.status)} {item.status}
+                            </span>
+                            <span
+                                className={`skPriorityPill skPriority${item.prioritas}`}
+                            >
+                                Prioritas {item.prioritas}
+                            </span>
+                            <span className="skCategoryBadge is-detail">
+                                <HiOutlineScale /> {item.kategori}
+                            </span>
                         </div>
-                        <div className="skModalActions">
-                            <button
-                                className="skFooterGhost"
-                                type="button"
-                                onClick={resetFilters}
-                            >
-                                Reset
-                            </button>
-                            <button
-                                className="skFooterPrimary"
-                                type="button"
-                                onClick={applyFilters}
-                            >
-                                Terapkan
-                            </button>
+                    </div>
+
+                    <div className="skDetailDateBox">
+                        <div>
+                            <span>Tanggal Lapor</span>
+                            <strong>
+                                {formatShortDateID(item.tanggalLapor)}
+                            </strong>
+                        </div>
+                        <div>
+                            <span>Update Terakhir</span>
+                            <strong>
+                                {formatShortDateID(item.updateTerakhir)}
+                            </strong>
+                        </div>
+                        <div>
+                            <span>Progress</span>
+                            <strong>{item.progress}%</strong>
                         </div>
                     </div>
                 </div>
-            )}
 
-            {showDetail && selectedCase && (
-                <div className="skModalOverlay" role="dialog" aria-modal="true">
-                    <div className="skModalCard">
-                        <div className="skModalHead">
-                            <div className="skModalTitle">Detail Kasus</div>
-                            <button
-                                className="skModalClose"
-                                type="button"
-                                onClick={() => setShowDetail(false)}
-                            >
-                                <FiX />
-                            </button>
+                <div className="skHeroProgressBlock">
+                    <div className="skProgressHead is-hero">
+                        <span>Progress Penanganan</span>
+                        <span>{item.progress}%</span>
+                    </div>
+                    <ProgressBar value={item.progress} className="is-wide" />
+                </div>
+            </article>
+
+            <div className="skDetailMainGrid">
+                <div className="skDetailLeft">
+                    <SectionCard icon={<FiFileText />} title="Ringkasan Kasus">
+                        <div className="skSummaryBox">{item.deskripsi}</div>
+                    </SectionCard>
+
+                    <SectionCard
+                        icon={<FiUser />}
+                        title="Data Pelapor dan Penanganan"
+                    >
+                        <div className="skFieldGrid skFieldGridThree">
+                            <FieldItem label="Pelapor" value={item.pelapor} />
+                            <FieldItem
+                                label="Paralegal"
+                                value={item.paralegal}
+                            />
+                            <FieldItem
+                                label="No. HP Paralegal"
+                                value={item.paralegalPhone}
+                            />
+                            <FieldItem label="Kategori" value={item.kategori} />
+                            <FieldItem label="Status" value={item.status} />
+                            <FieldItem
+                                label="Prioritas"
+                                value={item.prioritas}
+                            />
                         </div>
-                        <div className="skModalBody">
-                            <div className="skDetailGrid">
-                                <div className="skDetailBlock">
-                                    <div className="skDetailLabel">
-                                        Nomor Kasus
+                    </SectionCard>
+
+                    <SectionCard
+                        icon={<AiOutlineBarChart />}
+                        title="Status Penanganan"
+                    >
+                        <div className="skFieldGrid skFieldGridThree">
+                            <FieldItem
+                                label="Tanggal Laporan"
+                                value={formatShortDateID(item.tanggalLapor)}
+                            />
+                            <FieldItem
+                                label="Update Terakhir"
+                                value={formatShortDateID(item.updateTerakhir)}
+                            />
+                            <FieldItem
+                                label="Persentase Progress"
+                                value={`${item.progress}%`}
+                            />
+                        </div>
+                    </SectionCard>
+                </div>
+
+                <aside className="skDetailSide">
+                    <SectionCard icon={<FiFileText />} title="Posbankum">
+                        <div className="skSideList">
+                            <FieldItem
+                                label="Nama Posbankum"
+                                value={item.posbankum}
+                            />
+                            <FieldItem
+                                label="Kabupaten/Kota"
+                                value={item.wilayah}
+                            />
+                        </div>
+                    </SectionCard>
+
+                    <SectionCard icon={<FiMapPin />} title="Informasi Wilayah">
+                        <div className="skSideList">
+                            <FieldItem label="Provinsi" value={item.provinsi} />
+                            <FieldItem label="Wilayah" value={item.wilayah} />
+                            <FieldItem
+                                label="Unit Layanan"
+                                value={item.posbankum}
+                            />
+                        </div>
+                    </SectionCard>
+                </aside>
+            </div>
+        </div>
+    );
+}
+
+function StatisticsPage({ stats, categoryStats, posbankumStats, onBack }) {
+    return (
+        <div className="skStatisticPage">
+            <div className="skStatisticCard">
+                <div className="skStatisticHead">
+                    <div className="skStatisticTitle">
+                        <AiOutlineBarChart />
+                        <span>Statistik Kasus Posbankum Riau</span>
+                    </div>
+                    <button
+                        className="skStatisticClose"
+                        type="button"
+                        onClick={onBack}
+                    >
+                        <FiX />
+                    </button>
+                </div>
+
+                <div className="skStatisticBody">
+                    <div className="skStatisticStatsGrid">
+                        <StatCard
+                            label="Total Kasus"
+                            value={stats.total}
+                            tone="blue"
+                        />
+                        <StatCard
+                            label="Diproses"
+                            value={stats.diproses}
+                            tone="yellow"
+                        />
+                        <StatCard
+                            label="Mediasi"
+                            value={stats.mediasi}
+                            tone="orange"
+                        />
+                        <StatCard
+                            label="Selesai"
+                            value={stats.selesai}
+                            tone="green"
+                        />
+                    </div>
+
+                    <div className="skStatisticSectionTitle">
+                        Kasus Berdasarkan Kategori
+                    </div>
+                    <div className="skBarList">
+                        {categoryStats.length ? (
+                            categoryStats.map((item) => (
+                                <div className="skBarItem" key={item.name}>
+                                    <div className="skBarMeta">
+                                        <strong>{item.name}</strong>
+                                        <span>
+                                            {item.count} kasus ({item.percent}%)
+                                        </span>
                                     </div>
-                                    <div className="skDetailValue">
-                                        {selectedCase.id}
-                                    </div>
+                                    <ProgressBar value={item.percent} />
                                 </div>
-                                <div className="skDetailBlock">
-                                    <div className="skDetailLabel">Judul</div>
-                                    <div className="skDetailValue">
-                                        {selectedCase.judul}
-                                    </div>
-                                </div>
-                                <div className="skDetailBlock">
-                                    <div className="skDetailLabel">Pelapor</div>
-                                    <div className="skDetailValue">
-                                        <FiUser /> {selectedCase.pelapor}
-                                    </div>
-                                </div>
-                                <div className="skDetailBlock">
-                                    <div className="skDetailLabel">
-                                        Paralegal
-                                    </div>
-                                    <div className="skDetailValue">
-                                        <FiUsers /> {selectedCase.paralegal}
-                                    </div>
-                                </div>
-                                <div className="skDetailBlock">
-                                    <div className="skDetailLabel">
-                                        Telepon Paralegal
-                                    </div>
-                                    <div className="skDetailValue">
-                                        <BsTelephone />{" "}
-                                        {selectedCase.paralegalPhone}
-                                    </div>
-                                </div>
-                                <div className="skDetailBlock">
-                                    <div className="skDetailLabel">
-                                        Email Posbankum
-                                    </div>
-                                    <div className="skDetailValue">
-                                        <FiMail /> {selectedCase.emailPosbankum}
-                                    </div>
-                                </div>
+                            ))
+                        ) : (
+                            <div className="skStatEmpty">
+                                Belum ada data kategori.
                             </div>
-                            <div className="skDetailDesc">
-                                {selectedCase.deskripsi}
+                        )}
+                    </div>
+
+                    <div className="skStatisticSectionTitle">
+                        Kasus Berdasarkan Posbankum
+                    </div>
+                    <div className="skPosStatGrid">
+                        {posbankumStats.length ? (
+                            posbankumStats.map((item) => (
+                                <div className="skPosStatItem" key={item.name}>
+                                    <div>
+                                        <span
+                                            className="skMaskIcon"
+                                            style={{
+                                                "--mask-url": `url(${posbankumIcon})`,
+                                            }}
+                                        />
+                                        <strong>{item.name}</strong>
+                                    </div>
+                                    <span>{item.count}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="skStatEmpty">
+                                Belum ada data posbankum.
                             </div>
-                        </div>
-                        <div className="skModalActions">
-                            <button
-                                className="skFooterPrimary"
-                                type="button"
-                                onClick={() => setShowDetail(false)}
-                            >
-                                Tutup
-                            </button>
-                        </div>
+                        )}
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

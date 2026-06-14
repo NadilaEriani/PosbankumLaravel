@@ -399,6 +399,8 @@ class DashboardController extends Controller
                 'pesan' => (string) $this->rowValue($row, ['pesan', 'message', 'deskripsi'], 'Tidak ada pesan.'),
                 'kategori' => (string) $this->rowValue($row, ['kategori', 'type'], 'sistem'),
                 'prioritas' => (string) $this->rowValue($row, ['prioritas', 'priority'], 'sedang'),
+                'ref_table' => (string) $this->rowValue($row, ['ref_table', 'reference_table', 'table'], ''),
+                'ref_id' => $this->rowValue($row, ['ref_id', 'reference_id', 'id_ref']),
                 'is_read' => (bool) $this->rowValue($row, ['is_read', 'dibaca'], false),
                 'created_at' => $this->rowValue($row, ['created_at', 'tanggal'], now()->toISOString()),
             ];

@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LaporanKegiatanController extends Controller
@@ -42,6 +43,78 @@ class LaporanKegiatanController extends Controller
     private function kegiatanKeyColumn(): string
     {
         return $this->hasColumn('kegiatan', 'id_kegiatan') ? 'id_kegiatan' : 'id';
+    }
+
+    private function rowValue(mixed $row, array $keys, mixed $fallback = null): mixed
+    {
+        foreach ($keys as $key) {
+            if (is_array($row) && array_key_exists($key, $row) && $row[$key] !== null && $row[$key] !== '') {
+                return $row[$key];
+            }
+
+            if (is_object($row) && isset($row->{$key}) && $row->{$key} !== '') {
+                return $row->{$key};
+            }
+        }
+
+        return $fallback;
+    }
+
+    private function addIfExists(array &$payload, string $table, string $column, mixed $value): void
+    {
+        if ($this->hasColumn($table, $column)) {
+            $payload[$column] = $value;
+        }
+    }
+
+    private function makeNotificationPrimaryKey(array &$payload): void
+    {
+        foreach (['id_notifikasi', 'uuid'] as $column) {
+            if ($this->hasColumn('notifikasi', $column) && empty($payload[$column])) {
+                $payload[$column] = (string) Str::uuid();
+                return;
+            }
+        }
+    }
+
+    private function createKegiatanNotification(mixed $row, string $idKegiatan, string $status, string $catatan = ''): void
+    {
+        if (!$this->hasTable('notifikasi')) {
+            return;
+        }
+
+        $idPosbankum = $this->rowValue($row, ['id_posbankum']);
+        if (!$idPosbankum) {
+            return;
+        }
+
+        $approved = strtolower($status) !== 'ditolak';
+        $judulKegiatan = (string) $this->rowValue($row, ['judul', 'nama_kegiatan', 'tema'], 'Laporan kegiatan');
+        $judulNotif = $approved ? 'Kegiatan Disetujui' : 'Kegiatan Ditolak';
+        $pesan = $approved
+            ? 'Kegiatan "' . $judulKegiatan . '" sudah disetujui oleh admin.'
+            : 'Kegiatan "' . $judulKegiatan . '" ditolak oleh admin.' . (trim($catatan) !== '' ? ' Alasan: ' . trim($catatan) : '');
+
+        $payload = [];
+        $this->makeNotificationPrimaryKey($payload);
+        $this->addIfExists($payload, 'notifikasi', 'id_posbankum', $idPosbankum);
+        $this->addIfExists($payload, 'notifikasi', 'judul', $judulNotif);
+        $this->addIfExists($payload, 'notifikasi', 'pesan', $pesan);
+        $this->addIfExists($payload, 'notifikasi', 'kategori', 'kegiatan');
+        $this->addIfExists($payload, 'notifikasi', 'prioritas', $approved ? 'sedang' : 'tinggi');
+        $this->addIfExists($payload, 'notifikasi', 'ref_table', 'kegiatan');
+        $this->addIfExists($payload, 'notifikasi', 'ref_id', $idKegiatan);
+        $this->addIfExists($payload, 'notifikasi', 'is_read', false);
+        $this->addIfExists($payload, 'notifikasi', 'created_at', now());
+        $this->addIfExists($payload, 'notifikasi', 'updated_at', now());
+
+        if (!empty($payload)) {
+            try {
+                DB::table('notifikasi')->insert($payload);
+            } catch (\Throwable $e) {
+                // Proses verifikasi kegiatan tidak boleh gagal hanya karena notifikasi gagal dibuat.
+            }
+        }
     }
 
     public function updateStatus(Request $request, string $idKegiatan): RedirectResponse
@@ -134,6 +207,13 @@ class LaporanKegiatanController extends Controller
         DB::table('kegiatan')
             ->where($keyColumn, $idKegiatan)
             ->update($payload);
+
+        $this->createKegiatanNotification(
+            $row,
+            $idKegiatan,
+            $status,
+            trim((string) ($validated['catatan'] ?? '')),
+        );
 
         return redirect()
             ->back()

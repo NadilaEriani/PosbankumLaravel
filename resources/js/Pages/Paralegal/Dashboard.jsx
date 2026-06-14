@@ -260,6 +260,17 @@ function normalizeNotificationPriority(value) {
 
 function normalizeNotificationRow(item, index = 0) {
     const id = item?.id_notifikasi ?? item?.id ?? `notif-${index}`;
+    const refTable =
+        item?.ref_table ?? item?.reference_table ?? item?.table ?? "";
+    const refId =
+        item?.ref_id ??
+        item?.reference_id ??
+        item?.id_ref ??
+        item?.id_kegiatan ??
+        item?.id_pengaduan ??
+        item?.id_data ??
+        item?.id_posbankum ??
+        null;
 
     return {
         ...item,
@@ -270,9 +281,46 @@ function normalizeNotificationRow(item, index = 0) {
         prioritas: normalizeNotificationPriority(
             item?.prioritas ?? item?.priority,
         ),
+        ref_table: refTable,
+        ref_id: refId,
         is_read: Boolean(item?.is_read ?? item?.read_at),
         created_at: item?.created_at ?? new Date().toISOString(),
     };
+}
+
+function getNotificationTarget(item) {
+    const category = normalizeNotificationCategory(
+        item?.kategori ?? item?.type,
+    );
+    const refTable = String(item?.ref_table || "").toLowerCase();
+    const text =
+        `${refTable} ${item?.judul || ""} ${item?.pesan || ""}`.toLowerCase();
+    const id = item?.ref_id ?? null;
+
+    if (category === "kegiatan" || text.includes("kegiatan")) {
+        return { page: "Kelola Kegiatan", type: "kegiatan", id };
+    }
+
+    if (
+        category === "pengaduan" ||
+        text.includes("pengaduan") ||
+        text.includes("kasus")
+    ) {
+        return { page: "Semua Kasus", type: "kasus", id };
+    }
+
+    if (
+        category === "dokumen" ||
+        text.includes("dokumen") ||
+        text.includes("data_posbankum") ||
+        text.includes("data posbankum") ||
+        text.includes("tagging") ||
+        text.includes("posbankum")
+    ) {
+        return { page: "Kelola Posbankum", type: "dokumen", id };
+    }
+
+    return { page: "Beranda", type: "beranda", id: null };
 }
 
 function getNotificationTypeLabel(value) {
@@ -357,6 +405,11 @@ export default function PosbankumDashboard({
 }) {
     const [active, setActive] = useState("Beranda");
     const [loggingOut, setLoggingOut] = useState(false);
+    const [pageTarget, setPageTarget] = useState({
+        type: null,
+        id: null,
+        tick: 0,
+    });
 
     const [notifOpen, setNotifOpen] = useState(false);
     const [notifBusy, setNotifBusy] = useState(false);
@@ -471,6 +524,12 @@ export default function PosbankumDashboard({
     const pageTitle = headerTitle;
     const pageSub = headerSub;
 
+    const openMenu = (label) => {
+        setPageTarget({ type: null, id: null, tick: 0 });
+        setNotifSelectedId(null);
+        setActive(label);
+    };
+
     const handleLogout = () => {
         if (loggingOut) return;
         setLoggingOut(true);
@@ -479,11 +538,20 @@ export default function PosbankumDashboard({
 
     const handleSelectNotification = (item) => {
         if (!item?.id_notifikasi) return;
-        setNotifSelectedId(item.id_notifikasi);
 
         if (!item.is_read) {
             updateNotificationRead(item.id_notifikasi, true);
         }
+
+        const target = getNotificationTarget(item);
+        setNotifSelectedId(null);
+        setNotifOpen(false);
+        setActive(target.page);
+        setPageTarget((prev) => ({
+            type: target.type,
+            id: target.id,
+            tick: prev.tick + 1,
+        }));
     };
 
     const updateNotificationRead = (id, nextRead) => {
@@ -639,7 +707,7 @@ export default function PosbankumDashboard({
                 <button
                     className="pb2Link"
                     type="button"
-                    onClick={() => setActive("Semua Kasus")}
+                    onClick={() => openMenu("Semua Kasus")}
                 >
                     Lihat semua kasus <FiChevronRight />
                 </button>
@@ -657,7 +725,7 @@ export default function PosbankumDashboard({
                     <button
                         className="pb2LinkBtn"
                         type="button"
-                        onClick={() => setActive("Kelola Kegiatan")}
+                        onClick={() => openMenu("Kelola Kegiatan")}
                     >
                         Kelola kegiatan
                     </button>
@@ -715,11 +783,16 @@ export default function PosbankumDashboard({
 
     const renderSemuaKasus = () => (
         <section className="pb2Content pb2ContentWithHeading">
-            {renderPageHeading("Semua Kasus")}
             <SemuaKasus
                 cases={semuaKasusRows?.length ? semuaKasusRows : kasusTerbaru}
                 profile={auth?.user || {}}
                 currentPosbankum={currentPosbankum || posbankum}
+                openDetailId={
+                    pageTarget.type === "kasus" ? pageTarget.id : null
+                }
+                openDetailTick={
+                    pageTarget.type === "kasus" ? pageTarget.tick : 0
+                }
             />
         </section>
     );
@@ -732,6 +805,12 @@ export default function PosbankumDashboard({
                 documents={posbankumDocuments}
                 location={posbankumLocation}
                 flash={flash}
+                openDetailId={
+                    pageTarget.type === "dokumen" ? pageTarget.id : null
+                }
+                openDetailTick={
+                    pageTarget.type === "dokumen" ? pageTarget.tick : 0
+                }
             />
         </section>
     );
@@ -751,6 +830,12 @@ export default function PosbankumDashboard({
                 currentPosbankum={currentPosbankum || posbankum}
                 profile={auth?.user || {}}
                 flash={flash}
+                openDetailId={
+                    pageTarget.type === "kegiatan" ? pageTarget.id : null
+                }
+                openDetailTick={
+                    pageTarget.type === "kegiatan" ? pageTarget.tick : 0
+                }
             />
         </section>
     );
@@ -772,7 +857,7 @@ export default function PosbankumDashboard({
         <section className="pb2Content pb2ContentWithHeading">
             <ParalegalProfile
                 profile={paralegalProfile}
-                onBack={() => setActive("Beranda")}
+                onBack={() => openMenu("Beranda")}
             />
         </section>
     );
@@ -800,7 +885,7 @@ export default function PosbankumDashboard({
                 <button
                     className="pb2Brand pb2BrandButton"
                     type="button"
-                    onClick={() => setActive("Profil")}
+                    onClick={() => openMenu("Profil")}
                     aria-label="Buka profil paralegal"
                 >
                     <div className="pb2BrandLogoWrap">
@@ -826,7 +911,7 @@ export default function PosbankumDashboard({
                             key={item.label}
                             className={`pb2NavItem ${active === item.label ? "is-active" : ""}`}
                             type="button"
-                            onClick={() => setActive(item.label)}
+                            onClick={() => openMenu(item.label)}
                         >
                             <span className="pb2NavIcon">{item.icon}</span>
                             <span className="pb2NavLabel">{item.label}</span>
@@ -892,9 +977,7 @@ export default function PosbankumDashboard({
                                 setNotifOpen(false);
                         }}
                     >
-                        <div
-                            className={`pb2NotifModal ${selectedNotification ? "has-detail" : ""}`}
-                        >
+                        <div className="pb2NotifModal">
                             <div className="pb2NotifHead">
                                 <div className="pb2NotifHeadLeft">
                                     <div className="pb2NotifHeadIcon">
@@ -1020,9 +1103,7 @@ export default function PosbankumDashboard({
                                         <div className="pb2NotifList">
                                             {filteredNotifications.map(
                                                 (item) => {
-                                                    const isSelected =
-                                                        selectedNotification?.id_notifikasi ===
-                                                        item.id_notifikasi;
+                                                    const isSelected = false;
                                                     return (
                                                         <div
                                                             key={
@@ -1159,121 +1240,6 @@ export default function PosbankumDashboard({
                                         </div>
                                     )}
                                 </div>
-
-                                {selectedNotification ? (
-                                    <aside className="pb2NotifDetail">
-                                        <div className="pb2NotifDetailHead">
-                                            <div className="pb2NotifDetailTitle">
-                                                Detail Notifikasi
-                                            </div>
-                                            <button
-                                                className="pb2NotifCloseSide"
-                                                type="button"
-                                                onClick={() =>
-                                                    setNotifSelectedId(null)
-                                                }
-                                                aria-label="Tutup detail"
-                                            >
-                                                <FiX />
-                                            </button>
-                                        </div>
-
-                                        <div className="pb2NotifDetailHero">
-                                            <div
-                                                className={`pb2NotifTypeIcon ${selectedNotification.kategori}`}
-                                            >
-                                                {notificationIcon(
-                                                    selectedNotification.kategori,
-                                                )}
-                                            </div>
-
-                                            <div className="pb2NotifDetailHeroBody">
-                                                <div className="pb2NotifDetailHeroTitle">
-                                                    {selectedNotification.judul}
-                                                </div>
-                                                <div className="pb2NotifDetailHeroBadges">
-                                                    <span
-                                                        className={`pb2NotifPriority ${selectedNotification.prioritas}`}
-                                                    >
-                                                        {getNotificationPriorityLabel(
-                                                            selectedNotification.prioritas,
-                                                        )}
-                                                    </span>
-                                                    <span className="pb2NotifMetaType">
-                                                        {getNotificationTypeLabel(
-                                                            selectedNotification.kategori,
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="pb2NotifDetailMessage">
-                                            {selectedNotification.pesan}
-                                        </div>
-
-                                        <div className="pb2NotifDetailInfo time">
-                                            <div className="pb2NotifDetailInfoTitle">
-                                                <FiClock /> Waktu
-                                            </div>
-                                            <div className="pb2NotifDetailInfoText">
-                                                {formatNotificationDateTime(
-                                                    selectedNotification.created_at,
-                                                )}
-                                            </div>
-                                            <div className="pb2NotifDetailInfoHint">
-                                                {formatNotificationRelative(
-                                                    selectedNotification.created_at,
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="pb2NotifDetailInfo read">
-                                            <div className="pb2NotifDetailInfoTitle is-read">
-                                                <FiCheckCircle />{" "}
-                                                {selectedNotification.is_read
-                                                    ? "Sudah Dibaca"
-                                                    : "Belum Dibaca"}
-                                            </div>
-                                        </div>
-
-                                        <div className="pb2NotifDetailBtns">
-                                            <button
-                                                className="pb2NotifPrimaryBtn warning"
-                                                type="button"
-                                                onClick={() =>
-                                                    updateNotificationRead(
-                                                        selectedNotification.id_notifikasi,
-                                                        !selectedNotification.is_read,
-                                                    )
-                                                }
-                                                disabled={notifBusy}
-                                            >
-                                                {selectedNotification.is_read ? (
-                                                    <FiEyeOff />
-                                                ) : (
-                                                    <FiEye />
-                                                )}{" "}
-                                                {selectedNotification.is_read
-                                                    ? "Tandai Belum Dibaca"
-                                                    : "Tandai Dibaca"}
-                                            </button>
-
-                                            <button
-                                                className="pb2NotifPrimaryBtn danger"
-                                                type="button"
-                                                onClick={() =>
-                                                    deleteNotification(
-                                                        selectedNotification.id_notifikasi,
-                                                    )
-                                                }
-                                                disabled={notifBusy}
-                                            >
-                                                <FiTrash2 /> Hapus Notifikasi
-                                            </button>
-                                        </div>
-                                    </aside>
-                                ) : null}
                             </div>
 
                             <div className="pb2NotifFooter">

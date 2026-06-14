@@ -577,6 +577,8 @@ export default function KelolaPosbankum({
     documents = [],
     location = {},
     flash = {},
+    openDetailId = null,
+    openDetailTick = 0,
 }) {
     const posbankumId =
         profile?.id_posbankum ??
@@ -626,6 +628,7 @@ export default function KelolaPosbankum({
     const [detailIndex, setDetailIndex] = useState(0);
     const [detailLoading, setDetailLoading] = useState(false);
     const [detailErr, setDetailErr] = useState("");
+    const lastAutoDetailRef = useRef(null);
 
     const [successMessage, setSuccessMessage] = useState("");
 
@@ -1562,6 +1565,33 @@ export default function KelolaPosbankum({
             setDetailLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (!openDetailId) return;
+
+        const key = `${openDetailTick}-${openDetailId}`;
+        if (lastAutoDetailRef.current === key) return;
+
+        const rows = Object.values(docsByCategory || {}).flat();
+        const found = rows.find((row) =>
+            [row?.id_data, row?.id, row?.id_dokumen, row?.id_posbankum].some(
+                (value) => String(value || "") === String(openDetailId),
+            ),
+        );
+
+        if (!found) return;
+
+        const doc = docTypes.find(
+            (item) =>
+                item.key ===
+                String(
+                    found.kategori || found.jenis_dokumen || "",
+                ).toLowerCase(),
+        );
+
+        lastAutoDetailRef.current = key;
+        openDetail(found, doc ? `${doc.title} ${posName}` : "Preview Dokumen");
+    }, [docsByCategory, docTypes, openDetailId, openDetailTick, posName]);
 
     const closeDetail = () => {
         setDetailOpen(false);

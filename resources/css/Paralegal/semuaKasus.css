@@ -1446,3 +1446,286 @@
         max-height: calc(100dvh - 20px);
     }
 }
+
+/* ===== Revisi template awal Semua Kasus Paralegal ===== */
+.skWrap {
+    font-family:
+        "Outfit",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif !important;
+}
+
+.skHeaderRow {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 18px !important;
+    margin-bottom: 20px !important;
+}
+
+.skPageTitle {
+    font-size: 27px !important;
+    line-height: 1.15 !important;
+    font-weight: 700 !important;
+    color: #111827 !important;
+}
+
+.skTitleUnderline {
+    width: 76px !important;
+    height: 5px !important;
+    margin-top: 11px !important;
+    box-shadow: none !important;
+}
+
+.skStatsBtn {
+    min-width: 126px !important;
+    height: 48px !important;
+    border-radius: 14px !important;
+    padding: 0 19px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    background: linear-gradient(
+        135deg,
+        var(--sk-blue-1),
+        var(--sk-blue-2),
+        var(--sk-blue-3)
+    ) !important;
+    box-shadow: 0 9px 18px rgba(43, 48, 86, 0.25) !important;
+}
+
+.skStatsBtn svg {
+    font-size: 18px !important;
+}
+
+.skStatsGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+    margin-bottom: 28px !important;
+}
+
+.skStatCard {
+    min-height: 79px !important;
+    border-radius: 13px !important;
+    padding: 15px 18px !important;
+    box-shadow: 0 12px 22px rgba(17, 24, 39, 0.18) !important;
+}
+
+.skStatLabel {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    font-weight: 600 !important;
+}
+
+.skStatValue {
+    margin-top: 8px !important;
+    font-size: 34px !important;
+    font-weight: 700 !important;
+}
+
+.skToolbarCard {
+    padding: 16px 18px !important;
+    margin-bottom: 24px !important;
+    border-radius: 13px !important;
+    box-shadow: 0 12px 22px rgba(17, 24, 39, 0.14) !important;
+}
+
+.skToolbarRow {
+    grid-template-columns: minmax(0, 1fr) 176px 145px !important;
+    gap: 14px !important;
+}
+
+.skSearchBox {
+    height: 45px !important;
+    border-radius: 12px !important;
+    padding: 0 17px !important;
+}
+
+.skSearchBox input {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.skFilterBtn,
+.skExportBtn {
+    height: 48px !important;
+    border-radius: 13px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 8px 17px rgba(17, 24, 39, 0.18) !important;
+}
+
+.skFilterBtn {
+    padding: 0 18px !important;
+}
+
+.skExportBtn {
+    padding: 0 18px !important;
+}
+
+.skResultText {
+    margin-bottom: 23px !important;
+    color: #4b5563 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.skResultNumber {
+    color: #111827 !important;
+    background: none !important;
+    -webkit-text-fill-color: currentColor !important;
+    font-weight: 700 !important;
+}
+
+.skCardGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 22px 26px !important;
+}
+
+.skCaseCard {
+    border-radius: 11px !important;
+    box-shadow: 0 13px 24px rgba(17, 24, 39, 0.14) !important;
+    border: 1px solid rgba(17, 24, 39, 0.08) !important;
+}
+
+.skCaseTop {
+    min-height: 132px !important;
+    padding: 17px 19px 15px !important;
+    background: linear-gradient(135deg, #2b3056, #3a4070, #4a5080) !important;
+}
+
+.skCaseNumber {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+.skPriorityPill {
+    min-height: 22px !important;
+    padding: 0 9px !important;
+    font-size: 10px !important;
+}
+
+.skCaseTitle {
+    min-height: 44px !important;
+    margin: 14px 0 11px !important;
+    font-size: 17px !important;
+    line-height: 1.42 !important;
+    font-weight: 700 !important;
+}
+
+.skStatusBadge,
+.skCategoryBadge {
+    min-height: 23px !important;
+    padding: 0 9px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+}
+
+.skCaseBody {
+    padding: 18px 19px 19px !important;
+}
+
+.skProgressHead {
+    margin-bottom: 8px !important;
+    font-size: 10px !important;
+    color: #2b3056 !important;
+}
+
+.skProgressTrack {
+    height: 7px !important;
+    background: #e5e7eb !important;
+}
+
+.skInfoList {
+    gap: 6px !important;
+    margin-top: 14px !important;
+}
+
+.skInfoItem {
+    gap: 8px !important;
+    color: #4b5563 !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+}
+
+.skInfoItem:first-child {
+    color: #111827 !important;
+    font-weight: 700 !important;
+}
+
+.skInfoItem svg,
+.skMaskIcon {
+    width: 14px !important;
+    height: 14px !important;
+    color: #6b7280 !important;
+}
+
+.skCaseDesc {
+    min-height: 61px !important;
+    margin: 15px 0 15px !important;
+    color: #6b7280 !important;
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+    -webkit-line-clamp: 3 !important;
+}
+
+.skDetailBtn {
+    height: 39px !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+
+.skPagination {
+    gap: 10px !important;
+    margin-top: 28px !important;
+}
+
+.skPageBtn,
+.skPageArrow {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 10px !important;
+}
+
+.skStatsGridModal {
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 1200px) {
+    .skStatsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .skCardGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .skToolbarRow {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 700px) {
+    .skHeaderRow {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .skStatsBtn {
+        width: 100% !important;
+    }
+
+    .skStatsGrid,
+    .skCardGrid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .skPageTitle {
+        font-size: 24px !important;
+    }
+}

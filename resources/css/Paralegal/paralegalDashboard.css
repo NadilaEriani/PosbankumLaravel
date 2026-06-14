@@ -1972,3 +1972,42 @@
         font-size: 12px;
     }
 }
+
+/* ===== Revisi notifikasi: kartu langsung membuka halaman terkait, tanpa panel detail ===== */
+.pb2Root,
+.pb2Root button,
+.pb2Root input,
+.pb2Root textarea,
+.pb2Root select {
+    font-family:
+        "Outfit",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+}
+
+.pb2NotifModal {
+    width: min(920px, calc(100vw - 28px));
+}
+
+.pb2NotifCard {
+    cursor: pointer;
+}
+
+.pb2NotifCard:hover {
+    border-color: #3a4070;
+    box-shadow: 0 10px 22px rgba(43, 48, 86, 0.14);
+}
+
+.pb2NotifBody {
+    grid-template-columns: minmax(0, 1fr) !important;
+}
+
+@media (max-width: 860px) {
+    .pb2NotifModal {
+        width: 100vw;
+    }
+}

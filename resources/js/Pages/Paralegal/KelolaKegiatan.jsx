@@ -351,6 +351,8 @@ export default function KelolaKegiatan({
     currentPosbankum = {},
     profile = {},
     flash = {},
+    openDetailId = null,
+    openDetailTick = 0,
 }) {
     const [loading, setLoading] = useState(false);
     const [kegiatan, setKegiatan] = useState(() => kegiatanRows || []);
@@ -381,6 +383,7 @@ export default function KelolaKegiatan({
     const fileInputRef = useRef(null);
     const startDateRef = useRef(null);
     const endDateRef = useRef(null);
+    const lastAutoDetailRef = useRef(null);
 
     const memberOptions = useMemo(
         () => normalizeParalegalOptions(paralegalOptions),
@@ -492,6 +495,26 @@ export default function KelolaKegiatan({
             );
         });
     }, [kegiatan, search]);
+
+    useEffect(() => {
+        if (!openDetailId) return;
+
+        const key = `${openDetailTick}-${openDetailId}`;
+        if (lastAutoDetailRef.current === key) return;
+
+        const found = (kegiatan || []).find((item) =>
+            [item?.id_kegiatan, item?.id].some(
+                (value) => String(value || "") === String(openDetailId),
+            ),
+        );
+
+        if (!found) return;
+
+        lastAutoDetailRef.current = key;
+        setModalOpen(false);
+        setDetailItem(found);
+        setDetailOpen(true);
+    }, [kegiatan, openDetailId, openDetailTick]);
 
     const openCreate = () => {
         setFormError("");

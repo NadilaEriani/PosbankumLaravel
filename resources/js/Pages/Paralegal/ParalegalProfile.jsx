@@ -61,6 +61,22 @@ export default function ParalegalProfile({ profile = {}, onBack }) {
         ? form.nomor_telepon
         : safeText(user.nomor_telepon || user.phone, "");
 
+    const firstParalegal = team[0] || {};
+    const firstParalegalEmail = safeText(
+        firstParalegal.email || firstParalegal.email_akun,
+        "",
+    );
+    const firstParalegalPhone = safeText(
+        firstParalegal.phone ||
+            firstParalegal.nomor_telepon ||
+            firstParalegal.nomor_tlp,
+        "",
+    );
+    const posbankumContactEmail =
+        firstParalegalEmail || posbankum.email_akun || posbankum.email;
+    const posbankumContactPhone =
+        firstParalegalPhone || posbankum.nomor_tlp || posbankum.nomor_telepon;
+
     const locationText = joinLocation(
         posbankum.kelurahan,
         posbankum.kecamatan,
@@ -372,17 +388,11 @@ export default function ParalegalProfile({ profile = {}, onBack }) {
                                     </span>
                                     <span>
                                         <FiMail />{" "}
-                                        {safeText(
-                                            posbankum.email_akun ||
-                                                posbankum.email,
-                                        )}
+                                        {safeText(posbankumContactEmail)}
                                     </span>
                                     <span>
                                         <FiPhone />{" "}
-                                        {safeText(
-                                            posbankum.nomor_tlp ||
-                                                posbankum.nomor_telepon,
-                                        )}
+                                        {safeText(posbankumContactPhone)}
                                     </span>
                                     <span>
                                         <FiCheckCircle /> Tagging Area:{" "}
