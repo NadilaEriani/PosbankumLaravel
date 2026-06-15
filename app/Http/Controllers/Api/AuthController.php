@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -12,14 +11,12 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    /**
-     * Handle Google OAuth Callback (id_token from Flutter)
-     */
     public function googleCallback(Request $request)
     {
         $request->validate(['id_token' => 'required|string']);
 
         $response = Http::get("https://oauth2.googleapis.com/tokeninfo?id_token=" . $request->id_token);
+        
         if ($response->failed()) {
             return response()->json(['status' => false, 'message' => 'Token Google tidak valid'], 401);
         }
@@ -29,10 +26,13 @@ class AuthController extends Controller
         $googleId = $googleData['sub'];
 
         return DB::transaction(function () use ($email, $googleId, $googleData) {
-            $user = User::where('google_id', $googleId)->orWhere('email', $email)->first();
+            // GUNAKAN where()->first() -- Jangan pakai find atau binding yang bisa memicu 404 otomatis
+            $user = User::where('google_id', $googleId)
+                        ->orWhere('email', $email)
+                        ->first();
 
             if (!$user) {
-                // 1. Simpan User
+                // Simpan User Baru
                 $user = User::create([
                     'nama_lengkap'  => $googleData['name'],
                     'email'         => $email,
@@ -43,15 +43,17 @@ class AuthController extends Controller
                     'foto_profile'  => $googleData['picture'] ?? null,
                 ]);
 
-                // 🚀 PENTING: Refresh data agar Laravel mengambil id_user yang dibuat oleh Trigger DB
-                $user->refresh();
+                // Query ulang data user berdasarkan email agar ID UUID dari trigger DB terbaca
+                $user = User::where('email', $email)->first(); 
 
-                // 2. Insert ke Masyarakat menggunakan id_user yang sudah terisi
-                DB::table('masyarakat')->insert([
-                    'id_user'    => $user->id_user,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                // Insert ke Masyarakat
+                DB::table('masyarakat')->updateOrInsert(
+                    ['id_user' => $user->id_user],
+                    [
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
             } else {
                 $user->update(['google_id' => $googleId]);
             }
@@ -63,12 +65,17 @@ class AuthController extends Controller
                 'message' => 'Login Google berhasil',
                 'data' => [
                     'token' => $token,
-                    'user'  => $this->formatUserResponse($user)
+                    'user'  => [
+                        'id_user' => $user->id_user,
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'role' => $user->role,
+                        'email' => $user->email
+                    ]
                 ]
             ]);
         });
     }
-
+    
     public function register(Request $request)
     {
         $request->validate([
@@ -86,8 +93,8 @@ class AuthController extends Controller
                 'status'        => 'aktif',
             ]);
 
-            // 🚀 Refresh data agar Laravel mengambil id_user yang dibuat oleh Trigger DB
-            $user->refresh();
+            // Query ulang data user berdasarkan email agar ID UUID dari trigger DB terbaca
+            $user = User::where('email', $request->email)->first();
 
             DB::table('masyarakat')->insert([
                 'id_user'    => $user->id_user,
