@@ -84,6 +84,24 @@ class ProfileController extends Controller
             }
         }
 
+        // Jika paralegal, ambil data posbankum penugasan
+        if ($user->role === 'paralegal') {
+            $posbankum = DB::table('posbankum_paralegal')
+                ->join('posbankum', 'posbankum_paralegal.id_posbankum', '=', 'posbankum.id_posbankum')
+                ->where('posbankum_paralegal.id_user', $user->id_user)
+                ->where('posbankum_paralegal.status', 'aktif')
+                ->orderBy('posbankum_paralegal.is_primary', 'desc')
+                ->select('posbankum.id_posbankum', 'posbankum.nama as nama_posbankum')
+                ->first();
+
+            $data['id_posbankum'] = $posbankum ? $posbankum->id_posbankum : null;
+            $data['nama_posbankum'] = $posbankum ? $posbankum->nama_posbankum : null;
+            $data['posbankum'] = $posbankum ? [
+                'id_posbankum'   => $posbankum->id_posbankum,
+                'nama_posbankum' => $posbankum->nama_posbankum,
+            ] : null;
+        }
+
         return response()->json([
             'status'  => true,
             'message' => 'Profil berhasil dimuat',

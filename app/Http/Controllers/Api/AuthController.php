@@ -142,7 +142,7 @@ class AuthController extends Controller
      */
     private function formatUserResponse($user)
     {
-        return [
+        $data = [
             'id_user'       => $user->id_user,
             'nama_lengkap'  => $user->nama_lengkap,
             'email'         => $user->email,
@@ -151,6 +151,17 @@ class AuthController extends Controller
             'nomor_telepon' => $user->nomor_telepon,
             'status'        => $user->status,
         ];
+
+        if ($user->role === 'paralegal') {
+            $posbankum = DB::table('posbankum_paralegal')
+                ->where('id_user', $user->id_user)
+                ->where('status', 'aktif')
+                ->orderBy('is_primary', 'desc')
+                ->first();
+            $data['id_posbankum'] = $posbankum ? $posbankum->id_posbankum : null;
+        }
+
+        return $data;
     }
 
     public function logout(Request $request)
