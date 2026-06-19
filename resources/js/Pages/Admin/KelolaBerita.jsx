@@ -94,7 +94,31 @@ function inferCategory(item) {
     return "Kegiatan";
 }
 
-function normalizeItem(item, index = 0, fallbackAuthor = "Admin") {
+function displayAuthorName(item, fallbackAuthor = "Admin", fallbackRole = "") {
+    const role = String(item?.authorRole || item?.role || fallbackRole || "")
+        .trim()
+        .toLowerCase();
+
+    if (role === "admin") return "admin";
+
+    const raw = String(
+        item?.authorName ??
+            item?.author ??
+            item?.nama_user ??
+            item?.nama_lengkap ??
+            fallbackAuthor ??
+            "Admin",
+    ).trim();
+
+    return raw.toLowerCase() === "admin" ? "admin" : raw || "Admin";
+}
+
+function normalizeItem(
+    item,
+    index = 0,
+    fallbackAuthor = "Admin",
+    fallbackRole = "",
+) {
     const id = item?.id_berita ?? item?.id ?? index + 1;
     const gambar = pickBeritaImagePath(item);
     const imageUrl = item?.imageUrl || assetUrl(gambar);
@@ -113,13 +137,8 @@ function normalizeItem(item, index = 0, fallbackAuthor = "Admin") {
             item?.date ??
             item?.created_at ??
             item?.updated_at,
-        authorName:
-            item?.authorName ??
-            item?.author ??
-            item?.nama_user ??
-            item?.nama_lengkap ??
-            fallbackAuthor ??
-            "Admin",
+        authorName: displayAuthorName(item, fallbackAuthor, fallbackRole),
+        authorRole: item?.authorRole ?? item?.role ?? fallbackRole ?? "",
         imageUrl,
     };
 }
@@ -140,6 +159,7 @@ export default function KelolaBerita({
     rows = [],
     currentUserId = "",
     currentUserName = "Admin",
+    currentUserRole = "",
 }) {
     const [search, setSearch] = useState("");
     const [saving, setSaving] = useState(false);
@@ -164,9 +184,14 @@ export default function KelolaBerita({
     const normalizedItems = useMemo(
         () =>
             (Array.isArray(rows) ? rows : []).map((item, index) =>
-                normalizeItem(item, index, currentUserName || "Admin"),
+                normalizeItem(
+                    item,
+                    index,
+                    currentUserName || "Admin",
+                    currentUserRole || "",
+                ),
             ),
-        [rows, currentUserName],
+        [rows, currentUserName, currentUserRole],
     );
 
     const filteredItems = useMemo(() => {

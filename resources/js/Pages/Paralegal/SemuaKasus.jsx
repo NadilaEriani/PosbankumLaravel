@@ -86,8 +86,9 @@ function normalizeKategori(value) {
         return "Hukum Ketenagakerjaan";
     }
     if (raw.includes("waris")) return "Hukum Waris";
-    if (raw.includes("tanah") || raw.includes("pertanahan"))
+    if (raw.includes("tanah") || raw.includes("pertanahan")) {
         return "Pertanahan";
+    }
 
     return text || "Lainnya";
 }
@@ -162,10 +163,12 @@ function normalizeCase(row, index = 0) {
         row?.posbankum || row?.nama_posbankum || row?.posbankum_nama,
     );
 
-    const kota = firstFilled(
-        row?.kota,
-        row?.kabupaten_kota,
+    const wilayah = firstFilled(
         row?.wilayah,
+        row?.kabupaten_kota,
+        row?.kota,
+        row?.kabupaten,
+        row?.kecamatan,
         row?.lokasi_kejadian,
         row?.lokasi,
         row?.alamat,
@@ -212,14 +215,9 @@ function normalizeCase(row, index = 0) {
         progress,
         posbankum,
         posbankumPlain: removePosbankumPrefix(posbankum),
-        kota,
+        kota: wilayah,
+        wilayah,
         provinsi: firstFilled(row?.provinsi, "Riau"),
-        wilayah: firstFilled(
-            row?.wilayah,
-            row?.kabupaten_kota,
-            row?.kota,
-            kota,
-        ),
         pelapor: firstFilled(row?.pelapor, row?.nama_pelapor),
         paralegal: firstFilled(
             row?.paralegal,
@@ -232,6 +230,7 @@ function normalizeCase(row, index = 0) {
             row?.paralegalPhone,
             row?.paralegal_hp,
             row?.nomor_telepon_paralegal,
+            row?.no_hp_paralegal,
             row?.nomor_tlp,
         ),
         emailPosbankum: firstFilled(
@@ -242,12 +241,13 @@ function normalizeCase(row, index = 0) {
         tanggalLapor:
             row?.tanggalLapor ||
             row?.created_at ||
-            row?.tanggal_kejadian ||
             row?.tgl_lapor ||
+            row?.tanggal_kejadian ||
             new Date().toISOString(),
         updateTerakhir:
             row?.updateTerakhir ||
             row?.updated_at ||
+            row?.tgl_selesai ||
             row?.created_at ||
             new Date().toISOString(),
         deskripsi: firstFilled(
@@ -451,6 +451,8 @@ export default function SemuaKasus({
         [filters],
     );
 
+    const hasActiveState = Boolean(search.trim()) || activeFilterCount > 0;
+
     const filteredCases = useMemo(() => {
         const keyword = search.trim().toLowerCase();
         let result = rows.filter((item) => {
@@ -462,6 +464,7 @@ export default function SemuaKasus({
                 item.prioritas,
                 item.posbankum,
                 item.kota,
+                item.wilayah,
                 item.pelapor,
                 item.paralegal,
             ]
@@ -523,6 +526,12 @@ export default function SemuaKasus({
         setDraftFilters(next);
         setFilters(next);
         setSearch("");
+    };
+
+    const removeFilter = (key) => {
+        const nextValue = key === "urutkan" ? "Terbaru" : "Semua";
+        setFilters((previous) => ({ ...previous, [key]: nextValue }));
+        setDraftFilters((previous) => ({ ...previous, [key]: nextValue }));
     };
 
     const openDetail = (item) => {
@@ -668,25 +677,52 @@ export default function SemuaKasus({
                     </button>
                 </div>
 
-                {activeFilterCount ? (
+                {hasActiveState ? (
                     <div className="skActiveFilterBar">
                         <div className="skActiveLeft">
-                            <span className="skActiveLabel">Filter aktif:</span>
+                            <span className="skActiveLabel">Filter Aktif:</span>
                             <div className="skChipWrap">
+                                {search.trim() ? (
+                                    <button
+                                        className="skActiveChip"
+                                        type="button"
+                                        onClick={() => setSearch("")}
+                                    >
+                                        Pencarian: &quot;{search.trim()}&quot;
+                                        <FiX />
+                                    </button>
+                                ) : null}
                                 {filters.kategori !== "Semua" && (
-                                    <span className="skActiveChip">
+                                    <button
+                                        className="skActiveChip"
+                                        type="button"
+                                        onClick={() => removeFilter("kategori")}
+                                    >
                                         {filters.kategori}
-                                    </span>
+                                        <FiX />
+                                    </button>
                                 )}
                                 {filters.status !== "Semua" && (
-                                    <span className="skActiveChip">
+                                    <button
+                                        className="skActiveChip"
+                                        type="button"
+                                        onClick={() => removeFilter("status")}
+                                    >
                                         {filters.status}
-                                    </span>
+                                        <FiX />
+                                    </button>
                                 )}
                                 {filters.prioritas !== "Semua" && (
-                                    <span className="skActiveChip">
+                                    <button
+                                        className="skActiveChip"
+                                        type="button"
+                                        onClick={() =>
+                                            removeFilter("prioritas")
+                                        }
+                                    >
                                         {filters.prioritas}
-                                    </span>
+                                        <FiX />
+                                    </button>
                                 )}
                             </div>
                         </div>
@@ -695,7 +731,7 @@ export default function SemuaKasus({
                             type="button"
                             onClick={resetFilters}
                         >
-                            Reset
+                            Reset Semua
                         </button>
                     </div>
                 ) : null}
@@ -817,7 +853,7 @@ function CaseCard({ item, onDetail }) {
                 <ProgressBar value={item.progress} />
 
                 <div className="skInfoList">
-                    <div className="skInfoItem">
+                    <div className="skInfoItem skInfoItemPosbankum">
                         <span className="skSmallIconBox" aria-hidden="true">
                             <span
                                 className="skMaskIcon"
@@ -1084,95 +1120,104 @@ function CaseDetail({ item, onBack }) {
 function StatisticsPage({ stats, categoryStats, posbankumStats, onBack }) {
     return (
         <div className="skStatisticPage">
-            <div className="skStatisticCard">
-                <div className="skStatisticHead">
-                    <div className="skStatisticTitle">
-                        <AiOutlineBarChart />
-                        <span>Statistik Kasus Posbankum Riau</span>
-                    </div>
-                    <button
-                        className="skStatisticClose"
-                        type="button"
-                        onClick={onBack}
-                    >
-                        <FiX />
-                    </button>
-                </div>
-
-                <div className="skStatisticBody">
-                    <div className="skStatisticStatsGrid">
-                        <StatCard
-                            label="Total Kasus"
-                            value={stats.total}
-                            tone="blue"
-                        />
-                        <StatCard
-                            label="Diproses"
-                            value={stats.diproses}
-                            tone="yellow"
-                        />
-                        <StatCard
-                            label="Mediasi"
-                            value={stats.mediasi}
-                            tone="orange"
-                        />
-                        <StatCard
-                            label="Selesai"
-                            value={stats.selesai}
-                            tone="green"
-                        />
-                    </div>
-
-                    <div className="skStatisticSectionTitle">
-                        Kasus Berdasarkan Kategori
-                    </div>
-                    <div className="skBarList">
-                        {categoryStats.length ? (
-                            categoryStats.map((item) => (
-                                <div className="skBarItem" key={item.name}>
-                                    <div className="skBarMeta">
-                                        <strong>{item.name}</strong>
-                                        <span>
-                                            {item.count} kasus ({item.percent}%)
-                                        </span>
-                                    </div>
-                                    <ProgressBar value={item.percent} />
-                                </div>
-                            ))
-                        ) : (
-                            <div className="skStatEmpty">
-                                Belum ada data kategori.
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="skStatisticSectionTitle">
-                        Kasus Berdasarkan Posbankum
-                    </div>
-                    <div className="skPosStatGrid">
-                        {posbankumStats.length ? (
-                            posbankumStats.map((item) => (
-                                <div className="skPosStatItem" key={item.name}>
-                                    <div>
-                                        <span
-                                            className="skMaskIcon"
-                                            style={{
-                                                "--mask-url": `url(${posbankumIcon})`,
-                                            }}
-                                        />
-                                        <strong>{item.name}</strong>
-                                    </div>
-                                    <span>{item.count}</span>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="skStatEmpty">
-                                Belum ada data posbankum.
-                            </div>
-                        )}
-                    </div>
-                </div>
+            <div className="skBreadcrumb" aria-label="Breadcrumb">
+                <button type="button" onClick={onBack}>
+                    Semua Kasus Riau
+                </button>
+                <FiChevronRight aria-hidden="true" />
+                <span>Statistik</span>
             </div>
+
+            <div className="skDetailTopbar skStatisticTopbar">
+                <div>
+                    <h1 className="skPageTitle">
+                        Statistik Kasus Posbankum Riau
+                    </h1>
+                    <div className="skTitleUnderline" />
+                </div>
+
+                <button className="skBackBtn" type="button" onClick={onBack}>
+                    <FiChevronLeft /> Kembali ke Semua Kasus
+                </button>
+            </div>
+
+            <div className="skStatsGrid skStatsGridStatistic">
+                <StatCard label="Total Kasus" value={stats.total} tone="blue" />
+                <StatCard
+                    label="Diproses"
+                    value={stats.diproses}
+                    tone="yellow"
+                />
+                <StatCard label="Mediasi" value={stats.mediasi} tone="navy" />
+                <StatCard label="Selesai" value={stats.selesai} tone="green" />
+                <StatCard
+                    label="Prioritas Tinggi"
+                    value={stats.tinggi}
+                    tone="red"
+                />
+            </div>
+
+            <SectionCard
+                icon={<AiOutlineBarChart />}
+                title="Kasus Berdasarkan Kategori"
+                className="skStatisticSection"
+            >
+                <div className="skBarList">
+                    {categoryStats.length ? (
+                        categoryStats.map((item) => (
+                            <div className="skBarItem" key={item.name}>
+                                <div className="skBarMeta">
+                                    <strong>{item.name}</strong>
+                                    <span>
+                                        {item.count} kasus ({item.percent}%)
+                                    </span>
+                                </div>
+                                <ProgressBar value={item.percent} />
+                            </div>
+                        ))
+                    ) : (
+                        <div className="skStatEmpty">
+                            Belum ada data kategori.
+                        </div>
+                    )}
+                </div>
+            </SectionCard>
+
+            <SectionCard
+                icon={
+                    <span
+                        className="skMaskIcon skMaskBlue"
+                        style={{
+                            "--mask-url": `url(${posbankumIcon})`,
+                        }}
+                    />
+                }
+                title="Kasus Berdasarkan Posbankum"
+                className="skStatisticSection"
+            >
+                <div className="skPosStatGrid">
+                    {posbankumStats.length ? (
+                        posbankumStats.map((item) => (
+                            <div className="skPosStatItem" key={item.name}>
+                                <div>
+                                    <span
+                                        className="skMaskIcon"
+                                        style={{
+                                            "--mask-url": `url(${posbankumIcon})`,
+                                        }}
+                                    />
+                                    <strong>{item.name}</strong>
+                                </div>
+                                <span>{item.count}</span>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="skStatEmpty">
+                            Belum ada data posbankum.
+                        </div>
+                    )}
+                </div>
+            </SectionCard>
         </div>
     );
 }

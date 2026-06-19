@@ -913,8 +913,9 @@ class DashboardController extends Controller
             ->all();
 
         $authors = [];
+        $authorRoles = [];
         if (!empty($userIds) && $this->hasTable('users') && $this->hasColumn('users', 'id_user')) {
-            $userSelect = collect(['id_user', 'nama_lengkap', 'name', 'email'])
+            $userSelect = collect(['id_user', 'nama_lengkap', 'name', 'email', 'role'])
                 ->filter(fn($column) => $this->hasColumn('users', $column))
                 ->values()
                 ->all();
@@ -923,17 +924,21 @@ class DashboardController extends Controller
                 ->select($userSelect)
                 ->whereIn('id_user', $userIds)
                 ->get()
-                ->each(function ($user) use (&$authors) {
+                ->each(function ($user) use (&$authors, &$authorRoles) {
                     $id = $this->rowValue($user, ['id_user']);
                     if (!$id) {
                         return;
                     }
 
-                    $authors[$id] = (string) $this->rowValue($user, ['nama_lengkap', 'name', 'email'], 'Admin');
+                    $role = strtolower(trim((string) $this->rowValue($user, ['role'], '')));
+                    $authorRoles[$id] = $role;
+                    $authors[$id] = $role === 'admin'
+                        ? 'admin'
+                        : (string) $this->rowValue($user, ['nama_lengkap', 'name', 'email'], 'Admin');
                 });
         }
 
-        return $rows->values()->map(function ($row, $index) use ($authors) {
+        return $rows->values()->map(function ($row, $index) use ($authors, $authorRoles) {
             $id = $this->rowValue($row, ['id_berita', 'id'], $index + 1);
             $userId = $this->rowValue($row, ['id_user']);
             $image = (string) $this->rowValue($row, ['gambar', 'image_path', 'image'], '');
@@ -959,6 +964,7 @@ class DashboardController extends Controller
                 'category' => $category,
                 'authorName' => $authors[$userId] ?? 'Admin',
                 'author' => $authors[$userId] ?? 'Admin',
+                'authorRole' => $authorRoles[$userId] ?? '',
             ];
         })->toArray();
     }

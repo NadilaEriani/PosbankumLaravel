@@ -698,6 +698,7 @@ export default function AdminDashboard() {
                     rows={beritaRows}
                     currentUserId={user.id_user || user.id || ""}
                     currentUserName={user.nama_lengkap || user.name || "Admin"}
+                    currentUserRole={user.role || ""}
                 />
             );
         }

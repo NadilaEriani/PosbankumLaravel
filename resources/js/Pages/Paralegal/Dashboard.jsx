@@ -787,6 +787,7 @@ export default function PosbankumDashboard({
                 cases={semuaKasusRows?.length ? semuaKasusRows : kasusTerbaru}
                 profile={auth?.user || {}}
                 currentPosbankum={currentPosbankum || posbankum}
+                flash={flash}
                 openDetailId={
                     pageTarget.type === "kasus" ? pageTarget.id : null
                 }

@@ -643,11 +643,11 @@ class DashboardController extends Controller
     {
         $raw = strtolower(trim((string) $value));
 
-        if ($raw === 'tinggi' || $raw === 'high') {
+        if (in_array($raw, ['tinggi', 'sangat tinggi', 'high', 'urgent'], true)) {
             return 'Tinggi';
         }
 
-        if ($raw === 'rendah' || $raw === 'low') {
+        if (in_array($raw, ['rendah', 'low', 'normal'], true)) {
             return 'Rendah';
         }
 
@@ -696,29 +696,106 @@ class DashboardController extends Controller
             }
         }
 
-        return $query->limit(500)->get()->values()->map(function ($row, $index) use ($posbankumMap) {
+        $rows = $query->limit(500)->get()->values();
+
+        $userIds = $rows
+            ->flatMap(function ($row) {
+                return [
+                    $this->rowValue($row, ['id_paralegal']),
+                    $this->rowValue($row, ['created_by']),
+                    $this->rowValue($row, ['masyarakat_id']),
+                ];
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $userMap = collect();
+        if (!empty($userIds) && $this->hasTable('users') && $this->hasColumn('users', 'id_user')) {
+            $userSelect = collect([
+                'id_user',
+                'nama_lengkap',
+                'name',
+                'email',
+                'nomor_telepon',
+                'phone',
+                'role',
+            ])->filter(fn($column) => $this->hasColumn('users', $column))->values()->all();
+
+            if (!empty($userSelect)) {
+                $userMap = DB::table('users')
+                    ->select($userSelect)
+                    ->whereIn('id_user', $userIds)
+                    ->get()
+                    ->keyBy(fn($row) => (string) $this->rowValue($row, ['id_user']));
+            }
+        }
+
+        return $rows->map(function ($row, $index) use ($posbankumMap, $userMap) {
             $extra = $this->parseCatatanForCase($this->rowValue($row, ['catatan_admin'], '{}'));
             $idPosbankum = $this->rowValue($row, ['id_posbankum']);
             $posRow = $idPosbankum ? $posbankumMap->get((string) $idPosbankum) : null;
+
+            $idParalegal = $this->rowValue($row, ['id_paralegal'], $extra['id_paralegal'] ?? null);
+            $paralegalRow = $idParalegal ? $userMap->get((string) $idParalegal) : null;
+
+            $createdBy = $this->rowValue($row, ['created_by']);
+            $createdByRow = $createdBy ? $userMap->get((string) $createdBy) : null;
+
             $status = $this->normalizeCaseStatus($this->rowValue($row, ['status'], $extra['status'] ?? 'Diproses'));
-            $progress = $extra['progress'] ?? ($status === 'Selesai' ? 100 : ($status === 'Mediasi' ? 60 : 25));
+            $progress = $extra['progress'] ?? ($status === 'Selesai' ? 100 : ($status === 'Mediasi' ? 60 : 45));
+
+            $posbankumName = (string) $this->rowValue($posRow, ['nama', 'nama_posbankum', 'name'], 'Posbankum Belum Dipetakan');
+            $kabupatenKota = (string) $this->rowValue($row, ['kabupaten_kota', 'wilayah', 'kota'], '');
+            $wilayah = trim($kabupatenKota) !== ''
+                ? $kabupatenKota
+                : (string) $this->rowValue($row, ['kecamatan'], $this->rowValue($posRow, ['alamat'], '-'));
+
+            $paralegalName = (string) ($extra['paralegal_nama']
+                ?? $this->rowValue($paralegalRow, ['nama_lengkap', 'name', 'email'])
+                ?? $this->rowValue($row, ['nama_paralegal_ditugaskan', 'paralegal_nama'])
+                ?? $this->rowValue($posRow, ['nama_paralegal'])
+                ?? 'Paralegal Belum Diisi');
+
+            $paralegalPhone = (string) ($extra['paralegal_hp']
+                ?? $this->rowValue($paralegalRow, ['nomor_telepon', 'phone'])
+                ?? $this->rowValue($row, ['no_hp_paralegal', 'paralegal_hp'])
+                ?? $this->rowValue($posRow, ['nomor_tlp'])
+                ?? '-');
+
+            $pelaporName = (string) $this->rowValue(
+                $row,
+                ['nama_pelapor'],
+                $this->rowValue($createdByRow, ['nama_lengkap', 'name'], 'Pelapor Belum Diisi')
+            );
 
             return [
                 'id' => (string) $this->rowValue($row, ['nomor_pengaduan', 'id_pengaduan', 'id'], 'KASUS-' . ($index + 1)),
                 'id_pengaduan' => $this->rowValue($row, ['id_pengaduan', 'id'], $index + 1),
+                'nomor_pengaduan' => (string) $this->rowValue($row, ['nomor_pengaduan'], 'KASUS-' . ($index + 1)),
                 'judul' => (string) $this->rowValue($row, ['judul_pengaduan', 'judul_laporan', 'judul', 'jenis_masalah', 'kategori_masalah'], 'Tanpa Judul'),
                 'kategori' => $this->normalizeCaseCategory($this->rowValue($row, ['jenis_masalah', 'kategori_masalah', 'kategori'], $extra['kategori'] ?? 'Lainnya')),
                 'status' => $status,
                 'prioritas' => $this->normalizeCasePriority($this->rowValue($row, ['prioritas'], $extra['prioritas'] ?? 'Sedang')),
                 'progress' => max(0, min(100, (int) $progress)),
-                'posbankum' => (string) $this->rowValue($posRow, ['nama', 'nama_posbankum'], 'Posbankum Belum Dipetakan'),
-                'kota' => (string) $this->rowValue($row, ['lokasi_kejadian', 'lokasi', 'alamat', 'kabupaten_kota', 'kecamatan'], $this->rowValue($posRow, ['alamat'], '-')),
-                'pelapor' => (string) $this->rowValue($row, ['nama_pelapor'], 'Pelapor Belum Diisi'),
-                'paralegal' => (string) ($extra['paralegal_nama'] ?? $this->rowValue($row, ['nama_paralegal_ditugaskan', 'paralegal_nama'], $this->rowValue($posRow, ['nama_paralegal'], 'Paralegal Belum Diisi'))),
-                'paralegalPhone' => (string) ($extra['paralegal_hp'] ?? $this->rowValue($row, ['no_hp_paralegal', 'paralegal_hp'], $this->rowValue($posRow, ['nomor_tlp'], '-'))),
+                'id_posbankum' => $idPosbankum,
+                'posbankum' => $posbankumName,
+                'nama_posbankum' => $posbankumName,
+                'kota' => $wilayah,
+                'wilayah' => $wilayah,
+                'kabupaten_kota' => $kabupatenKota ?: $wilayah,
+                'lokasi_kejadian' => (string) $this->rowValue($row, ['lokasi_kejadian', 'lokasi', 'alamat'], '-'),
+                'provinsi' => (string) $this->rowValue($row, ['provinsi'], 'Riau'),
+                'pelapor' => $pelaporName,
+                'nama_pelapor' => $pelaporName,
+                'paralegal' => $paralegalName,
+                'paralegal_nama' => $paralegalName,
+                'paralegalPhone' => $paralegalPhone,
+                'paralegal_hp' => $paralegalPhone,
                 'emailPosbankum' => (string) $this->rowValue($posRow, ['email_akun', 'email'], $this->rowValue($row, ['email'], '-')),
                 'tanggalLapor' => $this->rowValue($row, ['created_at', 'tgl_lapor', 'tanggal_kejadian'], now()->toISOString()),
-                'updateTerakhir' => $this->rowValue($row, ['updated_at', 'created_at', 'tgl_lapor'], now()->toISOString()),
+                'updateTerakhir' => $this->rowValue($row, ['updated_at', 'tgl_selesai', 'created_at', 'tgl_lapor'], now()->toISOString()),
                 'deskripsi' => (string) $this->rowValue($row, ['kronologi', 'deskripsi', 'uraian', 'isi_pengaduan'], $extra['catatan_internal'] ?? 'Belum ada deskripsi kasus.'),
                 'sumberData' => 'Website',
             ];
@@ -1009,6 +1086,8 @@ class DashboardController extends Controller
             'paralegalProfile' => $this->paralegalProfilePayload($user, $idPosbankum, $posbankum),
             'flash' => [
                 'success' => session('success'),
+                'error' => session('error'),
+                'reject' => session('reject'),
             ],
         ]);
     }
