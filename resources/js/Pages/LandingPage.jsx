@@ -169,31 +169,62 @@ const countBy = (items, key) => {
     }, {});
 };
 
-const hasValidCoordinate = (item) => {
-    const lat = Number(item?.latitude ?? item?.lat ?? item?.latitude_pos);
-    const lng = Number(
-        item?.longitude ?? item?.lng ?? item?.long ?? item?.longitude_pos,
-    );
-
-    return Number.isFinite(lat) && Number.isFinite(lng);
-};
-
 const clampNumber = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const OSM_TILE_SIZE = 256;
 const OSM_DEFAULT_CENTER = { lat: 0.5071, lng: 101.4478 };
 const OSM_DEFAULT_ZOOM = 13;
+const RIAU_COORDINATE_BOUNDS = {
+    minLat: -2.5,
+    maxLat: 3.5,
+    minLng: 99,
+    maxLng: 105,
+};
 
-const getCoordinate = (item) => {
-    const lat = Number(item?.latitude ?? item?.lat ?? item?.latitude_pos);
-    const lng = Number(
-        item?.longitude ?? item?.lng ?? item?.long ?? item?.longitude_pos,
+const parseCoordinateValue = (value) => {
+    if (value === undefined || value === null) return null;
+
+    const number = Number(String(value).trim().replace(",", "."));
+
+    return Number.isFinite(number) ? number : null;
+};
+
+const isRiauCoordinate = (lat, lng) => {
+    return (
+        Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        lat >= RIAU_COORDINATE_BOUNDS.minLat &&
+        lat <= RIAU_COORDINATE_BOUNDS.maxLat &&
+        lng >= RIAU_COORDINATE_BOUNDS.minLng &&
+        lng <= RIAU_COORDINATE_BOUNDS.maxLng
     );
+};
+
+const normalizeRiauCoordinate = (latValue, lngValue) => {
+    const lat = parseCoordinateValue(latValue);
+    const lng = parseCoordinateValue(lngValue);
 
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
-    return { lat, lng };
+    if (isRiauCoordinate(lat, lng)) {
+        return { lat, lng };
+    }
+
+    if (isRiauCoordinate(lng, lat)) {
+        return { lat: lng, lng: lat };
+    }
+
+    return null;
 };
+
+const getCoordinate = (item) => {
+    return normalizeRiauCoordinate(
+        item?.latitude ?? item?.lat ?? item?.latitude_pos,
+        item?.longitude ?? item?.lng ?? item?.long ?? item?.longitude_pos,
+    );
+};
+
+const hasValidCoordinate = (item) => Boolean(getCoordinate(item));
 
 const getMapCenterFromItems = (items) => {
     const coordinates = (items || []).map(getCoordinate).filter(Boolean);

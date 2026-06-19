@@ -55,6 +55,61 @@ class LaporanPelayananController extends Controller
         return $default;
     }
 
+    private function canFilterPengaduanViaParalegal(): bool
+    {
+        return $this->hasTable('posbankum_paralegal')
+            && $this->hasColumn('posbankum_paralegal', 'id_user')
+            && $this->hasColumn('posbankum_paralegal', 'id_posbankum')
+            && $this->hasColumn('pengaduan', 'user_id');
+    }
+
+    private function canFilterPengaduanViaMasyarakat(): bool
+    {
+        return $this->hasTable('masyarakat')
+            && $this->hasTable('posbankum')
+            && $this->hasColumn('masyarakat', 'id_user')
+            && $this->hasColumn('masyarakat', 'id_kelurahan')
+            && $this->hasColumn('posbankum', 'id_kelurahan')
+            && $this->hasColumn('pengaduan', 'user_id');
+    }
+
+    private function applyPengaduanPosbankumFilter($query, mixed $idPosbankum)
+    {
+        if (!$idPosbankum) {
+            return $query;
+        }
+
+        if ($this->hasColumn('pengaduan', 'id_posbankum')) {
+            return $query->where('id_posbankum', $idPosbankum);
+        }
+
+        return $query->where(function ($subQuery) use ($idPosbankum) {
+            if ($this->canFilterPengaduanViaParalegal()) {
+                $subQuery->whereExists(function ($exists) use ($idPosbankum) {
+                    $exists->selectRaw('1')
+                        ->from('posbankum_paralegal as pp')
+                        ->whereColumn('pp.id_user', 'pengaduan.user_id')
+                        ->where('pp.id_posbankum', $idPosbankum);
+
+                    if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                        $exists->where('pp.status', 'aktif');
+                    }
+                });
+            }
+
+            if ($this->canFilterPengaduanViaMasyarakat()) {
+                $method = $this->canFilterPengaduanViaParalegal() ? 'orWhereExists' : 'whereExists';
+                $subQuery->{$method}(function ($exists) use ($idPosbankum) {
+                    $exists->selectRaw('1')
+                        ->from('masyarakat as m')
+                        ->join('posbankum as pb', 'pb.id_kelurahan', '=', 'm.id_kelurahan')
+                        ->whereColumn('m.id_user', 'pengaduan.user_id')
+                        ->where('pb.id_posbankum', $idPosbankum);
+                });
+            }
+        });
+    }
+
     private function blankToNull(mixed $value): ?string
     {
         $clean = trim((string) ($value ?? ''));
@@ -196,9 +251,7 @@ class LaporanPelayananController extends Controller
         if ($this->hasColumn('pengaduan', 'nomor_pengaduan')) {
             $query = DB::table('pengaduan')->where('nomor_pengaduan', 'like', $prefix . '%');
 
-            if ($idPosbankum && $this->hasColumn('pengaduan', 'id_posbankum')) {
-                $query->where('id_posbankum', $idPosbankum);
-            }
+            $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
 
             $last = $query->orderByDesc('nomor_pengaduan')->value('nomor_pengaduan');
 
@@ -392,6 +445,8 @@ class LaporanPelayananController extends Controller
 
         $payload = [];
         $idPengaduan = $this->makePengaduanPrimaryKey($payload);
+        $assignedUserId = $this->blankToNull($validated['id_paralegal'] ?? null) ?: $createdBy;
+        $this->addColumn($payload, 'pengaduan', 'user_id', $assignedUserId);
         $this->addColumn($payload, 'pengaduan', 'id_posbankum', $idPosbankum);
         $this->addColumn($payload, 'pengaduan', 'id_paralegal', $validated['id_paralegal']);
         $this->addColumn($payload, 'pengaduan', 'created_by', $createdBy);
@@ -457,7 +512,7 @@ class LaporanPelayananController extends Controller
         $oldCatatan = $this->parseCatatanAdmin($this->rowValue($row, ['catatan_admin'], '{}'));
         $request->merge([
             'prioritas' => $oldCatatan['prioritas'] ?? $this->rowValue($row, ['prioritas'], 'sedang'),
-            'id_paralegal' => $oldCatatan['id_paralegal'] ?? $this->rowValue($row, ['id_paralegal'], ''),
+            'id_paralegal' => $oldCatatan['id_paralegal'] ?? $this->rowValue($row, ['id_paralegal', 'user_id'], ''),
             'paralegal_nama' => $oldCatatan['paralegal_nama'] ?? '',
             'paralegal_hp' => $oldCatatan['paralegal_hp'] ?? '',
             'catatan_internal' => $oldCatatan['catatan_internal'] ?? '',

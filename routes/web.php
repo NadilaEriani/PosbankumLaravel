@@ -25,7 +25,123 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('LandingPage');
+    $posbankums = [];
+
+    if (Schema::hasTable('posbankum')) {
+        $query = DB::table('posbankum as p');
+
+        if (Schema::hasTable('kelurahan') && Schema::hasColumn('posbankum', 'id_kelurahan')) {
+            $query->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'p.id_kelurahan');
+        }
+
+        if (
+            Schema::hasTable('kecamatan') &&
+            Schema::hasTable('kelurahan') &&
+            Schema::hasColumn('kelurahan', 'id_kecamatan')
+        ) {
+            $query->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan');
+        }
+
+        if (
+            Schema::hasTable('kabupaten') &&
+            Schema::hasTable('kecamatan') &&
+            Schema::hasColumn('kecamatan', 'id_kabupaten')
+        ) {
+            $query->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'kec.id_kabupaten');
+        }
+
+        $rows = $query
+            ->select([
+                'p.*',
+                DB::raw('COALESCE(kel.nama, "") as kelurahan_nama'),
+                DB::raw('COALESCE(kec.nama, "") as kecamatan_nama'),
+                DB::raw('COALESCE(kab.nama, "") as kabupaten_nama'),
+            ])
+            ->orderBy('p.nama')
+            ->get();
+
+        $ids = $rows
+            ->pluck('id_posbankum')
+            ->filter()
+            ->values();
+
+        $paralegalCounts = [];
+
+        if (Schema::hasTable('posbankum_paralegal') && Schema::hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            $paralegalQuery = DB::table('posbankum_paralegal')
+                ->select('id_posbankum', DB::raw('COUNT(*) as total'))
+                ->whereIn('id_posbankum', $ids);
+
+            if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+                $paralegalQuery->where('status', 'aktif');
+            }
+
+            $paralegalCounts = $paralegalQuery
+                ->groupBy('id_posbankum')
+                ->pluck('total', 'id_posbankum')
+                ->toArray();
+        }
+
+        $caseCounts = [];
+
+        if (
+            Schema::hasTable('pengaduan') &&
+            Schema::hasColumn('pengaduan', 'id_posbankum')
+        ) {
+            $caseCounts = DB::table('pengaduan')
+                ->select('id_posbankum', DB::raw('COUNT(*) as total'))
+                ->whereIn('id_posbankum', $ids)
+                ->groupBy('id_posbankum')
+                ->pluck('total', 'id_posbankum')
+                ->toArray();
+        }
+
+        $posbankums = $rows
+            ->map(function ($row) use ($paralegalCounts, $caseCounts) {
+                $statusTagging = strtolower((string) ($row->status_verifikasi_tagging_area ?? ''));
+
+                return [
+                    'id' => $row->id_posbankum,
+                    'id_posbankum' => $row->id_posbankum,
+                    'name' => $row->nama,
+                    'nama' => $row->nama,
+                    'address' => $row->alamat ?: trim(implode(', ', array_filter([
+                        $row->kelurahan_nama ?? '',
+                        $row->kecamatan_nama ?? '',
+                        $row->kabupaten_nama ?? '',
+                    ]))),
+                    'alamat' => $row->alamat,
+                    'phone' => $row->nomor_tlp ?: '-',
+                    'nomor_tlp' => $row->nomor_tlp,
+                    'email' => $row->email_akun ?: '-',
+                    'email_akun' => $row->email_akun,
+                    'district' => $row->kecamatan_nama ?? '',
+                    'kelurahan_nama' => $row->kelurahan_nama ?? '',
+                    'kecamatan_nama' => $row->kecamatan_nama ?? '',
+                    'kabupaten_nama' => $row->kabupaten_nama ?? '',
+                    'region' => trim(implode(', ', array_filter([
+                        $row->kelurahan_nama ?? '',
+                        $row->kecamatan_nama ?? '',
+                        $row->kabupaten_nama ?? '',
+                    ]))),
+                    'latitude' => $row->latitude ?? null,
+                    'longitude' => $row->longitude ?? null,
+                    'status_verifikasi_tagging_area' => $row->status_verifikasi_tagging_area ?? null,
+                    'status' => $statusTagging === 'ditolak'
+                        ? 'Ditolak'
+                        : ($statusTagging === 'menunggu' ? 'Menunggu' : 'Aktif'),
+                    'paralegalCount' => (int) ($paralegalCounts[$row->id_posbankum] ?? 0),
+                    'caseCount' => (int) ($caseCounts[$row->id_posbankum] ?? 0),
+                    'operationalHours' => 'Senin - Jumat, 08:00 - 16:00 WIB',
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
+    return Inertia::render('LandingPage', [
+        'posbankums' => $posbankums,
+    ]);
 })->name('home');
 
 /* Google Login */

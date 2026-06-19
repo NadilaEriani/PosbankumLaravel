@@ -21,11 +21,9 @@ class User extends Authenticatable
     protected $fillable = [
         'id_user',
         'nama_lengkap',
-        'name',
         'email',
         'password_hash',
         'role',
-        'id_posbankum',
         'nip',
         'email_kantor',
         'nomor_telepon',
@@ -51,7 +49,7 @@ class User extends Authenticatable
         return $this->password_hash;
     }
 
-    public function getNameAttribute($value)
+    public function getNameAttribute($value = null)
     {
         return $value ?: $this->nama_lengkap;
     }

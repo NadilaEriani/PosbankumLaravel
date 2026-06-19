@@ -9,6 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -33,15 +35,59 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $payload = [];
+
+        if (Schema::hasColumn('users', 'id_user')) {
+            $payload['id_user'] = (string) Str::uuid();
+        }
+
+        if (Schema::hasColumn('users', 'nama_lengkap')) {
+            $payload['nama_lengkap'] = $request->name;
+        }
+
+        if (Schema::hasColumn('users', 'name')) {
+            $payload['name'] = $request->name;
+        }
+
+        if (Schema::hasColumn('users', 'email')) {
+            $payload['email'] = $request->email;
+        }
+
+        if (Schema::hasColumn('users', 'password_hash')) {
+            $payload['password_hash'] = Hash::make($request->password);
+        }
+
+        if (Schema::hasColumn('users', 'password')) {
+            $payload['password'] = Hash::make($request->password);
+        }
+
+        if (Schema::hasColumn('users', 'role')) {
+            $payload['role'] = 'warga';
+        }
+
+        if (Schema::hasColumn('users', 'status')) {
+            $payload['status'] = 'aktif';
+        }
+
+        if (Schema::hasColumn('users', 'created_at')) {
+            $payload['created_at'] = now();
+        }
+
+        if (Schema::hasColumn('users', 'updated_at')) {
+            $payload['updated_at'] = now();
+        }
+
+        if (empty($payload) || (!isset($payload['password_hash']) && !isset($payload['password']))) {
+            throw ValidationException::withMessages([
+                'database' => 'Kolom akun pengguna belum sesuai untuk registrasi.',
+            ]);
+        }
+
+        $user = User::create($payload);
 
         event(new Registered($user));
 

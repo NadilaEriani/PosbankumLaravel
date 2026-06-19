@@ -1,897 +1,424 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
 
-.loginPage,
-.loginPage * {
+:root {
+    --login-blue: #11194c;
+    --login-white: #ffffff;
+    --login-text: #24262d;
+    --login-muted: #6b7280;
+    --login-border: #d9dce5;
+
+    /* Pengaturan posisi gambar burung */
+    --login-bird-offset-x: 0px;
+    --login-bird-offset-y: 30px;
+    --login-bird-scale: 2;
+}
+
+* {
     box-sizing: border-box;
-    font-family:
-        "Outfit",
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: "Outfit", sans-serif;
 }
 
 .loginPage {
+    position: relative;
     min-height: 100vh;
     overflow: hidden;
-    background: linear-gradient(180deg, #eef2fa 0%, #e9edf7 58%, #e7e0f2 100%);
-    padding: 24px 32px;
-    color: #111827;
+    background: var(--login-blue);
+    color: var(--login-text);
+    font-family: "Outfit", sans-serif;
 }
 
 .loginBackBtn {
-    width: fit-content;
-    min-height: 46px;
-    padding: 0 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border-radius: 16px;
-    border: 1px solid #d9dde7;
-    background: #f7f7f8;
-    color: #4257c8;
-    font-size: 14px;
-    font-weight: 800;
-    text-decoration: none;
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
-    transition: transform 0.18s ease;
-}
-
-.loginBackBtn:hover {
-    transform: translateY(-1px);
-}
-
-.loginBackBtn svg,
-.loginSubmitBtn svg,
-.loginInputBox svg,
-.loginEyeBtn svg {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-}
-
-.loginWrap {
-    width: min(1150px, 100%);
-    margin: 64px auto 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 32px;
-    align-items: start;
-}
-
-.loginHeroCard {
-    position: relative;
-    overflow: hidden;
-    border-radius: 28px;
-    background: linear-gradient(135deg, #4d5ad0 0%, #6674e4 55%, #7280ea 100%);
-    padding: 48px 48px 32px;
-    color: white;
-    box-shadow: 0 35px 80px rgba(67, 76, 170, 0.28);
-}
-
-.loginCorner {
-    pointer-events: none;
-    position: absolute;
-    width: 64px;
-    height: 64px;
-    border-color: rgba(255, 255, 255, 0.18);
-}
-
-.loginCornerTop {
-    right: 32px;
+    position: fixed;
     top: 32px;
-    border-right: 1px solid;
-    border-top: 1px solid;
-    border-radius: 0 22px 0 0;
-}
-
-.loginCornerBottom {
     left: 32px;
-    bottom: 32px;
-    border-left: 1px solid;
-    border-bottom: 1px solid;
-    border-radius: 0 0 0 22px;
-}
-
-.loginBrandPill {
-    width: fit-content;
-    margin-bottom: 40px;
+    z-index: 4;
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    height: 48px;
+    padding: 0 22px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
-    padding: 10px 16px;
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--login-white);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.loginBrandLogo {
-    width: 44px;
-    height: 44px;
-    border-radius: 999px;
-    background: white;
-    overflow: hidden;
-    display: grid;
-    place-items: center;
-}
-
-.loginBrandLogo img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.loginBrandPill span {
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-}
-
-.loginHeroCard h1 {
-    margin: 0;
-    font-size: 44px;
+.loginBackIcon {
+    font-size: 20px;
     line-height: 1;
-    letter-spacing: -0.03em;
 }
 
-.loginHeroCard p {
-    margin: 24px 0 0;
-    color: white;
-    font-size: 18px;
+.loginStage {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 96px 24px 120px;
+}
+
+.loginStage::before,
+.loginStage::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border: 6px solid rgba(255, 255, 255, 0.05);
+    border-radius: 999px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.loginStage::before {
+    width: 650px;
+    height: 650px;
+}
+
+.loginStage::after {
+    width: 560px;
+    height: 560px;
+    border-width: 2px;
+}
+
+.loginCard {
+    position: relative;
+    z-index: 3;
+    width: min(560px, 100%);
+    min-height: 510px;
+    padding: 50px 48px 44px;
+    border-radius: 24px;
+    background: var(--login-white);
+    text-align: center;
+    box-shadow: 0 32px 90px rgba(0, 0, 0, 0.25);
+}
+
+.loginBirdFrame {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 20px;
+    border-radius: 18px;
+    background: #f7f7f8;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 16px 35px rgba(17, 25, 76, 0.16);
+}
+
+.loginBirdImage {
+    width: 88px;
+    height: 88px;
+    display: block;
+    object-fit: contain;
+    transform: translate(var(--login-bird-offset-x), var(--login-bird-offset-y))
+        scale(var(--login-bird-scale));
+    transform-origin: center center;
+}
+
+.loginBrand {
+    margin: 0 0 20px;
+    color: #64708a;
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.loginBrand strong {
+    color: #252a66;
+    font-weight: 800;
+}
+
+.loginCard h1 {
+    margin: 0 0 18px;
+    color: #20222a;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.loginDescription {
+    max-width: 360px;
+    margin: 0 auto 42px;
+    color: #646873;
+    font-size: 16px;
     line-height: 1.5;
 }
 
-.loginMascotBox {
-    height: 260px;
-    margin-top: 48px;
-    display: flex;
-    align-items: end;
+.googleLoginButton {
+    width: 100%;
+    height: 64px;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    overflow: hidden;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.16) 0%,
-        rgba(255, 255, 255, 0.08) 100%
-    );
-    padding: 20px 24px 0;
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.12);
+    gap: 15px;
+    border: 1px solid var(--login-border);
+    border-radius: 14px;
+    background: var(--login-white);
+    color: #363a43;
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 2px 5px rgba(17, 25, 76, 0.12);
 }
 
-.loginMascotBox img {
-    max-height: 280px;
-    width: auto;
-    object-fit: contain;
+.googleLoginButton:disabled,
+.emailSubmitButton:disabled,
+.passwordToggle:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
 }
 
-.loginStats {
-    margin-top: 36px;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.loginStats div {
-    border-radius: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.1);
-    padding: 16px 12px;
-    text-align: center;
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px);
-}
-
-.loginStats strong {
-    display: block;
-    color: white;
-    font-size: 24px;
-    line-height: 1;
-}
-
-.loginStats span {
-    display: block;
-    margin-top: 8px;
-    color: rgba(255, 255, 255, 0.78);
-    font-size: 14px;
-}
-
-.loginFormCard {
-    min-height: 676px;
-    border-radius: 30px;
-    background: #fcfcfd;
-    padding: 40px 40px 48px;
-    box-shadow: 0 32px 80px rgba(70, 72, 114, 0.22);
-}
-
-.loginFormHead {
-    text-align: center;
-}
-
-.loginFormHead h2 {
-    margin: 0;
-    color: #3442a6;
-    font-size: 30px;
+.googleLetter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: #4285f4;
+    font-size: 26px;
     font-weight: 800;
 }
 
-.loginFormHead p {
-    margin: 12px 0 0;
-    color: #6d7688;
-    font-size: 16px;
+.loginSecureText {
+    margin: 32px 0 0;
+    color: #91a0bf;
+    font-size: 12px;
+    font-weight: 500;
 }
 
-.loginForm {
-    margin-top: 40px;
-}
-
-.loginSuccessBox,
-.loginErrorBox {
-    margin-bottom: 20px;
-    border-radius: 16px;
-    padding: 12px 16px;
-    text-align: center;
-    font-size: 14px;
+.emailLoginToggle {
+    margin-top: 12px;
+    border: 0;
+    background: transparent;
+    color: var(--login-blue);
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    font-size: 13px;
     font-weight: 700;
 }
 
-.loginSuccessBox {
-    background: #ecfdf3;
-    border: 1px solid #abefc6;
-    color: #067647;
-}
-
-.loginErrorBox {
-    background: #fff1f1;
-    border: 1px solid #f3b3b3;
-    color: #b42318;
-}
-
-.loginGoogleBtn {
-    width: 100%;
-    min-height: 54px;
-    border-radius: 16px;
-    border: 1px solid #d9dee8;
-    background: #ffffff;
-    color: #344054;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 800;
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-    transition:
-        transform 0.18s ease,
-        box-shadow 0.18s ease,
-        border-color 0.18s ease;
-}
-
-.loginGoogleBtn:hover,
-.loginGoogleBtn:focus-visible {
-    transform: translateY(-1px);
-    border-color: #b8c3d6;
-    box-shadow:
-        0 4px 6px -4px rgba(0, 0, 0, 0.1),
-        0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    outline: none;
-}
-
-.loginGoogleMark {
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    border: 1px solid #d9dee8;
-    background: #ffffff;
-    color: #344054;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 17px;
-    line-height: 1;
-    font-weight: 900;
-}
-
-.loginDivider {
-    margin: 22px 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #98a2b3;
-    font-size: 13px;
-    line-height: 1.4;
-    font-weight: 800;
-    text-align: center;
-}
-
-.loginDivider::before,
-.loginDivider::after {
-    content: "";
-    height: 1px;
-    flex: 1;
-    background: #d9dee8;
+.emailLoginForm {
+    margin-top: 22px;
+    text-align: left;
 }
 
 .loginField {
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
+    color: #3a3d46;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .loginField > span {
     display: block;
-    margin-bottom: 12px;
-    color: #374151;
-    font-size: 14px;
-    font-weight: 800;
+    margin-bottom: 7px;
 }
 
-.loginField b {
-    color: #e53935;
-}
-
-.loginInputBox {
-    height: 54px;
-    display: flex;
-    align-items: center;
-    border: 1px solid #d9dee8;
-    border-radius: 16px;
-    background: white;
-    padding: 0 16px;
-    color: #98a2b3;
-}
-
-.loginInputBox input {
+.loginField input,
+.passwordField input {
     width: 100%;
-    height: 100%;
-    margin-left: 12px;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: #344054;
-    font-size: 16px;
-}
-
-.loginInputBox input::placeholder {
-    color: #98a2b3;
-}
-
-.loginEyeBtn {
-    margin-left: 12px;
-    border: 0;
-    background: transparent;
-    color: #98a2b3;
-    cursor: pointer;
-}
-
-.loginOptions {
-    margin: -4px 0 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    color: #6d7688;
+    height: 46px;
+    border: 1px solid var(--login-border);
+    border-radius: 12px;
+    padding: 0 14px;
+    color: var(--login-text);
+    font-family: "Outfit", sans-serif;
     font-size: 14px;
-    font-weight: 700;
+    outline: none;
 }
 
-.loginOptions label {
+.loginField input:focus,
+.passwordField input:focus {
+    border-color: var(--login-blue);
+}
+
+.passwordField {
+    position: relative;
+}
+
+.passwordField input {
+    padding-right: 104px;
+}
+
+.passwordToggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    height: 32px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 9px;
+    background: rgba(17, 25, 76, 0.08);
+    color: var(--login-blue);
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    transform: translateY(-50%);
+}
+
+.rememberField {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-}
-
-.loginOptions a,
-.loginTerms a {
-    color: #4257c8;
-    font-weight: 800;
-    text-decoration: none;
-}
-
-.loginOptions a:hover,
-.loginTerms a:hover {
-    text-decoration: underline;
-}
-
-.loginCaptchaBox {
-    width: min(335px, 100%);
-    min-height: 82px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    border: 1px solid #d9dee8;
-    border-radius: 2px;
-    background: #f7f7f8;
-    padding: 12px 16px;
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
-    color: #344054;
-    font-size: 19px;
-}
-
-.loginCaptchaCheck {
-    width: 30px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    border: 1px solid #4257c8;
-    background: white;
-    color: #4257c8;
-    font-size: 22px;
-    font-weight: 800;
-}
-
-.loginCaptchaBox small {
-    margin-left: auto;
-    color: #6d7688;
-    font-size: 10px;
-    font-weight: 800;
-}
-
-.loginSubmitBtn {
-    width: 100%;
-    height: 56px;
-    border: 0;
-    border-radius: 16px;
-    background: linear-gradient(90deg, #5664d7 0%, #5e6cdd 100%);
-    color: white;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    font-size: 17px;
-    font-weight: 800;
-    box-shadow: 0 12px 24px rgba(86, 100, 215, 0.34);
-    cursor: pointer;
-    transition: transform 0.18s ease;
-}
-
-.loginSubmitBtn:hover:not(:disabled) {
-    transform: translateY(-1px);
-}
-
-.loginSubmitBtn:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.loginTerms {
-    width: min(390px, 100%);
-    margin: 32px auto 0;
-    text-align: center;
-    color: #6d7688;
+    margin: 2px 0 16px;
+    color: #4b5160;
     font-size: 13px;
-    line-height: 1.6;
+    font-weight: 600;
 }
 
-@media (max-width: 980px) {
-    .loginWrap {
-        grid-template-columns: 1fr;
-        margin-top: 36px;
-    }
+.emailSubmitButton {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--login-blue);
+    color: var(--login-white);
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    font-size: 15px;
+    font-weight: 800;
 }
 
-@media (max-width: 620px) {
-    .loginPage {
-        padding: 18px;
-    }
-
-    .loginHeroCard,
-    .loginFormCard {
-        padding: 28px 22px;
-    }
-
-    .loginHeroCard h1 {
-        font-size: 36px;
-    }
-
-    .loginStats {
-        grid-template-columns: 1fr;
-    }
-
-    .loginOptions {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-}
-/* =========================================================
-   RESPONSIVE MOBILE FIX - loginPage.css
-   ========================================================= */
-@media (max-width: 980px) {
-    .loginPage {
-        min-height: 100dvh;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding: 20px;
-    }
-
-    .loginWrap {
-        width: 100%;
-        margin: 32px auto 0;
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-
-    .loginHeroCard,
-    .loginFormCard {
-        width: 100%;
-    }
-
-    .loginFormCard {
-        min-height: auto;
-    }
+.loginAlert {
+    margin: 0 0 14px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-align: left;
 }
 
-@media (max-width: 620px) {
-    .loginPage {
-        padding: 16px;
-    }
+.loginAlert.success {
+    background: rgba(17, 25, 76, 0.08);
+    color: var(--login-blue);
+}
 
+.loginAlert.error {
+    background: rgba(180, 40, 40, 0.09);
+    color: #9f1d1d;
+}
+
+.loginDesignImage {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    width: 100vw;
+    max-width: none;
+    height: 230px;
+    object-fit: cover;
+    object-position: bottom center;
+    opacity: 0.58;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
     .loginBackBtn {
-        min-height: 42px;
+        top: 18px;
+        left: 18px;
+        height: 42px;
         padding: 0 16px;
-        border-radius: 14px;
         font-size: 13px;
     }
 
-    .loginWrap {
-        margin-top: 22px;
-        gap: 18px;
+    .loginStage {
+        align-items: flex-start;
+        padding: 88px 18px 110px;
     }
 
-    .loginHeroCard {
+    .loginStage::before {
+        width: 430px;
+        height: 430px;
+    }
+
+    .loginStage::after {
+        width: 360px;
+        height: 360px;
+    }
+
+    .loginCard {
+        min-height: auto;
+        padding: 36px 24px 30px;
         border-radius: 22px;
-        padding: 24px 20px;
     }
 
-    .loginBrandPill {
-        margin-bottom: 24px;
-        padding: 8px 12px;
+    .loginBirdFrame {
+        width: 88px;
+        height: 88px;
+        margin-bottom: 18px;
     }
 
-    .loginBrandLogo {
-        width: 38px;
-        height: 38px;
+    .loginBirdImage {
+        width: 80px;
+        height: 80px;
     }
 
-    .loginBrandPill span {
-        font-size: 13px;
-    }
-
-    .loginHeroCard h1 {
-        font-size: 32px;
-        line-height: 1.05;
-    }
-
-    .loginHeroCard p {
-        margin-top: 16px;
-        font-size: 15px;
-        line-height: 1.45;
-    }
-
-    .loginMascotBox {
-        height: 180px;
-        margin-top: 24px;
-        border-radius: 20px;
-        padding: 14px 16px 0;
-    }
-
-    .loginMascotBox img {
-        max-height: 200px;
-    }
-
-    .loginStats {
-        margin-top: 20px;
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .loginStats div {
-        padding: 12px;
-        border-radius: 15px;
-    }
-
-    .loginStats strong {
+    .loginBrand {
         font-size: 20px;
     }
 
-    .loginStats span {
-        margin-top: 5px;
-        font-size: 12px;
-    }
-
-    .loginFormCard {
-        border-radius: 22px;
-        padding: 26px 20px 28px;
-    }
-
-    .loginFormHead h2 {
-        font-size: 25px;
-    }
-
-    .loginFormHead p {
-        font-size: 14px;
-        line-height: 1.45;
-    }
-
-    .loginForm {
-        margin-top: 28px;
-    }
-
-    .loginInputBox {
-        height: 50px;
-        border-radius: 14px;
-        padding: 0 14px;
-    }
-
-    .loginInputBox input {
-        font-size: 15px;
-    }
-
-    .loginOptions {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .loginCaptchaBox {
-        width: 100%;
-        min-height: 74px;
-        gap: 12px;
-        font-size: 16px;
-        padding: 10px 12px;
-    }
-
-    .loginGoogleBtn {
-        min-height: 50px;
-        border-radius: 14px;
-        font-size: 15px;
-    }
-
-    .loginDivider {
-        margin: 18px 0 18px;
-        font-size: 12px;
-    }
-
-    .loginSubmitBtn {
-        height: 52px;
-        border-radius: 15px;
-        font-size: 16px;
-    }
-
-    .loginTerms {
-        margin-top: 22px;
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 430px) {
-    .loginPage {
-        padding: 12px;
-    }
-
-    .loginBackBtn {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .loginHeroCard {
-        padding: 22px 18px;
-    }
-
-    .loginHeroCard h1 {
+    .loginCard h1 {
         font-size: 28px;
     }
 
-    .loginMascotBox {
-        height: 150px;
-    }
-
-    .loginMascotBox img {
-        max-height: 175px;
-    }
-
-    .loginFormCard {
-        padding: 24px 16px 26px;
-    }
-
-    .loginCaptchaBox small {
-        display: none;
-    }
-}
-
-/* ===== Revisi responsif Login sampai mobile kecil ===== */
-@media (max-width: 768px) {
-    .loginPage {
-        min-height: 100dvh;
-        padding: 18px 14px 28px;
-        overflow-y: auto;
-    }
-
-    .loginWrap {
-        grid-template-columns: 1fr;
-        gap: 18px;
-        width: 100%;
-    }
-
-    .loginHeroCard,
-    .loginFormCard {
-        border-radius: 22px;
-    }
-
-    .loginHeroCard {
-        padding: 28px 20px;
-        min-height: auto;
-    }
-
-    .loginHeroCard h1 {
-        font-size: 34px;
-    }
-
-    .loginMascotBox {
-        min-height: 210px;
-    }
-
-    .loginMascotBox img {
-        max-height: 230px;
-    }
-
-    .loginStats {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .loginFormCard {
-        padding: 30px 22px;
-        min-height: auto;
-    }
-
-    .loginFormHead h2 {
-        font-size: 26px;
-    }
-
-    .loginGoogleBtn,
-    .loginInputBox,
-    .loginSubmitBtn {
-        height: 52px;
-        border-radius: 16px;
-    }
-
-    .loginOptions {
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .loginCaptchaBox {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    .loginPage {
-        padding: 14px 12px 24px;
-    }
-
-    .loginBackBtn {
-        width: 100%;
-        justify-content: center;
-        min-height: 44px;
-    }
-
-    .loginHeroCard {
-        padding: 24px 16px;
-    }
-
-    .loginHeroCard h1 {
-        font-size: 30px;
-    }
-
-    .loginHeroCard p,
-    .loginFormHead p {
+    .loginDescription {
+        margin-bottom: 30px;
         font-size: 14px;
     }
 
-    .loginBrandPill {
-        max-width: 100%;
+    .googleLoginButton {
+        height: 58px;
+        font-size: 15px;
     }
 
-    .loginMascotBox {
-        min-height: 180px;
-    }
-
-    .loginMascotBox img {
-        max-height: 190px;
-    }
-
-    .loginStats {
-        grid-template-columns: 1fr;
-    }
-
-    .loginFormCard {
-        padding: 26px 16px;
-    }
-
-    .loginFormHead h2 {
-        font-size: 24px;
-    }
-
-    .loginDivider span {
-        font-size: 11px;
-        text-align: center;
-    }
-
-    .loginField > span,
-    .loginOptions,
-    .loginTerms {
-        font-size: 13px;
+    .loginDesignImage {
+        height: 160px;
+        width: 100vw;
+        object-fit: cover;
     }
 }
 
-/* ===== Mobile polish - Login page ===== */
-@media (max-width: 768px) {
-    .loginPage {
-        min-height: 100dvh;
-        overflow-x: hidden;
-        overflow-y: auto;
-    }
-
-    .loginWrap {
-        width: 100%;
-        margin-top: 28px;
-        grid-template-columns: 1fr !important;
-        gap: 18px;
-    }
-
-    .loginHeroCard,
-    .loginFormCard {
-        width: 100%;
-        min-height: auto;
-        border-radius: 22px;
-    }
-
-    .loginHeroCard h1 {
-        font-size: clamp(30px, 9vw, 38px);
-        line-height: 1.08;
-    }
-
-    .loginHeroCard p,
-    .loginFormHead p {
-        line-height: 1.5;
-    }
-
-    .loginStats {
-        grid-template-columns: 1fr !important;
-    }
-
-    .loginOptions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .loginGoogleBtn,
-    .loginInputBox,
-    .loginSubmitBtn,
+@media (max-width: 420px) {
     .loginBackBtn {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .loginPage {
-        padding-left: 12px;
-        padding-right: 12px;
+        left: 14px;
+        top: 14px;
     }
 
-    .loginHeroCard,
-    .loginFormCard {
-        border-radius: 18px;
+    .loginStage {
+        padding-left: 14px;
+        padding-right: 14px;
     }
 
-    .loginForm {
-        margin-top: 28px;
+    .loginCard {
+        padding: 30px 18px 26px;
+    }
+
+    .loginBrand {
+        font-size: 18px;
+    }
+
+    .loginCard h1 {
+        font-size: 25px;
+    }
+
+    .passwordField input {
+        padding-right: 96px;
+    }
+
+    .loginDesignImage {
+        height: 135px;
     }
 }

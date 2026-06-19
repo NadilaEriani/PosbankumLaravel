@@ -142,6 +142,109 @@ class DashboardController extends Controller
             ->toArray();
     }
 
+
+    private function canFilterPengaduanViaParalegal(): bool
+    {
+        return $this->hasColumn('pengaduan', 'user_id')
+            && $this->hasColumn('posbankum_paralegal', 'id_user')
+            && $this->hasColumn('posbankum_paralegal', 'id_posbankum');
+    }
+
+    private function canFilterPengaduanViaMasyarakat(): bool
+    {
+        return $this->hasColumn('pengaduan', 'user_id')
+            && $this->hasColumn('masyarakat', 'id_user')
+            && $this->hasColumn('masyarakat', 'id_kelurahan')
+            && $this->hasColumn('posbankum', 'id_kelurahan')
+            && $this->hasColumn('posbankum', 'id_posbankum');
+    }
+
+    private function applyPengaduanPosbankumFilter($query, mixed $idPosbankum)
+    {
+        if (!$idPosbankum) {
+            return $query;
+        }
+
+        if ($this->hasColumn('pengaduan', 'id_posbankum')) {
+            return $query->where('id_posbankum', $idPosbankum);
+        }
+
+        $canViaParalegal = $this->canFilterPengaduanViaParalegal();
+        $canViaMasyarakat = $this->canFilterPengaduanViaMasyarakat();
+
+        if (!$canViaParalegal && !$canViaMasyarakat) {
+            return $query;
+        }
+
+        return $query->where(function ($inner) use ($idPosbankum, $canViaParalegal, $canViaMasyarakat) {
+            if ($canViaParalegal) {
+                $inner->orWhereExists(function ($sub) use ($idPosbankum) {
+                    $sub->select(DB::raw(1))
+                        ->from('posbankum_paralegal as pp')
+                        ->whereColumn('pp.id_user', 'pengaduan.user_id')
+                        ->where('pp.id_posbankum', $idPosbankum);
+
+                    if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                        $sub->where('pp.status', 'aktif');
+                    }
+                });
+            }
+
+            if ($canViaMasyarakat) {
+                $inner->orWhereExists(function ($sub) use ($idPosbankum) {
+                    $sub->select(DB::raw(1))
+                        ->from('masyarakat as m')
+                        ->join('posbankum as p', 'p.id_kelurahan', '=', 'm.id_kelurahan')
+                        ->whereColumn('m.id_user', 'pengaduan.user_id')
+                        ->where('p.id_posbankum', $idPosbankum);
+                });
+            }
+        });
+    }
+
+    private function pengaduanCountsByPosbankum(array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        if ($this->hasColumn('pengaduan', 'id_posbankum')) {
+            return $this->countByForeignKey('pengaduan', 'id_posbankum', $ids);
+        }
+
+        $counts = [];
+
+        if ($this->canFilterPengaduanViaParalegal()) {
+            $query = DB::table('pengaduan as pg')
+                ->join('posbankum_paralegal as pp', 'pp.id_user', '=', 'pg.user_id')
+                ->whereIn('pp.id_posbankum', $ids);
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('pp.status', 'aktif');
+            }
+
+            foreach ($query->select('pp.id_posbankum', DB::raw('COUNT(DISTINCT pg.id_pengaduan) as total'))
+                ->groupBy('pp.id_posbankum')
+                ->pluck('total', 'pp.id_posbankum') as $id => $total) {
+                $counts[$id] = ($counts[$id] ?? 0) + (int) $total;
+            }
+        }
+
+        if ($this->canFilterPengaduanViaMasyarakat()) {
+            foreach (DB::table('pengaduan as pg')
+                ->join('masyarakat as m', 'm.id_user', '=', 'pg.user_id')
+                ->join('posbankum as p', 'p.id_kelurahan', '=', 'm.id_kelurahan')
+                ->whereIn('p.id_posbankum', $ids)
+                ->select('p.id_posbankum', DB::raw('COUNT(DISTINCT pg.id_pengaduan) as total'))
+                ->groupBy('p.id_posbankum')
+                ->pluck('total', 'p.id_posbankum') as $id => $total) {
+                $counts[$id] = ($counts[$id] ?? 0) + (int) $total;
+            }
+        }
+
+        return $counts;
+    }
+
     private function safeRows(string $table, int $limit = 20, ?string $orderColumn = 'created_at')
     {
         if (!$this->hasTable($table)) {
@@ -205,7 +308,7 @@ class DashboardController extends Controller
             ->values()
             ->all();
 
-        $pengaduanCounts = $this->countByForeignKey('pengaduan', 'id_posbankum', $ids);
+        $pengaduanCounts = $this->pengaduanCountsByPosbankum($ids);
         $kegiatanCounts = $this->countByForeignKey('kegiatan', 'id_posbankum', $ids);
         $paralegalCounts = [];
         if ($this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
@@ -317,9 +420,7 @@ class DashboardController extends Controller
 
         $query = DB::table('pengaduan');
 
-        if ($idPosbankum && $this->hasColumn('pengaduan', 'id_posbankum')) {
-            $query->where('id_posbankum', $idPosbankum);
-        }
+        $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
 
         if ($this->hasColumn('pengaduan', 'created_at')) {
             $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
@@ -586,46 +687,87 @@ class DashboardController extends Controller
             return [];
         }
 
-        return DB::table('users as u')
-            ->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'u.id_posbankum')
-            ->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'p.id_kelurahan')
-            ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
-            ->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'kec.id_kabupaten')
-            ->where('u.role', 'paralegal')
-            ->where('u.status', 'aktif')
-            ->select(
-                'u.id_user',
-                'u.nama_lengkap',
-                'u.email',
-                'u.nomor_telepon',
-                'u.status',
-                'u.id_posbankum',
-                'p.nama as posbankum_nama',
-                'p.id_kelurahan',
-                'kel.nama as kelurahan_nama',
-                'kel.id_kecamatan',
-                'kec.nama as kecamatan_nama',
-                'kec.id_kabupaten',
-                'kab.nama as kabupaten_nama'
-            )
-            ->orderBy('u.nama_lengkap')
-            ->get()
-            ->map(fn($row) => [
-                'id_user' => $row->id_user,
-                'nama_lengkap' => $row->nama_lengkap,
-                'email' => $row->email,
-                'nomor_telepon' => $row->nomor_telepon,
-                'status' => $row->status,
-                'id_posbankum' => $row->id_posbankum,
-                'posbankum_nama' => $row->posbankum_nama,
-                'id_kelurahan' => $row->id_kelurahan,
-                'id_kecamatan' => $row->id_kecamatan,
-                'id_kabupaten' => $row->id_kabupaten,
-                'kelurahan_nama' => $row->kelurahan_nama,
-                'kecamatan_nama' => $row->kecamatan_nama,
-                'kabupaten_nama' => $row->kabupaten_nama,
-            ])
-            ->toArray();
+        $userKey = $this->hasColumn('users', 'id_user') ? 'id_user' : 'id';
+        $query = DB::table('users as u');
+        $select = [
+            'u.' . $userKey . ' as id_user',
+        ];
+
+        foreach (['nama_lengkap', 'email', 'nomor_telepon', 'status'] as $column) {
+            if ($this->hasColumn('users', $column)) {
+                $select[] = 'u.' . $column;
+            }
+        }
+
+        if ($this->hasColumn('posbankum_paralegal', 'id_user') && $this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            $query->leftJoin('posbankum_paralegal as pp', function ($join) use ($userKey) {
+                $join->on('pp.id_user', '=', 'u.' . $userKey);
+
+                if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                    $join->where('pp.status', '=', 'aktif');
+                }
+            });
+
+            $select[] = 'pp.id_posbankum';
+        } elseif ($this->hasColumn('users', 'id_posbankum')) {
+            $select[] = 'u.id_posbankum';
+        }
+
+        if ($this->hasTable('posbankum')) {
+            if ($this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+                $query->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'pp.id_posbankum');
+            } elseif ($this->hasColumn('users', 'id_posbankum')) {
+                $query->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'u.id_posbankum');
+            }
+
+            $select[] = 'p.nama as posbankum_nama';
+            $select[] = 'p.id_kelurahan';
+        }
+
+        if ($this->hasTable('kelurahan')) {
+            $query->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'p.id_kelurahan');
+            $select[] = 'kel.nama as kelurahan_nama';
+            $select[] = 'kel.id_kecamatan';
+        }
+
+        if ($this->hasTable('kecamatan')) {
+            $query->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan');
+            $select[] = 'kec.nama as kecamatan_nama';
+            $select[] = 'kec.id_kabupaten';
+        }
+
+        if ($this->hasTable('kabupaten')) {
+            $query->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'kec.id_kabupaten');
+            $select[] = 'kab.nama as kabupaten_nama';
+        }
+
+        if ($this->hasColumn('users', 'role')) {
+            $query->where('u.role', 'paralegal');
+        }
+
+        if ($this->hasColumn('users', 'status')) {
+            $query->where('u.status', 'aktif');
+        }
+
+        if ($this->hasColumn('users', 'nama_lengkap')) {
+            $query->orderBy('u.nama_lengkap');
+        }
+
+        return $query->select($select)->get()->map(fn($row) => [
+            'id_user' => $this->rowValue($row, ['id_user']),
+            'nama_lengkap' => (string) $this->rowValue($row, ['nama_lengkap'], ''),
+            'email' => (string) $this->rowValue($row, ['email'], ''),
+            'nomor_telepon' => (string) $this->rowValue($row, ['nomor_telepon'], ''),
+            'status' => (string) $this->rowValue($row, ['status'], 'aktif'),
+            'id_posbankum' => $this->rowValue($row, ['id_posbankum']),
+            'posbankum_nama' => (string) $this->rowValue($row, ['posbankum_nama'], ''),
+            'id_kelurahan' => $this->rowValue($row, ['id_kelurahan']),
+            'id_kecamatan' => $this->rowValue($row, ['id_kecamatan']),
+            'id_kabupaten' => $this->rowValue($row, ['id_kabupaten']),
+            'kelurahan_nama' => (string) $this->rowValue($row, ['kelurahan_nama'], ''),
+            'kecamatan_nama' => (string) $this->rowValue($row, ['kecamatan_nama'], ''),
+            'kabupaten_nama' => (string) $this->rowValue($row, ['kabupaten_nama'], ''),
+        ])->toArray();
     }
 
 
@@ -712,6 +854,13 @@ class DashboardController extends Controller
                     ->get()
                     ->keyBy(fn($row) => $this->rowValue($row, [$key, 'id_kelurahan', 'id']))
                     ->toArray();
+
+                $kecamatanIds = collect($kecamatanIds)
+                    ->merge(collect($kelurahanMap)->map(fn($row) => $this->rowValue($row, ['id_kecamatan', 'kecamatan_id'])))
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
             }
 
             if (!empty($kecamatanIds) && $this->hasTable('kecamatan')) {
@@ -721,6 +870,13 @@ class DashboardController extends Controller
                     ->get()
                     ->keyBy(fn($row) => $this->rowValue($row, [$key, 'id_kecamatan', 'id']))
                     ->toArray();
+
+                $kabupatenIds = collect($kabupatenIds)
+                    ->merge(collect($kecamatanMap)->map(fn($row) => $this->rowValue($row, ['id_kabupaten', 'kabupaten_id'])))
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
             }
 
             if (!empty($kabupatenIds) && $this->hasTable('kabupaten')) {
@@ -796,11 +952,10 @@ class DashboardController extends Controller
             $pos = $idPosbankum && isset($posbankumMap[$idPosbankum]) ? $posbankumMap[$idPosbankum] : null;
 
             $kelurahanId = $this->rowValue($pos, ['id_kelurahan']);
-            $kecamatanId = $this->rowValue($pos, ['id_kecamatan']);
-            $kabupatenId = $this->rowValue($pos, ['id_kabupaten']);
-
             $kelurahan = $kelurahanId && isset($kelurahanMap[$kelurahanId]) ? $kelurahanMap[$kelurahanId] : null;
+            $kecamatanId = $this->rowValue($pos, ['id_kecamatan'], $this->rowValue($kelurahan, ['id_kecamatan', 'kecamatan_id']));
             $kecamatan = $kecamatanId && isset($kecamatanMap[$kecamatanId]) ? $kecamatanMap[$kecamatanId] : null;
+            $kabupatenId = $this->rowValue($pos, ['id_kabupaten'], $this->rowValue($kecamatan, ['id_kabupaten', 'kabupaten_id']));
             $kabupaten = $kabupatenId && isset($kabupatenMap[$kabupatenId]) ? $kabupatenMap[$kabupatenId] : null;
 
             $createdBy = $this->rowValue($row, ['created_by', 'id_user', 'user_id']);
@@ -1026,6 +1181,24 @@ class DashboardController extends Controller
             }
         }
 
+        if ($this->hasColumn('posbankum_paralegal', 'id_user') && $this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            $userId = $user->id_user ?? $user->id ?? null;
+
+            if ($userId) {
+                $query = DB::table('posbankum_paralegal')->where('id_user', $userId);
+
+                if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                    $query->where('status', 'aktif');
+                }
+
+                $found = $query->value('id_posbankum');
+
+                if ($found) {
+                    return $found;
+                }
+            }
+        }
+
         if ($this->hasTable('paralegal_members')) {
             $query = DB::table('paralegal_members');
 
@@ -1078,9 +1251,7 @@ class DashboardController extends Controller
 
         $query = DB::table('pengaduan');
 
-        if ($idPosbankum && $this->hasColumn('pengaduan', 'id_posbankum')) {
-            $query->where('id_posbankum', $idPosbankum);
-        }
+        $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
 
         if ($this->hasColumn('pengaduan', 'created_at')) {
             $query->orderByDesc('created_at');

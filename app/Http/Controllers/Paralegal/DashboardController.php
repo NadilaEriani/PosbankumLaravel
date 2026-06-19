@@ -47,6 +47,170 @@ class DashboardController extends Controller
         return null;
     }
 
+
+    private function canFilterPengaduanViaParalegal(): bool
+    {
+        return $this->hasColumn('pengaduan', 'user_id')
+            && $this->hasColumn('posbankum_paralegal', 'id_user')
+            && $this->hasColumn('posbankum_paralegal', 'id_posbankum');
+    }
+
+    private function canFilterPengaduanViaMasyarakat(): bool
+    {
+        return $this->hasColumn('pengaduan', 'user_id')
+            && $this->hasColumn('masyarakat', 'id_user')
+            && $this->hasColumn('masyarakat', 'id_kelurahan')
+            && $this->hasColumn('posbankum', 'id_kelurahan')
+            && $this->hasColumn('posbankum', 'id_posbankum');
+    }
+
+    private function applyPengaduanPosbankumFilter($query, mixed $idPosbankum)
+    {
+        if (!$idPosbankum) {
+            return $query;
+        }
+
+        if ($this->hasColumn('pengaduan', 'id_posbankum')) {
+            return $query->where('id_posbankum', $idPosbankum);
+        }
+
+        $canViaParalegal = $this->canFilterPengaduanViaParalegal();
+        $canViaMasyarakat = $this->canFilterPengaduanViaMasyarakat();
+
+        if (!$canViaParalegal && !$canViaMasyarakat) {
+            return $query;
+        }
+
+        return $query->where(function ($inner) use ($idPosbankum, $canViaParalegal, $canViaMasyarakat) {
+            if ($canViaParalegal) {
+                $inner->orWhereExists(function ($sub) use ($idPosbankum) {
+                    $sub->select(DB::raw(1))
+                        ->from('posbankum_paralegal as pp')
+                        ->whereColumn('pp.id_user', 'pengaduan.user_id')
+                        ->where('pp.id_posbankum', $idPosbankum);
+
+                    if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                        $sub->where('pp.status', 'aktif');
+                    }
+                });
+            }
+
+            if ($canViaMasyarakat) {
+                $inner->orWhereExists(function ($sub) use ($idPosbankum) {
+                    $sub->select(DB::raw(1))
+                        ->from('masyarakat as m')
+                        ->join('posbankum as p', 'p.id_kelurahan', '=', 'm.id_kelurahan')
+                        ->whereColumn('m.id_user', 'pengaduan.user_id')
+                        ->where('p.id_posbankum', $idPosbankum);
+                });
+            }
+        });
+    }
+
+    private function userRowsByIds(array $userIds)
+    {
+        $userIds = array_values(array_unique(array_filter(array_map('strval', $userIds))));
+
+        if (empty($userIds) || !$this->hasTable('users')) {
+            return collect();
+        }
+
+        $userKey = $this->hasColumn('users', 'id_user') ? 'id_user' : 'id';
+        $select = collect([
+            $userKey,
+            'nama_lengkap',
+            'name',
+            'email',
+            'nomor_telepon',
+            'phone',
+            'role',
+        ])->filter(fn($column) => $this->hasColumn('users', $column))->values()->all();
+
+        if (empty($select)) {
+            return collect();
+        }
+
+        return DB::table('users')
+            ->select($select)
+            ->whereIn($userKey, $userIds)
+            ->get()
+            ->keyBy(fn($row) => (string) $this->rowValue($row, [$userKey, 'id_user', 'id']));
+    }
+
+    private function posbankumContextByUserIds(array $userIds)
+    {
+        $userIds = array_values(array_unique(array_filter(array_map('strval', $userIds))));
+
+        if (empty($userIds)) {
+            return collect();
+        }
+
+        $contexts = collect();
+
+        if ($this->hasColumn('posbankum_paralegal', 'id_user') && $this->hasColumn('posbankum_paralegal', 'id_posbankum') && $this->hasTable('posbankum')) {
+            $query = DB::table('posbankum_paralegal as pp')
+                ->join('posbankum as p', 'p.id_posbankum', '=', 'pp.id_posbankum')
+                ->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'p.id_kelurahan')
+                ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan')
+                ->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'kec.id_kabupaten')
+                ->whereIn('pp.id_user', $userIds);
+
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->where('pp.status', 'aktif');
+            }
+
+            $query->select(
+                'pp.id_user',
+                'pp.id_posbankum',
+                'p.nama as posbankum_nama',
+                'p.nomor_tlp',
+                'p.email_akun',
+                'p.alamat as posbankum_alamat',
+                'p.id_kelurahan',
+                'kel.nama as kelurahan_nama',
+                'kel.id_kecamatan',
+                'kec.nama as kecamatan_nama',
+                'kec.id_kabupaten',
+                'kab.nama as kabupaten_nama'
+            )->get()->each(function ($row) use ($contexts) {
+                $contexts->put((string) $row->id_user, $row);
+            });
+        }
+
+        if ($this->hasColumn('masyarakat', 'id_user') && $this->hasTable('kelurahan') && $this->hasTable('kecamatan') && $this->hasTable('kabupaten')) {
+            $query = DB::table('masyarakat as m')
+                ->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'm.id_kelurahan')
+                ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'm.id_kecamatan')
+                ->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'm.id_kabupaten')
+                ->leftJoin('posbankum as p', 'p.id_kelurahan', '=', 'm.id_kelurahan')
+                ->whereIn('m.id_user', $userIds)
+                ->select(
+                    'm.id_user',
+                    'p.id_posbankum',
+                    'p.nama as posbankum_nama',
+                    'p.nomor_tlp',
+                    'p.email_akun',
+                    'p.alamat as posbankum_alamat',
+                    'm.id_kelurahan',
+                    'kel.nama as kelurahan_nama',
+                    'm.id_kecamatan',
+                    'kec.nama as kecamatan_nama',
+                    'm.id_kabupaten',
+                    'kab.nama as kabupaten_nama'
+                );
+
+            $query->get()->each(function ($row) use ($contexts) {
+                $key = (string) $row->id_user;
+
+                if (!$contexts->has($key)) {
+                    $contexts->put($key, $row);
+                }
+            });
+        }
+
+        return $contexts;
+    }
+
     private function normalizeStorageUrl(?string $path): string
     {
         $clean = trim((string) $path);
@@ -197,9 +361,7 @@ class DashboardController extends Controller
 
         $query = DB::table('pengaduan');
 
-        if ($idPosbankum && $this->hasColumn('pengaduan', 'id_posbankum')) {
-            $query->where('id_posbankum', $idPosbankum);
-        }
+        $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
 
         if ($this->hasColumn('pengaduan', 'created_at')) {
             $query->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()]);
@@ -264,9 +426,7 @@ class DashboardController extends Controller
 
         $query = DB::table('pengaduan');
 
-        if ($idPosbankum && $this->hasColumn('pengaduan', 'id_posbankum')) {
-            $query->where('id_posbankum', $idPosbankum);
-        }
+        $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
 
         foreach (['created_at', 'tgl_lapor', 'tanggal_kejadian'] as $orderColumn) {
             if ($this->hasColumn('pengaduan', $orderColumn)) {
@@ -478,9 +638,7 @@ class DashboardController extends Controller
 
         $query = DB::table('pengaduan');
 
-        if ($idPosbankum && $this->hasColumn('pengaduan', 'id_posbankum')) {
-            $query->where('id_posbankum', $idPosbankum);
-        }
+        $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
 
         foreach (['created_at', 'tgl_lapor', 'tanggal_kejadian'] as $orderColumn) {
             if ($this->hasColumn('pengaduan', $orderColumn)) {
@@ -492,16 +650,28 @@ class DashboardController extends Controller
         $rows = $query->limit(300)->get();
         $ids = $rows->map(fn($row) => $this->rowValue($row, ['id_pengaduan', 'id']))->filter()->values()->all();
         $lampiranMap = $this->lampiranRows($ids);
+        $userIds = $rows->flatMap(fn($row) => [
+            $this->rowValue($row, ['user_id']),
+            $this->rowValue($row, ['id_paralegal']),
+            $this->rowValue($row, ['created_by']),
+            $this->rowValue($row, ['masyarakat_id']),
+        ])->filter()->unique()->values()->all();
+        $userMap = $this->userRowsByIds($userIds);
+        $contextMap = $this->posbankumContextByUserIds($userIds);
 
-        return $rows->values()->map(function ($row, $index) use ($lampiranMap) {
+        return $rows->values()->map(function ($row, $index) use ($lampiranMap, $userMap, $contextMap) {
             $id = $this->rowValue($row, ['id_pengaduan', 'id'], $index + 1);
             $extra = $this->parseJson($this->rowValue($row, ['catatan_admin'], '{}'));
             $updates = $extra['updates'] ?? [];
+            $userId = $this->rowValue($row, ['user_id', 'created_by', 'masyarakat_id']);
+            $context = $userId ? $contextMap->get((string) $userId) : null;
+            $idParalegal = $this->rowValue($row, ['id_paralegal'], $extra['id_paralegal'] ?? $userId);
+            $paralegalRow = $idParalegal ? $userMap->get((string) $idParalegal) : null;
 
             return [
                 'id_pengaduan' => $id,
-                'id_posbankum' => $this->rowValue($row, ['id_posbankum']),
-                'id_paralegal' => $this->rowValue($row, ['id_paralegal'], $extra['id_paralegal'] ?? ''),
+                'id_posbankum' => $this->rowValue($row, ['id_posbankum'], $this->rowValue($context, ['id_posbankum'])),
+                'id_paralegal' => $idParalegal ?: '',
                 'nomor_pengaduan' => (string) $this->rowValue($row, ['nomor_pengaduan'], 'PBKT/' . date('Y') . '/' . str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT)),
                 'nama_pelapor' => (string) $this->rowValue($row, ['nama_pelapor'], '-'),
                 'nik' => (string) ($extra['nik'] ?? $this->rowValue($row, ['nik'], '')),
@@ -516,9 +686,12 @@ class DashboardController extends Controller
                 'status' => (string) $this->rowValue($row, ['status'], 'diproses'),
                 'prioritas' => (string) ($extra['prioritas'] ?? $this->rowValue($row, ['prioritas'], 'sedang')),
                 'created_at' => $this->rowValue($row, ['created_at', 'tgl_lapor']),
-                'paralegal_nama' => (string) ($extra['paralegal_nama'] ?? $this->rowValue($row, ['nama_paralegal_ditugaskan', 'paralegal_nama'], 'Paralegal')),
-                'paralegal_hp' => (string) ($extra['paralegal_hp'] ?? $this->rowValue($row, ['no_hp_paralegal', 'paralegal_hp'], '')),
-                'catatan_internal' => (string) ($extra['catatan_internal'] ?? ''),
+                'paralegal_nama' => (string) ($extra['paralegal_nama'] ?? $this->rowValue($paralegalRow, ['nama_lengkap', 'name', 'email'], $this->rowValue($row, ['nama_paralegal_ditugaskan', 'paralegal_nama'], 'Paralegal'))),
+                'paralegal_hp' => (string) ($extra['paralegal_hp'] ?? $this->rowValue($paralegalRow, ['nomor_telepon', 'phone'], $this->rowValue($row, ['no_hp_paralegal', 'paralegal_hp'], ''))),
+                'catatan_internal' => (string) ($extra['catatan_internal'] ?? $this->rowValue($row, ['catatan_internal'], '')),
+                'kelurahan_nama' => (string) $this->rowValue($context, ['kelurahan_nama'], ''),
+                'kecamatan_nama' => (string) $this->rowValue($context, ['kecamatan_nama'], ''),
+                'kabupaten_nama' => (string) $this->rowValue($context, ['kabupaten_nama'], ''),
                 'lampiran' => $lampiranMap[$id] ?? [],
                 'updates' => is_array($updates) ? $updates : [],
             ];
@@ -543,8 +716,16 @@ class DashboardController extends Controller
                 $query->where('u.role', 'paralegal');
             }
 
+            $select = ['u.id_user'];
+
+            foreach (['nama_lengkap', 'name', 'email', 'nomor_telepon'] as $column) {
+                if ($this->hasColumn('users', $column)) {
+                    $select[] = 'u.' . $column;
+                }
+            }
+
             return $query
-                ->select('u.id_user', 'u.nama_lengkap', 'u.name', 'u.email', 'u.nomor_telepon')
+                ->select($select)
                 ->limit(200)
                 ->get()
                 ->values()
@@ -701,6 +882,7 @@ class DashboardController extends Controller
         $userIds = $rows
             ->flatMap(function ($row) {
                 return [
+                    $this->rowValue($row, ['user_id']),
                     $this->rowValue($row, ['id_paralegal']),
                     $this->rowValue($row, ['created_by']),
                     $this->rowValue($row, ['masyarakat_id']),
@@ -711,46 +893,32 @@ class DashboardController extends Controller
             ->values()
             ->all();
 
-        $userMap = collect();
-        if (!empty($userIds) && $this->hasTable('users') && $this->hasColumn('users', 'id_user')) {
-            $userSelect = collect([
-                'id_user',
-                'nama_lengkap',
-                'name',
-                'email',
-                'nomor_telepon',
-                'phone',
-                'role',
-            ])->filter(fn($column) => $this->hasColumn('users', $column))->values()->all();
+        $userMap = $this->userRowsByIds($userIds);
+        $contextMap = $this->posbankumContextByUserIds($userIds);
 
-            if (!empty($userSelect)) {
-                $userMap = DB::table('users')
-                    ->select($userSelect)
-                    ->whereIn('id_user', $userIds)
-                    ->get()
-                    ->keyBy(fn($row) => (string) $this->rowValue($row, ['id_user']));
-            }
-        }
-
-        return $rows->map(function ($row, $index) use ($posbankumMap, $userMap) {
+        return $rows->map(function ($row, $index) use ($posbankumMap, $userMap, $contextMap) {
             $extra = $this->parseCatatanForCase($this->rowValue($row, ['catatan_admin'], '{}'));
-            $idPosbankum = $this->rowValue($row, ['id_posbankum']);
+            $userId = $this->rowValue($row, ['user_id', 'created_by', 'masyarakat_id']);
+            $context = $userId ? $contextMap->get((string) $userId) : null;
+            $idPosbankum = $this->rowValue($row, ['id_posbankum'], $this->rowValue($context, ['id_posbankum']));
             $posRow = $idPosbankum ? $posbankumMap->get((string) $idPosbankum) : null;
 
-            $idParalegal = $this->rowValue($row, ['id_paralegal'], $extra['id_paralegal'] ?? null);
+            $idParalegal = $this->rowValue($row, ['id_paralegal'], $extra['id_paralegal'] ?? $userId);
             $paralegalRow = $idParalegal ? $userMap->get((string) $idParalegal) : null;
 
-            $createdBy = $this->rowValue($row, ['created_by']);
+            $createdBy = $this->rowValue($row, ['created_by', 'user_id']);
             $createdByRow = $createdBy ? $userMap->get((string) $createdBy) : null;
 
             $status = $this->normalizeCaseStatus($this->rowValue($row, ['status'], $extra['status'] ?? 'Diproses'));
             $progress = $extra['progress'] ?? ($status === 'Selesai' ? 100 : ($status === 'Mediasi' ? 60 : 45));
 
-            $posbankumName = (string) $this->rowValue($posRow, ['nama', 'nama_posbankum', 'name'], 'Posbankum Belum Dipetakan');
-            $kabupatenKota = (string) $this->rowValue($row, ['kabupaten_kota', 'wilayah', 'kota'], '');
+            $posbankumName = (string) $this->rowValue($posRow, ['nama', 'nama_posbankum', 'name'], $this->rowValue($context, ['posbankum_nama'], 'Posbankum Belum Dipetakan'));
+            $kabupatenKota = (string) $this->rowValue($row, ['kabupaten_kota', 'wilayah', 'kota'], $this->rowValue($context, ['kabupaten_nama'], ''));
+            $kecamatanNama = (string) $this->rowValue($context, ['kecamatan_nama'], '');
+            $kelurahanNama = (string) $this->rowValue($context, ['kelurahan_nama'], '');
             $wilayah = trim($kabupatenKota) !== ''
                 ? $kabupatenKota
-                : (string) $this->rowValue($row, ['kecamatan'], $this->rowValue($posRow, ['alamat'], '-'));
+                : (trim($kecamatanNama) !== '' ? $kecamatanNama : (trim($kelurahanNama) !== '' ? $kelurahanNama : (string) $this->rowValue($posRow, ['alamat'], '-')));
 
             $paralegalName = (string) ($extra['paralegal_nama']
                 ?? $this->rowValue($paralegalRow, ['nama_lengkap', 'name', 'email'])
@@ -793,7 +961,10 @@ class DashboardController extends Controller
                 'paralegal_nama' => $paralegalName,
                 'paralegalPhone' => $paralegalPhone,
                 'paralegal_hp' => $paralegalPhone,
-                'emailPosbankum' => (string) $this->rowValue($posRow, ['email_akun', 'email'], $this->rowValue($row, ['email'], '-')),
+                'emailPosbankum' => (string) $this->rowValue($posRow, ['email_akun', 'email'], $this->rowValue($context, ['email_akun'], $this->rowValue($row, ['email'], '-'))),
+                'kelurahan_nama' => $kelurahanNama,
+                'kecamatan_nama' => $kecamatanNama,
+                'kabupaten_nama' => $kabupatenKota,
                 'tanggalLapor' => $this->rowValue($row, ['created_at', 'tgl_lapor', 'tanggal_kejadian'], now()->toISOString()),
                 'updateTerakhir' => $this->rowValue($row, ['updated_at', 'tgl_selesai', 'created_at', 'tgl_lapor'], now()->toISOString()),
                 'deskripsi' => (string) $this->rowValue($row, ['kronologi', 'deskripsi', 'uraian', 'isi_pengaduan'], $extra['catatan_internal'] ?? 'Belum ada deskripsi kasus.'),

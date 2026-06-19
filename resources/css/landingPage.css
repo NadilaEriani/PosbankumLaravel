@@ -5713,4 +5713,107 @@ body,
         padding-left: 0;
         padding-right: 0;
     }
+    /* Tambahkan di paling bawah resources/css/landingPage.css */
+
+    .lp-osm-map {
+        position: relative !important;
+        min-height: 560px;
+        height: 560px;
+        background: #e8e5de !important;
+        overflow: hidden !important;
+        isolation: isolate;
+    }
+
+    .lp-osm-map::before,
+    .lp-osm-map::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    .lp-osm-tile-layer {
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 1 !important;
+        overflow: hidden !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: none !important;
+    }
+
+    .lp-osm-tile {
+        position: absolute !important;
+        width: 256px !important;
+        height: 256px !important;
+        max-width: none !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        filter: none !important;
+        mix-blend-mode: normal !important;
+        transform: none !important;
+    }
+
+    .lp-map-pin {
+        position: absolute !important;
+        z-index: 15 !important;
+        width: 46px !important;
+        height: 64px !important;
+        margin-left: -23px !important;
+        margin-top: -64px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: block !important;
+        cursor: pointer;
+    }
+
+    .lp-map-pin::before,
+    .lp-map-pin::after,
+    .lp-map-pin span,
+    .lp-map-pin-mark,
+    .lp-map-pin-icon {
+        display: none !important;
+        content: none !important;
+    }
+
+    .lp-map-pin-img {
+        width: 46px !important;
+        height: auto !important;
+        max-width: none !important;
+        display: block !important;
+        object-fit: contain !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        filter: none !important;
+    }
+
+    .lp-map-compass,
+    .lp-map-zoom,
+    .lp-map-scale,
+    .lp-map-layer,
+    .lp-user-map-marker,
+    .lp-map-location-popup {
+        z-index: 20 !important;
+    }
+
+    @media (max-width: 768px) {
+        .lp-osm-map {
+            min-height: 420px;
+            height: 420px;
+        }
+
+        .lp-map-pin {
+            width: 38px !important;
+            height: 54px !important;
+            margin-left: -19px !important;
+            margin-top: -54px !important;
+        }
+
+        .lp-map-pin-img {
+            width: 38px !important;
+        }
+    }
 }
