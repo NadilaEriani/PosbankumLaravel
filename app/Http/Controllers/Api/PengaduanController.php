@@ -8,30 +8,47 @@ use Illuminate\Support\Str;
 
 class PengaduanController extends Controller
 {
+    /**
+     * Daftar pengaduan.
+     * - Warga: hanya pengaduan miliknya (filter by user_id)
+     * - Paralegal: pengaduan dimana warga pengaju memiliki id_kelurahan
+     *   yang sama dengan kelurahan posbankum tempat paralegal bertugas.
+     *   (JOIN dinamis, BUKAN filter by id_posbankum di tabel pengaduan)
+     */
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = DB::table('pengaduan');
 
         if ($user->role === 'warga') {
-            $query->where('user_id', $user->id_user);
+            $data = DB::table('pengaduan')
+                ->where('user_id', $user->id_user)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
         } elseif ($user->role === 'paralegal') {
-            // Ambil id_posbankum penugasan yang aktif dari pivot posbankum_paralegal
-            $id_posbankum = DB::table('posbankum_paralegal')
-                ->where('id_user', $user->id_user)
-                ->where('status', 'aktif')
-                ->orderBy('is_primary', 'desc')
-                ->value('id_posbankum');
+            // Ambil id_kelurahan dari posbankum tempat paralegal bertugas
+            $id_kelurahan_posbankum = DB::table('posbankum_paralegal as pp')
+                ->join('posbankum as pos', 'pos.id_posbankum', '=', 'pp.id_posbankum')
+                ->where('pp.id_user', $user->id_user)
+                ->where('pp.status', 'aktif')
+                ->orderBy('pp.is_primary', 'desc')
+                ->value('pos.id_kelurahan');
 
-            if ($id_posbankum) {
-                $query->where('id_posbankum', $id_posbankum);
+            if ($id_kelurahan_posbankum) {
+                // Ambil pengaduan dimana warga pengaju tinggal di kelurahan yang sama
+                $data = DB::table('pengaduan as p')
+                    ->join('masyarakat as m', 'm.id_user', '=', 'p.user_id')
+                    ->where('m.id_kelurahan', $id_kelurahan_posbankum)
+                    ->select('p.*')
+                    ->orderBy('p.created_at', 'desc')
+                    ->get();
             } else {
-                // Jika paralegal belum ditugaskan, return data kosong
-                $query->whereRaw('1 = 0');
+                // Paralegal belum ditugaskan ke posbankum manapun
+                $data = collect([]);
             }
+        } else {
+            $data = collect([]);
         }
-
-        $data = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'status' => true,
@@ -40,13 +57,14 @@ class PengaduanController extends Controller
         ]);
     }
 
+    /**
+     * Buat pengaduan baru.
+     * Kolom yang disimpan = snapshot data warga + detail aduan.
+     * TIDAK menyimpan id_posbankum — relasi ke posbankum via JOIN dinamis.
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'id_posbankum' => 'required|string',
-            'id_kabupaten' => 'nullable|string',
-            'id_kecamatan' => 'nullable|string',
-            'id_kelurahan' => 'nullable|string',
             'nomor_pengaduan' => 'required|string|unique:pengaduan,nomor_pengaduan',
             'nama_pelapor' => 'required|string',
             'nik' => 'required|string|size:16',
@@ -58,7 +76,6 @@ class PengaduanController extends Controller
             'tanggal_kejadian' => 'required|date',
             'waktu_kejadian' => 'nullable',
             'prioritas' => 'nullable|string',
-            'status' => 'nullable|string',
         ]);
 
         $id = (string) Str::uuid();
@@ -75,13 +92,10 @@ class PengaduanController extends Controller
             'tanggal_kejadian' => $request->tanggal_kejadian,
             'waktu_kejadian' => $request->waktu_kejadian,
             'lokasi_kejadian' => $request->lokasi_kejadian,
-            'status' => $request->status ?? 'menunggu',
+            'status' => 'menunggu',
             'prioritas' => $request->prioritas ?? 'Normal',
             'user_id' => $request->user()->id_user,
-            'id_posbankum' => $request->id_posbankum,
-            'id_kabupaten' => $request->id_kabupaten,
-            'id_kecamatan' => $request->id_kecamatan,
-            'id_kelurahan' => $request->id_kelurahan,
+            // id_paralegal = NULL (belum ada yang klaim)
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -104,6 +118,12 @@ class PengaduanController extends Controller
         return response()->json(['status' => true, 'message' => 'Berhasil', 'data' => $data]);
     }
 
+    /**
+     * Update status pengaduan oleh paralegal.
+     * - 'diproses': paralegal klaim kasus → id_paralegal diisi otomatis
+     * - 'selesai': tgl_selesai diisi
+     * - 'dibatalkan': catatan_internal wajib (alasan penolakan)
+     */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -117,6 +137,7 @@ class PengaduanController extends Controller
             'updated_at' => now(),
         ];
 
+        // Paralegal klaim kasus → isi id_paralegal dengan id_user paralegal
         if ($request->status === 'diproses' && $user->role === 'paralegal') {
             $updateData['id_paralegal'] = $user->id_user;
         }
@@ -138,35 +159,46 @@ class PengaduanController extends Controller
         ]);
     }
 
+    /**
+     * Statistik pengaduan per status.
+     * - Warga: total pengaduan miliknya per status
+     * - Paralegal: total pengaduan masuk ke wilayahnya per status (JOIN dinamis)
+     */
     public function statistik(Request $request)
     {
         $user = $request->user();
-        $query = DB::table('pengaduan');
 
         if ($user->role === 'warga') {
-            $query->where('user_id', $user->id_user);
-        } elseif ($user->role === 'paralegal') {
-            // Ambil id_posbankum penugasan yang aktif dari pivot posbankum_paralegal
-            $id_posbankum = DB::table('posbankum_paralegal')
-                ->where('id_user', $user->id_user)
-                ->where('status', 'aktif')
-                ->orderBy('is_primary', 'desc')
-                ->value('id_posbankum');
+            $stats = DB::table('pengaduan')
+                ->where('user_id', $user->id_user)
+                ->select('status', DB::raw('count(*) as total'))
+                ->groupBy('status')
+                ->pluck('total', 'status')
+                ->all();
 
-            if ($id_posbankum) {
-                $query->where('id_posbankum', $id_posbankum);
+        } elseif ($user->role === 'paralegal') {
+            // Ambil id_kelurahan dari posbankum tempat paralegal bertugas
+            $id_kelurahan_posbankum = DB::table('posbankum_paralegal as pp')
+                ->join('posbankum as pos', 'pos.id_posbankum', '=', 'pp.id_posbankum')
+                ->where('pp.id_user', $user->id_user)
+                ->where('pp.status', 'aktif')
+                ->orderBy('pp.is_primary', 'desc')
+                ->value('pos.id_kelurahan');
+
+            if ($id_kelurahan_posbankum) {
+                $stats = DB::table('pengaduan as p')
+                    ->join('masyarakat as m', 'm.id_user', '=', 'p.user_id')
+                    ->where('m.id_kelurahan', $id_kelurahan_posbankum)
+                    ->select('p.status', DB::raw('count(*) as total'))
+                    ->groupBy('p.status')
+                    ->pluck('total', 'p.status')
+                    ->all();
             } else {
-                $query->whereRaw('1 = 0');
+                $stats = [];
             }
         } else {
-            // Jika role lain (misal admin), return data kosong
-            $query->whereRaw('1 = 0');
+            $stats = [];
         }
-
-        $stats = $query->select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->pluck('total', 'status')
-            ->all();
 
         $defaultStats = [
             'menunggu' => 0,
@@ -184,4 +216,3 @@ class PengaduanController extends Controller
         ]);
     }
 }
-
