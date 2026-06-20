@@ -16,6 +16,7 @@ class PosbankumController extends Controller
             ->leftJoin('kabupaten as kb', 'kc.id_kabupaten', '=', 'kb.id_kabupaten')
             ->select(
                 'p.id_posbankum',
+                'p.id_kelurahan',
                 'p.nama',
                 'p.alamat',
                 'p.nomor_tlp',

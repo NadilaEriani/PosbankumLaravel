@@ -29,9 +29,11 @@ class TimelineController extends Controller
             'id_pengaduan' => $id,
             'title'        => $request->title,
             'deskripsi'    => $request->deskripsi,
-            'tanggal'      => now(),
+            'tipe'         => 'catatan',
+            'is_visible'   => 1,
             'created_by'   => $request->user()->id_user,
             'created_at'   => now(),
+            'updated_at'   => now(),
         ]);
 
         return response()->json(['status' => true, 'message' => 'Timeline ditambahkan', 'data' => null], 201);
