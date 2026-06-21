@@ -627,8 +627,6 @@ export default function LaporanPelayanan({
     });
     const [toastReject, setToastReject] = useState("");
     const [formData, setFormData] = useState(EMPTY_FORM_DATA);
-    const [isParalegalDropdownOpen, setIsParalegalDropdownOpen] =
-        useState(false);
 
     useEffect(() => {
         setReports((initialReports || []).map(normalizeReport));
@@ -659,6 +657,67 @@ export default function LaporanPelayanan({
             hp: item?.hp || item?.nomor_telepon || item?.phone || "",
         }));
     }, [initialParalegals]);
+
+    const currentParalegal = useMemo(() => {
+        const profileUser = profile?.user || {};
+        const fallbackParalegal = paralegalOptions[0] || {};
+
+        return {
+            id: firstFilled(
+                profile?.id_paralegal,
+                profile?.paralegal_id,
+                profile?.id_user,
+                profile?.user_id,
+                profile?.id,
+                profileUser?.id_paralegal,
+                profileUser?.paralegal_id,
+                profileUser?.id_user,
+                profileUser?.user_id,
+                profileUser?.id,
+                fallbackParalegal?.id,
+            ),
+            nama: firstFilled(
+                profile?.nama_paralegal,
+                profile?.paralegal_nama,
+                profile?.nama_lengkap,
+                profile?.nama,
+                profile?.name,
+                profileUser?.nama_paralegal,
+                profileUser?.paralegal_nama,
+                profileUser?.nama_lengkap,
+                profileUser?.nama,
+                profileUser?.name,
+                fallbackParalegal?.nama,
+                "Paralegal",
+            ),
+            hp: firstFilled(
+                profile?.paralegal_hp,
+                profile?.nomor_telepon_paralegal,
+                profile?.nomor_telepon,
+                profile?.no_hp,
+                profile?.hp,
+                profile?.phone,
+                profile?.telepon,
+                profileUser?.paralegal_hp,
+                profileUser?.nomor_telepon_paralegal,
+                profileUser?.nomor_telepon,
+                profileUser?.no_hp,
+                profileUser?.hp,
+                profileUser?.phone,
+                profileUser?.telepon,
+                fallbackParalegal?.hp,
+            ),
+        };
+    }, [profile, paralegalOptions]);
+
+    useEffect(() => {
+        setFormData((prev) => ({
+            ...prev,
+            id_paralegal: currentParalegal.id || "",
+            paralegal_nama: currentParalegal.nama || "",
+            paralegal_hp: currentParalegal.hp || "",
+        }));
+    }, [currentParalegal]);
 
     const stats = useMemo(() => buildStats(reports), [reports]);
 
@@ -694,34 +753,11 @@ export default function LaporanPelayanan({
         });
     }, [activeReports, completedReports, priorityFilter, search, tab]);
 
-    const selectedParalegal = useMemo(
-        () =>
-            paralegalOptions.find(
-                (item) => String(item.id) === String(formData.id_paralegal),
-            ),
-        [formData.id_paralegal, paralegalOptions],
-    );
-
     const handleFieldChange = (field, value) => {
         setFormData((prev) => ({
             ...prev,
             [field]: value,
         }));
-    };
-
-    const handleParalegalChange = (value) => {
-        const selected = paralegalOptions.find(
-            (item) => String(item.id) === String(value),
-        );
-
-        setFormData((prev) => ({
-            ...prev,
-            id_paralegal: selected?.id || "",
-            paralegal_nama: selected?.nama || "",
-            paralegal_hp: selected?.hp || "",
-        }));
-
-        setIsParalegalDropdownOpen(false);
     };
 
     const handleFileChange = (event) => {
@@ -766,13 +802,18 @@ export default function LaporanPelayanan({
         if (!formData.waktu_kejadian) return "Waktu kejadian wajib diisi.";
         if (!formData.lokasi_kejadian.trim())
             return "Lokasi kejadian wajib diisi.";
-        if (!formData.id_paralegal) return "Nama paralegal wajib dipilih.";
+        if (!formData.paralegal_nama.trim())
+            return "Data paralegal login tidak ditemukan. Silakan login ulang.";
         return "";
     };
 
     const resetForm = () => {
-        setFormData(EMPTY_FORM_DATA);
-        setIsParalegalDropdownOpen(false);
+        setFormData({
+            ...EMPTY_FORM_DATA,
+            id_paralegal: currentParalegal.id || "",
+            paralegal_nama: currentParalegal.nama || "",
+            paralegal_hp: currentParalegal.hp || "",
+        });
     };
 
     const handleSubmit = (event) => {
@@ -1415,94 +1456,13 @@ export default function LaporanPelayanan({
                             <span>
                                 Nama Paralegal <b>*</b>
                             </span>
-                            <div
-                                className="lpvParalegalDropdown"
-                                onBlur={(event) => {
-                                    if (
-                                        !event.currentTarget.contains(
-                                            event.relatedTarget,
-                                        )
-                                    ) {
-                                        setIsParalegalDropdownOpen(false);
-                                    }
-                                }}
-                            >
-                                <button
-                                    type="button"
-                                    className={`lpvParalegalTrigger ${
-                                        isParalegalDropdownOpen ? "active" : ""
-                                    }`}
-                                    onClick={() =>
-                                        setIsParalegalDropdownOpen(
-                                            (current) => !current,
-                                        )
-                                    }
-                                    aria-haspopup="listbox"
-                                    aria-expanded={isParalegalDropdownOpen}
-                                >
-                                    <FiUser />
-                                    <span
-                                        className={
-                                            selectedParalegal
-                                                ? ""
-                                                : "isPlaceholder"
-                                        }
-                                    >
-                                        {selectedParalegal?.nama ||
-                                            "Pilih Paralegal"}
-                                    </span>
-                                    <FiChevronRight className="lpvParalegalArrow" />
-                                </button>
-
-                                {isParalegalDropdownOpen ? (
-                                    <div
-                                        className="lpvParalegalMenu"
-                                        role="listbox"
-                                    >
-                                        <button
-                                            type="button"
-                                            className="lpvParalegalOption muted"
-                                            onMouseDown={(event) =>
-                                                event.preventDefault()
-                                            }
-                                            onClick={() =>
-                                                handleParalegalChange("")
-                                            }
-                                        >
-                                            Pilih Paralegal
-                                        </button>
-
-                                        {paralegalOptions.map((item) => (
-                                            <button
-                                                type="button"
-                                                key={item.id}
-                                                className={`lpvParalegalOption ${
-                                                    String(
-                                                        formData.id_paralegal,
-                                                    ) === String(item.id)
-                                                        ? "selected"
-                                                        : ""
-                                                }`}
-                                                onMouseDown={(event) =>
-                                                    event.preventDefault()
-                                                }
-                                                onClick={() =>
-                                                    handleParalegalChange(
-                                                        item.id,
-                                                    )
-                                                }
-                                                role="option"
-                                                aria-selected={
-                                                    String(
-                                                        formData.id_paralegal,
-                                                    ) === String(item.id)
-                                                }
-                                            >
-                                                {item.nama}
-                                            </button>
-                                        ))}
-                                    </div>
-                                ) : null}
+                            <div className="lpvInputShell disabled">
+                                <FiUser />
+                                <input
+                                    value={formData.paralegal_nama}
+                                    placeholder="Otomatis mengambil nama paralegal login"
+                                    readOnly
+                                />
                             </div>
                         </label>
                         <label className="lpvCreateField">
@@ -1510,11 +1470,8 @@ export default function LaporanPelayanan({
                             <div className="lpvInputShell disabled">
                                 <FiPhone />
                                 <input
-                                    value={
-                                        selectedParalegal?.hp ||
-                                        formData.paralegal_hp
-                                    }
-                                    placeholder="Otomatis terisi saat pilih paralegal"
+                                    value={formData.paralegal_hp}
+                                    placeholder="Otomatis mengambil nomor HP paralegal login"
                                     readOnly
                                 />
                             </div>
