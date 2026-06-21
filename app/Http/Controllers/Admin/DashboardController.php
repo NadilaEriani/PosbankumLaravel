@@ -582,31 +582,9 @@ class DashboardController extends Controller
                 });
         }
 
-        if ($this->hasTable('pengaduan')) {
-            $query = DB::table('pengaduan');
-            $dateColumn = $this->firstExistingColumn('pengaduan', ['created_at', 'updated_at', 'tanggal', 'tgl_lapor']);
-
-            if ($dateColumn) {
-                $query->orderByDesc($dateColumn);
-            }
-
-            $query->limit(15)
-                ->get()
-                ->each(function ($row) use ($items, $dateColumn) {
-                    $dateValue = $dateColumn
-                        ? $this->rowValue($row, [$dateColumn], now()->toDateTimeString())
-                        : now()->toDateTimeString();
-
-                    $items->push([
-                        'type' => 'pengaduan',
-                        'title' => 'Pengaduan baru masuk',
-                        'description' => (string) $this->rowValue($row, ['judul_pengaduan', 'judul_laporan', 'judul', 'kategori_masalah', 'jenis_masalah'], 'Data pengaduan diperbarui'),
-                        'at' => $dateValue,
-                        'posbankum' => (string) $this->rowValue($row, ['nama_pelapor'], 'Masyarakat'),
-                        'targetPath' => '',
-                    ]);
-                });
-        }
+        // Aktivitas pengaduan sengaja tidak ditampilkan pada Aktivitas Terbaru admin.
+        // Bagian pengaduan tidak dimasukkan ke daftar $items agar halaman Aktivitas Terbaru
+        // hanya menampilkan kegiatan, paralegal, dokumen, dan berita.
 
         if ($this->hasTable('berita')) {
             $query = DB::table('berita');
