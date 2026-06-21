@@ -1,483 +1,268 @@
-import { Head, router } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 import { useEffect, useMemo, useState } from "react";
-import { ImStack } from "react-icons/im";
-import { CiCalendar } from "react-icons/ci";
-import { TbMessageReport } from "react-icons/tb";
 import {
     FiHome,
     FiFileText,
-    FiLogOut,
-    FiBell,
-    FiCheckCircle,
     FiUsers,
-    FiChevronRight,
-    FiChevronLeft,
-    FiMapPin,
-    FiCalendar,
+    FiCheckCircle,
     FiClock,
+    FiLogOut,
+    FiTrendingUp,
+    FiCalendar,
+    FiDownload,
+    FiChevronDown,
+    FiChevronLeft,
+    FiChevronRight,
+    FiSearch,
     FiX,
-    FiTrash2,
-    FiEye,
-    FiEyeOff,
-    FiFilter,
-    FiAlertCircle,
-    FiBellOff,
-    FiMail,
+    FiMapPin,
+    FiExternalLink,
     FiPhone,
 } from "react-icons/fi";
+import { TbFileCheck } from "react-icons/tb";
+import { BsCheck2Circle } from "react-icons/bs";
+import { HiOutlineNewspaper } from "react-icons/hi2";
 
-import logo from "../../assets/logo.png";
+import "../../../css/Admin/adminDashboard.css";
+
+import DataPosbankum from "./DataPosbankum";
+import ManajemenAkun from "./ManajemenAkun";
+import VerifikasiDataPosbankum from "./VerifikasiDataPosbankum";
+import LaporanKegiatan from "./LaporanKegiatan";
+import KelolaBerita from "./KelolaBerita";
+import AdminProfile from "./AdminProfile";
+import SuccessToast from "../../Components/ui/SuccessToast";
+import RejectToast from "../../Components/ui/RejectToast";
+
 import posbankumIcon from "../../assets/icon.png";
-import "../../../css/Paralegal/paralegalDashboard.css";
-import LaporanPelayanan from "./LaporanPelayanan";
-import KelolaKegiatan from "./KelolaKegiatan";
-import SemuaKasus from "./SemuaKasus";
-import KelolaPosbankum from "./KelolaPosbankum";
-import ParalegalProfile from "./ParalegalProfile";
+import logo from "../../assets/logo.png";
 
-function startCase(value) {
-    const text = String(value || "").trim();
-    if (!text) return "-";
-    return text.charAt(0).toUpperCase() + text.slice(1);
+const MENU_PATH_MAP = {
+    Beranda: "/admin",
+    "Kelola Berita": "/admin/kelola-berita",
+    "Data Posbankum": "/admin/data-posbankum",
+    "Verifikasi Data Posbankum": "/admin/verifikasi-data-posbankum",
+    "Laporan Kegiatan": "/admin/laporan-kegiatan",
+    "Manajemen Akun": "/admin/manajemen-akun",
+};
+
+function getActiveMenuFromPath(pathname = "") {
+    const path = String(pathname || "").toLowerCase();
+
+    if (path.startsWith("/admin/aktivitas-terbaru")) {
+        return "Aktivitas Terbaru";
+    }
+
+    if (path.startsWith("/admin/kelola-berita")) {
+        return "Kelola Berita";
+    }
+
+    if (path.startsWith("/admin/data-posbankum")) {
+        return "Data Posbankum";
+    }
+
+    if (path.startsWith("/admin/verifikasi-data-posbankum")) {
+        return "Verifikasi Data Posbankum";
+    }
+
+    if (path.startsWith("/admin/laporan-kegiatan")) {
+        return "Laporan Kegiatan";
+    }
+
+    if (path.startsWith("/admin/manajemen-akun")) {
+        return "Manajemen Akun";
+    }
+
+    if (path.startsWith("/admin/profile")) {
+        return "Profil Admin";
+    }
+
+    return "Beranda";
 }
 
-function fmtDateID(value) {
+function formatDateID(value) {
     if (!value) return "-";
 
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "-";
+    try {
+        const date = parseActivityDate(value);
 
-    return date.toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-    });
-}
+        if (!date) return "-";
 
-function formatNotificationRelative(value) {
-    if (!value) return "Baru saja";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "Baru saja";
-
-    const diffMs = Date.now() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffHours < 1) return "Baru saja";
-    if (diffHours < 24) return `${diffHours} jam yang lalu`;
-    if (diffDays === 1) return "Kemarin";
-    if (diffDays < 7) return `${diffDays} hari yang lalu`;
-
-    return date.toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    });
-}
-
-function formatNotificationDateTime(value) {
-    if (!value) return "-";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "-";
-
-    const tanggal = date.toLocaleDateString("id-ID", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    });
-
-    const waktu = date.toLocaleTimeString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-    });
-
-    return `${tanggal} Pukul ${waktu} WIB`;
-}
-
-function formatNotificationCardDateTime(value) {
-    if (!value) return "-";
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "-";
-
-    const tanggal = date
-        .toLocaleDateString("id-ID", {
-            day: "2-digit",
+        return new Intl.DateTimeFormat("id-ID", {
+            day: "numeric",
             month: "short",
             year: "numeric",
-        })
-        .replace(/\./g, "");
+        }).format(date);
+    } catch {
+        return "-";
+    }
+}
 
-    const waktu = date.toLocaleTimeString("id-ID", {
+function parseActivityDate(value) {
+    if (!value) return null;
+
+    if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? null : value;
+    }
+
+    const normalized = String(value).trim().replace(" ", "T");
+    const date = new Date(normalized);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatActivityDateTime(value) {
+    const date = parseActivityDate(value);
+
+    if (!date) return "-";
+
+    return `${new Intl.DateTimeFormat("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    }).format(date)}, ${new Intl.DateTimeFormat("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
-    });
-
-    return `${tanggal}, ${waktu} WIB`;
+    })
+        .format(date)
+        .replace(".", ":")} WIB`;
 }
 
-function clampText(value, limit = 150) {
-    const text = String(value || "").trim();
-    if (!text) return "Belum ada deskripsi.";
-    if (text.length <= limit) return text;
-    return `${text.slice(0, limit)}...`;
+const ACTIVITY_FILTERS = [
+    { key: "today", label: "Hari Ini" },
+    { key: "7", label: "7 Hari" },
+    { key: "30", label: "30 Hari" },
+];
+
+function pickActivityIcon(type) {
+    const value = String(type || "").toLowerCase();
+
+    if (value.includes("paralegal")) return <FiUsers />;
+    if (value.includes("pengaduan")) return <TbFileCheck />;
+    if (value.includes("dokumen")) return <TbFileCheck />;
+    if (value.includes("kegiatan")) return <FiCalendar />;
+    if (value.includes("berita")) return <HiOutlineNewspaper />;
+
+    return <BsCheck2Circle />;
 }
 
-function cleanHeaderAddress(value) {
-    return String(value || "")
-        .replace(/\s*,\s*/g, ", ")
-        .replace(/\s+/g, " ")
-        .replace(/,\s*$/g, "")
-        .trim();
+function pickTone(type) {
+    const value = String(type || "").toLowerCase();
+
+    if (value.includes("paralegal")) return "orange";
+    if (value.includes("pengaduan")) return "blue";
+    if (value.includes("dokumen")) return "blue";
+    if (value.includes("kegiatan")) return "blue";
+    if (value.includes("berita")) return "orange";
+
+    return "blue";
 }
 
-function normalizeStatus(value) {
-    const raw = String(value || "").trim();
-    const lower = raw.toLowerCase();
+export default function AdminDashboard() {
+    const { props, url } = usePage();
 
-    if (
-        ["selesai", "done", "completed", "diterima", "approved"].includes(lower)
-    ) {
-        return "Selesai";
-    }
+    const flashSuccess = props.flash?.success || "";
+    const flashError = props.flash?.error || "";
+    const pageErrors = props.errors || {};
 
-    if (lower.includes("tolak") || lower.includes("reject")) {
-        return "Ditolak";
-    }
+    const firstErrorMessage = useMemo(() => {
+        const values = Object.values(pageErrors).flat().filter(Boolean);
 
-    if (raw) return startCase(raw);
-    return "Dalam Proses";
-}
+        return values[0] || "";
+    }, [pageErrors]);
 
-function isDoneStatus(value) {
-    return normalizeStatus(value) === "Selesai";
-}
+    const user = props.auth?.user || {};
+    const stats = props.stats || {};
+    const topActive = props.topActive || [];
+    const activities = props.activities || [];
+    const detailRows = props.detailRows || [];
+    const beritaRows = props.beritaRows || [];
+    const accountRows = props.accountRows || [];
+    const verificationRows = props.verificationRows || [];
+    const laporanRows = props.laporanRows || [];
+    const kabupatenRows = props.kabupatenRows || [];
+    const kecamatanRows = props.kecamatanRows || [];
+    const kelurahanRows = props.kelurahanRows || [];
+    const posbankumMasterRows = props.posbankumMasterRows || [];
 
-function normalizeCategory(value) {
-    const raw = String(value || "").trim();
-    if (!raw) return "Kasus";
-
-    const lower = raw.toLowerCase();
-    if (lower.includes("waris")) return "Hukum Waris";
-    if (
-        lower.includes("keluarga") ||
-        lower.includes("cerai") ||
-        lower.includes("hak asuh")
-    )
-        return "Hukum Keluarga";
-    if (lower.includes("tanah") || lower.includes("pertanahan"))
-        return "Pertanahan";
-    if (
-        lower.includes("pidana") ||
-        lower.includes("pencurian") ||
-        lower.includes("penganiayaan")
-    )
-        return "Hukum Pidana";
-    if (lower.includes("kerja") || lower.includes("phk"))
-        return "Ketenagakerjaan";
-
-    return raw;
-}
-
-function normalizeCaseRow(item, index = 0) {
-    const id =
-        item?.id ?? item?.id_pengaduan ?? item?.id_kasus ?? `kasus-${index}`;
-    const title =
-        item?.judul ??
-        item?.title ??
-        item?.judul_pengaduan ??
-        item?.judul_laporan ??
-        item?.jenis_masalah ??
-        item?.kategori_masalah ??
-        "Kasus";
-    const category = normalizeCategory(
-        item?.kategori ??
-            item?.category ??
-            item?.jenis_masalah ??
-            item?.kategori_masalah ??
-            title,
+    const [active, setActive] = useState(() =>
+        getActiveMenuFromPath(window.location.pathname),
     );
-    const description =
-        item?.deskripsi ??
-        item?.description ??
-        item?.kronologi ??
-        item?.isi_pengaduan ??
-        item?.catatan_admin ??
-        "Belum ada deskripsi.";
-    const status = normalizeStatus(item?.status);
-
-    return {
-        id,
-        title,
-        judul: title,
-        kategori: category,
-        description,
-        deskripsi: description,
-        posbankum:
-            item?.posbankum ?? item?.location ?? item?.lokasi ?? "Posbankum",
-        date:
-            item?.date ??
-            item?.created_at ??
-            item?.tgl_lapor ??
-            item?.tanggal ??
-            null,
-        status,
-        selesai: item?.selesai ?? isDoneStatus(status),
-    };
-}
-
-function normalizeActivityRow(item, index = 0) {
-    const id = item?.id ?? item?.id_kegiatan ?? `kegiatan-${index}`;
-    const title =
-        item?.judul ??
-        item?.title ??
-        item?.nama_kegiatan ??
-        "Kegiatan Posbankum";
-    const description =
-        item?.deskripsi ??
-        item?.description ??
-        item?.catatan ??
-        item?.keterangan ??
-        "Belum ada deskripsi.";
-    const status = normalizeStatus(item?.status);
-
-    return {
-        id,
-        title,
-        judul: title,
-        description,
-        deskripsi: description,
-        tanggal:
-            item?.tanggal ??
-            item?.date ??
-            item?.tgl_mulai ??
-            item?.tgl_upload ??
-            item?.created_at ??
-            null,
-        lokasi: item?.lokasi ?? item?.location ?? "",
-        peserta: item?.peserta ?? item?.jumlah_peserta ?? "",
-        status,
-        selesai: item?.selesai ?? isDoneStatus(status),
-    };
-}
-
-function normalizeNotificationCategory(value) {
-    const raw = String(value || "")
-        .trim()
-        .toLowerCase();
-    if (["pengaduan", "kegiatan", "dokumen", "sistem"].includes(raw))
-        return raw;
-    return "sistem";
-}
-
-function normalizeNotificationPriority(value) {
-    const raw = String(value || "")
-        .trim()
-        .toLowerCase();
-    if (["tinggi", "sedang", "rendah"].includes(raw)) return raw;
-    return "sedang";
-}
-
-function normalizeNotificationRead(item) {
-    const raw = item?.is_read;
-
-    if (typeof raw === "boolean") return raw;
-    if (typeof raw === "number") return raw === 1;
-
-    if (typeof raw === "string") {
-        const value = raw.trim().toLowerCase();
-        if (["1", "true", "sudah", "read"].includes(value)) return true;
-        if (["0", "false", "belum", "unread", ""].includes(value)) return false;
-    }
-
-    return Boolean(item?.read_at);
-}
-
-function normalizeNotificationRow(item, index = 0) {
-    const id = item?.id_notifikasi ?? item?.id ?? `notif-${index}`;
-    const refTable =
-        item?.ref_table ?? item?.reference_table ?? item?.table ?? "";
-    const refId =
-        item?.ref_id ??
-        item?.reference_id ??
-        item?.id_ref ??
-        item?.id_kegiatan ??
-        item?.id_pengaduan ??
-        item?.id_data ??
-        item?.id_posbankum ??
-        null;
-
-    return {
-        ...item,
-        id_notifikasi: id,
-        judul: item?.judul ?? item?.title ?? "Notifikasi",
-        pesan: item?.pesan ?? item?.message ?? "Ada notifikasi baru.",
-        kategori: normalizeNotificationCategory(item?.kategori ?? item?.type),
-        prioritas: normalizeNotificationPriority(
-            item?.prioritas ?? item?.priority,
-        ),
-        ref_table: refTable,
-        ref_id: refId,
-        is_read: normalizeNotificationRead(item),
-        created_at: item?.created_at ?? new Date().toISOString(),
-    };
-}
-
-function getNotificationTarget(item) {
-    const category = normalizeNotificationCategory(
-        item?.kategori ?? item?.type,
-    );
-    const refTable = String(item?.ref_table || "").toLowerCase();
-    const text =
-        `${refTable} ${item?.judul || ""} ${item?.pesan || ""}`.toLowerCase();
-    const id = item?.ref_id ?? null;
-
-    if (category === "kegiatan" || text.includes("kegiatan")) {
-        return { page: "Kelola Kegiatan", type: "kegiatan", id };
-    }
-
-    if (
-        category === "pengaduan" ||
-        text.includes("pengaduan") ||
-        text.includes("kasus")
-    ) {
-        return { page: "Semua Kasus", type: "kasus", id };
-    }
-
-    if (
-        category === "dokumen" ||
-        text.includes("dokumen") ||
-        text.includes("data_posbankum") ||
-        text.includes("data posbankum") ||
-        text.includes("tagging") ||
-        text.includes("posbankum")
-    ) {
-        return { page: "Kelola Posbankum", type: "dokumen", id };
-    }
-
-    return { page: "Beranda", type: "beranda", id: null };
-}
-
-function getNotificationTypeLabel(value) {
-    return startCase(normalizeNotificationCategory(value));
-}
-
-function getNotificationPriorityLabel(value) {
-    return startCase(normalizeNotificationPriority(value));
-}
-
-function notificationIcon(category) {
-    const key = normalizeNotificationCategory(category);
-
-    if (key === "pengaduan") return <TbMessageReport />;
-    if (key === "kegiatan") return <CiCalendar />;
-    if (key === "dokumen") return <FiFileText />;
-    return <FiBell />;
-}
-
-function ConfirmModal({
-    open,
-    title,
-    description,
-    confirmLabel,
-    onCancel,
-    onConfirm,
-    loading = false,
-}) {
-    if (!open) return null;
-
-    return (
-        <div className="pb2ConfirmOverlay" role="dialog" aria-modal="true">
-            <div className="pb2ConfirmCard">
-                <div className="pb2ConfirmIcon">
-                    <FiAlertCircle />
-                </div>
-                <div className="pb2ConfirmTitle">{title}</div>
-                <div className="pb2ConfirmText">{description}</div>
-                <div className="pb2ConfirmActions">
-                    <button
-                        className="pb2ConfirmCancel"
-                        type="button"
-                        onClick={onCancel}
-                        disabled={loading}
-                    >
-                        Batal
-                    </button>
-                    <button
-                        className="pb2ConfirmDanger"
-                        type="button"
-                        onClick={onConfirm}
-                        disabled={loading}
-                    >
-                        {loading ? "Memproses..." : confirmLabel}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function EmptyBox({ children }) {
-    return <div className="pb2Empty">{children}</div>;
-}
-
-export default function PosbankumDashboard({
-    auth = {},
-    posbankum = {},
-    stats = {},
-    kasusTerbaru = [],
-    kegiatanTerbaru = [],
-    kegiatanRows = [],
-    semuaKasusRows = [],
-    posbankumDocuments = [],
-    posbankumLocation = {},
-    notifications = [],
-    laporanPelayananRows = [],
-    paralegalOptions = [],
-    currentPosbankum = {},
-    paralegalProfile = {},
-    flash = {},
-}) {
-    const [active, setActive] = useState("Beranda");
     const [loggingOut, setLoggingOut] = useState(false);
-    const [pageTarget, setPageTarget] = useState({
-        type: null,
-        id: null,
-        tick: 0,
-    });
-
-    const [notifOpen, setNotifOpen] = useState(false);
-    const [notifBusy, setNotifBusy] = useState(false);
-    const [notifReadFilter, setNotifReadFilter] = useState("semua");
-    const [notifTypeFilter, setNotifTypeFilter] = useState("semua");
-    const [notifSelectedId, setNotifSelectedId] = useState(null);
-    const [notifDeleteState, setNotifDeleteState] = useState({
-        open: false,
-        mode: "single",
-        id: null,
-    });
-    const [notifPage, setNotifPage] = useState(1);
-    const [notifRows, setNotifRows] = useState(() =>
-        (notifications || []).map(normalizeNotificationRow),
-    );
+    const [rangeOpen, setRangeOpen] = useState(false);
+    const [rangeDays, setRangeDays] = useState(30);
+    const [detailSearch, setDetailSearch] = useState("");
+    const [detailPage, setDetailPage] = useState(1);
+    const detailPageSize = 6;
+    const [selectedPosDetail, setSelectedPosDetail] = useState(null);
+    const [activityRange, setActivityRange] = useState("today");
+    const [activityPage, setActivityPage] = useState(0);
+    const activityPageSize = 10;
+    const [actionToast, setActionToast] = useState(null);
 
     useEffect(() => {
-        setNotifRows((notifications || []).map(normalizeNotificationRow));
-        setNotifSelectedId(null);
-        setNotifPage(1);
-    }, [notifications]);
+        if (flashSuccess) {
+            setActionToast({
+                type: "success",
+                message: flashSuccess,
+            });
+            return;
+        }
+
+        if (flashError) {
+            setActionToast({
+                type: "error",
+                message: flashError,
+            });
+            return;
+        }
+
+        if (firstErrorMessage) {
+            setActionToast({
+                type: "error",
+                message: firstErrorMessage,
+            });
+        }
+    }, [flashSuccess, flashError, firstErrorMessage]);
+
+    useEffect(() => {
+        if (!actionToast) return undefined;
+
+        const timer = window.setTimeout(() => {
+            setActionToast(null);
+        }, 3500);
+
+        return () => window.clearTimeout(timer);
+    }, [actionToast]);
+
+    useEffect(() => {
+        const currentPath =
+            typeof window !== "undefined" ? window.location.pathname : "";
+        setActive(getActiveMenuFromPath(currentPath));
+    }, [url]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            setActive(getActiveMenuFromPath(window.location.pathname));
+        };
+
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, []);
 
     const menu = useMemo(
         () => [
             { label: "Beranda", icon: <FiHome /> },
-            { label: "Semua Kasus", icon: <ImStack /> },
+            { label: "Kelola Berita", icon: <FiFileText /> },
+            { label: "Data Posbankum", icon: <FiUsers /> },
+            { label: "Verifikasi Data Posbankum", icon: <FiCheckCircle /> },
+            { label: "Laporan Kegiatan", icon: <FiClock /> },
             {
-                label: "Kelola Posbankum",
+                label: "Manajemen Akun",
                 icon: (
                     <span
                         className="ad-navMaskIcon"
@@ -486,740 +271,1103 @@ export default function PosbankumDashboard({
                     />
                 ),
             },
-            {
-                label: "Kelola Kegiatan",
-                icon: <CiCalendar style={{ fontSize: 20, strokeWidth: 1 }} />,
-            },
-            { label: "Laporan Pelayanan", icon: <FiFileText /> },
         ],
         [],
     );
 
-    const caseRows = useMemo(
-        () => (kasusTerbaru || []).map(normalizeCaseRow),
-        [kasusTerbaru],
+    const statDefs = useMemo(
+        () => [
+            {
+                key: "totalPosbankum",
+                title: "Total Posbankum",
+                icon: (
+                    <img
+                        src={posbankumIcon}
+                        alt=""
+                        className="ad-cardAssetIcon"
+                        aria-hidden="true"
+                    />
+                ),
+                tone: "blue",
+                hint: "Data Posbankum terdaftar",
+            },
+            {
+                key: "waitingVerification",
+                title: "Menunggu Verifikasi",
+                icon: <FiClock />,
+                tone: "orange",
+                hint: "Data perlu diperiksa",
+            },
+            {
+                key: "monthKegiatan",
+                title: "Kegiatan Bulan Ini",
+                icon: <FiTrendingUp />,
+                tone: "green",
+                hint: "Kegiatan tercatat",
+            },
+        ],
+        [],
     );
 
-    const activityRows = useMemo(
-        () => (kegiatanTerbaru || []).map(normalizeActivityRow),
-        [kegiatanTerbaru],
+    const filteredDetailRows = useMemo(() => {
+        const q = detailSearch.trim().toLowerCase();
+
+        if (!q) return detailRows;
+
+        return detailRows.filter((row) =>
+            [row.name, row.address, row.email, row.phone, row.status]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+                .includes(q),
+        );
+    }, [detailRows, detailSearch]);
+
+    const detailPageCount = Math.max(
+        1,
+        Math.ceil(filteredDetailRows.length / detailPageSize),
     );
-
-    const notifCount = useMemo(
-        () => notifRows.filter((item) => !item.is_read).length,
-        [notifRows],
+    const detailPageSafe = Math.min(detailPage, detailPageCount);
+    const detailPageRows = filteredDetailRows.slice(
+        (detailPageSafe - 1) * detailPageSize,
+        detailPageSafe * detailPageSize,
     );
-
-    const hasUnreadNotifications = useMemo(
-        () => notifRows.some((item) => !item.is_read),
-        [notifRows],
-    );
-
-    const notifSummaryText = useMemo(() => {
-        if (!notifRows.length) return "Belum ada notifikasi";
-        if (!notifCount) return "Semua notifikasi sudah dibaca";
-        return `${notifCount} notifikasi belum dibaca`;
-    }, [notifRows.length, notifCount]);
-
-    const filteredNotifications = useMemo(() => {
-        return notifRows.filter((item) => {
-            const matchRead =
-                notifReadFilter === "semua"
-                    ? true
-                    : notifReadFilter === "belum"
-                      ? !item.is_read
-                      : item.is_read;
-
-            const matchType =
-                notifTypeFilter === "semua"
-                    ? true
-                    : item.kategori === notifTypeFilter;
-
-            return matchRead && matchType;
-        });
-    }, [notifRows, notifReadFilter, notifTypeFilter]);
-
-    const NOTIF_PER_PAGE = 10;
-
-    const notifTotalPages = useMemo(() => {
-        return Math.max(1, Math.ceil(notifRows.length / NOTIF_PER_PAGE));
-    }, [notifRows.length]);
-
-    const visibleNotifRows = useMemo(() => {
-        const safePage = Math.min(Math.max(notifPage, 1), notifTotalPages);
-        const startIndex = (safePage - 1) * NOTIF_PER_PAGE;
-        return notifRows.slice(startIndex, startIndex + NOTIF_PER_PAGE);
-    }, [notifRows, notifPage, notifTotalPages]);
-
-    const notifPageNumbers = useMemo(() => {
-        if (notifTotalPages <= 1) return [1];
-
-        if (notifPage <= 1) {
-            return [null, 1, 2];
-        }
-
-        if (notifPage >= notifTotalPages) {
-            return [notifTotalPages - 1, notifTotalPages];
-        }
-
-        return [notifPage - 1, notifPage, notifPage + 1];
-    }, [notifPage, notifTotalPages]);
 
     useEffect(() => {
-        if (notifPage > notifTotalPages) {
-            setNotifPage(notifTotalPages);
-        }
-    }, [notifPage, notifTotalPages]);
+        setDetailPage(1);
+    }, [detailSearch]);
 
-    const selectedNotification = useMemo(() => {
-        if (!notifSelectedId) return null;
-        return (
-            notifRows.find((item) => item.id_notifikasi === notifSelectedId) ||
-            null
+    const filteredActivities = useMemo(() => {
+        const now = new Date();
+        const todayStart = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
         );
-    }, [notifRows, notifSelectedId]);
+        const tomorrowStart = new Date(todayStart);
+        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
 
-    const headerTitle = useMemo(() => {
-        const name = String(posbankum?.nama || posbankum?.name || "").trim();
-        return name ? `Posbankum ${name}` : "Posbankum";
-    }, [posbankum?.nama, posbankum?.name]);
+        return activities.filter((item) => {
+            const date = parseActivityDate(item.at);
 
-    const headerSub = useMemo(() => {
-        return cleanHeaderAddress(
-            posbankum?.alamat ||
-                posbankum?.address ||
-                auth?.user?.email ||
-                "Dashboard Posbankum",
-        );
-    }, [posbankum?.alamat, posbankum?.address, auth?.user?.email]);
+            if (!date) return false;
 
-    // Navbar/topbar harus tetap menampilkan identitas Posbankum seperti halaman Beranda,
-    // meskipun menu konten yang dibuka berbeda.
-    const pageTitle = headerTitle;
-    const pageSub = headerSub;
+            if (activityRange === "today") {
+                return date >= todayStart && date < tomorrowStart;
+            }
 
-    const openMenu = (label) => {
-        setPageTarget({ type: null, id: null, tick: 0 });
-        setNotifSelectedId(null);
+            const days = Number(activityRange) || 30;
+            const startDate = new Date(todayStart);
+            startDate.setDate(startDate.getDate() - (days - 1));
 
-        if (label === "Notifikasi") {
-            setNotifPage(1);
+            return date >= startDate && date < tomorrowStart;
+        });
+    }, [activities, activityRange]);
+
+    useEffect(() => {
+        setActivityPage(0);
+    }, [activityRange]);
+
+    const activityPageCount = Math.max(
+        1,
+        Math.ceil(filteredActivities.length / activityPageSize),
+    );
+    const activityPageSafe = Math.min(activityPage, activityPageCount - 1);
+
+    useEffect(() => {
+        if (activityPage > activityPageCount - 1) {
+            setActivityPage(Math.max(0, activityPageCount - 1));
+        }
+    }, [activityPage, activityPageCount]);
+
+    const activityGroups = useMemo(() => {
+        if (filteredActivities.length === 0) {
+            return [[]];
         }
 
-        setActive(label);
+        const groups = [];
+
+        for (let i = 0; i < filteredActivities.length; i += activityPageSize) {
+            groups.push(filteredActivities.slice(i, i + activityPageSize));
+        }
+
+        return groups;
+    }, [filteredActivities, activityPageSize]);
+
+    const activityStartNumber =
+        filteredActivities.length === 0
+            ? 0
+            : activityPageSafe * activityPageSize + 1;
+    const activityEndNumber = Math.min(
+        filteredActivities.length,
+        (activityPageSafe + 1) * activityPageSize,
+    );
+
+    const activityPagerSlots = useMemo(() => {
+        const currentPageNumber = activityPageSafe + 1;
+        const slots = [];
+
+        if (currentPageNumber > 1) {
+            slots.push({ key: "prev-page", page: currentPageNumber - 1 });
+        } else {
+            slots.push({ key: "prev-empty", page: null, isEmpty: true });
+        }
+
+        slots.push({
+            key: "current-page",
+            page: currentPageNumber,
+            isActive: true,
+        });
+
+        if (currentPageNumber < activityPageCount) {
+            slots.push({ key: "next-page", page: currentPageNumber + 1 });
+        }
+
+        return slots;
+    }, [activityPageSafe, activityPageCount]);
+
+    const activeActivityFilterLabel =
+        ACTIVITY_FILTERS.find((item) => item.key === activityRange)?.label ||
+        "Hari Ini";
+
+    const handleExport = () => {
+        const rows = filteredDetailRows.map((row) => ({
+            Posbankum: row.name || "-",
+            Total:
+                (row.activityCount || 0) +
+                (row.caseCount || 0) +
+                (row.documentCount || row.dokumen || 0),
+            Kegiatan: row.activityCount || 0,
+            Kasus: row.caseCount || 0,
+            Dokumen: row.documentCount || row.dokumen || 0,
+            Status: row.status || "Aktif",
+        }));
+
+        const headers = [
+            "Posbankum",
+            "Total",
+            "Kegiatan",
+            "Kasus",
+            "Dokumen",
+            "Status",
+        ];
+        const csv = [
+            headers.join(","),
+            ...rows.map((row) =>
+                headers
+                    .map(
+                        (header) =>
+                            `"${String(row[header] ?? "").replace(/"/g, '""')}"`,
+                    )
+                    .join(","),
+            ),
+        ].join("\n");
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `posbankum-paling-aktif-${rangeDays}hari.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleLogout = () => {
         if (loggingOut) return;
+
         setLoggingOut(true);
-        router.post("/logout", {}, { onFinish: () => setLoggingOut(false) });
+
+        router.post("/logout", undefined, {
+            onFinish: () => setLoggingOut(false),
+        });
     };
 
-    const handleSelectNotification = (item) => {
-        if (!item?.id_notifikasi) return;
+    const handleChangeMenu = (label) => {
+        setSelectedPosDetail(null);
+        setRangeOpen(false);
+        setActive(label);
 
-        if (!item.is_read) {
-            updateNotificationRead(item.id_notifikasi, true);
+        const targetPath = MENU_PATH_MAP[label] || "/admin";
+
+        if (window.location.pathname !== targetPath) {
+            window.history.pushState({}, "", targetPath);
         }
-
-        const target = getNotificationTarget(item);
-        setNotifSelectedId(null);
-        setNotifOpen(false);
-        setActive(target.page);
-        setPageTarget((prev) => ({
-            type: target.type,
-            id: target.id,
-            tick: prev.tick + 1,
-        }));
     };
 
-    const updateNotificationRead = (id, nextRead) => {
-        if (!id || notifBusy) return;
-        setNotifRows((prev) =>
-            prev.map((item) =>
-                item.id_notifikasi === id
-                    ? {
-                          ...item,
-                          is_read: nextRead,
-                          read_at: nextRead ? new Date().toISOString() : null,
-                      }
-                    : item,
-            ),
-        );
-    };
+    const handleOpenProfile = () => {
+        setSelectedPosDetail(null);
+        setRangeOpen(false);
+        setActive("Profil Admin");
 
-    const markAllNotificationsAsRead = () => {
-        if (notifBusy || !hasUnreadNotifications) return;
-        setNotifRows((prev) =>
-            prev.map((item) => ({
-                ...item,
-                is_read: true,
-                read_at: item.read_at || new Date().toISOString(),
-            })),
-        );
-    };
-
-    const deleteNotification = (id) => {
-        if (!id || notifBusy) return;
-        setNotifDeleteState({ open: true, mode: "single", id });
-    };
-
-    const deleteAllNotifications = () => {
-        if (notifBusy || !notifRows.length) return;
-        setNotifDeleteState({ open: true, mode: "all", id: null });
-    };
-
-    const confirmDeleteNotification = () => {
-        setNotifBusy(true);
-
-        if (notifDeleteState.mode === "all") {
-            setNotifRows([]);
-            setNotifSelectedId(null);
-            setNotifDeleteState({ open: false, mode: "single", id: null });
-            setNotifBusy(false);
-            return;
+        if (window.location.pathname !== "/admin/profile") {
+            window.history.pushState({}, "", "/admin/profile");
         }
-
-        const id = notifDeleteState.id;
-        setNotifRows((prev) =>
-            prev.filter((item) => item.id_notifikasi !== id),
-        );
-        setNotifSelectedId((selected) => (selected === id ? null : selected));
-        setNotifDeleteState({ open: false, mode: "single", id: null });
-        setNotifBusy(false);
     };
+
+    const handleCloseProfile = () => {
+        setSelectedPosDetail(null);
+        setRangeOpen(false);
+        setActive("Beranda");
+
+        if (window.location.pathname !== "/admin") {
+            window.history.pushState({}, "", "/admin");
+        }
+    };
+
+    const handleOpenActivityPage = () => {
+        setSelectedPosDetail(null);
+        setRangeOpen(false);
+        setActive("Aktivitas Terbaru");
+
+        if (window.location.pathname !== "/admin/aktivitas-terbaru") {
+            window.history.pushState({}, "", "/admin/aktivitas-terbaru");
+        }
+    };
+
+    const handleOpenActivityDetail = (item) => {
+        if (!item?.targetPath) return;
+
+        router.visit(item.targetPath, { preserveScroll: true });
+    };
+
+    const pageTitle = active === "Beranda" ? "Dashboard Admin" : active;
 
     const renderBeranda = () => (
-        <section className="pb2Content">
-            <div className="pb2Stats">
-                <div className="pb2StatCard">
-                    <div className="pb2StatIcon blue">
-                        <FiFileText />
-                    </div>
-                    <div className="pb2StatBody">
-                        <div className="pb2StatLabel">Kasus Ditangani</div>
-                        <div className="pb2StatValue">
-                            {stats?.casesThisMonth ?? 0}
-                        </div>
-                        <div className="pb2StatHint">Bulan ini</div>
-                    </div>
-                </div>
+        <section className="ad-grid">
+            <div className="ad-wireTitle">Dashboard</div>
 
-                <div className="pb2StatCard">
-                    <div className="pb2StatIcon green">
-                        <FiCheckCircle />
-                    </div>
-                    <div className="pb2StatBody">
-                        <div className="pb2StatLabel">Kegiatan Selesai</div>
-                        <div className="pb2StatValue">
-                            {stats?.completedActivities ?? 0}
-                        </div>
-                        <div className="pb2StatHint">Total kegiatan</div>
-                    </div>
-                </div>
+            <div className="ad-cards">
+                {statDefs.map((item) => (
+                    <div className={`ad-card tone-${item.tone}`} key={item.key}>
+                        <div className="ad-cardIcon">{item.icon}</div>
 
-                <div className="pb2StatCard">
-                    <div className="pb2StatIcon orange">
-                        <FiUsers />
-                    </div>
-                    <div className="pb2StatBody">
-                        <div className="pb2StatLabel">Paralegal Aktif</div>
-                        <div className="pb2StatValue">
-                            {stats?.activeParalegal ?? 0}
+                        <div className="ad-cardBody">
+                            <div className="ad-cardTitle">{item.title}</div>
+                            <div className="ad-cardValue">
+                                {stats[item.key] ?? 0}
+                            </div>
+                            <div className="ad-cardHint">Update real-time</div>
                         </div>
-                        <div className="pb2StatHint">Terdaftar</div>
                     </div>
-                </div>
+                ))}
             </div>
 
-            <div className="pb2Panel">
-                <div className="pb2PanelHead">
-                    <div>
-                        <div className="pb2PanelTitle">
-                            Kasus Terbaru dari Seluruh Posbankum Riau
+            <div className="ad-panels">
+                <section className="ad-panel ad-panelChart">
+                    <div className="ad-panelHead">
+                        <div>
+                            <div className="ad-panelTitle">
+                                Posbankum Paling Aktif
+                            </div>
+                            <div className="ad-panelSub">
+                                Total Kegiatan &amp; Kasus Diselesaikan
+                            </div>
                         </div>
-                        <div className="pb2PanelSub">
-                            Sharing kasus untuk pembelajaran bersama
+
+                        <div className="ad-headActions">
+                            <div className="ad-dd">
+                                <button
+                                    type="button"
+                                    className={`ad-filterBtn ${
+                                        rangeOpen ? "is-open" : ""
+                                    }`}
+                                    onClick={() => setRangeOpen((v) => !v)}
+                                >
+                                    <FiCalendar />
+                                    <span>{rangeDays} Hari</span>
+                                    <FiChevronDown />
+                                </button>
+
+                                {rangeOpen ? (
+                                    <div className="ad-ddMenu">
+                                        {[7, 30, 90].map((days) => (
+                                            <button
+                                                key={days}
+                                                type="button"
+                                                className={`ad-ddItem ${
+                                                    rangeDays === days
+                                                        ? "is-active"
+                                                        : ""
+                                                }`}
+                                                onClick={() => {
+                                                    setRangeDays(days);
+                                                    setRangeOpen(false);
+                                                }}
+                                            >
+                                                {days} Hari
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+
+                            <button
+                                className="ad-exportBtn"
+                                type="button"
+                                onClick={handleExport}
+                            >
+                                <FiDownload /> Export
+                            </button>
                         </div>
                     </div>
-                </div>
 
-                <div className="pb2CaseGrid">
-                    {caseRows.length ? (
-                        caseRows.slice(0, 4).map((item) => (
-                            <div className="pb2CaseCard" key={item.id}>
-                                <div
-                                    className={`pb2CaseIcon ${item.selesai ? "green" : "orange"}`}
+                    {topActive.length > 0 ? (
+                        <div className="ad-activeBars">
+                            {topActive.map((item, index) => (
+                                <button
+                                    type="button"
+                                    className="ad-activeItem"
+                                    key={item.id || item.name || index}
+                                    onClick={() => setSelectedPosDetail(item)}
                                 >
-                                    <FiFileText />
+                                    <div className="ad-activeTop">
+                                        {(item.caseCount || 0) +
+                                            (item.activityCount || 0)}
+                                    </div>
+
+                                    <div className="ad-barArea">
+                                        <div
+                                            className="ad-pillBar"
+                                            style={{
+                                                height: `${
+                                                    item.percent || 18
+                                                }%`,
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className="ad-activeName">
+                                        {item.name}
+                                    </div>
+
+                                    <div className="ad-activeGrowth">
+                                        <span className="is-up">
+                                            +{item.growth || 0}%
+                                        </span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="ad-emptyState">
+                            <TbFileCheck />
+                            <strong>Belum ada data aktivitas</strong>
+                            <p>Data akan tampil setelah database terisi.</p>
+                        </div>
+                    )}
+                </section>
+
+                <section className="ad-panel ad-panelActivity">
+                    <div className="ad-panelHead ad-panelHeadActivity">
+                        <div>
+                            <div className="ad-panelTitle">
+                                Aktivitas Terbaru
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            className="ad-linkBtn"
+                            onClick={handleOpenActivityPage}
+                        >
+                            Lihat semua
+                        </button>
+                    </div>
+
+                    <div className="ad-activityList">
+                        {activities.slice(0, 4).map((item, index) => (
+                            <div
+                                className="ad-activityItem"
+                                key={`${item.type}-${index}`}
+                            >
+                                <div
+                                    className={`ad-activityIconWrap tone-${pickTone(
+                                        item.type,
+                                    )}`}
+                                >
+                                    {pickActivityIcon(item.type)}
                                 </div>
 
-                                <div className="pb2CaseBody">
-                                    <div className="pb2CaseTitle">
-                                        {item.judul}
+                                <div className="ad-activityText">
+                                    <div className="ad-activityTitle">
+                                        {item.title}
                                     </div>
-                                    <div className="pb2CaseDesc">
-                                        {clampText(item.deskripsi, 160)}
+                                    <div className="ad-activityDesc">
+                                        {item.description}
                                     </div>
-
-                                    <div className="pb2CasePills">
-                                        <span className="pb2Pill softBlue">
-                                            {item.kategori}
-                                        </span>
-                                        <span className="pb2Pill softBlue">
-                                            {item.posbankum}
-                                        </span>
-                                        <span
-                                            className={`pb2Pill ${item.selesai ? "softGreen" : "softOrange"}`}
-                                        >
-                                            {item.status}
-                                        </span>
+                                    <div className="ad-activityTime">
+                                        {formatDateID(item.at)}
                                     </div>
                                 </div>
                             </div>
-                        ))
-                    ) : (
-                        <EmptyBox>Belum ada kasus.</EmptyBox>
-                    )}
-                </div>
+                        ))}
 
-                <button
-                    className="pb2Link"
-                    type="button"
-                    onClick={() => openMenu("Semua Kasus")}
-                >
-                    Lihat semua kasus <FiChevronRight />
-                </button>
+                        {activities.length === 0 ? (
+                            <div className="ad-emptyMini">
+                                Belum ada aktivitas terbaru.
+                            </div>
+                        ) : null}
+                    </div>
+                </section>
             </div>
 
-            <div className="pb2Panel">
-                <div className="pb2PanelHead row">
+            <section className="ad-detailPanel ad-panel">
+                <div className="ad-detailHead">
                     <div>
-                        <div className="pb2PanelTitle">Kegiatan Terbaru</div>
-                        <div className="pb2PanelSub">
-                            Aktivitas Posbankum bulan ini
+                        <div className="ad-panelTitle">
+                            Detail Kegiatan Posbankum
                         </div>
+                        <div className="ad-panelSub">
+                            Breakdown per jenis kegiatan
+                        </div>
+                    </div>
+
+                    <div className="ad-searchWrap">
+                        <FiSearch className="ad-searchIcon" />
+                        <input
+                            type="text"
+                            className="ad-searchInput"
+                            placeholder="Cari Posbankum..."
+                            value={detailSearch}
+                            onChange={(event) =>
+                                setDetailSearch(event.target.value)
+                            }
+                        />
+                    </div>
+                </div>
+
+                <div className="ad-tableWrap">
+                    <table className="ad-table">
+                        <colgroup>
+                            <col className="ad-colPosbankum" />
+                            <col className="ad-colTotal" />
+                            <col className="ad-colKegiatan" />
+                            <col className="ad-colKasus" />
+                            <col className="ad-colDokumen" />
+                            <col className="ad-colStatus" />
+                        </colgroup>
+
+                        <thead>
+                            <tr>
+                                <th align="left">POSBANKUM</th>
+                                <th className="is-center">TOTAL KEGIATAN</th>
+                                <th className="is-center">KEGIATAN</th>
+                                <th className="is-center">KASUS</th>
+                                <th className="is-center">DOKUMEN</th>
+                                <th className="is-center">STATUS</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {detailPageRows.map((row) => {
+                                const dokumen =
+                                    row.documentCount || row.dokumen || 0;
+                                const kegiatan = row.activityCount || 0;
+                                const kasus = row.caseCount || 0;
+                                const total = kegiatan + kasus + dokumen;
+
+                                return (
+                                    <tr
+                                        key={row.id || row.name}
+                                        className="ad-tableRowClickable"
+                                        onClick={() =>
+                                            setSelectedPosDetail(row)
+                                        }
+                                    >
+                                        <td>
+                                            <div className="ad-posCell">
+                                                <span className="ad-posName">
+                                                    {row.name}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="is-center">
+                                            <span className="ad-totalNum">
+                                                {total}
+                                            </span>
+                                        </td>
+                                        <td className="is-center">
+                                            {kegiatan}
+                                        </td>
+                                        <td className="is-center">{kasus}</td>
+                                        <td className="is-center">{dokumen}</td>
+                                        <td className="is-center">
+                                            <span className="ad-pillGreen">
+                                                {row.status || "Aktif"}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+
+                            {filteredDetailRows.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6">
+                                        <div className="ad-emptyMini">
+                                            Data Posbankum belum tersedia.
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : null}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="ad-pager">
+                    <button
+                        className="ad-pagerBtn"
+                        type="button"
+                        onClick={() =>
+                            setDetailPage((prev) => Math.max(1, prev - 1))
+                        }
+                        disabled={detailPageSafe <= 1}
+                    >
+                        Sebelumnya
+                    </button>
+
+                    <div className="ad-pagerInfo">
+                        Halaman {detailPageSafe} dari {detailPageCount}
                     </div>
 
                     <button
-                        className="pb2LinkBtn"
+                        className="ad-pagerBtn"
                         type="button"
-                        onClick={() => openMenu("Kelola Kegiatan")}
+                        onClick={() =>
+                            setDetailPage((prev) =>
+                                Math.min(detailPageCount, prev + 1),
+                            )
+                        }
+                        disabled={detailPageSafe >= detailPageCount}
                     >
-                        Kelola kegiatan
+                        Selanjutnya
                     </button>
                 </div>
+            </section>
+        </section>
+    );
 
-                <div className="pb2KegiatanList">
-                    {activityRows.length ? (
-                        activityRows.slice(0, 4).map((item) => (
-                            <div className="pb2KegiatanItem" key={item.id}>
-                                <div className="pb2KegiatanIcon">
-                                    <FiCheckCircle />
-                                </div>
-
-                                <div className="pb2KegiatanBody">
-                                    <div className="pb2KegiatanTitle">
-                                        {item.judul}
-                                    </div>
-                                    <div className="pb2KegiatanMeta">
-                                        {item.tanggal ? (
-                                            <span className="pb2MetaChip">
-                                                <FiCalendar />{" "}
-                                                {fmtDateID(item.tanggal)}
-                                            </span>
-                                        ) : null}
-
-                                        {item.lokasi ? (
-                                            <span className="pb2MetaChip">
-                                                <FiMapPin /> {item.lokasi}
-                                            </span>
-                                        ) : null}
-
-                                        {item.peserta ? (
-                                            <span className="pb2MetaChip">
-                                                <FiUsers /> {item.peserta}{" "}
-                                                peserta
-                                            </span>
-                                        ) : null}
-                                    </div>
-                                </div>
-
-                                <span
-                                    className={`pb2Status ${item.selesai ? "ok" : "prog"}`}
-                                >
-                                    {item.status}
-                                </span>
-                            </div>
-                        ))
-                    ) : (
-                        <EmptyBox>Belum ada kegiatan.</EmptyBox>
-                    )}
-                </div>
+    const renderAktivitasTerbaru = () => (
+        <section className="ad-pagePad ad-activityPage">
+            <div className="ad-activityBreadcrumb" aria-label="Breadcrumb">
+                <button
+                    type="button"
+                    onClick={() => handleChangeMenu("Beranda")}
+                >
+                    Beranda
+                </button>
+                <FiChevronRight aria-hidden="true" />
+                <span>Aktivitas Terbaru</span>
             </div>
-        </section>
-    );
 
-    const renderSemuaKasus = () => (
-        <section className="pb2Content pb2ContentWithHeading">
-            <SemuaKasus
-                cases={semuaKasusRows?.length ? semuaKasusRows : kasusTerbaru}
-                profile={auth?.user || {}}
-                currentPosbankum={currentPosbankum || posbankum}
-                flash={flash}
-                openDetailId={
-                    pageTarget.type === "kasus" ? pageTarget.id : null
-                }
-                openDetailTick={
-                    pageTarget.type === "kasus" ? pageTarget.tick : 0
-                }
-            />
-        </section>
-    );
-
-    const renderKelolaPosbankum = () => (
-        <section className="pb2Content pb2ContentWithHeading">
-            <KelolaPosbankum
-                profile={auth?.user || {}}
-                currentPosbankum={currentPosbankum || posbankum}
-                documents={posbankumDocuments}
-                location={posbankumLocation}
-                flash={flash}
-                openDetailId={
-                    pageTarget.type === "dokumen" ? pageTarget.id : null
-                }
-                openDetailTick={
-                    pageTarget.type === "dokumen" ? pageTarget.tick : 0
-                }
-            />
-        </section>
-    );
-
-    const renderPageHeading = (title) => (
-        <div className="pb2PageHeading">
-            <h1 className="pb2PageHeadingTitle">{title}</h1>
-            <div className="pb2PageHeadingLine" />
-        </div>
-    );
-
-    const renderKelolaKegiatan = () => (
-        <section className="pb2Content pb2ContentWithHeading">
-            <KelolaKegiatan
-                kegiatanRows={kegiatanRows}
-                paralegalOptions={paralegalOptions}
-                currentPosbankum={currentPosbankum || posbankum}
-                profile={auth?.user || {}}
-                flash={flash}
-                openDetailId={
-                    pageTarget.type === "kegiatan" ? pageTarget.id : null
-                }
-                openDetailTick={
-                    pageTarget.type === "kegiatan" ? pageTarget.tick : 0
-                }
-            />
-        </section>
-    );
-
-    const renderLaporanPelayanan = () => (
-        <section className="pb2Content pb2ContentWithHeading">
-            {renderPageHeading("Laporan Pelayanan")}
-            <LaporanPelayanan
-                profile={auth?.user || {}}
-                reports={laporanPelayananRows}
-                paralegalOptions={paralegalOptions}
-                currentPosbankum={currentPosbankum || posbankum}
-                flash={flash}
-            />
-        </section>
-    );
-
-    const renderParalegalProfile = () => (
-        <section className="pb2Content pb2ContentWithHeading">
-            <ParalegalProfile
-                profile={paralegalProfile}
-                onBack={() => openMenu("Beranda")}
-            />
-        </section>
-    );
-
-    const renderNotifikasi = () => (
-        <section className="pb2Content pb2NotifPageContent">
-            <div className="pb2NotifPageTop">
-                <div className="pb2NotifBreadcrumb" aria-label="Breadcrumb">
-                    <button type="button" onClick={() => openMenu("Beranda")}>
-                        Beranda
-                    </button>
-                    <FiChevronRight />
-                    <span>Notifikasi</span>
+            <div className="ad-activityPageHead">
+                <div className="ad-activityPageTitleWrap">
+                    <div className="ad-wireTitle ad-activityPageTitle">
+                        Aktivitas Terbaru
+                    </div>
                 </div>
 
                 <button
-                    className="pb2NotifBackBtn"
                     type="button"
-                    onClick={() => openMenu("Beranda")}
+                    className="ad-activityBackBtn"
+                    onClick={() => handleChangeMenu("Beranda")}
                 >
-                    Kembali
+                    Kembali ke Beranda
                 </button>
             </div>
 
-            <div className="pb2NotifPageHeading">
-                <h1>Notifikasi</h1>
-                <div className="pb2NotifPageLine" />
+            <div
+                className="ad-activityTabs"
+                role="tablist"
+                aria-label="Filter aktivitas"
+            >
+                {ACTIVITY_FILTERS.map((item) => (
+                    <button
+                        key={item.key}
+                        type="button"
+                        className={`ad-activityTab ${
+                            activityRange === item.key ? "is-active" : ""
+                        }`}
+                        onClick={() => setActivityRange(item.key)}
+                    >
+                        {item.label}
+                    </button>
+                ))}
             </div>
 
-            <div className="pb2NotifPageList" aria-live="polite">
-                {notifRows.length ? (
-                    visibleNotifRows.map((item) => (
-                        <button
-                            key={item.id_notifikasi}
-                            type="button"
-                            className={`pb2NotifPageCard ${!item.is_read ? "is-unread" : "is-read"}`}
-                            onClick={() => handleSelectNotification(item)}
-                        >
-                            <span
-                                className={`pb2NotifPageIcon ${item.kategori}`}
-                                aria-hidden="true"
-                            >
-                                {notificationIcon(item.kategori)}
-                            </span>
-
-                            <span className="pb2NotifPageBody">
-                                <span className="pb2NotifPageTitle">
-                                    {item.judul}
-                                </span>
-                                <span className="pb2NotifPageMessage">
-                                    {item.pesan}
-                                </span>
-                                <span className="pb2NotifPageDate">
-                                    <FiClock />
-                                    {formatNotificationCardDateTime(
-                                        item.created_at,
-                                    )}
-                                </span>
-                            </span>
-
-                            <FiChevronRight
-                                className="pb2NotifPageArrow"
-                                aria-hidden="true"
-                            />
-                        </button>
-                    ))
-                ) : (
-                    <div className="pb2NotifPageEmpty">
-                        Belum ada notifikasi.
-                    </div>
-                )}
-            </div>
-
-            {notifRows.length ? (
+            <div className="ad-activityPageList" aria-live="polite">
                 <div
-                    className="pb2NotifPagination"
-                    aria-label="Navigasi halaman notifikasi"
+                    className="ad-activityPageTrack"
+                    style={{
+                        transform: `translateX(-${activityPageSafe * 100}%)`,
+                    }}
                 >
-                    {notifTotalPages > 1 ? (
-                        <button
-                            type="button"
-                            className="pb2NotifPageNav"
-                            onClick={() =>
-                                setNotifPage((page) => Math.max(1, page - 1))
-                            }
-                            disabled={notifPage <= 1}
-                            aria-label="Halaman sebelumnya"
+                    {activityGroups.map((group, pageIndex) => (
+                        <div
+                            className="ad-activityPagePane"
+                            key={`activity-group-${pageIndex}`}
+                            aria-hidden={pageIndex !== activityPageSafe}
                         >
-                            <FiChevronLeft />
-                        </button>
-                    ) : null}
-
-                    <div className="pb2NotifPageNumbers">
-                        {notifPageNumbers.map((pageNumber, index) =>
-                            pageNumber ? (
+                            {group.map((item, index) => (
                                 <button
-                                    key={pageNumber}
                                     type="button"
-                                    className={`pb2NotifPageNumber ${
-                                        pageNumber === notifPage
-                                            ? "is-active"
-                                            : ""
+                                    className={`ad-activityPageItem ${
+                                        item.targetPath ? "is-clickable" : ""
                                     }`}
-                                    onClick={() => setNotifPage(pageNumber)}
-                                    aria-current={
-                                        pageNumber === notifPage
-                                            ? "page"
-                                            : undefined
+                                    key={`${item.type}-${item.at}-${
+                                        pageIndex * activityPageSize + index
+                                    }`}
+                                    onClick={() =>
+                                        handleOpenActivityDetail(item)
                                     }
+                                    disabled={!item.targetPath}
                                 >
-                                    {pageNumber}
+                                    <span
+                                        className={`ad-activityPageIcon tone-${pickTone(
+                                            item.type,
+                                        )}`}
+                                        aria-hidden="true"
+                                    >
+                                        {pickActivityIcon(item.type)}
+                                    </span>
+
+                                    <span className="ad-activityPageBody">
+                                        <span className="ad-activityPageItemTitle">
+                                            {item.title}
+                                        </span>
+                                        <span className="ad-activityPageItemDesc">
+                                            {item.description}
+                                        </span>
+                                        <span className="ad-activityPageMeta">
+                                            <span className="ad-activityPageChip">
+                                                <FiClock aria-hidden="true" />
+                                                {formatActivityDateTime(
+                                                    item.at,
+                                                )}
+                                            </span>
+                                            <span className="ad-activityPageChip">
+                                                <FiMapPin aria-hidden="true" />
+                                                {item.posbankum || "Posbankum"}
+                                            </span>
+                                        </span>
+                                    </span>
+
+                                    <FiChevronRight
+                                        className="ad-activityPageArrow"
+                                        aria-hidden="true"
+                                    />
                                 </button>
-                            ) : (
+                            ))}
+
+                            {group.length === 0 ? (
+                                <div className="ad-activityPageEmpty">
+                                    Belum ada aktivitas untuk filter{" "}
+                                    {activeActivityFilterLabel}.
+                                </div>
+                            ) : null}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {filteredActivities.length > activityPageSize ? (
+                <div
+                    className="ad-activityPager"
+                    aria-label="Navigasi daftar aktivitas"
+                >
+                    <button
+                        type="button"
+                        className="ad-activityPagerIconBtn"
+                        onClick={() =>
+                            setActivityPage((prev) => Math.max(0, prev - 1))
+                        }
+                        disabled={activityPageSafe <= 0}
+                        aria-label="10 aktivitas sebelumnya"
+                    >
+                        <FiChevronLeft aria-hidden="true" />
+                    </button>
+
+                    <div
+                        className="ad-activityPagerNumbers"
+                        aria-label="Halaman aktivitas"
+                    >
+                        {activityPagerSlots.map((slot) =>
+                            slot.isEmpty ? (
                                 <span
-                                    key={`empty-${index}`}
-                                    className="pb2NotifPageNumber is-empty"
+                                    key={slot.key}
+                                    className="ad-activityPagerNumber is-empty"
                                     aria-hidden="true"
                                 />
+                            ) : (
+                                <button
+                                    key={slot.key}
+                                    type="button"
+                                    className={`ad-activityPagerNumber ${
+                                        slot.isActive ? "is-active" : ""
+                                    }`}
+                                    onClick={() =>
+                                        setActivityPage(slot.page - 1)
+                                    }
+                                    disabled={slot.isActive}
+                                    aria-current={
+                                        slot.isActive ? "page" : undefined
+                                    }
+                                    aria-label={`Halaman ${slot.page}`}
+                                >
+                                    {slot.page}
+                                </button>
                             ),
                         )}
                     </div>
 
-                    {notifTotalPages > 1 ? (
-                        <button
-                            type="button"
-                            className="pb2NotifPageNav"
-                            onClick={() =>
-                                setNotifPage((page) =>
-                                    Math.min(notifTotalPages, page + 1),
-                                )
-                            }
-                            disabled={notifPage >= notifTotalPages}
-                            aria-label="Halaman berikutnya"
-                        >
-                            <FiChevronRight />
-                        </button>
-                    ) : null}
+                    <button
+                        type="button"
+                        className="ad-activityPagerIconBtn"
+                        onClick={() =>
+                            setActivityPage((prev) =>
+                                Math.min(activityPageCount - 1, prev + 1),
+                            )
+                        }
+                        disabled={activityPageSafe >= activityPageCount - 1}
+                        aria-label="10 aktivitas berikutnya"
+                    >
+                        <FiChevronRight aria-hidden="true" />
+                    </button>
                 </div>
             ) : null}
+
+            <div className="ad-activityPageSummary">
+                Menampilkan <strong>{activityStartNumber}</strong>-
+                <strong>{activityEndNumber}</strong> dari{" "}
+                <strong>{filteredActivities.length}</strong> aktivitas terbaru
+                untuk filter <strong>{activeActivityFilterLabel}</strong>.
+            </div>
         </section>
     );
 
-    const renderActivePage = () => {
-        if (active === "Beranda") return renderBeranda();
-        if (active === "Semua Kasus") return renderSemuaKasus();
-        if (active === "Kelola Posbankum") return renderKelolaPosbankum();
-        if (active === "Kelola Kegiatan") return renderKelolaKegiatan();
-        if (active === "Laporan Pelayanan") return renderLaporanPelayanan();
-        if (active === "Profil") return renderParalegalProfile();
-        if (active === "Notifikasi") return renderNotifikasi();
+    const renderContent = () => {
+        if (active === "Profil Admin") {
+            return <AdminProfile user={user} onBack={handleCloseProfile} />;
+        }
 
-        return (
-            <div className="pb2Soon">
-                Halaman <b>{active}</b> belum dibuat
-            </div>
-        );
+        if (active === "Aktivitas Terbaru") {
+            return renderAktivitasTerbaru();
+        }
+
+        if (active === "Kelola Berita") {
+            return (
+                <KelolaBerita
+                    rows={beritaRows}
+                    currentUserId={user.id_user || user.id || ""}
+                    currentUserName={user.nama_lengkap || user.name || "Admin"}
+                    currentUserRole={user.role || ""}
+                />
+            );
+        }
+
+        if (active === "Data Posbankum") {
+            return (
+                <DataPosbankum
+                    rows={verificationRows}
+                    kabupatenRows={kabupatenRows}
+                    kecamatanRows={kecamatanRows}
+                />
+            );
+        }
+
+        if (active === "Verifikasi Data Posbankum") {
+            return (
+                <VerifikasiDataPosbankum
+                    rows={verificationRows}
+                    kabupatenRows={kabupatenRows}
+                    kecamatanRows={kecamatanRows}
+                />
+            );
+        }
+
+        if (active === "Laporan Kegiatan") {
+            return <LaporanKegiatan rows={laporanRows} />;
+        }
+
+        if (active === "Manajemen Akun") {
+            return (
+                <ManajemenAkun
+                    rows={accountRows}
+                    paralegalRows={accountRows}
+                    posbankumRows={detailRows}
+                    kabupatenRows={kabupatenRows}
+                    kecamatanRows={kecamatanRows}
+                    kelurahanRows={kelurahanRows}
+                    posbankumMasterRows={posbankumMasterRows}
+                />
+            );
+        }
+
+        return renderBeranda();
     };
 
     return (
-        <div className="pb2Root">
-            <Head
-                title={
-                    active === "Notifikasi"
-                        ? "Notifikasi"
-                        : "Dashboard Posbankum"
-                }
-            />
+        <div className="ad">
+            <Head title={pageTitle} />
 
-            <aside className="pb2Side">
+            {actionToast?.type === "success" ? (
+                <SuccessToast
+                    message={actionToast.message}
+                    onClose={() => setActionToast(null)}
+                />
+            ) : null}
+
+            {actionToast?.type === "error" ? (
+                <RejectToast
+                    message={actionToast.message}
+                    onClose={() => setActionToast(null)}
+                />
+            ) : null}
+
+            <aside className="ad-side">
                 <button
-                    className="pb2Brand pb2BrandButton"
+                    className="ad-brand ad-brandButton"
                     type="button"
-                    onClick={() => openMenu("Profil")}
-                    aria-label="Buka profil paralegal"
+                    onClick={handleOpenProfile}
                 >
-                    <div className="pb2BrandLogoWrap">
+                    <div className="ad-brandLogoWrap">
                         <img
                             src={logo}
                             alt="Logo SIBAPAK"
-                            className="pb2BrandLogo"
+                            className="ad-brandLogo"
                         />
                     </div>
-                    <div className="pb2BrandText">
-                        <div className="pb2BrandName">SIBAPAK</div>
-                        <div className="pb2BrandSub">
+                    <div className="ad-brandText">
+                        <div className="ad-brandName">SIBAPAK</div>
+                        <div className="ad-brandSub">
                             Posbankum Kemenkum Riau
                         </div>
                     </div>
                 </button>
 
-                <div className="pb2BrandDivider" aria-hidden="true" />
+                <div className="ad-brandDivider" aria-hidden="true" />
 
-                <nav className="pb2Nav">
+                <nav className="ad-nav">
                     {menu.map((item) => (
                         <button
                             key={item.label}
-                            className={`pb2NavItem ${active === item.label ? "is-active" : ""}`}
                             type="button"
-                            onClick={() => openMenu(item.label)}
+                            className={`ad-navItem ${
+                                active === item.label ||
+                                (active === "Aktivitas Terbaru" &&
+                                    item.label === "Beranda")
+                                    ? "is-active"
+                                    : ""
+                            }`}
+                            onClick={() => handleChangeMenu(item.label)}
                         >
-                            <span className="pb2NavIcon">{item.icon}</span>
-                            <span className="pb2NavLabel">{item.label}</span>
+                            <span className="ad-navIcon">{item.icon}</span>
+                            <span className="ad-navLabel">{item.label}</span>
                         </button>
                     ))}
                 </nav>
             </aside>
 
-            <main className="pb2Main">
-                <header className="pb2Top">
-                    <div className="pb2TopLeft">
-                        <div className="pb2TopTitle">{pageTitle}</div>
-                        <div className="pb2TopSub">{pageSub}</div>
+            <main className="ad-main">
+                <header className="ad-top ad-topWire is-berita">
+                    <div className="ad-topLeft">
+                        <div className="ad-pageIntro">
+                            <div className="ad-pageIntroTitle">
+                                Dashboard Operator Kanwil
+                            </div>
+                            <div className="ad-pageIntroSub">
+                                Kementerian Hukum Wilayah Riau
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="pb2TopRight">
+                    <div className="ad-topRight">
                         <button
-                            className="pb2Bell"
                             type="button"
-                            title="Notifikasi"
-                            onClick={() => openMenu("Notifikasi")}
-                        >
-                            <FiBell />
-                            {notifCount > 0 ? (
-                                <span className="pb2BellBadge">
-                                    {notifCount}
-                                </span>
-                            ) : null}
-                        </button>
-
-                        <button
-                            className="pb2TopLogoutBtn"
-                            type="button"
+                            className="ad-topLogoutBtn"
                             onClick={handleLogout}
                             disabled={loggingOut}
-                            title={loggingOut ? "Sedang logout..." : "Keluar"}
+                            aria-disabled={loggingOut}
                         >
                             <FiLogOut />
-                            {loggingOut ? "Keluar..." : "Keluar"}
+                            <span>{loggingOut ? "Keluar..." : "Keluar"}</span>
                         </button>
                     </div>
                 </header>
 
-                {renderActivePage()}
+                {renderContent()}
 
-                <footer className="pb2Footer">
-                    <div className="pb2FooterText">
+                <footer className="ad-footer">
+                    <div className="ad-footerText">
                         © 2026 Kementerian Hukum Riau. All rights reserved.
                     </div>
-                    <div className="pb2FooterText">
+
+                    <div className="ad-footerText">
                         Dikembangkan oleh Politeknik Caltex Riau
                     </div>
                 </footer>
-
-                <ConfirmModal
-                    open={notifDeleteState.open}
-                    title={
-                        notifDeleteState.mode === "all"
-                            ? "Hapus Semua Notifikasi?"
-                            : "Hapus Notifikasi?"
-                    }
-                    description={
-                        notifDeleteState.mode === "all"
-                            ? "Apakah Anda yakin ingin menghapus semua notifikasi dari tampilan ini?"
-                            : "Apakah Anda yakin ingin menghapus notifikasi ini dari tampilan?"
-                    }
-                    confirmLabel={
-                        notifDeleteState.mode === "all"
-                            ? "Ya, Hapus Semua"
-                            : "Ya, Hapus"
-                    }
-                    loading={notifBusy}
-                    onCancel={() => {
-                        if (!notifBusy)
-                            setNotifDeleteState({
-                                open: false,
-                                mode: "single",
-                                id: null,
-                            });
-                    }}
-                    onConfirm={confirmDeleteNotification}
-                />
             </main>
+
+            {selectedPosDetail ? (
+                <div className="ad-modalOverlay">
+                    <div
+                        className="ad-modalBackdrop"
+                        onClick={() => setSelectedPosDetail(null)}
+                    />
+                    <div
+                        className="ad-detailModalCard"
+                        onWheel={(event) => event.stopPropagation()}
+                        onTouchMove={(event) => event.stopPropagation()}
+                    >
+                        <div className="ad-detailModalHead">
+                            <div className="ad-detailModalHeadText">
+                                <div className="ad-detailModalTitle">
+                                    {selectedPosDetail.name}
+                                </div>
+                                <div className="ad-detailModalSub">
+                                    Detail Posbankum
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                className="ad-detailModalCloseBtn"
+                                onClick={() => setSelectedPosDetail(null)}
+                            >
+                                <FiX />
+                            </button>
+                        </div>
+
+                        <div className="ad-detailModalBody">
+                            <div className="ad-detailStatGrid">
+                                <div className="ad-detailStatCard tone-blue">
+                                    <FiUsers className="ad-detailStatIcon" />
+                                    <div className="ad-detailStatValue">
+                                        {selectedPosDetail.paralegalCount || 0}
+                                    </div>
+                                    <div className="ad-detailStatLabel">
+                                        Paralegal
+                                    </div>
+                                </div>
+
+                                <div className="ad-detailStatCard tone-green">
+                                    <FiCalendar className="ad-detailStatIcon" />
+                                    <div className="ad-detailStatValue">
+                                        {selectedPosDetail.activityCount || 0}
+                                    </div>
+                                    <div className="ad-detailStatLabel">
+                                        Kegiatan
+                                    </div>
+                                </div>
+
+                                <div className="ad-detailStatCard tone-orange">
+                                    <TbFileCheck className="ad-detailStatIcon" />
+                                    <div className="ad-detailStatValue">
+                                        {selectedPosDetail.caseCount || 0}
+                                    </div>
+                                    <div className="ad-detailStatLabel">
+                                        Kasus
+                                    </div>
+                                </div>
+
+                                <div className="ad-detailStatCard tone-blueAlt">
+                                    <BsCheck2Circle className="ad-detailStatIcon" />
+                                    <div className="ad-detailStatValue">
+                                        {selectedPosDetail.status || "Aktif"}
+                                    </div>
+                                    <div className="ad-detailStatLabel">
+                                        Status
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="ad-detailInfoCard">
+                                <div className="ad-detailInfoTitle">
+                                    Informasi Kontak
+                                </div>
+
+                                <div className="ad-detailInfoList">
+                                    <div className="ad-detailInfoItem">
+                                        <FiMapPin className="ad-detailInfoIcon is-blue" />
+                                        <div>
+                                            <div className="ad-detailInfoLabel">
+                                                Alamat
+                                            </div>
+                                            <div className="ad-detailInfoValue">
+                                                {selectedPosDetail.address ||
+                                                    "-"}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="ad-detailInfoItem">
+                                        <FiPhone className="ad-detailInfoIcon is-green" />
+                                        <div>
+                                            <div className="ad-detailInfoLabel">
+                                                Telepon
+                                            </div>
+                                            <div className="ad-detailInfoValue">
+                                                {selectedPosDetail.phone || "-"}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="ad-detailInfoItem">
+                                        <FiFileText className="ad-detailInfoIcon is-orange" />
+                                        <div>
+                                            <div className="ad-detailInfoLabel">
+                                                Email
+                                            </div>
+                                            <div className="ad-detailInfoValue">
+                                                {selectedPosDetail.email || "-"}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="ad-detailActionRow">
+                                    <button
+                                        type="button"
+                                        className="ad-detailActionBtn is-green"
+                                        onClick={() =>
+                                            window.open(
+                                                `https://wa.me/${String(
+                                                    selectedPosDetail.phone ||
+                                                        "",
+                                                ).replace(/\D/g, "")}`,
+                                                "_blank",
+                                            )
+                                        }
+                                    >
+                                        <FiPhone />
+                                        Hubungi
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="ad-detailActionBtn is-navy"
+                                        onClick={() =>
+                                            window.open(
+                                                selectedPosDetail.latitude &&
+                                                    selectedPosDetail.longitude
+                                                    ? `https://www.google.com/maps/search/?api=1&query=${selectedPosDetail.latitude},${selectedPosDetail.longitude}`
+                                                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                                          selectedPosDetail.address ||
+                                                              selectedPosDetail.name ||
+                                                              "",
+                                                      )}`,
+                                                "_blank",
+                                            )
+                                        }
+                                    >
+                                        <FiExternalLink />
+                                        Buka Maps
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }
