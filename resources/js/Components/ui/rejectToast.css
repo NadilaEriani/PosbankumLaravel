@@ -1,0 +1,99 @@
+.rt-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2600;
+    width: min(100%, 420px);
+    min-height: 64px;
+    padding: 14px 14px 14px 16px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.14);
+    border-left: 4px solid #ef4444;
+    font-family: "Outfit", sans-serif;
+}
+
+.rt-toastIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    border: 2px solid currentColor;
+    font-weight: 700;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.rt-toastBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.rt-toastText {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.rt-toastClose {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 0;
+    background: transparent;
+    color: #94a3b8;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+.rt-toastClose:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+}
+
+@media (max-width: 640px) {
+    .rt-toast {
+        right: 12px;
+        left: 12px;
+        width: auto;
+        max-width: none;
+    }
+}
+
+/* ===== Revisi responsif toast gagal/tolak ===== */
+@media (max-width: 480px) {
+    .rtToast,
+    .rejectToast {
+        left: 12px;
+        right: 12px;
+        top: 12px;
+        width: auto;
+        max-width: none;
+    }
+}
+
+/* ===== Mobile polish - Reject toast ===== */
+@media (max-width: 520px) {
+    .rejectToast,
+    .reject-toast {
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: none !important;
+    }
+}

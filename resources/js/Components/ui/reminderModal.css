@@ -1,0 +1,190 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
+
+.rmOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.28);
+    font-family:
+        "Outfit",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+}
+
+.rmCard {
+    width: min(485px, calc(100vw - 32px));
+    padding: 28px;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 28px 64px rgba(15, 23, 42, 0.3);
+}
+
+.rmHead {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.rmIconWrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: #d1e1fd;
+    color: #0f3f93;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.rmIconWrap svg {
+    width: 22px;
+    height: 22px;
+}
+
+.rmHeadText {
+    min-width: 0;
+}
+
+.rmTitle {
+    color: #1f2937;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.rmSubtitle {
+    margin-top: 2px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.rmDescription {
+    margin-top: 16px;
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+.rmActions {
+    margin-top: 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.rmBtn {
+    min-width: 120px;
+    height: 44px;
+    border: 0;
+    border-radius: 16px;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+        background 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease,
+        transform 180ms ease,
+        filter 180ms ease;
+}
+
+.rmBtn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.rmBtnGhost {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.rmBtnPrimary {
+    background: #1454c4;
+    color: #ffffff;
+}
+
+.rmBtn:not(:disabled):hover,
+.rmBtn:not(:disabled):focus-visible {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.rmBtn:not(:disabled):active {
+    transform: translateY(0);
+}
+
+@media (max-width: 520px) {
+    .rmActions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .rmBtn {
+        width: 100%;
+    }
+}
+
+/* ===== Revisi responsif reminder modal ===== */
+@media (max-width: 768px) {
+    .rmOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .rmModal {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+        border-radius: 16px;
+    }
+
+    .rmActions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .rmActions button {
+        width: 100%;
+    }
+}
+
+/* ===== Mobile polish - Reminder modal ===== */
+@media (max-width: 520px) {
+    .reminderModalOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .reminderModal {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 18px;
+    }
+
+    .reminderModalActions {
+        grid-template-columns: 1fr;
+    }
+
+    .reminderModalActions button {
+        width: 100%;
+    }
+}
