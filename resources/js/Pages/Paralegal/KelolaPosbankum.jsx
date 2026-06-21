@@ -242,22 +242,61 @@ function ensureLeaflet() {
         });
 }
 
-function getLocationStatusRaw(row, hasCoords) {
-    if (!row) return hasCoords ? "proses" : "";
+const LOCATION_STATUS_KEYS = [
+    "status_tagging_area",
+    "status_tagging",
+    "status_lokasi",
+    "status_verifikasi_tagging_area",
+    "status_verifikasi_tagging",
+    "status_verifikasi_lokasi",
+    "verification_status_location",
+    "tagging_area_status",
+    "tagging_status",
+    "location_status",
+    "lokasi_status",
+    "status_area",
+    "status_verifikasi",
+    "status",
+];
 
-    const raw =
-        row.status_lokasi ??
-        row.status_tagging ??
-        row.status_tagging_area ??
-        row.status_verifikasi_lokasi ??
-        row.status_verifikasi_tagging_area ??
-        row.status_verifikasi_tagging ??
-        row.verification_status_location ??
-        row.status ??
-        "";
+function isKnownVerificationStatus(value) {
+    return [
+        "diterima",
+        "disetujui",
+        "approved",
+        "valid",
+        "verified",
+        "terverifikasi",
+        "ditolak",
+        "rejected",
+        "tolak",
+        "menunggu",
+        "pending",
+        "review",
+        "proses",
+        "diproses",
+        "verifikasi",
+    ].includes(normStatus(value));
+}
 
-    if (raw) return raw;
-    return hasCoords ? "proses" : "";
+function getLocationStatusRaw(sources, hasCoords) {
+    const rows = Array.isArray(sources) ? sources : [sources];
+
+    for (const row of rows) {
+        if (!row || typeof row !== "object") continue;
+
+        for (const key of LOCATION_STATUS_KEYS) {
+            const value = row?.[key];
+            const clean = String(value ?? "").trim();
+
+            if (!clean || clean === "-") continue;
+            if (!isKnownVerificationStatus(clean)) continue;
+
+            return clean;
+        }
+    }
+
+    return hasCoords ? DOC_STATUS_PROCESS : "";
 }
 
 function isSaprasCategory(kategori) {
@@ -749,9 +788,12 @@ export default function KelolaPosbankum({
 
     const locationKind = useMemo(() => {
         return statusKind(
-            getLocationStatusRaw({ ...posRow, ...location }, hasSavedCoords),
+            getLocationStatusRaw(
+                [location, posRow, currentPosbankum],
+                hasSavedCoords,
+            ),
         );
-    }, [posRow, location, hasSavedCoords]);
+    }, [location, posRow, currentPosbankum, hasSavedCoords]);
 
     const locationLabel = statusLabelFromKind(locationKind);
 
