@@ -88,9 +88,10 @@ class LaporanKegiatanController extends Controller
             return;
         }
 
-        $approved = strtolower($status) !== 'ditolak';
+        $approved = strtolower(trim($status)) === 'disetujui';
         $judulKegiatan = (string) $this->rowValue($row, ['judul', 'nama_kegiatan', 'tema'], 'Laporan kegiatan');
         $judulNotif = $approved ? 'Kegiatan Disetujui' : 'Kegiatan Ditolak';
+
         $pesan = $approved
             ? 'Kegiatan "' . $judulKegiatan . '" sudah disetujui oleh admin.'
             : 'Kegiatan "' . $judulKegiatan . '" ditolak oleh admin.' . (trim($catatan) !== '' ? ' Alasan: ' . trim($catatan) : '');
@@ -152,17 +153,17 @@ class LaporanKegiatanController extends Controller
         ];
 
         if (in_array($statusInput, $accepted, true)) {
-            $status = 'Diterima';
+            $status = 'disetujui';
             $message = 'Laporan kegiatan berhasil disetujui.';
         } elseif (in_array($statusInput, $rejected, true)) {
-            $status = 'Ditolak';
+            $status = 'ditolak';
             $message = 'Laporan kegiatan berhasil ditolak.';
         } else {
-            $status = 'Menunggu';
+            $status = 'menunggu';
             $message = 'Status laporan kegiatan berhasil diperbarui.';
         }
 
-        if ($status === 'Ditolak' && trim((string) ($validated['catatan'] ?? '')) === '') {
+        if ($status === 'ditolak' && trim((string) ($validated['catatan'] ?? '')) === '') {
             throw ValidationException::withMessages([
                 'catatan' => 'Catatan penolakan wajib diisi.',
             ]);
@@ -179,11 +180,13 @@ class LaporanKegiatanController extends Controller
             ]);
         }
 
+        $catatan = trim((string) ($validated['catatan'] ?? ''));
+
         $payload = [];
         $this->addColumn($payload, 'kegiatan', 'status', $status);
-        $this->addColumn($payload, 'kegiatan', 'catatan', trim((string) ($validated['catatan'] ?? '')) ?: null);
-        $this->addColumn($payload, 'kegiatan', 'catatan_admin', trim((string) ($validated['catatan'] ?? '')) ?: null);
-        $this->addColumn($payload, 'kegiatan', 'alasan_penolakan', trim((string) ($validated['catatan'] ?? '')) ?: null);
+        $this->addColumn($payload, 'kegiatan', 'catatan', $catatan ?: null);
+        $this->addColumn($payload, 'kegiatan', 'catatan_admin', $catatan ?: null);
+        $this->addColumn($payload, 'kegiatan', 'alasan_penolakan', $catatan ?: null);
         $this->addColumn($payload, 'kegiatan', 'tgl_verifikasi', now());
         $this->addColumn($payload, 'kegiatan', 'updated_at', now());
 
@@ -212,7 +215,7 @@ class LaporanKegiatanController extends Controller
             $row,
             $idKegiatan,
             $status,
-            trim((string) ($validated['catatan'] ?? '')),
+            $catatan
         );
 
         return redirect()

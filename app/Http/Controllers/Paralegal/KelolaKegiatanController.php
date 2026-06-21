@@ -73,7 +73,6 @@ class KelolaKegiatanController extends Controller
             }
         }
 
-
         if ($this->hasTable('posbankum_paralegal')) {
             $query = DB::table('posbankum_paralegal');
 
@@ -308,13 +307,13 @@ class KelolaKegiatanController extends Controller
 
             $this->addColumn($payload, 'kegiatan', 'id_posbankum', $idPosbankum);
             $this->addColumn($payload, 'kegiatan', 'created_by', $userId);
-            $this->addColumn($payload, 'kegiatan', 'status', 'Diproses');
+            $this->addColumn($payload, 'kegiatan', 'status', 'menunggu');
             $this->addColumn($payload, 'kegiatan', 'tgl_upload', now());
             $this->addColumn($payload, 'kegiatan', 'created_at', now());
         }
 
         if ($resubmitRejected) {
-            $this->addColumn($payload, 'kegiatan', 'status', 'Diproses');
+            $this->addColumn($payload, 'kegiatan', 'status', 'menunggu');
             $this->addColumn($payload, 'kegiatan', 'tgl_upload', now());
         }
 
