@@ -2,6 +2,7 @@ import { Head, router } from "@inertiajs/react";
 import { useEffect, useMemo, useState } from "react";
 import { ImStack } from "react-icons/im";
 import { CiCalendar } from "react-icons/ci";
+import { TbMessageReport } from "react-icons/tb";
 import {
     FiHome,
     FiFileText,
@@ -10,6 +11,7 @@ import {
     FiCheckCircle,
     FiUsers,
     FiChevronRight,
+    FiChevronLeft,
     FiMapPin,
     FiCalendar,
     FiClock,
@@ -96,6 +98,29 @@ function formatNotificationDateTime(value) {
     return `${tanggal} Pukul ${waktu} WIB`;
 }
 
+function formatNotificationCardDateTime(value) {
+    if (!value) return "-";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+
+    const tanggal = date
+        .toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        })
+        .replace(/\./g, "");
+
+    const waktu = date.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    });
+
+    return `${tanggal}, ${waktu} WIB`;
+}
+
 function clampText(value, limit = 150) {
     const text = String(value || "").trim();
     if (!text) return "Belum ada deskripsi.";
@@ -109,6 +134,86 @@ function cleanHeaderAddress(value) {
         .replace(/\s+/g, " ")
         .replace(/,\s*$/g, "")
         .trim();
+}
+
+function getCookieValue(name) {
+    if (typeof document === "undefined") return "";
+
+    const match = document.cookie
+        .split(";")
+        .map((item) => item.trim())
+        .find((item) => item.startsWith(`${name}=`));
+
+    if (!match) return "";
+
+    try {
+        return decodeURIComponent(match.slice(name.length + 1));
+    } catch (error) {
+        return match.slice(name.length + 1);
+    }
+}
+
+function csrfRequestHeaders() {
+    const headers = {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+    };
+
+    if (typeof document === "undefined") return headers;
+
+    const metaToken = document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute("content");
+
+    if (metaToken) {
+        headers["X-CSRF-TOKEN"] = metaToken;
+        return headers;
+    }
+
+    const xsrfToken = getCookieValue("XSRF-TOKEN");
+    if (xsrfToken) {
+        headers["X-XSRF-TOKEN"] = xsrfToken;
+    }
+
+    return headers;
+}
+
+async function persistNotificationReadStatus(id, nextRead) {
+    const response = await fetch(
+        `/paralegal/notifikasi/${encodeURIComponent(id)}/read`,
+        {
+            method: "PATCH",
+            credentials: "same-origin",
+            headers: csrfRequestHeaders(),
+            body: JSON.stringify({ is_read: nextRead ? 1 : 0 }),
+        },
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            `Gagal menyimpan status baca notifikasi: ${response.status}`,
+        );
+    }
+
+    return response.json().catch(() => ({}));
+}
+
+async function persistAllNotificationsRead() {
+    const response = await fetch("/paralegal/notifikasi/read-all", {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: csrfRequestHeaders(),
+        body: JSON.stringify({ is_read: 1 }),
+    });
+
+    if (!response.ok) {
+        throw new Error(
+            `Gagal menyimpan semua notifikasi terbaca: ${response.status}`,
+        );
+    }
+
+    return response.json().catch(() => ({}));
 }
 
 function normalizeStatus(value) {
@@ -258,6 +363,21 @@ function normalizeNotificationPriority(value) {
     return "sedang";
 }
 
+function normalizeNotificationRead(item) {
+    const raw = item?.is_read;
+
+    if (typeof raw === "boolean") return raw;
+    if (typeof raw === "number") return raw === 1;
+
+    if (typeof raw === "string") {
+        const value = raw.trim().toLowerCase();
+        if (["1", "true", "sudah", "read"].includes(value)) return true;
+        if (["0", "false", "belum", "unread", ""].includes(value)) return false;
+    }
+
+    return Boolean(item?.read_at);
+}
+
 function normalizeNotificationRow(item, index = 0) {
     const id = item?.id_notifikasi ?? item?.id ?? `notif-${index}`;
     const refTable =
@@ -283,7 +403,7 @@ function normalizeNotificationRow(item, index = 0) {
         ),
         ref_table: refTable,
         ref_id: refId,
-        is_read: Boolean(item?.is_read ?? item?.read_at),
+        is_read: normalizeNotificationRead(item),
         created_at: item?.created_at ?? new Date().toISOString(),
     };
 }
@@ -334,7 +454,7 @@ function getNotificationPriorityLabel(value) {
 function notificationIcon(category) {
     const key = normalizeNotificationCategory(category);
 
-    if (key === "pengaduan") return <FiAlertCircle />;
+    if (key === "pengaduan") return <TbMessageReport />;
     if (key === "kegiatan") return <CiCalendar />;
     if (key === "dokumen") return <FiFileText />;
     return <FiBell />;
@@ -421,6 +541,7 @@ export default function PosbankumDashboard({
         mode: "single",
         id: null,
     });
+    const [notifPage, setNotifPage] = useState(1);
     const [notifRows, setNotifRows] = useState(() =>
         (notifications || []).map(normalizeNotificationRow),
     );
@@ -428,6 +549,7 @@ export default function PosbankumDashboard({
     useEffect(() => {
         setNotifRows((notifications || []).map(normalizeNotificationRow));
         setNotifSelectedId(null);
+        setNotifPage(1);
     }, [notifications]);
 
     const menu = useMemo(
@@ -497,6 +619,38 @@ export default function PosbankumDashboard({
         });
     }, [notifRows, notifReadFilter, notifTypeFilter]);
 
+    const NOTIF_PER_PAGE = 10;
+
+    const notifTotalPages = useMemo(() => {
+        return Math.max(1, Math.ceil(notifRows.length / NOTIF_PER_PAGE));
+    }, [notifRows.length]);
+
+    const visibleNotifRows = useMemo(() => {
+        const safePage = Math.min(Math.max(notifPage, 1), notifTotalPages);
+        const startIndex = (safePage - 1) * NOTIF_PER_PAGE;
+        return notifRows.slice(startIndex, startIndex + NOTIF_PER_PAGE);
+    }, [notifRows, notifPage, notifTotalPages]);
+
+    const notifPageNumbers = useMemo(() => {
+        if (notifTotalPages <= 1) return [1];
+
+        if (notifPage <= 1) {
+            return [null, 1, 2];
+        }
+
+        if (notifPage >= notifTotalPages) {
+            return [notifTotalPages - 1, notifTotalPages];
+        }
+
+        return [notifPage - 1, notifPage, notifPage + 1];
+    }, [notifPage, notifTotalPages]);
+
+    useEffect(() => {
+        if (notifPage > notifTotalPages) {
+            setNotifPage(notifTotalPages);
+        }
+    }, [notifPage, notifTotalPages]);
+
     const selectedNotification = useMemo(() => {
         if (!notifSelectedId) return null;
         return (
@@ -527,6 +681,11 @@ export default function PosbankumDashboard({
     const openMenu = (label) => {
         setPageTarget({ type: null, id: null, tick: 0 });
         setNotifSelectedId(null);
+
+        if (label === "Notifikasi") {
+            setNotifPage(1);
+        }
+
         setActive(label);
     };
 
@@ -536,11 +695,11 @@ export default function PosbankumDashboard({
         router.post("/logout", {}, { onFinish: () => setLoggingOut(false) });
     };
 
-    const handleSelectNotification = (item) => {
+    const handleSelectNotification = async (item) => {
         if (!item?.id_notifikasi) return;
 
         if (!item.is_read) {
-            updateNotificationRead(item.id_notifikasi, true);
+            await updateNotificationRead(item.id_notifikasi, true);
         }
 
         const target = getNotificationTarget(item);
@@ -554,30 +713,67 @@ export default function PosbankumDashboard({
         }));
     };
 
-    const updateNotificationRead = (id, nextRead) => {
+    const updateNotificationRead = async (id, nextRead) => {
         if (!id || notifBusy) return;
+
+        const previousItem = notifRows.find(
+            (item) => String(item.id_notifikasi) === String(id),
+        );
+
+        if (!previousItem || previousItem.is_read === nextRead) return;
+
+        const nextReadAt = nextRead ? new Date().toISOString() : null;
+
         setNotifRows((prev) =>
             prev.map((item) =>
-                item.id_notifikasi === id
+                String(item.id_notifikasi) === String(id)
                     ? {
                           ...item,
                           is_read: nextRead,
-                          read_at: nextRead ? new Date().toISOString() : null,
+                          read_at: nextReadAt,
                       }
                     : item,
             ),
         );
+
+        try {
+            await persistNotificationReadStatus(id, nextRead);
+        } catch (error) {
+            console.error(error);
+            setNotifRows((prev) =>
+                prev.map((item) =>
+                    String(item.id_notifikasi) === String(id)
+                        ? {
+                              ...item,
+                              is_read: previousItem.is_read,
+                              read_at: previousItem.read_at || null,
+                          }
+                        : item,
+                ),
+            );
+        }
     };
 
-    const markAllNotificationsAsRead = () => {
+    const markAllNotificationsAsRead = async () => {
         if (notifBusy || !hasUnreadNotifications) return;
+
+        const previousRows = notifRows;
+        const now = new Date().toISOString();
+
         setNotifRows((prev) =>
             prev.map((item) => ({
                 ...item,
                 is_read: true,
-                read_at: item.read_at || new Date().toISOString(),
+                read_at: item.read_at || now,
             })),
         );
+
+        try {
+            await persistAllNotificationsRead();
+        } catch (error) {
+            console.error(error);
+            setNotifRows(previousRows);
+        }
     };
 
     const deleteNotification = (id) => {
@@ -863,6 +1059,144 @@ export default function PosbankumDashboard({
         </section>
     );
 
+    const renderNotifikasi = () => (
+        <section className="pb2Content pb2NotifPageContent">
+            <div className="pb2NotifPageTop">
+                <div className="pb2NotifBreadcrumb" aria-label="Breadcrumb">
+                    <button type="button" onClick={() => openMenu("Beranda")}>
+                        Beranda
+                    </button>
+                    <FiChevronRight />
+                    <span>Notifikasi</span>
+                </div>
+
+                <button
+                    className="pb2NotifBackBtn"
+                    type="button"
+                    onClick={() => openMenu("Beranda")}
+                >
+                    Kembali
+                </button>
+            </div>
+
+            <div className="pb2NotifPageHeading">
+                <h1>Notifikasi</h1>
+                <div className="pb2NotifPageLine" />
+            </div>
+
+            <div className="pb2NotifPageList" aria-live="polite">
+                {notifRows.length ? (
+                    visibleNotifRows.map((item) => (
+                        <button
+                            key={item.id_notifikasi}
+                            type="button"
+                            className={`pb2NotifPageCard ${!item.is_read ? "is-unread" : "is-read"}`}
+                            onClick={() => handleSelectNotification(item)}
+                        >
+                            <span
+                                className={`pb2NotifPageIcon ${item.kategori}`}
+                                aria-hidden="true"
+                            >
+                                {notificationIcon(item.kategori)}
+                            </span>
+
+                            <span className="pb2NotifPageBody">
+                                <span className="pb2NotifPageTitle">
+                                    {item.judul}
+                                </span>
+                                <span className="pb2NotifPageMessage">
+                                    {item.pesan}
+                                </span>
+                                <span className="pb2NotifPageDate">
+                                    <FiClock />
+                                    {formatNotificationCardDateTime(
+                                        item.created_at,
+                                    )}
+                                </span>
+                            </span>
+
+                            <FiChevronRight
+                                className="pb2NotifPageArrow"
+                                aria-hidden="true"
+                            />
+                        </button>
+                    ))
+                ) : (
+                    <div className="pb2NotifPageEmpty">
+                        Belum ada notifikasi.
+                    </div>
+                )}
+            </div>
+
+            {notifRows.length ? (
+                <div
+                    className="pb2NotifPagination"
+                    aria-label="Navigasi halaman notifikasi"
+                >
+                    {notifTotalPages > 1 ? (
+                        <button
+                            type="button"
+                            className="pb2NotifPageNav"
+                            onClick={() =>
+                                setNotifPage((page) => Math.max(1, page - 1))
+                            }
+                            disabled={notifPage <= 1}
+                            aria-label="Halaman sebelumnya"
+                        >
+                            <FiChevronLeft />
+                        </button>
+                    ) : null}
+
+                    <div className="pb2NotifPageNumbers">
+                        {notifPageNumbers.map((pageNumber, index) =>
+                            pageNumber ? (
+                                <button
+                                    key={pageNumber}
+                                    type="button"
+                                    className={`pb2NotifPageNumber ${
+                                        pageNumber === notifPage
+                                            ? "is-active"
+                                            : ""
+                                    }`}
+                                    onClick={() => setNotifPage(pageNumber)}
+                                    aria-current={
+                                        pageNumber === notifPage
+                                            ? "page"
+                                            : undefined
+                                    }
+                                >
+                                    {pageNumber}
+                                </button>
+                            ) : (
+                                <span
+                                    key={`empty-${index}`}
+                                    className="pb2NotifPageNumber is-empty"
+                                    aria-hidden="true"
+                                />
+                            ),
+                        )}
+                    </div>
+
+                    {notifTotalPages > 1 ? (
+                        <button
+                            type="button"
+                            className="pb2NotifPageNav"
+                            onClick={() =>
+                                setNotifPage((page) =>
+                                    Math.min(notifTotalPages, page + 1),
+                                )
+                            }
+                            disabled={notifPage >= notifTotalPages}
+                            aria-label="Halaman berikutnya"
+                        >
+                            <FiChevronRight />
+                        </button>
+                    ) : null}
+                </div>
+            ) : null}
+        </section>
+    );
+
     const renderActivePage = () => {
         if (active === "Beranda") return renderBeranda();
         if (active === "Semua Kasus") return renderSemuaKasus();
@@ -870,6 +1204,7 @@ export default function PosbankumDashboard({
         if (active === "Kelola Kegiatan") return renderKelolaKegiatan();
         if (active === "Laporan Pelayanan") return renderLaporanPelayanan();
         if (active === "Profil") return renderParalegalProfile();
+        if (active === "Notifikasi") return renderNotifikasi();
 
         return (
             <div className="pb2Soon">
@@ -880,7 +1215,13 @@ export default function PosbankumDashboard({
 
     return (
         <div className="pb2Root">
-            <Head title="Dashboard Posbankum" />
+            <Head
+                title={
+                    active === "Notifikasi"
+                        ? "Notifikasi"
+                        : "Dashboard Posbankum"
+                }
+            />
 
             <aside className="pb2Side">
                 <button
@@ -933,7 +1274,7 @@ export default function PosbankumDashboard({
                             className="pb2Bell"
                             type="button"
                             title="Notifikasi"
-                            onClick={() => setNotifOpen(true)}
+                            onClick={() => openMenu("Notifikasi")}
                         >
                             <FiBell />
                             {notifCount > 0 ? (
@@ -966,299 +1307,6 @@ export default function PosbankumDashboard({
                         Dikembangkan oleh Politeknik Caltex Riau
                     </div>
                 </footer>
-
-                {notifOpen ? (
-                    <div
-                        className="pb2NotifOverlay"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label="Notifikasi"
-                        onClick={(e) => {
-                            if (e.target === e.currentTarget)
-                                setNotifOpen(false);
-                        }}
-                    >
-                        <div className="pb2NotifModal">
-                            <div className="pb2NotifHead">
-                                <div className="pb2NotifHeadLeft">
-                                    <div className="pb2NotifHeadIcon">
-                                        <FiBell />
-                                    </div>
-                                    <div>
-                                        <div className="pb2NotifTitle">
-                                            Notifikasi
-                                        </div>
-                                        <div className="pb2NotifSub">
-                                            {notifSummaryText}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="pb2NotifHeadActions">
-                                    {hasUnreadNotifications ? (
-                                        <button
-                                            className="pb2NotifGhostBtn is-top"
-                                            type="button"
-                                            onClick={markAllNotificationsAsRead}
-                                            disabled={notifBusy}
-                                        >
-                                            <FiCheckCircle /> Tandai Semua
-                                            Dibaca
-                                        </button>
-                                    ) : null}
-
-                                    <button
-                                        className="pb2NotifCloseTop"
-                                        type="button"
-                                        onClick={() => setNotifOpen(false)}
-                                        aria-label="Tutup notifikasi"
-                                    >
-                                        <FiX />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="pb2NotifToolbar">
-                                <div className="pb2NotifToolbarGroup">
-                                    <span className="pb2NotifFilterLabel">
-                                        <FiFilter /> Filter:
-                                    </span>
-                                    <div className="pb2NotifChips">
-                                        {[
-                                            { key: "semua", label: "Semua" },
-                                            {
-                                                key: "belum",
-                                                label: "Belum Dibaca",
-                                            },
-                                            {
-                                                key: "sudah",
-                                                label: "Sudah Dibaca",
-                                            },
-                                        ].map((item) => (
-                                            <button
-                                                key={item.key}
-                                                type="button"
-                                                className={`pb2NotifChip ${notifReadFilter === item.key ? "is-active" : ""}`}
-                                                onClick={() =>
-                                                    setNotifReadFilter(item.key)
-                                                }
-                                            >
-                                                {item.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div
-                                    className="pb2NotifToolbarDivider"
-                                    aria-hidden="true"
-                                />
-
-                                <div className="pb2NotifToolbarGroup right">
-                                    <div className="pb2NotifChips">
-                                        {[
-                                            { key: "semua", label: "Semua" },
-                                            {
-                                                key: "pengaduan",
-                                                label: "Pengaduan",
-                                            },
-                                            {
-                                                key: "kegiatan",
-                                                label: "Kegiatan",
-                                            },
-                                            {
-                                                key: "dokumen",
-                                                label: "Dokumen",
-                                            },
-                                            { key: "sistem", label: "Sistem" },
-                                        ].map((item) => (
-                                            <button
-                                                key={item.key}
-                                                type="button"
-                                                className={`pb2NotifChip ${notifTypeFilter === item.key ? "is-active" : ""}`}
-                                                onClick={() =>
-                                                    setNotifTypeFilter(item.key)
-                                                }
-                                            >
-                                                {item.label}
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <button
-                                        className="pb2NotifDangerSoft"
-                                        type="button"
-                                        onClick={deleteAllNotifications}
-                                        disabled={
-                                            notifBusy || !notifRows.length
-                                        }
-                                    >
-                                        <FiTrash2 /> Hapus Semua
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="pb2NotifBody">
-                                <div className="pb2NotifListWrap">
-                                    {filteredNotifications.length ? (
-                                        <div className="pb2NotifList">
-                                            {filteredNotifications.map(
-                                                (item) => {
-                                                    const isSelected = false;
-                                                    return (
-                                                        <div
-                                                            key={
-                                                                item.id_notifikasi
-                                                            }
-                                                            className={`pb2NotifCard ${!item.is_read ? "is-unread" : ""} ${isSelected ? "is-selected" : ""}`}
-                                                            onClick={() =>
-                                                                handleSelectNotification(
-                                                                    item,
-                                                                )
-                                                            }
-                                                            role="button"
-                                                            tabIndex={0}
-                                                            onKeyDown={(e) => {
-                                                                if (
-                                                                    e.key ===
-                                                                        "Enter" ||
-                                                                    e.key ===
-                                                                        " "
-                                                                ) {
-                                                                    e.preventDefault();
-                                                                    handleSelectNotification(
-                                                                        item,
-                                                                    );
-                                                                }
-                                                            }}
-                                                        >
-                                                            <div
-                                                                className={`pb2NotifTypeIcon ${item.kategori}`}
-                                                            >
-                                                                {notificationIcon(
-                                                                    item.kategori,
-                                                                )}
-                                                            </div>
-
-                                                            <div className="pb2NotifCardBody">
-                                                                <div className="pb2NotifCardTop">
-                                                                    <div className="pb2NotifCardTitle">
-                                                                        {
-                                                                            item.judul
-                                                                        }
-                                                                    </div>
-                                                                    <span
-                                                                        className={`pb2NotifPriority ${item.prioritas}`}
-                                                                    >
-                                                                        {getNotificationPriorityLabel(
-                                                                            item.prioritas,
-                                                                        )}
-                                                                    </span>
-                                                                </div>
-
-                                                                <div className="pb2NotifCardMessage">
-                                                                    {item.pesan}
-                                                                </div>
-
-                                                                <div className="pb2NotifMetaRow">
-                                                                    <span className="pb2NotifMetaTime">
-                                                                        <FiClock />{" "}
-                                                                        {formatNotificationRelative(
-                                                                            item.created_at,
-                                                                        )}
-                                                                    </span>
-                                                                    <span className="pb2NotifMetaType">
-                                                                        {getNotificationTypeLabel(
-                                                                            item.kategori,
-                                                                        )}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="pb2NotifCardActions">
-                                                                <button
-                                                                    className="pb2NotifRoundAction"
-                                                                    type="button"
-                                                                    title={
-                                                                        item.is_read
-                                                                            ? "Tandai belum dibaca"
-                                                                            : "Tandai sudah dibaca"
-                                                                    }
-                                                                    onClick={(
-                                                                        e,
-                                                                    ) => {
-                                                                        e.stopPropagation();
-                                                                        updateNotificationRead(
-                                                                            item.id_notifikasi,
-                                                                            !item.is_read,
-                                                                        );
-                                                                    }}
-                                                                    disabled={
-                                                                        notifBusy
-                                                                    }
-                                                                >
-                                                                    {item.is_read ? (
-                                                                        <FiEyeOff />
-                                                                    ) : (
-                                                                        <FiEye />
-                                                                    )}
-                                                                </button>
-
-                                                                {!selectedNotification ? (
-                                                                    <button
-                                                                        className="pb2NotifRoundAction danger"
-                                                                        type="button"
-                                                                        title="Hapus notifikasi"
-                                                                        onClick={(
-                                                                            e,
-                                                                        ) => {
-                                                                            e.stopPropagation();
-                                                                            deleteNotification(
-                                                                                item.id_notifikasi,
-                                                                            );
-                                                                        }}
-                                                                        disabled={
-                                                                            notifBusy
-                                                                        }
-                                                                    >
-                                                                        <FiTrash2 />
-                                                                    </button>
-                                                                ) : null}
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                },
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="pb2NotifEmptyWrap">
-                                            <div className="pb2NotifEmptyIcon">
-                                                <FiBellOff />
-                                            </div>
-                                            <div className="pb2NotifEmptyTitle">
-                                                Tidak Ada Notifikasi
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="pb2NotifFooter">
-                                <div className="pb2NotifFooterText">
-                                    Menampilkan {filteredNotifications.length}{" "}
-                                    dari {notifRows.length} notifikasi
-                                </div>
-                                <button
-                                    className="pb2NotifFooterBtn"
-                                    type="button"
-                                    onClick={() => setNotifOpen(false)}
-                                >
-                                    Tutup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ) : null}
 
                 <ConfirmModal
                     open={notifDeleteState.open}

@@ -3,13 +3,19 @@ import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import {
     FiCheckCircle,
+    FiEdit,
     FiMail,
     FiMapPin,
     FiPhone,
+    FiSave,
     FiUser,
     FiUsers,
+    FiX,
 } from "react-icons/fi";
 import { AiOutlineArrowLeft } from "react-icons/ai";
+import { TbLocation } from "react-icons/tb";
+import SuccessToast from "../../Components/ui/SuccessToast";
+import RejectToast from "../../Components/ui/RejectToast";
 import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/paralegalProfile.css";
 
@@ -18,23 +24,61 @@ function safeText(value, fallback = "-") {
     return text || fallback;
 }
 
+function cleanText(value) {
+    return String(value ?? "").trim();
+}
+
 function statusLabel(value) {
-    const text = String(value || "").trim();
+    const text = cleanText(value);
     if (!text) return "Aktif";
+
+    const lower = text.toLowerCase();
+    if (lower === "aktif") return "Aktif";
+    if (lower === "nonaktif") return "Nonaktif";
+    if (lower === "disetujui") return "Disetujui";
+    if (lower === "ditolak") return "Ditolak";
+    if (lower === "menunggu") return "Menunggu";
+
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function joinLocation(...items) {
-    return items
-        .map((item) => String(item || "").trim())
-        .filter(Boolean)
-        .join(", ");
+    return items.map(cleanText).filter(Boolean).join(", ");
+}
+
+function getDateTime(value) {
+    if (!value) return Number.MAX_SAFE_INTEGER;
+
+    const time = new Date(value).getTime();
+    return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
+}
+
+function getMemberName(item) {
+    return safeText(
+        item?.name || item?.nama || item?.nama_lengkap || item?.nama_paralegal,
+        "Paralegal",
+    );
+}
+
+function getMemberEmail(item) {
+    return safeText(item?.email || item?.email_akun || item?.email_paralegal);
+}
+
+function getMemberPhone(item) {
+    return safeText(
+        item?.phone ||
+            item?.nomor_telepon ||
+            item?.nomor_tlp ||
+            item?.telp ||
+            item?.hp ||
+            item?.no_hp,
+    );
 }
 
 export default function ParalegalProfile({ profile = {}, onBack }) {
     const { props } = usePage();
     const pageErrors = props.errors || {};
-    const flashSuccess = props.flash?.success || "";
+    const flash = props.flash || {};
 
     const user = profile?.user || {};
     const posbankum = profile?.posbankum || {};
@@ -43,61 +87,97 @@ export default function ParalegalProfile({ profile = {}, onBack }) {
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
     const [form, setForm] = useState({
-        nama_lengkap: "",
         nomor_telepon: "",
     });
+    const [successToast, setSuccessToast] = useState("");
+    const [errorToast, setErrorToast] = useState("");
+
+    const userName = safeText(user.name || user.nama_lengkap, "Paralegal");
+    const userEmail = safeText(user.email);
+    const userPhone = safeText(user.nomor_telepon || user.phone, "");
+    const displayPhone = editing ? form.nomor_telepon : userPhone;
 
     useEffect(() => {
         setForm({
-            nama_lengkap: safeText(user.name || user.nama_lengkap, ""),
             nomor_telepon: safeText(user.nomor_telepon || user.phone, ""),
         });
-    }, [user.name, user.nama_lengkap, user.nomor_telepon, user.phone]);
-
-    const displayName = editing
-        ? form.nama_lengkap
-        : safeText(user.name || user.nama_lengkap, "Paralegal");
-    const displayPhone = editing
-        ? form.nomor_telepon
-        : safeText(user.nomor_telepon || user.phone, "");
-
-    const firstParalegal = team[0] || {};
-    const firstParalegalEmail = safeText(
-        firstParalegal.email || firstParalegal.email_akun,
-        "",
-    );
-    const firstParalegalPhone = safeText(
-        firstParalegal.phone ||
-            firstParalegal.nomor_telepon ||
-            firstParalegal.nomor_tlp,
-        "",
-    );
-    const posbankumContactEmail =
-        firstParalegalEmail || posbankum.email_akun || posbankum.email;
-    const posbankumContactPhone =
-        firstParalegalPhone || posbankum.nomor_tlp || posbankum.nomor_telepon;
-
-    const locationText = joinLocation(
-        posbankum.kelurahan,
-        posbankum.kecamatan,
-        posbankum.kabupaten,
-    );
+    }, [user.nomor_telepon, user.phone]);
 
     const profileError = useMemo(() => {
         return (
             pageErrors.profile ||
-            pageErrors.nama_lengkap ||
             pageErrors.nomor_telepon ||
+            pageErrors.error ||
+            flash.error ||
+            flash.reject ||
             ""
         );
-    }, [pageErrors]);
+    }, [pageErrors, flash.error, flash.reject]);
+
+    useEffect(() => {
+        if (flash.success) {
+            setSuccessToast(flash.success);
+        }
+    }, [flash.success]);
+
+    useEffect(() => {
+        if (profileError) {
+            setErrorToast(profileError);
+        }
+    }, [profileError]);
+
+    const registeredTeam = useMemo(() => {
+        return [...team].sort((a, b) => {
+            const byDate =
+                getDateTime(a?.assigned_at || a?.created_at) -
+                getDateTime(b?.assigned_at || b?.created_at);
+            if (byDate !== 0) return byDate;
+            return String(a?.id || "").localeCompare(String(b?.id || ""));
+        });
+    }, [team]);
+
+    const firstRegisteredParalegal = registeredTeam[0] || {};
+    const posbankumContactEmail = safeText(
+        getMemberEmail(firstRegisteredParalegal) !== "-"
+            ? getMemberEmail(firstRegisteredParalegal)
+            : posbankum.email_akun || posbankum.email,
+    );
+    const posbankumContactPhone = safeText(
+        getMemberPhone(firstRegisteredParalegal) !== "-"
+            ? getMemberPhone(firstRegisteredParalegal)
+            : posbankum.nomor_tlp || posbankum.nomor_telepon,
+    );
+
+    const areaText = joinLocation(
+        posbankum.kelurahan,
+        posbankum.kecamatan,
+        posbankum.kabupaten,
+    );
+    const posbankumSubtitle = joinLocation(
+        posbankum.nama,
+        posbankum.kecamatan,
+        posbankum.kabupaten,
+    );
+    const addressText = safeText(
+        posbankum.alamat || areaText,
+        "Alamat belum tersedia",
+    );
+
+    const handleStartEdit = () => {
+        setErrorToast("");
+        setSuccessToast("");
+        setForm({
+            nomor_telepon: safeText(user.nomor_telepon || user.phone, ""),
+        });
+        setEditing(true);
+    };
 
     const handleCancel = () => {
         setForm({
-            nama_lengkap: safeText(user.name || user.nama_lengkap, ""),
             nomor_telepon: safeText(user.nomor_telepon || user.phone, ""),
         });
         setEditing(false);
+        setErrorToast("");
     };
 
     const handleSave = () => {
@@ -106,13 +186,25 @@ export default function ParalegalProfile({ profile = {}, onBack }) {
         router.put(
             "/paralegal/profile",
             {
-                nama_lengkap: form.nama_lengkap,
-                nomor_telepon: form.nomor_telepon,
+                nomor_telepon: cleanText(form.nomor_telepon),
             },
             {
                 preserveScroll: true,
-                onStart: () => setSaving(true),
-                onSuccess: () => setEditing(false),
+                onStart: () => {
+                    setSaving(true);
+                    setErrorToast("");
+                    setSuccessToast("");
+                },
+                onSuccess: () => {
+                    setEditing(false);
+                },
+                onError: (errors) => {
+                    setErrorToast(
+                        errors.profile ||
+                            errors.nomor_telepon ||
+                            "Profil paralegal gagal diperbarui.",
+                    );
+                },
                 onFinish: () => setSaving(false),
             },
         );
@@ -120,139 +212,143 @@ export default function ParalegalProfile({ profile = {}, onBack }) {
 
     return (
         <section className="prfPage">
-            <div className="prfHeadRow">
-                <button
-                    className="prfBackBtn"
-                    type="button"
-                    onClick={onBack}
-                    aria-label="Kembali ke beranda"
-                >
-                    <AiOutlineArrowLeft />
-                </button>
+            <SuccessToast
+                title="Berhasil"
+                message={successToast}
+                onClose={() => setSuccessToast("")}
+            />
+            <RejectToast
+                message={errorToast}
+                onClose={() => setErrorToast("")}
+            />
 
-                <div className="prfHeadCopy">
-                    <h2>Profil Paralegal</h2>
-                    <p>
-                        Informasi akun, tim paralegal, dan Posbankum terhubung
-                    </p>
+            <div className="prfHeader">
+                <div className="prfHeaderLeft">
+                    <button
+                        className="prfBackBtn"
+                        type="button"
+                        onClick={onBack}
+                        aria-label="Kembali ke beranda"
+                    >
+                        <AiOutlineArrowLeft />
+                    </button>
+
+                    <div className="prfTitleBlock">
+                        <div className="prfBreadcrumb">
+                            <span>Beranda</span>
+                            <span>/</span>
+                            <b>Profil Paralegal</b>
+                        </div>
+                        <h2>Profil Paralegal</h2>
+                        <span className="prfTitleLine" />
+                    </div>
                 </div>
 
-                <div className="prfHeadActions">
+                <div className="prfActions">
                     {editing ? (
                         <>
                             <button
-                                className="prfActionBtn prfActionGhost"
+                                className="prfBtn prfBtnLight"
                                 type="button"
                                 onClick={handleCancel}
                                 disabled={saving}
                             >
-                                Batal
+                                <FiX />
+                                <span>Batal</span>
                             </button>
                             <button
-                                className="prfActionBtn prfActionPrimary"
+                                className="prfBtn prfBtnPrimary"
                                 type="button"
                                 onClick={handleSave}
                                 disabled={saving}
                             >
-                                {saving ? "Menyimpan..." : "Simpan"}
+                                <FiSave />
+                                <span>
+                                    {saving ? "Menyimpan..." : "Simpan Profil"}
+                                </span>
                             </button>
                         </>
                     ) : (
                         <button
-                            className="prfActionBtn prfActionBlue"
+                            className="prfBtn prfBtnPrimary"
                             type="button"
-                            onClick={() => setEditing(true)}
+                            onClick={handleStartEdit}
                         >
-                            Edit Profil
+                            <FiEdit />
+                            <span>Edit Profil</span>
                         </button>
                     )}
                 </div>
             </div>
 
-            {profileError ? (
-                <div className="prfAlert is-danger">{profileError}</div>
-            ) : null}
-
-            {flashSuccess && !editing ? (
-                <div className="prfAlert is-success">{flashSuccess}</div>
-            ) : null}
-
-            <div className="prfLayout">
-                <aside className="prfSideCard">
-                    <div className="prfAvatarWrap">
-                        <FiUser />
+            <div className="prfCard">
+                {editing ? (
+                    <div className="prfEditNotice">
+                        <div className="prfEditNoticeIcon">
+                            <FiEdit />
+                        </div>
+                        <div>
+                            <div className="prfEditNoticeTitle">
+                                Mode edit profil aktif
+                            </div>
+                            <p>
+                                Ubah nomor telepon paralegal, lalu klik Simpan
+                                Profil.
+                            </p>
+                        </div>
                     </div>
+                ) : null}
 
-                    <div className="prfSideTitle">
-                        {safeText(displayName, "Paralegal")}
-                    </div>
-                    <div className="prfSideSub">Akun Paralegal</div>
-
-                    <div className="prfBadgeRow">
-                        <span className="prfBadge is-yellow">
-                            {statusLabel(user.status)}
-                        </span>
-                    </div>
-
-                    <div className="prfSideDivider" />
-
-                    <div className="prfSideMeta">
-                        <span>
-                            <FiMail /> {safeText(user.email)}
-                        </span>
-                        <span>
-                            <FiPhone /> {safeText(displayPhone)}
-                        </span>
-                        <span>
-                            <FiUsers /> {team.length} Paralegal Terhubung
-                        </span>
-                    </div>
-                </aside>
-
-                <div className="prfMainCard">
-                    <section className="prfSection">
+                <div className="prfInfoArea">
+                    <section className="prfAccountSection">
                         <div className="prfSectionHead">
                             <div>
-                                <div className="prfSectionTitle">
-                                    Data Akun Paralegal
-                                </div>
-                                <div className="prfSectionSub">
-                                    Data ini mengikuti akun yang sedang login
-                                </div>
+                                <h3>Data Akun Paralegal</h3>
+                                <p>Data ini mengikuti akun yang sedang login</p>
                             </div>
                         </div>
 
-                        {editing ? (
-                            <div className="prfFormGrid">
-                                <label className="prfField">
-                                    <span className="prfLabel">
-                                        Nama Lengkap
-                                    </span>
-                                    <span className="prfInputWrap">
-                                        <FiUser className="prfInputIcon" />
-                                        <input
-                                            className="prfInput"
-                                            value={form.nama_lengkap}
-                                            onChange={(event) =>
-                                                setForm((prev) => ({
-                                                    ...prev,
-                                                    nama_lengkap:
-                                                        event.target.value,
-                                                }))
-                                            }
-                                            placeholder="Nama lengkap paralegal"
-                                        />
-                                    </span>
-                                </label>
+                        <div className="prfAccountGrid">
+                            <div
+                                className={`prfAccountBox ${editing ? "is-readonly" : ""}`}
+                            >
+                                <div className="prfBoxIcon">
+                                    <FiUser />
+                                </div>
+                                <div className="prfBoxBody">
+                                    <span>Nama Lengkap</span>
+                                    <strong>{userName}</strong>
+                                    {editing ? (
+                                        <small>Tidak dapat diubah</small>
+                                    ) : null}
+                                </div>
+                            </div>
 
-                                <label className="prfField">
-                                    <span className="prfLabel">
-                                        Nomor Telepon
-                                    </span>
-                                    <span className="prfInputWrap">
-                                        <FiPhone className="prfInputIcon" />
+                            <div
+                                className={`prfAccountBox ${editing ? "is-readonly" : ""}`}
+                            >
+                                <div className="prfBoxIcon">
+                                    <FiMail />
+                                </div>
+                                <div className="prfBoxBody">
+                                    <span>Email Login</span>
+                                    <strong>{userEmail}</strong>
+                                    {editing ? (
+                                        <small>Tidak dapat diubah</small>
+                                    ) : null}
+                                </div>
+                            </div>
+
+                            <label
+                                className={`prfAccountBox prfPhoneBox ${editing ? "is-active" : ""}`}
+                            >
+                                <div className="prfBoxIcon">
+                                    <FiPhone />
+                                </div>
+                                <div className="prfBoxBody">
+                                    <span>Nomor Telepon</span>
+                                    {editing ? (
                                         <input
-                                            className="prfInput"
                                             value={form.nomor_telepon}
                                             onChange={(event) =>
                                                 setForm((prev) => ({
@@ -262,227 +358,156 @@ export default function ParalegalProfile({ profile = {}, onBack }) {
                                                 }))
                                             }
                                             placeholder="Nomor telepon paralegal"
+                                            inputMode="tel"
+                                            autoComplete="tel"
                                         />
-                                    </span>
-                                </label>
-
-                                <div className="prfInfoItem">
-                                    <FiMail className="prfInfoIcon" />
-                                    <div>
-                                        <div className="prfInfoLabel">
-                                            Email Login
-                                        </div>
-                                        <div className="prfInfoValue">
-                                            {safeText(user.email)}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="prfInfoItem">
-                                    <FiCheckCircle className="prfInfoIcon" />
-                                    <div>
-                                        <div className="prfInfoLabel">
-                                            Status Akun
-                                        </div>
-                                        <div className="prfInfoValue">
-                                            {statusLabel(user.status)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="prfInfoGrid">
-                                <div className="prfInfoItem">
-                                    <FiUser className="prfInfoIcon" />
-                                    <div>
-                                        <div className="prfInfoLabel">
-                                            Nama Lengkap
-                                        </div>
-                                        <div className="prfInfoValue">
-                                            {safeText(displayName, "Paralegal")}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="prfInfoItem">
-                                    <FiMail className="prfInfoIcon" />
-                                    <div>
-                                        <div className="prfInfoLabel">
-                                            Email Login
-                                        </div>
-                                        <div className="prfInfoValue">
-                                            {safeText(user.email)}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="prfInfoItem">
-                                    <FiPhone className="prfInfoIcon" />
-                                    <div>
-                                        <div className="prfInfoLabel">
-                                            Nomor Telepon
-                                        </div>
-                                        <div className="prfInfoValue">
+                                    ) : (
+                                        <strong>
                                             {safeText(displayPhone)}
-                                        </div>
-                                    </div>
+                                        </strong>
+                                    )}
                                 </div>
+                            </label>
 
-                                <div className="prfInfoItem">
-                                    <FiCheckCircle className="prfInfoIcon" />
-                                    <div>
-                                        <div className="prfInfoLabel">
-                                            Status Akun
-                                        </div>
-                                        <div className="prfInfoValue">
-                                            {statusLabel(user.status)}
-                                        </div>
-                                    </div>
+                            <div className="prfAccountBox">
+                                <div className="prfBoxIcon">
+                                    <FiCheckCircle />
                                 </div>
-                            </div>
-                        )}
-                    </section>
-
-                    <section className="prfSection">
-                        <div className="prfSectionHead">
-                            <div>
-                                <div className="prfSectionTitle">
-                                    Informasi Posbankum Terhubung
-                                </div>
-                                <div className="prfSectionSub">
-                                    Posbankum tempat akun paralegal ini
-                                    ditugaskan
+                                <div className="prfBoxBody">
+                                    <span>Status Akun</span>
+                                    <strong>{statusLabel(user.status)}</strong>
                                 </div>
                             </div>
                         </div>
+                    </section>
 
-                        <div className="prfPosCard">
-                            <div className="prfPosIconWrap">
-                                <span
-                                    className="prfPosIcon"
-                                    style={{
-                                        "--mask-url": `url(${posbankumIcon})`,
-                                    }}
-                                    aria-hidden="true"
-                                />
+                    <section className="prfPosSection">
+                        <div className="prfSectionHead">
+                            <div>
+                                <h3>Informasi Posbankum Terhubung</h3>
+                                <p>
+                                    Posbankum tempat akun paralegal ini
+                                    ditugaskan
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="prfPosBox">
+                            <div className="prfPosTop">
+                                <div className="prfPosIconBox">
+                                    <img src={posbankumIcon} alt="" />
+                                </div>
+                                <div>
+                                    <h4>
+                                        {safeText(
+                                            posbankum.nama,
+                                            "Posbankum belum terhubung",
+                                        )}
+                                    </h4>
+                                    <p>
+                                        {posbankumSubtitle ||
+                                            areaText ||
+                                            "Wilayah belum tersedia"}
+                                    </p>
+                                </div>
                             </div>
 
-                            <div className="prfPosBody">
-                                <div className="prfPosTitle">
-                                    {safeText(
-                                        posbankum.nama,
-                                        "Posbankum belum terhubung",
-                                    )}
-                                </div>
-                                <div className="prfPosSub">
-                                    {locationText || "Wilayah belum tersedia"}
-                                </div>
-
-                                <div className="prfPosMetaGrid">
-                                    <span>
-                                        <FiMapPin />{" "}
-                                        {safeText(
-                                            posbankum.alamat,
-                                            "Alamat belum tersedia",
-                                        )}
-                                    </span>
-                                    <span>
-                                        <FiMail />{" "}
-                                        {safeText(posbankumContactEmail)}
-                                    </span>
-                                    <span>
-                                        <FiPhone />{" "}
-                                        {safeText(posbankumContactPhone)}
-                                    </span>
-                                    <span>
-                                        <FiCheckCircle /> Tagging Area:{" "}
+                            <div className="prfPosMeta">
+                                <span>
+                                    <FiMapPin />
+                                    <b>{addressText}</b>
+                                </span>
+                                <span>
+                                    <FiMail />
+                                    <b>{posbankumContactEmail}</b>
+                                </span>
+                                <span>
+                                    <FiPhone />
+                                    <b>{posbankumContactPhone}</b>
+                                </span>
+                                <span>
+                                    <TbLocation />
+                                    <b>
+                                        Tagging Area:{" "}
                                         {statusLabel(
                                             posbankum.status_tagging_area,
                                         )}
-                                    </span>
-                                </div>
+                                    </b>
+                                </span>
                             </div>
                         </div>
-                    </section>
-
-                    <section className="prfSection">
-                        <div className="prfSectionHead">
-                            <div>
-                                <div className="prfSectionTitle withIcon">
-                                    <FiUsers /> Teman Paralegal
-                                </div>
-                                <div className="prfSectionSub">
-                                    Daftar paralegal yang terhubung pada
-                                    Posbankum yang sama
-                                </div>
-                            </div>
-                            <span className="prfCountBadge">
-                                {team.length} Orang
-                            </span>
-                        </div>
-
-                        {team.length ? (
-                            <div className="prfTeamList">
-                                {team.map((item, index) => (
-                                    <div
-                                        key={
-                                            item.id || `${item.email}-${index}`
-                                        }
-                                        className={`prfTeamCard ${item.is_current ? "is-current" : ""}`}
-                                    >
-                                        <div className="prfTeamAvatar">
-                                            <FiUser />
-                                        </div>
-
-                                        <div className="prfTeamBody">
-                                            <div className="prfTeamTop">
-                                                <div className="prfTeamName">
-                                                    {safeText(
-                                                        item.name || item.nama,
-                                                        "Paralegal",
-                                                    )}
-                                                </div>
-                                                {item.is_current ? (
-                                                    <span className="prfBadge is-blue">
-                                                        Anda
-                                                    </span>
-                                                ) : item.is_primary ? (
-                                                    <span className="prfBadge is-blue">
-                                                        Utama
-                                                    </span>
-                                                ) : (
-                                                    <span className="prfBadge is-soft">
-                                                        {statusLabel(
-                                                            item.status,
-                                                        )}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="prfTeamMeta">
-                                                <span>
-                                                    <FiMail />{" "}
-                                                    {safeText(item.email)}
-                                                </span>
-                                                <span>
-                                                    <FiPhone />{" "}
-                                                    {safeText(
-                                                        item.phone ||
-                                                            item.nomor_telepon,
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="prfEmptyBox">
-                                Belum ada data teman paralegal yang terhubung.
-                            </div>
-                        )}
                     </section>
                 </div>
+
+                <div className="prfDivider" />
+
+                <section className="prfTeamSection">
+                    <div className="prfTeamHead">
+                        <div>
+                            <h3>
+                                <FiUsers />
+                                <span>Teman Paralegal</span>
+                            </h3>
+                            <p>
+                                Daftar paralegal yang terhubung pada Posbankum
+                                yang sama
+                            </p>
+                        </div>
+                        <span className="prfCountBadge">
+                            {team.length} Orang
+                        </span>
+                    </div>
+
+                    {team.length ? (
+                        <div className="prfTeamList">
+                            {team.map((item, index) => (
+                                <div
+                                    key={
+                                        item.id ||
+                                        item.id_user ||
+                                        `${item.email}-${index}`
+                                    }
+                                    className={`prfTeamItem ${item.is_current ? "is-current" : ""}`}
+                                >
+                                    <div className="prfTeamAvatar">
+                                        <FiUser />
+                                    </div>
+
+                                    <div className="prfTeamBody">
+                                        <div className="prfTeamName">
+                                            {getMemberName(item)}
+                                        </div>
+                                        <div className="prfTeamMeta">
+                                            <span>
+                                                <FiMail />
+                                                {getMemberEmail(item)}
+                                            </span>
+                                            <span>
+                                                <FiPhone />
+                                                {getMemberPhone(item)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {item.is_current ? (
+                                        <span className="prfTeamBadge is-you">
+                                            Anda
+                                        </span>
+                                    ) : (
+                                        <span className="prfTeamBadge is-active">
+                                            <FiCheckCircle />
+                                            {statusLabel(item.status)}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="prfEmptyBox">
+                            Belum ada data teman paralegal yang terhubung.
+                        </div>
+                    )}
+                </section>
             </div>
         </section>
     );

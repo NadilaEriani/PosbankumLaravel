@@ -433,37 +433,212 @@ class DashboardController extends Controller
     {
         $items = collect();
 
-        $this->safeRows('pengaduan', 5)->each(function ($row) use ($items) {
-            $items->push([
-                'type' => 'pengaduan',
-                'title' => 'Pengaduan baru masuk',
-                'description' => (string) $this->rowValue($row, ['judul_laporan', 'judul', 'kategori_masalah', 'jenis_masalah'], 'Data pengaduan diperbarui'),
-                'at' => $this->rowValue($row, ['created_at', 'updated_at', 'tanggal', 'tgl_lapor'], now()->toISOString()),
-            ]);
-        });
+        if ($this->hasTable('kegiatan')) {
+            $query = DB::table('kegiatan as k');
+            $canJoinPosbankum = $this->hasTable('posbankum')
+                && $this->hasColumn('kegiatan', 'id_posbankum')
+                && $this->hasColumn('posbankum', 'id_posbankum');
 
-        $this->safeRows('kegiatan', 5)->each(function ($row) use ($items) {
-            $items->push([
-                'type' => 'kegiatan',
-                'title' => 'Kegiatan Posbankum diperbarui',
-                'description' => (string) $this->rowValue($row, ['nama_kegiatan', 'judul', 'tema', 'deskripsi'], 'Data kegiatan diperbarui'),
-                'at' => $this->rowValue($row, ['created_at', 'updated_at', 'tanggal_kegiatan', 'tanggal'], now()->toISOString()),
-            ]);
-        });
+            if ($canJoinPosbankum) {
+                $query->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'k.id_posbankum');
+            }
 
-        $this->safeRows('berita', 5)->each(function ($row) use ($items) {
-            $items->push([
-                'type' => 'berita',
-                'title' => 'Berita baru dibuat',
-                'description' => (string) $this->rowValue($row, ['judul', 'title'], 'Berita Posbankum diperbarui'),
-                'at' => $this->rowValue($row, ['created_at', 'updated_at'], now()->toISOString()),
-            ]);
-        });
+            $select = ['k.*'];
+
+            if ($canJoinPosbankum) {
+                $select[] = 'p.nama as posbankum_nama';
+            }
+
+            $dateColumn = $this->firstExistingColumn('kegiatan', ['tgl_upload', 'created_at', 'updated_at', 'tgl_mulai']);
+
+            if ($dateColumn) {
+                $query->orderByDesc('k.' . $dateColumn);
+            }
+
+            $query->select($select)
+                ->limit(25)
+                ->get()
+                ->each(function ($row) use ($items, $dateColumn) {
+                    $posbankumName = trim((string) $this->rowValue($row, ['posbankum_nama'], 'Posbankum'));
+                    $judul = trim((string) $this->rowValue($row, ['judul', 'nama_kegiatan', 'tema'], 'kegiatan'));
+                    $status = strtolower(trim((string) $this->rowValue($row, ['status'], '')));
+                    $isNewSubmission = in_array($status, ['draft', 'diproses', 'menunggu', 'pending'], true);
+                    $dateValue = $dateColumn
+                        ? $this->rowValue($row, [$dateColumn], now()->toDateTimeString())
+                        : now()->toDateTimeString();
+                    $idKegiatan = $this->rowValue($row, ['id_kegiatan', 'id']);
+
+                    $items->push([
+                        'type' => 'kegiatan',
+                        'title' => $isNewSubmission
+                            ? $posbankumName . ' mengajukan kegiatan baru'
+                            : $posbankumName . ' memperbarui laporan kegiatan',
+                        'description' => $isNewSubmission
+                            ? 'Pengajuan kegiatan ' . $judul . ' telah tercatat dan menunggu verifikasi.'
+                            : 'Status kegiatan ' . $judul . ' saat ini ' . ($this->rowValue($row, ['status'], 'diperbarui')) . '.',
+                        'at' => $dateValue,
+                        'posbankum' => $posbankumName,
+                        'targetPath' => $idKegiatan ? '/admin/laporan-kegiatan/detail/' . rawurlencode((string) $idKegiatan) : '',
+                    ]);
+                });
+        }
+
+        if ($this->hasTable('posbankum_paralegal')) {
+            $query = DB::table('posbankum_paralegal as pp');
+            $canJoinPosbankum = $this->hasTable('posbankum')
+                && $this->hasColumn('posbankum_paralegal', 'id_posbankum')
+                && $this->hasColumn('posbankum', 'id_posbankum');
+            $canJoinUsers = $this->hasTable('users')
+                && $this->hasColumn('posbankum_paralegal', 'id_user')
+                && $this->hasColumn('users', 'id_user');
+
+            if ($canJoinPosbankum) {
+                $query->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'pp.id_posbankum');
+            }
+
+            if ($canJoinUsers) {
+                $query->leftJoin('users as u', 'u.id_user', '=', 'pp.id_user');
+            }
+
+            $select = ['pp.*'];
+
+            if ($canJoinPosbankum) {
+                $select[] = 'p.nama as posbankum_nama';
+            }
+
+            if ($canJoinUsers) {
+                $select[] = 'u.nama_lengkap as paralegal_nama';
+            }
+
+            $dateColumn = $this->firstExistingColumn('posbankum_paralegal', ['assigned_at', 'created_at', 'updated_at']);
+
+            if ($dateColumn) {
+                $query->orderByDesc('pp.' . $dateColumn);
+            }
+
+            $query->select($select)
+                ->limit(25)
+                ->get()
+                ->each(function ($row) use ($items, $dateColumn) {
+                    $posbankumName = trim((string) $this->rowValue($row, ['posbankum_nama'], 'Posbankum'));
+                    $paralegalName = trim((string) $this->rowValue($row, ['paralegal_nama'], 'paralegal'));
+                    $dateValue = $dateColumn
+                        ? $this->rowValue($row, [$dateColumn], now()->toDateTimeString())
+                        : now()->toDateTimeString();
+                    $idPosbankum = $this->rowValue($row, ['id_posbankum']);
+
+                    $items->push([
+                        'type' => 'paralegal',
+                        'title' => $posbankumName . ' memperbarui data paralegal',
+                        'description' => 'Data kontak dan identitas ' . $paralegalName . ' diperbarui pada modul Data Posbankum.',
+                        'at' => $dateValue,
+                        'posbankum' => $posbankumName,
+                        'targetPath' => $idPosbankum ? '/admin/data-posbankum/detail/' . rawurlencode((string) $idPosbankum) : '',
+                    ]);
+                });
+        }
+
+        if ($this->hasTable('data_posbankum')) {
+            $query = DB::table('data_posbankum as dp');
+            $canJoinPosbankum = $this->hasTable('posbankum')
+                && $this->hasColumn('data_posbankum', 'id_posbankum')
+                && $this->hasColumn('posbankum', 'id_posbankum');
+
+            if ($canJoinPosbankum) {
+                $query->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'dp.id_posbankum');
+            }
+
+            $select = ['dp.*'];
+
+            if ($canJoinPosbankum) {
+                $select[] = 'p.nama as posbankum_nama';
+            }
+
+            $dateColumn = $this->firstExistingColumn('data_posbankum', ['tgl_upload', 'created_at', 'updated_at']);
+
+            if ($dateColumn) {
+                $query->orderByDesc('dp.' . $dateColumn);
+            }
+
+            $query->select($select)
+                ->limit(20)
+                ->get()
+                ->each(function ($row) use ($items, $dateColumn) {
+                    $posbankumName = trim((string) $this->rowValue($row, ['posbankum_nama'], 'Posbankum'));
+                    $dokumen = trim((string) $this->rowValue($row, ['nama_berkas', 'kategori'], 'dokumen'));
+                    $dateValue = $dateColumn
+                        ? $this->rowValue($row, [$dateColumn], now()->toDateTimeString())
+                        : now()->toDateTimeString();
+                    $idPosbankum = $this->rowValue($row, ['id_posbankum']);
+
+                    $items->push([
+                        'type' => 'dokumen',
+                        'title' => $posbankumName . ' mengunggah dokumen baru',
+                        'description' => 'Dokumen ' . $dokumen . ' masuk untuk proses verifikasi.',
+                        'at' => $dateValue,
+                        'posbankum' => $posbankumName,
+                        'targetPath' => $idPosbankum ? '/admin/verifikasi-data-posbankum/detail/' . rawurlencode((string) $idPosbankum) : '',
+                    ]);
+                });
+        }
+
+        if ($this->hasTable('pengaduan')) {
+            $query = DB::table('pengaduan');
+            $dateColumn = $this->firstExistingColumn('pengaduan', ['created_at', 'updated_at', 'tanggal', 'tgl_lapor']);
+
+            if ($dateColumn) {
+                $query->orderByDesc($dateColumn);
+            }
+
+            $query->limit(15)
+                ->get()
+                ->each(function ($row) use ($items, $dateColumn) {
+                    $dateValue = $dateColumn
+                        ? $this->rowValue($row, [$dateColumn], now()->toDateTimeString())
+                        : now()->toDateTimeString();
+
+                    $items->push([
+                        'type' => 'pengaduan',
+                        'title' => 'Pengaduan baru masuk',
+                        'description' => (string) $this->rowValue($row, ['judul_pengaduan', 'judul_laporan', 'judul', 'kategori_masalah', 'jenis_masalah'], 'Data pengaduan diperbarui'),
+                        'at' => $dateValue,
+                        'posbankum' => (string) $this->rowValue($row, ['nama_pelapor'], 'Masyarakat'),
+                        'targetPath' => '',
+                    ]);
+                });
+        }
+
+        if ($this->hasTable('berita')) {
+            $query = DB::table('berita');
+            $dateColumn = $this->firstExistingColumn('berita', ['tgl_publish', 'created_at', 'updated_at']);
+
+            if ($dateColumn) {
+                $query->orderByDesc($dateColumn);
+            }
+
+            $query->limit(15)
+                ->get()
+                ->each(function ($row) use ($items, $dateColumn) {
+                    $dateValue = $dateColumn
+                        ? $this->rowValue($row, [$dateColumn], now()->toDateTimeString())
+                        : now()->toDateTimeString();
+                    $idBerita = $this->rowValue($row, ['id_berita', 'id']);
+
+                    $items->push([
+                        'type' => 'berita',
+                        'title' => 'Berita baru dibuat',
+                        'description' => (string) $this->rowValue($row, ['judul', 'title'], 'Berita Posbankum diperbarui'),
+                        'at' => $dateValue,
+                        'posbankum' => 'Admin',
+                        'targetPath' => $idBerita ? '/admin/kelola-berita/detail/' . rawurlencode((string) $idBerita) : '',
+                    ]);
+                });
+        }
 
         return $items
-            ->sortByDesc(fn($item) => strtotime($item['at'] ?? 'now'))
+            ->sortByDesc(fn($item) => strtotime((string) ($item['at'] ?? 'now')))
             ->values()
-            ->take(10)
+            ->take(80)
             ->toArray();
     }
 

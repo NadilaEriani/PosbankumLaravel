@@ -53,7 +53,7 @@ class ProfileController extends Controller
         return null;
     }
 
-    private function updateParalegalMemberRows($user, string $name, ?string $phone): void
+    private function updateParalegalMemberRows($user, ?string $phone): void
     {
         if (!$this->hasTable('paralegal_members')) {
             return;
@@ -81,10 +81,6 @@ class ProfileController extends Controller
         }
 
         $payload = [];
-        foreach (['nama_paralegal', 'nama_lengkap', 'nama', 'name'] as $column) {
-            $this->addIfExists($payload, 'paralegal_members', $column, $name);
-        }
-
         foreach (['nomor_telepon', 'phone', 'nomor_tlp', 'telp'] as $column) {
             $this->addIfExists($payload, 'paralegal_members', $column, $phone);
         }
@@ -126,16 +122,12 @@ class ProfileController extends Controller
         }
 
         $validated = $request->validate([
-            'nama_lengkap' => ['required', 'string', 'max:255'],
             'nomor_telepon' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $name = trim((string) $validated['nama_lengkap']);
         $phone = trim((string) ($validated['nomor_telepon'] ?? '')) ?: null;
 
         $payload = [];
-        $this->addIfExists($payload, 'users', 'nama_lengkap', $name);
-        $this->addIfExists($payload, 'users', 'name', $name);
         $this->addIfExists($payload, 'users', 'nomor_telepon', $phone);
         $this->addIfExists($payload, 'users', 'phone', $phone);
         $this->addIfExists($payload, 'users', 'updated_at', now());
@@ -146,22 +138,23 @@ class ProfileController extends Controller
             ]);
         }
 
-        $updated = DB::table('users')
+        $userQuery = DB::table('users')
             ->where($idColumn, $userId)
             ->where(function ($query) {
                 if ($this->hasColumn('users', 'role')) {
                     $query->whereIn('role', ['paralegal', 'posbankum']);
                 }
-            })
-            ->update($payload);
+            });
 
-        if (!$updated) {
+        if (!(clone $userQuery)->exists()) {
             return back()->withErrors([
                 'profile' => 'Profil paralegal tidak ditemukan atau tidak bisa diperbarui.',
             ]);
         }
 
-        $this->updateParalegalMemberRows($user, $name, $phone);
+        $userQuery->update($payload);
+
+        $this->updateParalegalMemberRows($user, $phone);
 
         return back()->with('success', 'Profil paralegal berhasil diperbarui.');
     }

@@ -2011,3 +2011,445 @@
         width: 100vw;
     }
 }
+
+/* =========================================================
+   Halaman Notifikasi Posbankum
+   Mengikuti style content referensi; navbar/sidebar tetap tidak diubah.
+========================================================= */
+.pb2NotifPageContent {
+    padding: 30px 56px 30px;
+    display: block;
+    min-height: calc(100vh - 84px - 52px);
+}
+
+.pb2NotifPageTop {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.pb2NotifBreadcrumb {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.pb2NotifBreadcrumb button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #6b7280;
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+}
+
+.pb2NotifBreadcrumb span {
+    color: #151c2e;
+}
+
+.pb2NotifBreadcrumb svg {
+    width: 16px;
+    height: 16px;
+    color: #9ca3af;
+    stroke-width: 2.4;
+}
+
+.pb2NotifBackBtn {
+    min-width: 86px;
+    min-height: 42px;
+    border: 0;
+    border-radius: 14px;
+    background: #3a4070;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
+    cursor: pointer;
+}
+
+.pb2NotifPageHeading {
+    margin-top: 6px;
+    margin-bottom: 16px;
+}
+
+.pb2NotifPageHeading h1 {
+    margin: 0;
+    color: #151c2e;
+    font-size: 25px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.pb2NotifPageLine {
+    width: 58px;
+    height: 4px;
+    margin-top: 12px;
+    border-radius: 999px;
+    background: #f59f00;
+}
+
+.pb2NotifPageList {
+    width: 100%;
+    display: grid;
+    gap: 12px;
+}
+
+.pb2NotifPageCard {
+    width: 100%;
+    min-height: 112px;
+    border: 1.5px solid #d6dae3;
+    border-radius: 14px;
+    background: #ffffff;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 20px;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px 16px 14px;
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    cursor: pointer;
+}
+
+.pb2NotifPageCard.is-unread {
+    background: #dfe8f7;
+    border-color: #7aa3ff;
+    box-shadow: 0 6px 14px rgba(122, 163, 255, 0.14);
+}
+
+.pb2NotifPageCard.is-read {
+    background: #ffffff;
+    border-color: #d6dae3;
+}
+
+.pb2NotifPageIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    border: 1.5px solid transparent;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.pb2NotifPageIcon svg {
+    stroke-width: 2;
+}
+
+.pb2NotifPageIcon.kegiatan {
+    background: var(--pb-soft-green);
+    border-color: #86efac;
+    color: var(--pb-inner-green);
+}
+
+.pb2NotifPageIcon.pengaduan,
+.pb2NotifPageIcon.sistem {
+    background: var(--pb-soft-blue);
+    border-color: #7aa3ff;
+    color: var(--pb-inner-blue);
+}
+
+.pb2NotifPageIcon.dokumen {
+    background: var(--pb-soft-orange);
+    border-color: #fb923c;
+    color: var(--pb-inner-orange);
+}
+
+.pb2NotifPageBody {
+    min-width: 0;
+    display: block;
+}
+
+.pb2NotifPageTitle {
+    display: block;
+    color: #151c2e;
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 800;
+}
+
+.pb2NotifPageMessage {
+    display: block;
+    margin-top: 9px;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.pb2NotifPageDate {
+    width: max-content;
+    max-width: 100%;
+    min-height: 23px;
+    margin-top: 13px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pb2NotifPageDate svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 2.1;
+}
+
+.pb2NotifPageArrow {
+    justify-self: end;
+    width: 18px;
+    height: 18px;
+    color: #cbd5e1;
+    stroke-width: 2.3;
+}
+
+.pb2NotifPageEmpty {
+    min-height: 112px;
+    border: 1.5px solid #d6dae3;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #6b7280;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 860px) {
+    .pb2NotifPageContent {
+        padding: 18px 14px 26px !important;
+        min-height: auto;
+    }
+
+    .pb2NotifPageTop {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .pb2NotifBackBtn {
+        width: max-content;
+        min-height: 40px;
+    }
+
+    .pb2NotifPageHeading {
+        margin-top: 2px;
+        margin-bottom: 14px;
+    }
+
+    .pb2NotifPageHeading h1 {
+        font-size: clamp(22px, 6.2vw, 25px);
+    }
+
+    .pb2NotifPageCard {
+        min-height: 104px;
+        grid-template-columns: 38px minmax(0, 1fr) 18px;
+        gap: 12px;
+        padding: 14px 13px;
+        border-radius: 14px;
+    }
+
+    .pb2NotifPageTitle {
+        font-size: 14px;
+    }
+
+    .pb2NotifPageMessage {
+        margin-top: 7px;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .pb2NotifPageDate {
+        margin-top: 10px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 430px) {
+    .pb2NotifPageCard {
+        grid-template-columns: 36px minmax(0, 1fr);
+    }
+
+    .pb2NotifPageArrow {
+        display: none;
+    }
+
+    .pb2NotifPageIcon {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+}
+
+/* =========================================================
+   Revisi Notifikasi - pagination 10 item dan icon laporan pesan
+   Warna mengikuti palet halaman yang sudah ada.
+========================================================= */
+.pb2NotifPagination {
+    width: 100%;
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pb2NotifPageNav,
+.pb2NotifPageNumber {
+    border: 1.5px solid #d6dae3;
+    background: #ffffff;
+    color: #3a4070;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    cursor: pointer;
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
+}
+
+.pb2NotifPageNav {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    font-size: 20px;
+}
+
+.pb2NotifPageNav svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.7;
+}
+
+.pb2NotifPageNumbers {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pb2NotifPageNumber {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.pb2NotifPageNumber.is-active {
+    width: 46px;
+    height: 46px;
+    border-color: #3a4070;
+    background: #3a4070;
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 800;
+    box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
+}
+
+.pb2NotifPageNumber.is-empty {
+    visibility: hidden;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.pb2NotifPageNav:not(:disabled):hover,
+.pb2NotifPageNumber:not(.is-active):not(.is-empty):hover {
+    transform: translateY(-1px);
+    border-color: #3a4070;
+    box-shadow: 0 8px 16px rgba(47, 53, 105, 0.16);
+}
+
+.pb2NotifPageNav:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+@media (max-width: 860px) {
+    .pb2NotifPagination {
+        margin-top: 16px;
+        gap: 10px;
+    }
+
+    .pb2NotifPageNav {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+    }
+
+    .pb2NotifPageNumbers {
+        gap: 8px;
+    }
+
+    .pb2NotifPageNumber {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        font-size: 13px;
+    }
+
+    .pb2NotifPageNumber.is-active {
+        width: 42px;
+        height: 42px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 430px) {
+    .pb2NotifPagination {
+        gap: 8px;
+    }
+
+    .pb2NotifPageNav {
+        width: 38px;
+        height: 38px;
+    }
+
+    .pb2NotifPageNav svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .pb2NotifPageNumbers {
+        gap: 7px;
+    }
+
+    .pb2NotifPageNumber {
+        width: 34px;
+        height: 34px;
+        font-size: 12px;
+    }
+
+    .pb2NotifPageNumber.is-active {
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+    }
+}

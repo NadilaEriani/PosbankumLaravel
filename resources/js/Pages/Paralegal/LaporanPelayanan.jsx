@@ -1,32 +1,35 @@
 import { router } from "@inertiajs/react";
-import { AiOutlineBarChart } from "react-icons/ai";
 import { useEffect, useMemo, useState } from "react";
 import {
-    FiFileText,
-    FiClock,
-    FiCheckCircle,
     FiAlertTriangle,
-    FiTrendingUp,
     FiCalendar,
-    FiPlus,
-    FiRotateCcw,
-    FiSearch,
-    FiFilter,
-    FiEye,
-    FiTrash2,
-    FiPrinter,
-    FiX,
-    FiUser,
-    FiPhone,
-    FiMapPin,
-    FiUsers,
-    FiSend,
-    FiPaperclip,
+    FiCheckCircle,
+    FiChevronLeft,
+    FiChevronRight,
+    FiClock,
     FiDownload,
-    FiChevronDown,
+    FiEye,
+    FiFileText,
+    FiFilter,
+    FiMapPin,
+    FiPaperclip,
+    FiPlus,
+    FiPrinter,
+    FiSearch,
+    FiTrash2,
+    FiUser,
+    FiUsers,
+    FiX,
+    FiPhone,
     FiInfo,
 } from "react-icons/fi";
-
+import { AiOutlineBarChart } from "react-icons/ai";
+import { TbLocation } from "react-icons/tb";
+import { TfiStatsUp } from "react-icons/tfi";
+import { BsSend } from "react-icons/bs";
+import { RiHistoryFill } from "react-icons/ri";
+import SuccessToast from "../../Components/ui/SuccessToast";
+import RejectToast from "../../Components/ui/RejectToast";
 import "../../../css/Paralegal/laporanPelayanan.css";
 
 const EMPTY_FORM_DATA = {
@@ -46,14 +49,6 @@ const EMPTY_FORM_DATA = {
     paralegal_hp: "",
     catatan_internal: "",
     lampiran: [],
-};
-
-const EMPTY_REMINDER = {
-    open: false,
-    title: "Pengingat",
-    subtitle: "Periksa kembali informasi berikut",
-    description: "",
-    buttonLabel: "Mengerti",
 };
 
 const MAX_NIK_LENGTH = 16;
@@ -78,24 +73,26 @@ function digitsOnly(value, max = 100) {
         .slice(0, max);
 }
 
-function formatDateID(value) {
+function formatDateID(value, withMonthShort = false) {
     if (!value) return "-";
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "-";
     return date.toLocaleDateString("id-ID", {
         day: "numeric",
-        month: "long",
+        month: withMonthShort ? "short" : "long",
         year: "numeric",
     });
 }
 
 function formatTimeID(value) {
     if (!value) return "-";
+    if (/^\d{2}:\d{2}/.test(String(value))) return String(value).slice(0, 5);
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "-";
     return date.toLocaleTimeString("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
+        hour12: false,
     });
 }
 
@@ -111,7 +108,7 @@ function normalizeStatus(value) {
     const raw = String(value || "")
         .trim()
         .toLowerCase();
-    if (["selesai", "done", "completed", "diterima"].includes(raw))
+    if (["selesai", "done", "completed", "complete"].includes(raw))
         return "selesai";
     return "diproses";
 }
@@ -136,11 +133,20 @@ function getPriorityLabel(value) {
     return "Sedang";
 }
 
-function clampText(value, limit = 160) {
+function getCategoryTone(value) {
+    const raw = String(value || "").toLowerCase();
+    if (raw.includes("pidana")) return "blue";
+    if (raw.includes("kerja")) return "blue";
+    if (raw.includes("keluarga")) return "blue";
+    if (raw.includes("perdata")) return "neutral";
+    return "neutral";
+}
+
+function clampText(value, limit = 220) {
     const text = String(value || "").trim();
     if (!text) return "Belum ada deskripsi.";
     if (text.length <= limit) return text;
-    return `${text.slice(0, limit)}...`;
+    return `${text.slice(0, limit).trim()}...`;
 }
 
 function formatFileSize(bytes) {
@@ -152,7 +158,10 @@ function formatFileSize(bytes) {
 }
 
 function getAttachmentFileName(file, fallback = "Lampiran") {
-    return firstFilled(file?.nama_file, file?.name, file?.filename, fallback);
+    return (
+        firstFilled(file?.nama_file, file?.name, file?.filename, fallback) ||
+        fallback
+    );
 }
 
 function isImageFile(file) {
@@ -195,14 +204,6 @@ function isAllowedFileType(file) {
     );
 }
 
-function renderRequiredLabel(text) {
-    return (
-        <>
-            {text} <span className="lpRequiredMark">*</span>
-        </>
-    );
-}
-
 function parseUpdates(value) {
     if (Array.isArray(value)) return value;
     if (!value) return [];
@@ -213,11 +214,21 @@ function parseUpdates(value) {
     return [];
 }
 
+function computeProgress(status, updates, storedProgress) {
+    if (Number.isFinite(Number(storedProgress))) {
+        return Math.max(0, Math.min(100, Number(storedProgress)));
+    }
+    const totalUpdates = Math.max(0, (updates?.length || 0) - 1);
+    if (normalizeStatus(status) === "selesai") return 100;
+    return Math.max(0, Math.min(95, totalUpdates * 25));
+}
+
 function normalizeReport(row, index = 0) {
     const updates = parseUpdates(row?.updates || row?.catatan_admin);
     const status = normalizeStatus(row?.status);
     const prioritas = normalizePriority(row?.prioritas);
     const id = row?.id_pengaduan || row?.id || `laporan-${index}`;
+    const progress = computeProgress(status, updates, row?.progress);
 
     return {
         id_pengaduan: id,
@@ -250,26 +261,32 @@ function normalizeReport(row, index = 0) {
         paralegal_hp: row?.paralegal_hp || row?.nomor_telepon_paralegal || "-",
         catatan_internal: row?.catatan_internal || "",
         lampiran: Array.isArray(row?.lampiran) ? row.lampiran : [],
-        updates: updates.length
-            ? updates
-            : [
-                  {
-                      title:
-                          status === "selesai"
-                              ? "Laporan Selesai"
-                              : "Laporan Diterima",
-                      date: formatDateID(
-                          row?.created_at || row?.tanggal_kejadian,
-                      ),
-                      time: formatTimeID(
-                          row?.created_at || row?.tanggal_kejadian,
-                      ),
-                      desc:
-                          row?.catatan_internal ||
-                          "Laporan telah masuk ke sistem.",
-                      by: row?.paralegal_nama || "Admin Posbankum",
-                  },
-              ],
+        updates:
+            updates.length > 0
+                ? updates
+                : [
+                      {
+                          title:
+                              status === "selesai"
+                                  ? "Laporan Selesai"
+                                  : "Laporan Diterima",
+                          date: formatDateID(
+                              row?.created_at || row?.tanggal_kejadian,
+                          ),
+                          time: formatTimeID(
+                              row?.created_at || row?.tanggal_kejadian,
+                          ),
+                          desc:
+                              row?.catatan_internal ||
+                              "Laporan telah masuk ke sistem.",
+                          by: row?.paralegal_nama || "Admin Posbankum",
+                      },
+                  ],
+        progress,
+        kelurahan_nama: row?.kelurahan_nama || "",
+        kecamatan_nama: row?.kecamatan_nama || "",
+        kabupaten_nama: row?.kabupaten_nama || "Pekanbaru",
+        provinsi_nama: row?.provinsi || "Riau",
     };
 }
 
@@ -289,103 +306,303 @@ function buildStats(reports) {
               ) / total,
           )
         : 0;
-
     return { total, aktif, selesai, tinggi, tingkatSelesai, avgHari };
 }
 
-function SuccessToast({ message, onClose }) {
-    useEffect(() => {
-        if (!message) return undefined;
-        const timer = window.setTimeout(onClose, 3500);
-        return () => window.clearTimeout(timer);
-    }, [message, onClose]);
-
-    if (!message) return null;
+function ReportListCard({ report, onDetail, onDelete }) {
+    const lastUpdate = report.updates?.[report.updates.length - 1];
 
     return (
-        <div className="lpToast" role="status">
-            <FiCheckCircle />
-            <span>{message}</span>
-            <button
-                type="button"
-                onClick={onClose}
-                aria-label="Tutup notifikasi"
-            >
-                <FiX />
-            </button>
-        </div>
-    );
-}
-
-function ReminderModal({
-    open,
-    title,
-    subtitle,
-    description,
-    buttonLabel,
-    onClose,
-}) {
-    if (!open) return null;
-
-    return (
-        <div className="lpReminderOverlay" role="dialog" aria-modal="true">
-            <div className="lpReminderCard">
-                <div className="lpReminderIcon">
-                    <FiInfo />
+        <article className="lpvCard">
+            <div className="lpvCardHeader">
+                <div>
+                    <h3 className="lpvCardTitle">{report.judul_pengaduan}</h3>
+                    <div className="lpvCardNumber">
+                        {report.nomor_pengaduan}
+                    </div>
                 </div>
-                <div className="lpReminderTitle">{title}</div>
-                <div className="lpReminderSub">{subtitle}</div>
-                <div className="lpReminderText">{description}</div>
-                <button
-                    type="button"
-                    className="lpBtn lpBtnPrimary"
-                    onClick={onClose}
+                <div className="lpvHeaderChips">
+                    <span
+                        className={`lpvChip ${report.status === "selesai" ? "isGreen" : "isBlue"}`}
+                    >
+                        <FiClock /> {getStatusLabel(report.status)}
+                    </span>
+                    <span
+                        className={`lpvChip ${report.prioritas === "tinggi" ? "isRed" : "isOrange"}`}
+                    >
+                        <FiAlertTriangle /> Prioritas{" "}
+                        {getPriorityLabel(report.prioritas)}
+                    </span>
+                </div>
+            </div>
+
+            <div className="lpvMetaRow">
+                <span>
+                    <FiUser /> {report.nama_pelapor}
+                </span>
+                <span>NIK: {report.nik || "-"}</span>
+                <span>
+                    <FiMapPin />{" "}
+                    {firstFilled(
+                        report.kelurahan_nama,
+                        report.posbankum_info,
+                        "-",
+                    )}
+                </span>
+                <span>
+                    <FiCalendar /> {formatDateID(report.tanggal_kejadian, true)}
+                </span>
+                <span>
+                    <FiClock /> {getDaysDiff(report.tanggal_kejadian)} hari
+                </span>
+            </div>
+
+            <div className="lpvTagLine">
+                <span className="lpvTag isParalegal">
+                    {report.paralegal_nama}
+                </span>
+                <span
+                    className={`lpvTag isCategory ${getCategoryTone(report.jenis_masalah)}`}
                 >
-                    {buttonLabel || "Mengerti"}
-                </button>
+                    {report.jenis_masalah}
+                </span>
+            </div>
+
+            <p className="lpvDescription">{clampText(report.kronologi, 260)}</p>
+
+            <div className="lpvUpdateBox">
+                <div className="lpvUpdateTitle">
+                    <FiClock /> Update Terakhir
+                </div>
+                <div className="lpvUpdateHeadline">
+                    {lastUpdate?.title || "Belum ada update"}
+                </div>
+                <div className="lpvUpdateMeta">
+                    {lastUpdate?.date || "-"} • {lastUpdate?.time || "-"}
+                </div>
+                <div className="lpvUpdateDesc">
+                    {lastUpdate?.desc || "Belum ada catatan update."}
+                </div>
+            </div>
+
+            <div className="lpvFooterRow">
+                <div className="lpvFooterMeta">
+                    <span>
+                        <FiFileText /> {report.updates?.length || 0} Update
+                    </span>
+                    <span>
+                        <FiPaperclip /> {report.lampiran?.length || 0} Lampiran
+                    </span>
+                </div>
+                <div className="lpvActionRow">
+                    <button
+                        type="button"
+                        className="lpvDangerBtn"
+                        onClick={() => onDelete(report)}
+                    >
+                        <FiTrash2 /> Hapus
+                    </button>
+                    <button
+                        type="button"
+                        className="lpvPrimaryBtn"
+                        onClick={() => onDetail(report)}
+                    >
+                        <FiEye /> Detail
+                    </button>
+                </div>
+            </div>
+        </article>
+    );
+}
+
+function StatBox({ icon, label, value, tone }) {
+    return (
+        <div className={`lpvStatCard ${tone}`}>
+            <div className="lpvStatIcon">{icon}</div>
+            <div className="lpvStatBody">
+                <div className="lpvStatLabel">{label}</div>
+                <div className="lpvStatValue">{value}</div>
             </div>
         </div>
     );
 }
 
-function DeleteConfirmModal({ open, loading, onCancel, onConfirm }) {
-    if (!open) return null;
-
+function EmptyState({ message }) {
     return (
-        <div className="lpReminderOverlay" role="dialog" aria-modal="true">
-            <div className="lpReminderCard">
-                <div className="lpReminderIcon danger">
-                    <FiTrash2 />
-                </div>
-                <div className="lpReminderTitle">Hapus Laporan?</div>
-                <div className="lpReminderSub">
-                    Tindakan ini tidak dapat dibatalkan
-                </div>
-                <div className="lpReminderText">
-                    Apakah Anda yakin ingin menghapus laporan ini? Data laporan
-                    dan lampiran terkait akan dihapus.
-                </div>
-                <div className="lpReminderActions">
-                    <button
-                        type="button"
-                        className="lpBtn lpBtnGhost"
-                        onClick={onCancel}
-                        disabled={loading}
-                    >
-                        Batal
-                    </button>
-                    <button
-                        type="button"
-                        className="lpBtn lpBtnDelete"
-                        onClick={onConfirm}
-                        disabled={loading}
-                    >
-                        {loading ? "Menghapus..." : "Ya, Hapus"}
-                    </button>
-                </div>
-            </div>
+        <div className="lpvEmptyState">
+            <FiInfo />
+            <span>{message}</span>
         </div>
     );
+}
+
+function getFullWilayah(report) {
+    return firstFilled(
+        [report.kelurahan_nama, report.kecamatan_nama, report.kabupaten_nama]
+            .filter(Boolean)
+            .join(", "),
+        report.lokasi_kejadian,
+        "-",
+    );
+}
+
+function getDetailTopMetrics(report) {
+    return [
+        {
+            label: "Tanggal Laporan",
+            value: formatDateID(report.created_at || report.tanggal_kejadian),
+        },
+        {
+            label: "Tanggal Kejadian",
+            value: formatDateID(report.tanggal_kejadian),
+        },
+        {
+            label: "Durasi",
+            value: `${getDaysDiff(report.tanggal_kejadian)} hari`,
+        },
+    ];
+}
+
+function buildPrintHtml(report) {
+    const topMetrics = getDetailTopMetrics(report);
+    const badgeStatusClass = report.status === "selesai" ? "done" : "process";
+    const badgePriorityClass =
+        report.prioritas === "tinggi"
+            ? "danger"
+            : report.prioritas === "rendah"
+              ? "soft"
+              : "warning";
+    const timelineMarkup = (report.updates || [])
+        .map(
+            (item) => `
+                <div class="print-timeline-item">
+                    <div class="print-timeline-dot"></div>
+                    <div class="print-timeline-card">
+                        <div class="print-timeline-head">
+                            <strong>${item.title || "Update"}</strong>
+                            <span>${item.date || "-"}${item.time ? ` • ${item.time}` : ""}</span>
+                        </div>
+                        <p>${item.desc || "-"}</p>
+                        <small>${item.by || "Posbankum"}</small>
+                    </div>
+                </div>`,
+        )
+        .join("");
+
+    return `
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Print ${report.nomor_pengaduan}</title>
+<style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, Helvetica, sans-serif; margin: 0; color: #111827; background: #ffffff; }
+    .page { width: 100%; max-width: 900px; margin: 0 auto; padding: 32px 38px 40px; }
+    .print-topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+    h1 { margin:0; font-size: 22px; line-height:1.2; }
+    .code { margin-top:8px; color:#4b5563; font-size: 13px; }
+    .badges { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .badge { display:inline-flex; align-items:center; padding:7px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+    .badge.process { background:#dbeafe; color:#0f3f93; }
+    .badge.done { background:#dcfce7; color:#15803d; }
+    .badge.danger { background:#fee2e2; color:#dc2626; }
+    .badge.warning { background:#ffedd5; color:#ea580c; }
+    .badge.soft { background:#eef2ff; color:#4f46e5; }
+    .title-line { width: 88px; height: 4px; border-radius: 999px; margin-top: 10px; background: linear-gradient(90deg, #ffd82b 0%, #ffab4a 100%); }
+    .section-title { margin: 30px 0 12px; font-size: 14px; font-weight: 800; padding-bottom: 8px; border-bottom: 2px solid #2b3056; }
+    .grid-3 { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .metric-card, .field-card, .note-box { border:1px solid #e5e7eb; border-radius:14px; background:#fff; }
+    .metric-card { padding: 14px 16px; }
+    .metric-label, .field-label { color:#6b7280; font-size:11px; font-weight:700; text-transform: uppercase; letter-spacing:.05em; }
+    .metric-value, .field-value { margin-top:6px; font-size:14px; font-weight:700; color:#111827; }
+    .field-card { padding: 15px 16px; min-height: 78px; }
+    .story-box { border:1px solid #e5e7eb; border-radius:14px; padding:16px; line-height:1.75; font-size:14px; color:#374151; }
+    .note-box { margin-top: 16px; padding: 16px; background:#fff7ed; border-color:#fdba74; color:#9a3412; }
+    .note-box.green { background:#ecfdf5; border-color:#86efac; color:#166534; }
+    .timeline { margin-top: 16px; position: relative; padding-left: 18px; }
+    .timeline:before { content:""; position:absolute; left:6px; top:4px; bottom:4px; width:2px; background:#dbe2f0; }
+    .print-timeline-item { position:relative; padding-left: 18px; margin-bottom: 18px; }
+    .print-timeline-dot { position:absolute; left:-1px; top:10px; width:14px; height:14px; border-radius:50%; background:#2b3056; border:4px solid #eef2ff; }
+    .print-timeline-card { border:1px solid #e5e7eb; border-radius:14px; padding:14px 16px; }
+    .print-timeline-head { display:flex; justify-content:space-between; gap:14px; font-size:13px; margin-bottom:10px; }
+    .print-timeline-head span { color:#6b7280; }
+    .print-timeline-card p { margin:0 0 10px; line-height:1.7; font-size:13px; color:#374151; }
+    .print-timeline-card small { color:#0f3f93; font-weight:700; }
+    .print-footer { margin-top: 26px; display:flex; justify-content:space-between; color:#6b7280; font-size:11px; }
+    @media print { .page { padding: 18px 26px 26px; } }
+</style>
+</head>
+<body>
+    <div class="page">
+        <div class="print-topbar">
+            <div>
+                <h1>Detail Laporan Pelayanan</h1>
+                <div class="code">${report.nomor_pengaduan}</div>
+                <div class="badges">
+                    <span class="badge ${badgeStatusClass}">Status: ${getStatusLabel(report.status)}</span>
+                    <span class="badge ${badgePriorityClass}">Prioritas: ${getPriorityLabel(report.prioritas)}</span>
+                </div>
+                <div class="title-line"></div>
+            </div>
+        </div>
+
+        <div class="section-title">Informasi Laporan</div>
+        <div class="field-card" style="margin-bottom:14px;">
+            <div class="field-label">Judul Laporan</div>
+            <div class="field-value">${report.judul_pengaduan}</div>
+        </div>
+        <div class="field-card" style="margin-bottom:14px;">
+            <div class="field-label">Jenis Masalah</div>
+            <div class="field-value">${report.jenis_masalah}</div>
+        </div>
+        <div class="story-box">${report.kronologi}</div>
+
+        <div class="grid-3" style="margin-top:14px;">
+            ${topMetrics
+                .map(
+                    (item) =>
+                        `<div class="metric-card"><div class="metric-label">${item.label}</div><div class="metric-value">${item.value}</div></div>`,
+                )
+                .join("")}
+        </div>
+
+        <div class="field-card" style="margin-top:14px;">
+            <div class="field-label">Lokasi Kejadian</div>
+            <div class="field-value">${report.lokasi_kejadian || "-"}</div>
+        </div>
+
+        ${report.catatan_internal ? `<div class="note-box"><strong>Catatan Paralegal</strong><div style="margin-top:8px; line-height:1.7;">${report.catatan_internal}</div></div>` : ""}
+
+        <div class="section-title">Data Pelapor</div>
+        <div class="grid-2">
+            <div class="field-card"><div class="field-label">Nama Pelapor</div><div class="field-value">${report.nama_pelapor || "-"}</div></div>
+            <div class="field-card"><div class="field-label">NIK</div><div class="field-value">${report.nik || "-"}</div></div>
+            <div class="field-card"><div class="field-label">Nomor Telepon</div><div class="field-value">${report.nomor_telepon || "-"}</div></div>
+            <div class="field-card"><div class="field-label">Lurah / Kades</div><div class="field-value">${report.nama_lurah || "-"}</div></div>
+            <div class="field-card"><div class="field-label">Posbankum / Kecamatan</div><div class="field-value">${getFullWilayah(report)}</div></div>
+            <div class="field-card"><div class="field-label">Provinsi</div><div class="field-value">${report.provinsi_nama || "Riau"}</div></div>
+        </div>
+
+        <div class="section-title">Paralegal yang Mengurus</div>
+        <div class="grid-2">
+            <div class="field-card"><div class="field-label">Nama Paralegal</div><div class="field-value">${report.paralegal_nama || "-"}</div></div>
+            <div class="field-card"><div class="field-label">Nomor HP Paralegal</div><div class="field-value">${report.paralegal_hp || "-"}</div></div>
+        </div>
+
+        <div class="section-title">Progres Penanganan</div>
+        <div class="timeline">${timelineMarkup || "<div class='field-card'><div class='field-value'>Belum ada progres penanganan.</div></div>"}</div>
+
+        <div class="print-footer">
+            <span>Dicetak dari Sistem Posbankum</span>
+            <span>Halaman 1</span>
+        </div>
+    </div>
+    <script>window.onload = function(){ window.print(); };</script>
+</body>
+</html>`;
 }
 
 export default function LaporanPelayanan({
@@ -402,22 +619,29 @@ export default function LaporanPelayanan({
     const [search, setSearch] = useState("");
     const [priorityFilter, setPriorityFilter] = useState("semua");
     const [selectedReport, setSelectedReport] = useState(null);
-    const [showDetail, setShowDetail] = useState(false);
     const [previewFile, setPreviewFile] = useState(null);
-    const [deleteTargetId, setDeleteTargetId] = useState(null);
     const [saving, setSaving] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(flash?.success || "");
-    const [reminderModal, setReminderModal] = useState(EMPTY_REMINDER);
+    const [toastSuccess, setToastSuccess] = useState({
+        title: "Berhasil",
+        message: flash?.success || "",
+    });
+    const [toastReject, setToastReject] = useState("");
     const [formData, setFormData] = useState(EMPTY_FORM_DATA);
+    const [isParalegalDropdownOpen, setIsParalegalDropdownOpen] =
+        useState(false);
 
     useEffect(() => {
         setReports((initialReports || []).map(normalizeReport));
     }, [initialReports]);
 
     useEffect(() => {
-        if (flash?.success) setSuccessMessage(flash.success);
-    }, [flash?.success]);
+        if (flash?.success) {
+            setToastSuccess({ title: "Berhasil!", message: flash.success });
+        }
+        if (flash?.error || flash?.reject) {
+            setToastReject(String(flash?.error || flash?.reject));
+        }
+    }, [flash]);
 
     const paralegalOptions = useMemo(() => {
         return (initialParalegals || []).map((item, index) => ({
@@ -457,6 +681,7 @@ export default function LaporanPelayanan({
             const combined = [
                 item.nomor_pengaduan,
                 item.nama_pelapor,
+                item.nik,
                 item.judul_pengaduan,
                 item.jenis_masalah,
                 item.kronologi,
@@ -469,52 +694,56 @@ export default function LaporanPelayanan({
         });
     }, [activeReports, completedReports, priorityFilter, search, tab]);
 
-    const closeReminderModal = () => setReminderModal(EMPTY_REMINDER);
-    const openReminderModal = (payload) =>
-        setReminderModal({ ...EMPTY_REMINDER, open: true, ...payload });
+    const selectedParalegal = useMemo(
+        () =>
+            paralegalOptions.find(
+                (item) => String(item.id) === String(formData.id_paralegal),
+            ),
+        [formData.id_paralegal, paralegalOptions],
+    );
+
+    const handleFieldChange = (field, value) => {
+        setFormData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+    };
 
     const handleParalegalChange = (value) => {
         const selected = paralegalOptions.find(
             (item) => String(item.id) === String(value),
         );
+
         setFormData((prev) => ({
             ...prev,
             id_paralegal: selected?.id || "",
             paralegal_nama: selected?.nama || "",
             paralegal_hp: selected?.hp || "",
         }));
+
+        setIsParalegalDropdownOpen(false);
     };
 
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files || []);
-
         if (!files.length) {
             setFormData((prev) => ({ ...prev, lampiran: [] }));
             return;
         }
-
         const invalid = files.find((file) => !isAllowedFileType(file));
         if (invalid) {
             event.target.value = "";
-            openReminderModal({
-                title: "Format file tidak didukung",
-                subtitle: "Periksa lampiran yang dipilih",
-                description: `File ${invalid.name} tidak didukung. Hanya PNG, JPG, JPEG, dan PDF yang diperbolehkan.`,
-            });
+            setToastReject(
+                `File ${invalid.name} tidak didukung. Gunakan PNG, JPG, JPEG, atau PDF.`,
+            );
             return;
         }
-
         const oversize = files.find((file) => file.size > MAX_FILE_SIZE_BYTES);
         if (oversize) {
             event.target.value = "";
-            openReminderModal({
-                title: "Ukuran file terlalu besar",
-                subtitle: "Lampiran melebihi batas maksimum",
-                description: `Ukuran file ${oversize.name} melebihi batas 5MB.`,
-            });
+            setToastReject(`Ukuran file ${oversize.name} melebihi batas 5MB.`);
             return;
         }
-
         setFormData((prev) => ({ ...prev, lampiran: files }));
     };
 
@@ -541,18 +770,16 @@ export default function LaporanPelayanan({
         return "";
     };
 
-    const resetForm = () => setFormData(EMPTY_FORM_DATA);
+    const resetForm = () => {
+        setFormData(EMPTY_FORM_DATA);
+        setIsParalegalDropdownOpen(false);
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const validationMessage = validateForm();
-
         if (validationMessage) {
-            openReminderModal({
-                title: "Data laporan belum lengkap",
-                subtitle: "Periksa kembali formulir laporan",
-                description: validationMessage,
-            });
+            setToastReject(validationMessage);
             return;
         }
 
@@ -570,87 +797,62 @@ export default function LaporanPelayanan({
             onSuccess: () => {
                 resetForm();
                 setTab("aktif");
-                setSuccessMessage("Laporan berhasil disimpan.");
+                setToastSuccess({
+                    title: "Berhasil!",
+                    message: "Laporan berhasil disimpan.",
+                });
             },
             onError: (errors) => {
                 const message =
                     Object.values(errors || {})[0] ||
                     "Gagal menyimpan laporan.";
-                openReminderModal({
-                    title: "Laporan gagal disimpan",
-                    subtitle: "Terjadi kendala saat menyimpan data",
-                    description: message,
-                });
+                setToastReject(String(message));
             },
             onFinish: () => setSaving(false),
         });
     };
 
-    const handleDelete = (id) => {
-        setDeleteTargetId(id);
-    };
+    const handleDelete = (report) => {
+        if (!report?.id_pengaduan) return;
+        const confirmed = window.confirm(
+            "Apakah Anda yakin ingin menghapus laporan ini?",
+        );
+        if (!confirmed) return;
 
-    const confirmDelete = () => {
-        if (!deleteTargetId) return;
-        setDeleting(true);
-        router.delete(`/paralegal/laporan-pelayanan/${deleteTargetId}`, {
+        router.delete(`/paralegal/laporan-pelayanan/${report.id_pengaduan}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setReports((prev) =>
                     prev.filter(
                         (item) =>
                             String(item.id_pengaduan) !==
-                            String(deleteTargetId),
+                            String(report.id_pengaduan),
                     ),
                 );
-                setSuccessMessage("Laporan berhasil dihapus.");
-                setDeleteTargetId(null);
+                setToastSuccess({
+                    title: "Berhasil!",
+                    message: "Laporan berhasil dihapus.",
+                });
+                if (
+                    selectedReport &&
+                    String(selectedReport.id_pengaduan) ===
+                        String(report.id_pengaduan)
+                ) {
+                    setSelectedReport(null);
+                    setTab("aktif");
+                }
             },
             onError: (errors) => {
                 const message =
                     Object.values(errors || {})[0] ||
                     "Gagal menghapus laporan.";
-                openReminderModal({
-                    title: "Laporan gagal dihapus",
-                    subtitle: "Terjadi kendala saat menghapus data",
-                    description: message,
-                });
+                setToastReject(String(message));
             },
-            onFinish: () => setDeleting(false),
         });
-    };
-
-    const markAsDone = (report) => {
-        if (!report?.id_pengaduan) return;
-        router.patch(
-            `/paralegal/laporan-pelayanan/${report.id_pengaduan}/status`,
-            { status: "selesai" },
-            {
-                preserveScroll: true,
-                onSuccess: () =>
-                    setSuccessMessage("Status laporan berhasil diperbarui."),
-                onError: (errors) => {
-                    const message =
-                        Object.values(errors || {})[0] ||
-                        "Gagal memperbarui status.";
-                    openReminderModal({
-                        title: "Status gagal diperbarui",
-                        subtitle: "Periksa kembali laporan",
-                        description: message,
-                    });
-                },
-            },
-        );
     };
 
     const handleOpenDetail = (report) => {
         setSelectedReport(report);
-        setShowDetail(true);
-    };
-
-    const handleCloseDetail = () => {
-        setShowDetail(false);
-        setSelectedReport(null);
     };
 
     const handleOpenLampiran = (file) => {
@@ -670,1032 +872,1175 @@ export default function LaporanPelayanan({
             file?.url || file?.public_url || file?.path_file || "",
         );
         if (!url) return;
-        window.open(url, "_blank", "noopener,noreferrer");
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.download = getAttachmentFileName(file, "lampiran");
+        link.click();
     };
 
-    const handlePrint = () => {
-        if (!selectedReport) return;
-
+    const handlePrint = (report) => {
+        if (!report) return;
         const printWindow = window.open("", "_blank");
-        if (!printWindow) return;
-
-        const showValue = (value) => String(value || "-");
-        const html = `
-            <!doctype html>
-            <html>
-                <head>
-                    <title>${showValue(selectedReport.nomor_pengaduan)}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 36px; color: #111827; }
-                        .head { border-bottom: 3px solid #0f3f93; padding-bottom: 16px; margin-bottom: 24px; }
-                        h1 { margin: 0 0 6px; font-size: 24px; }
-                        .muted { color: #6b7280; font-size: 13px; }
-                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
-                        .box { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; }
-                        .label { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
-                        .value { font-weight: 700; }
-                        .text { line-height: 1.7; }
-                        .footer { margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 12px; color: #6b7280; }
-                    </style>
-                </head>
-                <body>
-                    <div class="head">
-                        <h1>Laporan Pelayanan Posbankum</h1>
-                        <div class="muted">${showValue(selectedReport.nomor_pengaduan)}</div>
-                    </div>
-                    <div class="grid">
-                        <div class="box"><div class="label">Nama Pelapor</div><div class="value">${showValue(selectedReport.nama_pelapor)}</div></div>
-                        <div class="box"><div class="label">Nomor Telepon</div><div class="value">${showValue(selectedReport.nomor_telepon)}</div></div>
-                        <div class="box"><div class="label">Jenis Masalah</div><div class="value">${showValue(selectedReport.jenis_masalah)}</div></div>
-                        <div class="box"><div class="label">Status</div><div class="value">${getStatusLabel(selectedReport.status)}</div></div>
-                        <div class="box"><div class="label">Prioritas</div><div class="value">${getPriorityLabel(selectedReport.prioritas)}</div></div>
-                        <div class="box"><div class="label">Paralegal</div><div class="value">${showValue(selectedReport.paralegal_nama)}</div></div>
-                    </div>
-                    <div class="box">
-                        <div class="label">Judul Laporan</div>
-                        <div class="value">${showValue(selectedReport.judul_pengaduan)}</div>
-                    </div>
-                    <br />
-                    <div class="box">
-                        <div class="label">Kronologi</div>
-                        <div class="text">${showValue(selectedReport.kronologi)}</div>
-                    </div>
-                    <div class="footer">Dicetak dari Sistem Aplikasi Posbankum</div>
-                    <script>window.onload = function(){ window.print(); };</script>
-                </body>
-            </html>
-        `;
-
+        if (!printWindow) {
+            setToastReject("Jendela print diblokir browser.");
+            return;
+        }
         printWindow.document.open();
-        printWindow.document.write(html);
+        printWindow.document.write(buildPrintHtml(report));
         printWindow.document.close();
     };
 
-    const renderReportCard = (report) => (
-        <div className="lpReportCard" key={report.id_pengaduan}>
-            <div className="lpReportTitleRow">
-                <div>
-                    <h3 className="lpReportTitle">{report.judul_pengaduan}</h3>
-                    <div className="lpReportNo">{report.nomor_pengaduan}</div>
-                </div>
-                <div className="lpBadgeRow">
-                    <span
-                        className={`lpBadge ${report.status === "selesai" ? "badgeGreen" : "badgeOrange"}`}
-                    >
-                        {getStatusLabel(report.status)}
-                    </span>
-                    <span
-                        className={`lpBadge ${report.prioritas === "tinggi" ? "badgeRed" : report.prioritas === "rendah" ? "badgeBlue" : "badgeOrange"}`}
-                    >
-                        {getPriorityLabel(report.prioritas)}
-                    </span>
-                </div>
-            </div>
-
-            <div className="lpReportMeta">
-                <span>
-                    <FiCalendar />{" "}
-                    {formatDateID(report.tanggal_kejadian || report.created_at)}
-                </span>
-                <span>
-                    <FiMapPin />{" "}
-                    {report.posbankum_info || report.lokasi_kejadian}
-                </span>
-                <span>
-                    <FiPhone /> {report.nomor_telepon}
-                </span>
-            </div>
-
-            <div className="lpNameBadge">
-                <FiUser /> {report.nama_pelapor}
-            </div>
-
-            <div className="lpCategoryRow">
-                <span className="lpCategoryBadge">{report.jenis_masalah}</span>
-            </div>
-
-            <p className="lpReportDesc">{clampText(report.kronologi, 240)}</p>
-
-            <div className="lpUpdateBox">
-                <div className="lpUpdateTitle">
-                    <FiClock /> Update Terakhir
-                </div>
-                <div className="lpUpdateItem">
-                    <span className="lpUpdateDot" />
-                    <div className="lpUpdateContent">
-                        <div className="lpUpdateHead">
-                            <strong>
-                                {report.updates?.[report.updates.length - 1]
-                                    ?.title || "Laporan Diterima"}
-                            </strong>
-                            <span>
-                                {report.updates?.[report.updates.length - 1]
-                                    ?.date || formatDateID(report.created_at)}
-                            </span>
-                        </div>
-                        <div className="lpUpdateDesc">
-                            {report.updates?.[report.updates.length - 1]
-                                ?.desc || "Laporan telah masuk ke sistem."}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="lpReportFooter">
-                <div className="lpReportFootText">
-                    Ditangani oleh <b>{report.paralegal_nama || "Paralegal"}</b>
-                </div>
-                <div className="lpActionRow">
-                    {report.status !== "selesai" ? (
-                        <button
-                            type="button"
-                            className="lpBtn lpBtnGhost"
-                            onClick={() => markAsDone(report)}
-                        >
-                            <FiCheckCircle /> Selesai
-                        </button>
-                    ) : null}
-                    <button
-                        type="button"
-                        className="lpBtn lpBtnDetail"
-                        onClick={() => handleOpenDetail(report)}
-                    >
-                        <FiEye /> Detail
-                    </button>
-                    <button
-                        type="button"
-                        className="lpBtn lpBtnDelete"
-                        onClick={() => handleDelete(report.id_pengaduan)}
-                    >
-                        <FiTrash2 /> Hapus
-                    </button>
-                </div>
-            </div>
+    const renderStats = () => (
+        <div className="lpvStatsGrid">
+            <StatBox
+                icon={<FiFileText />}
+                label="Total Laporan"
+                value={stats.total}
+                tone="toneNavy"
+            />
+            <StatBox
+                icon={<FiClock />}
+                label="Sedang Proses"
+                value={stats.aktif}
+                tone="toneYellow"
+            />
+            <StatBox
+                icon={<FiCheckCircle />}
+                label="Selesai"
+                value={stats.selesai}
+                tone="toneGreen"
+            />
+            <StatBox
+                icon={<FiAlertTriangle />}
+                label="Prioritas Tinggi"
+                value={stats.tinggi}
+                tone="toneRed"
+            />
+            <StatBox
+                icon={<TfiStatsUp />}
+                label="Tingkat Selesai"
+                value={`${stats.tingkatSelesai}%`}
+                tone="toneOrange"
+            />
+            <StatBox
+                icon={<FiCalendar />}
+                label="Rata-rata"
+                value={`${stats.avgHari} hari`}
+                tone="toneIndigo"
+            />
         </div>
     );
 
-    return (
-        <div className="lpRoot">
-            <SuccessToast
-                message={successMessage}
-                onClose={() => setSuccessMessage("")}
-            />
-
-            <ReminderModal
-                open={reminderModal.open}
-                title={reminderModal.title}
-                subtitle={reminderModal.subtitle}
-                description={reminderModal.description}
-                buttonLabel={reminderModal.buttonLabel}
-                onClose={closeReminderModal}
-            />
-
-            <div className="lpStatsGrid">
-                <div className="lpStatCard is-total">
-                    <div className="lpStatIcon">
-                        <FiFileText />
-                    </div>
-                    <div className="lpStatBody">
-                        <div className="lpStatLabel">Total Laporan</div>
-                        <div className="lpStatValue">{stats.total}</div>
-                    </div>
-                </div>
-                <div className="lpStatCard is-process">
-                    <div className="lpStatIcon">
-                        <FiClock />
-                    </div>
-                    <div className="lpStatBody">
-                        <div className="lpStatLabel">Sedang Proses</div>
-                        <div className="lpStatValue">{stats.aktif}</div>
-                    </div>
-                </div>
-                <div className="lpStatCard is-done">
-                    <div className="lpStatIcon">
-                        <FiCheckCircle />
-                    </div>
-                    <div className="lpStatBody">
-                        <div className="lpStatLabel">Selesai</div>
-                        <div className="lpStatValue">{stats.selesai}</div>
-                    </div>
-                </div>
-                <div className="lpStatCard is-high">
-                    <div className="lpStatIcon">
-                        <FiAlertTriangle />
-                    </div>
-                    <div className="lpStatBody">
-                        <div className="lpStatLabel">Prioritas Tinggi</div>
-                        <div className="lpStatValue">{stats.tinggi}</div>
-                    </div>
-                </div>
-                <div className="lpStatCard is-rate">
-                    <div className="lpStatIcon">
-                        <FiTrendingUp />
-                    </div>
-                    <div className="lpStatBody">
-                        <div className="lpStatLabel">Tingkat Selesai</div>
-                        <div className="lpStatValue">
-                            {stats.tingkatSelesai}%
-                        </div>
-                    </div>
-                </div>
-                <div className="lpStatCard is-average">
-                    <div className="lpStatIcon">
-                        <FiCalendar />
-                    </div>
-                    <div className="lpStatBody">
-                        <div className="lpStatLabel">Rata-rata</div>
-                        <div className="lpStatValue">{stats.avgHari} hari</div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="lpTabBar">
+    const renderToolbar = () => (
+        <div className="lpvToolbarCard">
+            <div className="lpvTabsRow">
                 <button
                     type="button"
-                    className={`lpTabBtn ${tab === "buat" ? "is-active" : ""}`}
+                    className={`lpvTopTab ${tab === "buat" ? "active" : ""}`}
                     onClick={() => setTab("buat")}
                 >
                     <FiPlus /> Buat Laporan
                 </button>
                 <button
                     type="button"
-                    className={`lpTabBtn ${tab === "aktif" ? "is-active" : ""}`}
+                    className={`lpvTopTab ${tab === "aktif" ? "active" : ""}`}
                     onClick={() => setTab("aktif")}
                 >
                     <FiClock /> Laporan Aktif ({activeReports.length})
                 </button>
                 <button
                     type="button"
-                    className={`lpTabBtn ${tab === "riwayat" ? "is-active" : ""}`}
+                    className={`lpvTopTab ${tab === "riwayat" ? "active" : ""}`}
                     onClick={() => setTab("riwayat")}
                 >
-                    <FiRotateCcw /> Riwayat Selesai ({completedReports.length})
+                    <RiHistoryFill /> Riwayat Selesai ({completedReports.length}
+                    )
                 </button>
                 <button
                     type="button"
-                    className={`lpTabBtn ${tab === "statistik" ? "is-active" : ""}`}
+                    className={`lpvTopTab ${tab === "statistik" ? "active" : ""}`}
                     onClick={() => setTab("statistik")}
                 >
                     <AiOutlineBarChart /> Statistik
                 </button>
             </div>
+        </div>
+    );
 
-            {tab === "buat" ? (
-                <form className="lpFormCard" onSubmit={handleSubmit}>
-                    <div className="lpInfoBox">
-                        <FiInfo />
-                        <div>
-                            <div className="lpInfoTitle">
-                                Petunjuk Pengisian
-                            </div>
-                            <div className="lpInfoText">
-                                Lengkapi formulir laporan dengan data yang
-                                akurat. Field bertanda (*) wajib diisi.
-                            </div>
+    const renderSearchBar = () => (
+        <div className="lpvSearchCard">
+            <div className="lpvSearchBox">
+                <FiSearch />
+                <input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Cari laporan (nama, NIK, nomor laporan)..."
+                />
+            </div>
+            <div className="lpvFilterGroup">
+                <div className="lpvFilterIcon">
+                    <FiFilter />
+                </div>
+                <select
+                    value={priorityFilter}
+                    onChange={(event) => setPriorityFilter(event.target.value)}
+                >
+                    <option value="semua">Semua Prioritas</option>
+                    <option value="tinggi">Prioritas Tinggi</option>
+                    <option value="sedang">Prioritas Sedang</option>
+                    <option value="rendah">Prioritas Rendah</option>
+                </select>
+            </div>
+        </div>
+    );
+
+    const renderStatistics = () => {
+        const currentMonthLabel = new Date().toLocaleDateString("id-ID", {
+            month: "long",
+        });
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const totalThisMonth = reports.filter((item) => {
+            const date = new Date(item.created_at || item.tanggal_kejadian);
+            return (
+                !Number.isNaN(date.getTime()) &&
+                date.getMonth() === currentMonth &&
+                date.getFullYear() === currentYear
+            );
+        }).length;
+        const categoryRows = [
+            "Pidana",
+            "Perdata",
+            "Ketenagakerjaan",
+            "Keluarga",
+            "Pertanahan",
+            "Konsumen",
+        ].map((name) => {
+            const count = reports.filter((item) =>
+                String(item.jenis_masalah || "")
+                    .toLowerCase()
+                    .includes(name.toLowerCase()),
+            ).length;
+            return {
+                name,
+                count,
+                percent: stats.total
+                    ? Math.round((count / stats.total) * 100)
+                    : 0,
+            };
+        });
+        const priorityRows = ["tinggi", "sedang", "rendah"].map((priority) => {
+            const count = reports.filter(
+                (item) => item.prioritas === priority,
+            ).length;
+            return {
+                key: priority,
+                name: getPriorityLabel(priority),
+                count,
+                percent: stats.total
+                    ? Math.round((count / stats.total) * 100)
+                    : 0,
+            };
+        });
+
+        return (
+            <div className="lpvStatContent">
+                <div className="lpvStatPanelGrid">
+                    <section className="lpvStatPanel">
+                        <div className="lpvStatPanelTitle isBlue">
+                            <AiOutlineBarChart />
+                            <span>Berdasarkan Jenis Masalah</span>
+                        </div>
+                        <div className="lpvBarList">
+                            {categoryRows.map((item) => (
+                                <div className="lpvBarRow" key={item.name}>
+                                    <div className="lpvBarHead">
+                                        <span>{item.name}</span>
+                                        <strong>
+                                            {item.count} ({item.percent}%)
+                                        </strong>
+                                    </div>
+                                    <div className="lpvStatTrack">
+                                        <div
+                                            className="lpvStatFill isBlue"
+                                            style={{
+                                                width: `${item.percent}%`,
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="lpvStatPanel">
+                        <div className="lpvStatPanelTitle isRed">
+                            <FiAlertTriangle />
+                            <span>Berdasarkan Prioritas</span>
+                        </div>
+                        <div className="lpvBarList priority">
+                            {priorityRows.map((item) => (
+                                <div className="lpvBarRow" key={item.key}>
+                                    <div className="lpvBarHead">
+                                        <span>{item.name}</span>
+                                        <strong
+                                            className={`priorityText ${item.key}`}
+                                        >
+                                            {item.count} ({item.percent}%)
+                                        </strong>
+                                    </div>
+                                    <div className="lpvStatTrack">
+                                        <div
+                                            className={`lpvStatFill priority ${item.key}`}
+                                            style={{
+                                                width: `${item.percent}%`,
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                </div>
+
+                <section className="lpvPerformancePanel">
+                    <div className="lpvPerformanceTitle">
+                        <FiChevronRight />
+                        <span>Ringkasan Performa</span>
+                    </div>
+                    <div className="lpvPerformanceGrid">
+                        <div className="lpvPerformanceCard blue">
+                            <span>Total Laporan {currentMonthLabel}</span>
+                            <strong>{totalThisMonth || stats.total}</strong>
+                        </div>
+                        <div className="lpvPerformanceCard green">
+                            <span>Tingkat Penyelesaian</span>
+                            <strong>{stats.tingkatSelesai}%</strong>
+                        </div>
+                        <div className="lpvPerformanceCard indigo">
+                            <span>Rata-rata Durasi</span>
+                            <strong>{stats.avgHari} hari</strong>
+                        </div>
+                        <div className="lpvPerformanceCard orange">
+                            <span>Laporan Aktif</span>
+                            <strong>{stats.aktif}</strong>
                         </div>
                     </div>
+                </section>
+            </div>
+        );
+    };
 
-                    <section className="lpSection">
-                        <div className="lpSectionTitle">
-                            <FiUser /> Data Pelapor
-                        </div>
-                        <div className="lpFormGrid two">
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel("Nama Lengkap")}
-                                </label>
+    const renderForm = () => (
+        <div className="lpvFormCard lpvCreateCard">
+            <div className="lpvGuideBox">
+                <div className="lpvGuideIcon">
+                    <FiInfo />
+                </div>
+                <div>
+                    <div className="lpvGuideTitle">Petunjuk Pengisian</div>
+                    <p>
+                        Lengkapi formulir laporan dengan data yang akurat untuk
+                        wilayah{" "}
+                        <strong>
+                            {firstFilled(
+                                currentPosbankum?.kabupaten_nama,
+                                currentPosbankum?.kecamatan_nama,
+                                "Pekanbaru, Sukajadi",
+                            )}
+                        </strong>
+                        . Field bertanda (*) wajib diisi.
+                    </p>
+                </div>
+            </div>
+
+            <form className="lpvCreateForm" onSubmit={handleSubmit}>
+                <section className="lpvFormSection">
+                    <div className="lpvFormSectionTitle">
+                        <FiUser />
+                        <span>Data Pelapor</span>
+                    </div>
+                    <div className="lpvFormSectionLine" />
+                    <div className="lpvCreateGrid two">
+                        <label className="lpvCreateField">
+                            <span>
+                                Nama Lengkap <b>*</b>
+                            </span>
+                            <div className="lpvInputShell">
+                                <FiUser />
                                 <input
                                     value={formData.nama_pelapor}
                                     onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            nama_pelapor: e.target.value,
-                                        }))
+                                        handleFieldChange(
+                                            "nama_pelapor",
+                                            e.target.value,
+                                        )
                                     }
                                     maxLength={120}
                                     placeholder="Masukkan nama lengkap sesuai KTP"
                                 />
                             </div>
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel(
-                                        "NIK (Nomor Induk Kependudukan)",
-                                    )}
-                                </label>
+                        </label>
+                        <label className="lpvCreateField">
+                            <span>
+                                NIK (Nomor Induk Kependudukan) <b>*</b>
+                            </span>
+                            <div className="lpvInputShell">
+                                <FiFileText />
                                 <input
                                     value={formData.nik}
                                     onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            nik: digitsOnly(
+                                        handleFieldChange(
+                                            "nik",
+                                            digitsOnly(
                                                 e.target.value,
                                                 MAX_NIK_LENGTH,
                                             ),
-                                        }))
+                                        )
                                     }
-                                    inputMode="numeric"
                                     maxLength={MAX_NIK_LENGTH}
                                     placeholder="16 digit NIK"
                                 />
                             </div>
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel("Nomor Telepon/HP")}
-                                </label>
+                        </label>
+                        <label className="lpvCreateField">
+                            <span>
+                                Nomor Telepon/HP <b>*</b>
+                            </span>
+                            <div className="lpvInputShell">
+                                <FiPhone />
                                 <input
                                     value={formData.nomor_telepon}
                                     onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            nomor_telepon: digitsOnly(
+                                        handleFieldChange(
+                                            "nomor_telepon",
+                                            digitsOnly(
                                                 e.target.value,
                                                 MAX_PHONE_LENGTH,
                                             ),
-                                        }))
+                                        )
                                     }
-                                    inputMode="numeric"
                                     maxLength={MAX_PHONE_LENGTH}
                                     placeholder="081234567890"
                                 />
                             </div>
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel(
-                                        "Nama Lurah/Kepala Desa",
-                                    )}
-                                </label>
+                        </label>
+                        <label className="lpvCreateField">
+                            <span>
+                                Nama Lurah/Kepala Desa <b>*</b>
+                            </span>
+                            <div className="lpvInputShell">
+                                <FiMapPin />
                                 <input
                                     value={formData.nama_lurah}
                                     onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            nama_lurah: e.target.value,
-                                        }))
+                                        handleFieldChange(
+                                            "nama_lurah",
+                                            e.target.value,
+                                        )
                                     }
                                     maxLength={120}
                                     placeholder="Nama Lurah/Kepala Desa"
                                 />
                             </div>
-                        </div>
-                    </section>
-
-                    <section className="lpSection">
-                        <div className="lpSectionTitle">
-                            <FiFileText /> Detail Laporan
-                        </div>
-                        <div className="lpFormGrid two">
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel("Jenis Masalah")}
-                                </label>
-                                <select
-                                    value={formData.jenis_masalah}
-                                    onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            jenis_masalah: e.target.value,
-                                        }))
-                                    }
-                                >
-                                    <option value="">
-                                        Pilih Jenis Masalah
-                                    </option>
-                                    <option value="Pidana">Pidana</option>
-                                    <option value="Perdata">Perdata</option>
-                                    <option value="Ketenagakerjaan">
-                                        Ketenagakerjaan
-                                    </option>
-                                    <option value="Keluarga">Keluarga</option>
-                                    <option value="Pertanahan">
-                                        Pertanahan
-                                    </option>
-                                    <option value="Konsumen">Konsumen</option>
-                                </select>
-                            </div>
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel("Prioritas")}
-                                </label>
-                                <select
-                                    value={formData.prioritas}
-                                    onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            prioritas: e.target.value,
-                                        }))
-                                    }
-                                >
-                                    <option value="">
-                                        Pilih Prioritas Laporan
-                                    </option>
-                                    <option value="tinggi">Tinggi</option>
-                                    <option value="sedang">Sedang</option>
-                                    <option value="rendah">Rendah</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="lpField">
-                            <label>
-                                {renderRequiredLabel("Judul Laporan")}
-                            </label>
-                            <input
-                                value={formData.judul_pengaduan}
-                                onChange={(e) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        judul_pengaduan: e.target.value.slice(
-                                            0,
-                                            MAX_TITLE_LENGTH,
-                                        ),
-                                    }))
-                                }
-                                maxLength={MAX_TITLE_LENGTH}
-                                placeholder="Ringkasan singkat masalah"
-                            />
-                        </div>
-
-                        <div className="lpField">
-                            <label>
-                                {renderRequiredLabel("Kronologi Kejadian")}
-                            </label>
-                            <textarea
-                                rows={6}
-                                value={formData.kronologi}
-                                onChange={(e) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        kronologi: e.target.value,
-                                    }))
-                                }
-                                maxLength={3000}
-                                placeholder="Jelaskan kronologi kejadian secara detail"
-                            />
-                        </div>
-                    </section>
-
-                    <section className="lpSection">
-                        <div className="lpSectionTitle">
-                            <FiMapPin /> Waktu dan Lokasi
-                        </div>
-                        <div className="lpFormGrid two">
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel("Tanggal Kejadian")}
-                                </label>
-                                <input
-                                    type="date"
-                                    value={formData.tanggal_kejadian}
-                                    onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            tanggal_kejadian: e.target.value,
-                                        }))
-                                    }
-                                />
-                            </div>
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel("Waktu Kejadian")}
-                                </label>
-                                <input
-                                    type="time"
-                                    value={formData.waktu_kejadian}
-                                    onChange={(e) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            waktu_kejadian: e.target.value,
-                                        }))
-                                    }
-                                />
-                            </div>
-                        </div>
-                        <div className="lpField">
-                            <label>
-                                {renderRequiredLabel("Lokasi Kejadian")}
-                            </label>
-                            <input
-                                value={formData.lokasi_kejadian}
-                                onChange={(e) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        lokasi_kejadian: e.target.value,
-                                    }))
-                                }
-                                maxLength={255}
-                                placeholder="Alamat/lokasi kejadian"
-                            />
-                        </div>
-                    </section>
-
-                    <section className="lpSection">
-                        <div className="lpSectionTitle">
-                            <FiUsers /> Paralegal dan Lampiran
-                        </div>
-                        <div className="lpFormGrid two">
-                            <div className="lpField">
-                                <label>
-                                    {renderRequiredLabel("Nama Paralegal")}
-                                </label>
-                                <select
-                                    value={formData.id_paralegal}
-                                    onChange={(e) =>
-                                        handleParalegalChange(e.target.value)
-                                    }
-                                >
-                                    <option value="">Pilih Paralegal</option>
-                                    {paralegalOptions.map((item) => (
-                                        <option key={item.id} value={item.id}>
-                                            {item.nama}{" "}
-                                            {item.hp ? `- ${item.hp}` : ""}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="lpField">
-                                <label>Nomor HP Paralegal</label>
-                                <input
-                                    value={formData.paralegal_hp}
-                                    readOnly
-                                    placeholder="Terisi otomatis"
-                                />
-                            </div>
-                        </div>
-                        <div className="lpField">
-                            <label>Catatan Internal</label>
-                            <textarea
-                                rows={4}
-                                value={formData.catatan_internal}
-                                onChange={(e) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        catatan_internal: e.target.value,
-                                    }))
-                                }
-                                placeholder="Catatan tambahan untuk internal posbankum"
-                            />
-                        </div>
-                        <label className="lpUploadBox">
-                            <input
-                                type="file"
-                                multiple
-                                accept=".png,.jpg,.jpeg,.pdf"
-                                onChange={handleFileChange}
-                            />
-                            <FiPaperclip />
-                            <div className="lpUploadTextMain">
-                                Upload Lampiran
-                            </div>
-                            <div className="lpUploadTextSub">
-                                PNG, JPG, JPEG, atau PDF. Maksimal 5MB per file.
-                            </div>
                         </label>
-                        {formData.lampiran.length ? (
-                            <div className="lpUploadList">
-                                {formData.lampiran.map((file) => (
-                                    <div
-                                        className="lpUploadItem"
-                                        key={`${file.name}-${file.size}`}
-                                    >
-                                        {file.name}{" "}
-                                        {formatFileSize(file.size)
-                                            ? `• ${formatFileSize(file.size)}`
-                                            : ""}
-                                    </div>
-                                ))}
-                            </div>
-                        ) : null}
-                    </section>
-
-                    <div className="lpFormActions">
-                        <button
-                            type="button"
-                            className="lpBtn lpBtnGhost"
-                            onClick={resetForm}
-                            disabled={saving}
-                        >
-                            Reset
-                        </button>
-                        <button
-                            type="submit"
-                            className="lpBtn lpBtnPrimary"
-                            disabled={saving}
-                        >
-                            <FiSend />{" "}
-                            {saving ? "Menyimpan..." : "Kirim Laporan"}
-                        </button>
                     </div>
-                </form>
-            ) : null}
+                </section>
 
-            {tab === "aktif" || tab === "riwayat" ? (
-                <>
-                    <div className="lpToolbar">
-                        <div className="lpSearchWrap">
-                            <FiSearch />
-                            <input
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Cari laporan, pelapor, jenis masalah..."
-                            />
-                        </div>
-                        <div className="lpFilterWrap">
-                            <FiFilter />
+                <section className="lpvFormSection">
+                    <div className="lpvFormSectionTitle">
+                        <FiFileText />
+                        <span>Detail Laporan</span>
+                    </div>
+                    <div className="lpvFormSectionLine" />
+                    <div className="lpvCreateGrid two narrow">
+                        <label className="lpvCreateField">
+                            <span>
+                                Jenis Masalah <b>*</b>
+                            </span>
                             <select
-                                value={priorityFilter}
+                                value={formData.jenis_masalah}
                                 onChange={(e) =>
-                                    setPriorityFilter(e.target.value)
+                                    handleFieldChange(
+                                        "jenis_masalah",
+                                        e.target.value,
+                                    )
                                 }
                             >
-                                <option value="semua">Semua Prioritas</option>
+                                <option value="">Pilih Jenis Masalah</option>
+                                <option value="Pidana">Pidana</option>
+                                <option value="Perdata">Perdata</option>
+                                <option value="Keluarga">Keluarga</option>
+                                <option value="Ketenagakerjaan">
+                                    Ketenagakerjaan
+                                </option>
+                                <option value="Pertanahan">Pertanahan</option>
+                                <option value="Konsumen">Konsumen</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </label>
+                        <label className="lpvCreateField">
+                            <span>
+                                Prioritas <b>*</b>
+                            </span>
+                            <select
+                                value={formData.prioritas}
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        "prioritas",
+                                        e.target.value,
+                                    )
+                                }
+                            >
+                                <option value="">
+                                    Pilih Prioritas Laporan
+                                </option>
                                 <option value="tinggi">Tinggi</option>
                                 <option value="sedang">Sedang</option>
                                 <option value="rendah">Rendah</option>
                             </select>
-                            <FiChevronDown className="lpFilterChevron" />
+                        </label>
+                    </div>
+                    <div className="lpvCreateGrid one">
+                        <label className="lpvCreateField">
+                            <span>
+                                Judul Laporan <b>*</b>
+                            </span>
+                            <input
+                                value={formData.judul_pengaduan}
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        "judul_pengaduan",
+                                        e.target.value.slice(
+                                            0,
+                                            MAX_TITLE_LENGTH,
+                                        ),
+                                    )
+                                }
+                                maxLength={MAX_TITLE_LENGTH}
+                                placeholder="Ringkasan singkat masalah (max 100 karakter)"
+                            />
+                        </label>
+                        <label className="lpvCreateField">
+                            <span>
+                                Kronologi Kejadian <b>*</b>
+                            </span>
+                            <textarea
+                                rows={7}
+                                value={formData.kronologi}
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        "kronologi",
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="Jelaskan kronologi kejadian secara detail (kapan, dimana, bagaimana, siapa saja yang terlibat)..."
+                            />
+                        </label>
+                    </div>
+                </section>
+
+                <section className="lpvFormSection">
+                    <div className="lpvFormSectionTitle">
+                        <FiMapPin />
+                        <span>Lokasi & Waktu Kejadian</span>
+                    </div>
+                    <div className="lpvFormSectionLine" />
+                    <div className="lpvCreateGrid two">
+                        <label className="lpvCreateField">
+                            <span>
+                                Tanggal Kejadian <b>*</b>
+                            </span>
+                            <div className="lpvInputShell">
+                                <FiCalendar />
+                                <input
+                                    type="date"
+                                    value={formData.tanggal_kejadian}
+                                    onChange={(e) =>
+                                        handleFieldChange(
+                                            "tanggal_kejadian",
+                                            e.target.value,
+                                        )
+                                    }
+                                />
+                            </div>
+                        </label>
+                        <label className="lpvCreateField">
+                            <span>Waktu Kejadian</span>
+                            <div className="lpvInputShell">
+                                <FiClock />
+                                <input
+                                    type="time"
+                                    value={formData.waktu_kejadian}
+                                    onChange={(e) =>
+                                        handleFieldChange(
+                                            "waktu_kejadian",
+                                            e.target.value,
+                                        )
+                                    }
+                                />
+                            </div>
+                        </label>
+                    </div>
+                    <label className="lpvCreateField">
+                        <span>
+                            Lokasi Kejadian <b>*</b>
+                        </span>
+                        <div className="lpvInputShell">
+                            <FiMapPin />
+                            <input
+                                value={formData.lokasi_kejadian}
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        "lokasi_kejadian",
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="Contoh: Jl. Raya Bangkinang KM 15, Kampung Tengah"
+                            />
+                        </div>
+                    </label>
+                </section>
+
+                <section className="lpvFormSection">
+                    <div className="lpvFormSectionTitle">
+                        <FiUsers />
+                        <span>Data Paralegal yang Mengurus</span>
+                    </div>
+                    <div className="lpvFormSectionLine" />
+                    <div className="lpvCreateGrid two">
+                        <label className="lpvCreateField">
+                            <span>
+                                Nama Paralegal <b>*</b>
+                            </span>
+                            <div
+                                className="lpvParalegalDropdown"
+                                onBlur={(event) => {
+                                    if (
+                                        !event.currentTarget.contains(
+                                            event.relatedTarget,
+                                        )
+                                    ) {
+                                        setIsParalegalDropdownOpen(false);
+                                    }
+                                }}
+                            >
+                                <button
+                                    type="button"
+                                    className={`lpvParalegalTrigger ${
+                                        isParalegalDropdownOpen ? "active" : ""
+                                    }`}
+                                    onClick={() =>
+                                        setIsParalegalDropdownOpen(
+                                            (current) => !current,
+                                        )
+                                    }
+                                    aria-haspopup="listbox"
+                                    aria-expanded={isParalegalDropdownOpen}
+                                >
+                                    <FiUser />
+                                    <span
+                                        className={
+                                            selectedParalegal
+                                                ? ""
+                                                : "isPlaceholder"
+                                        }
+                                    >
+                                        {selectedParalegal?.nama ||
+                                            "Pilih Paralegal"}
+                                    </span>
+                                    <FiChevronRight className="lpvParalegalArrow" />
+                                </button>
+
+                                {isParalegalDropdownOpen ? (
+                                    <div
+                                        className="lpvParalegalMenu"
+                                        role="listbox"
+                                    >
+                                        <button
+                                            type="button"
+                                            className="lpvParalegalOption muted"
+                                            onMouseDown={(event) =>
+                                                event.preventDefault()
+                                            }
+                                            onClick={() =>
+                                                handleParalegalChange("")
+                                            }
+                                        >
+                                            Pilih Paralegal
+                                        </button>
+
+                                        {paralegalOptions.map((item) => (
+                                            <button
+                                                type="button"
+                                                key={item.id}
+                                                className={`lpvParalegalOption ${
+                                                    String(
+                                                        formData.id_paralegal,
+                                                    ) === String(item.id)
+                                                        ? "selected"
+                                                        : ""
+                                                }`}
+                                                onMouseDown={(event) =>
+                                                    event.preventDefault()
+                                                }
+                                                onClick={() =>
+                                                    handleParalegalChange(
+                                                        item.id,
+                                                    )
+                                                }
+                                                role="option"
+                                                aria-selected={
+                                                    String(
+                                                        formData.id_paralegal,
+                                                    ) === String(item.id)
+                                                }
+                                            >
+                                                {item.nama}
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                        </label>
+                        <label className="lpvCreateField">
+                            <span>Nomor HP Paralegal</span>
+                            <div className="lpvInputShell disabled">
+                                <FiPhone />
+                                <input
+                                    value={
+                                        selectedParalegal?.hp ||
+                                        formData.paralegal_hp
+                                    }
+                                    placeholder="Otomatis terisi saat pilih paralegal"
+                                    readOnly
+                                />
+                            </div>
+                        </label>
+                    </div>
+                </section>
+
+                <section className="lpvFormSection">
+                    <div className="lpvFormSectionTitle textOnly">
+                        <span>Lampiran Dokumen/Bukti</span>
+                    </div>
+                    <div className="lpvFormSectionLine" />
+                    <label className="lpvDropzone">
+                        <input
+                            type="file"
+                            multiple
+                            accept=".png,.jpg,.jpeg,.pdf"
+                            onChange={handleFileChange}
+                        />
+                        <span className="lpvDropIcon">
+                            <FiPaperclip />
+                        </span>
+                        <strong>Klik untuk upload dokumen/foto</strong>
+                        <small>PNG, JPG, PDF (Max 5MB per file)</small>
+                    </label>
+                    {formData.lampiran.length ? (
+                        <div className="lpvUploadList isCreate">
+                            {formData.lampiran.map((file) => (
+                                <div
+                                    className="lpvUploadItem"
+                                    key={`${file.name}-${file.size}`}
+                                >
+                                    <span>{file.name}</span>
+                                    <small>{formatFileSize(file.size)}</small>
+                                </div>
+                            ))}
+                        </div>
+                    ) : null}
+                </section>
+
+                <section className="lpvFormSection">
+                    <div className="lpvFormSectionTitle textOnly">
+                        <span>Catatan Internal Paralegal</span>
+                    </div>
+                    <div className="lpvFormSectionLine" />
+                    <label className="lpvCreateField">
+                        <textarea
+                            rows={4}
+                            value={formData.catatan_internal}
+                            onChange={(e) =>
+                                handleFieldChange(
+                                    "catatan_internal",
+                                    e.target.value,
+                                )
+                            }
+                            placeholder="Catatan khusus atau tindak lanjut yang diperlukan (opsional)"
+                        />
+                    </label>
+                </section>
+
+                <div className="lpvCreateActions">
+                    <button
+                        type="button"
+                        className="lpvResetBtn"
+                        onClick={() => resetForm()}
+                    >
+                        Reset Form
+                    </button>
+                    <button
+                        type="submit"
+                        className="lpvSendBtn"
+                        disabled={saving}
+                    >
+                        <BsSend /> {saving ? "Mengirim..." : "Kirim Laporan"}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+
+    const renderDetailPage = () => {
+        if (!selectedReport) return null;
+        const report = selectedReport;
+        const topMetrics = getDetailTopMetrics(report);
+        const wilayahLabel = getFullWilayah(report);
+
+        return (
+            <div className="lpdWrap">
+                <div className="lpdTopbar">
+                    <div>
+                        <div className="lpvBreadcrumb">
+                            Laporan Pelayanan <FiChevronRight /> Detail Laporan
+                        </div>
+                        <h2 className="lpdPageTitle">
+                            Detail Laporan Pelayanan
+                        </h2>
+                        <div className="lpvTitleLine" />
+                    </div>
+                    <div className="lpdTopActions">
+                        <button
+                            type="button"
+                            className="lpvGhostBtn icon"
+                            onClick={() => handlePrint(report)}
+                        >
+                            <FiPrinter /> Cetak
+                        </button>
+                        <button
+                            type="button"
+                            className="lpvPrimaryBtn"
+                            onClick={() => setSelectedReport(null)}
+                        >
+                            Kembali ke Daftar
+                        </button>
+                    </div>
+                </div>
+
+                <div className="lpdSummaryCard">
+                    <div className="lpdSummaryMain">
+                        <div className="lpdCode">
+                            No. Laporan: {report.nomor_pengaduan}
+                        </div>
+                        <h3 className="lpdCaseTitle">
+                            {report.judul_pengaduan}
+                        </h3>
+                        <div className="lpdBadgeRow">
+                            <span
+                                className={`lpvChip ${report.status === "selesai" ? "isGreen" : "isBlue"}`}
+                            >
+                                {getStatusLabel(report.status)}
+                            </span>
+                            <span
+                                className={`lpvChip ${report.prioritas === "tinggi" ? "isRed" : "isOrange"}`}
+                            >
+                                Prioritas {getPriorityLabel(report.prioritas)}
+                            </span>
+                            <span className="lpvChip isNeutral">
+                                {report.jenis_masalah}
+                            </span>
                         </div>
                     </div>
-                    <div className="lpListWrap">
-                        {filteredReports.length ? (
-                            filteredReports.map(renderReportCard)
-                        ) : (
-                            <div className="lpEmptyCard">
-                                <div className="lpEmptyIcon">
+                    <div className="lpdMetricGrid">
+                        {topMetrics.map((item) => (
+                            <div className="lpdMetricCard" key={item.label}>
+                                <div className="lpdMetricLabel">
+                                    {item.label}
+                                </div>
+                                <div className="lpdMetricValue">
+                                    {item.value}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="lpdPartyRow">
+                        <div className="lpdPartyCol">
+                            <span>Pelapor</span>
+                            <strong>{report.nama_pelapor}</strong>
+                        </div>
+                        <div className="lpdPartyCol">
+                            <span>Paralegal</span>
+                            <strong>{report.paralegal_nama}</strong>
+                        </div>
+                        <div className="lpdPartyCol">
+                            <span>Wilayah</span>
+                            <strong>{wilayahLabel}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="lpdMainGrid">
+                    <div className="lpdLeftColumn">
+                        <section className="lpdPanel">
+                            <div className="lpdPanelHead">
+                                <div className="lpdPanelIcon">
+                                    <FiUser />
+                                </div>
+                                <div>
+                                    <h3>Data Pelapor</h3>
+                                    <span />
+                                </div>
+                            </div>
+                            <div className="lpdFieldGrid three">
+                                <div className="lpdFieldItem">
+                                    <span>Nama Pelapor</span>
+                                    <strong>{report.nama_pelapor}</strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>NIK</span>
+                                    <strong>{report.nik || "-"}</strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>No. Telepon</span>
+                                    <strong>
+                                        {report.nomor_telepon || "-"}
+                                    </strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Desa / Kelurahan</span>
+                                    <strong>
+                                        {report.kelurahan_nama || "-"}
+                                    </strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Kecamatan</span>
+                                    <strong>
+                                        {report.kecamatan_nama || "-"}
+                                    </strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Lurah / Kades</span>
+                                    <strong>{report.nama_lurah || "-"}</strong>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="lpdPanel">
+                            <div className="lpdPanelHead">
+                                <div className="lpdPanelIcon">
                                     <FiFileText />
                                 </div>
-                                <h2>Belum ada laporan</h2>
+                                <div>
+                                    <h3>Detail Kejadian</h3>
+                                    <span />
+                                </div>
+                            </div>
+                            <div className="lpdStoryTitle">
+                                Kronologi Kejadian
+                            </div>
+                            <div className="lpdStoryBox">
+                                {report.kronologi}
+                            </div>
+                            <div className="lpdDetailMeta">
+                                <div className="lpdFieldItem">
+                                    <span>Waktu Kejadian</span>
+                                    <strong>
+                                        {formatDateID(report.tanggal_kejadian)},{" "}
+                                        {formatTimeID(report.waktu_kejadian)}{" "}
+                                        WIB
+                                    </strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Lokasi Kejadian</span>
+                                    <strong>{report.lokasi_kejadian}</strong>
+                                </div>
+                            </div>
+                            <div
+                                className={`lpdNoteBox ${report.status === "selesai" ? "success" : "warning"}`}
+                            >
+                                <strong>
+                                    {report.status === "selesai"
+                                        ? "Solusi / Hasil Penanganan"
+                                        : "Catatan Paralegal"}
+                                </strong>
                                 <p>
-                                    Data laporan akan muncul setelah dibuat atau
-                                    diterima dari database.
+                                    {report.catatan_internal ||
+                                        (report.status === "selesai"
+                                            ? "Laporan telah selesai ditangani."
+                                            : "Belum ada catatan paralegal pada laporan ini.")}
                                 </p>
                             </div>
-                        )}
-                    </div>
-                </>
-            ) : null}
+                        </section>
 
-            {tab === "statistik" ? (
-                <div className="lpStatsPage">
-                    <div className="lpStatsBoardGrid">
-                        <div className="lpPanelCard">
-                            <div className="lpPanelTitle">
-                                <FiFileText /> Statistik Jenis Masalah
+                        <section className="lpdPanel">
+                            <div className="lpdPanelHead">
+                                <div className="lpdPanelIcon">
+                                    <FiClock />
+                                </div>
+                                <div>
+                                    <h3>Progres Penanganan</h3>
+                                    <span />
+                                </div>
                             </div>
-                            <div className="lpBarList">
-                                {Object.entries(
-                                    reports.reduce((acc, item) => {
-                                        acc[item.jenis_masalah] =
-                                            (acc[item.jenis_masalah] || 0) + 1;
-                                        return acc;
-                                    }, {}),
-                                ).map(([label, value]) => (
-                                    <div className="lpBarItem" key={label}>
-                                        <div className="lpBarHead">
-                                            <span>{label}</span>
-                                            <strong>{value}</strong>
-                                        </div>
-                                        <div className="lpBarTrack">
-                                            <div
-                                                className="lpBarFill is-jenis"
-                                                style={{
-                                                    width: `${stats.total ? Math.max(12, Math.round((value / stats.total) * 100)) : 0}%`,
-                                                }}
-                                            />
+                            <div className="lpdTimeline">
+                                {(report.updates || []).map((item, index) => (
+                                    <div
+                                        className="lpdTimelineItem"
+                                        key={`${item.title}-${index}`}
+                                    >
+                                        <div className="lpdTimelineDot" />
+                                        <div className="lpdTimelineCard">
+                                            <div className="lpdTimelineHead">
+                                                <strong>{item.title}</strong>
+                                                <span>
+                                                    {item.date} • {item.time}
+                                                </span>
+                                            </div>
+                                            <p>{item.desc}</p>
+                                            <small>{item.by}</small>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                        <div className="lpPanelCard">
-                            <div className="lpPanelTitle">
-                                <FiAlertTriangle /> Statistik Prioritas
+                        </section>
+                    </div>
+
+                    <div className="lpdRightColumn">
+                        <section className="lpdPanel">
+                            <div className="lpdPanelHead">
+                                <div className="lpdPanelIcon">
+                                    <FiUsers />
+                                </div>
+                                <div>
+                                    <h3>Paralegal Penanggung Jawab</h3>
+                                    <span />
+                                </div>
                             </div>
-                            <div className="lpBarList">
-                                {["tinggi", "sedang", "rendah"].map(
-                                    (priority) => {
-                                        const value = reports.filter(
-                                            (item) =>
-                                                item.prioritas === priority,
-                                        ).length;
-                                        const cls =
-                                            priority === "tinggi"
-                                                ? "is-priority-high"
-                                                : priority === "sedang"
-                                                  ? "is-priority-mid"
-                                                  : "is-priority-low";
-                                        return (
-                                            <div
-                                                className="lpBarItem"
-                                                key={priority}
-                                            >
-                                                <div className="lpBarHead">
-                                                    <span>
-                                                        {getPriorityLabel(
-                                                            priority,
+                            <div className="lpdFieldGrid">
+                                <div className="lpdFieldItem">
+                                    <span>Nama Paralegal</span>
+                                    <strong>{report.paralegal_nama}</strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Nomor HP</span>
+                                    <strong>
+                                        {report.paralegal_hp || "-"}
+                                    </strong>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="lpdPanel">
+                            <div className="lpdPanelHead">
+                                <div className="lpdPanelIcon">
+                                    <TbLocation />
+                                </div>
+                                <div>
+                                    <h3>Wilayah Layanan</h3>
+                                    <span />
+                                </div>
+                            </div>
+                            <div className="lpdFieldGrid">
+                                <div className="lpdFieldItem">
+                                    <span>Provinsi</span>
+                                    <strong>
+                                        {report.provinsi_nama || "Riau"}
+                                    </strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Kabupaten/Kota</span>
+                                    <strong>
+                                        {report.kabupaten_nama || "Pekanbaru"}
+                                    </strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Kecamatan</span>
+                                    <strong>
+                                        {report.kecamatan_nama || "-"}
+                                    </strong>
+                                </div>
+                                <div className="lpdFieldItem">
+                                    <span>Kelurahan</span>
+                                    <strong>
+                                        {report.kelurahan_nama || "-"}
+                                    </strong>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="lpdPanel">
+                            <div className="lpdPanelHead">
+                                <div className="lpdPanelIcon">
+                                    <FiPaperclip />
+                                </div>
+                                <div>
+                                    <h3>
+                                        Lampiran ({report.lampiran?.length || 0}
+                                        )
+                                    </h3>
+                                    <span />
+                                </div>
+                            </div>
+                            {(report.lampiran || []).length ? (
+                                <div className="lpdAttachmentList">
+                                    {report.lampiran.map((file, index) => (
+                                        <div
+                                            className="lpdAttachmentItem"
+                                            key={`${getAttachmentFileName(file)}-${index}`}
+                                        >
+                                            <div className="lpdAttachmentInfo">
+                                                <FiFileText />
+                                                <div>
+                                                    <strong>
+                                                        {getAttachmentFileName(
+                                                            file,
                                                         )}
-                                                    </span>
-                                                    <strong>{value}</strong>
-                                                </div>
-                                                <div className="lpBarTrack">
-                                                    <div
-                                                        className={`lpBarFill ${cls}`}
-                                                        style={{
-                                                            width: `${stats.total ? Math.max(12, Math.round((value / stats.total) * 100)) : 0}%`,
-                                                        }}
-                                                    />
+                                                    </strong>
+                                                    <small>
+                                                        {formatFileSize(
+                                                            file.size_bytes,
+                                                        )}
+                                                    </small>
                                                 </div>
                                             </div>
-                                        );
-                                    },
+                                            <div className="lpdAttachmentActions">
+                                                <button
+                                                    type="button"
+                                                    className="lpdIconBtn"
+                                                    onClick={() =>
+                                                        handleOpenLampiran(file)
+                                                    }
+                                                >
+                                                    <FiEye />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="lpdIconBtn"
+                                                    onClick={() =>
+                                                        handleDownloadLampiran(
+                                                            file,
+                                                        )
+                                                    }
+                                                >
+                                                    <FiDownload />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="lpdNoAttachment">
+                                    Tidak ada lampiran pada laporan ini.
+                                </div>
+                            )}
+                        </section>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="lpvWrap">
+            <SuccessToast
+                title={toastSuccess.title}
+                message={toastSuccess.message}
+                onClose={() =>
+                    setToastSuccess({ title: "Berhasil", message: "" })
+                }
+            />
+            <RejectToast
+                message={toastReject}
+                onClose={() => setToastReject("")}
+            />
+            {selectedReport ? (
+                renderDetailPage()
+            ) : (
+                <>
+                    {renderStats()}
+                    {renderToolbar()}
+                    {tab === "buat" ? (
+                        renderForm()
+                    ) : tab === "statistik" ? (
+                        renderStatistics()
+                    ) : (
+                        <>
+                            {renderSearchBar()}
+                            <div className="lpvListWrap">
+                                {filteredReports.length ? (
+                                    filteredReports.map((report) => (
+                                        <ReportListCard
+                                            key={report.id_pengaduan}
+                                            report={report}
+                                            onDetail={handleOpenDetail}
+                                            onDelete={handleDelete}
+                                        />
+                                    ))
+                                ) : (
+                                    <EmptyState
+                                        message={
+                                            tab === "riwayat"
+                                                ? "Belum ada riwayat laporan selesai."
+                                                : "Belum ada laporan aktif."
+                                        }
+                                    />
                                 )}
                             </div>
-                        </div>
-                    </div>
-                    <div className="lpMiniStats">
-                        <div className="lpMiniStat blue">
-                            <div className="lpMiniLabel">Total</div>
-                            <div className="lpMiniValue">{stats.total}</div>
-                        </div>
-                        <div className="lpMiniStat green">
-                            <div className="lpMiniLabel">Selesai</div>
-                            <div className="lpMiniValue">{stats.selesai}</div>
-                        </div>
-                        <div className="lpMiniStat slate">
-                            <div className="lpMiniLabel">Aktif</div>
-                            <div className="lpMiniValue">{stats.aktif}</div>
-                        </div>
-                        <div className="lpMiniStat orange">
-                            <div className="lpMiniLabel">Rata-rata</div>
-                            <div className="lpMiniValue">
-                                {stats.avgHari} hari
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
-
-            {showDetail && selectedReport ? (
-                <div className="lpModalOverlay" role="dialog" aria-modal="true">
-                    <div className="lpModal">
-                        <div className="lpModalHeader">
-                            <div>
-                                <div className="lpModalTitle">
-                                    Detail Laporan Pelayanan
-                                </div>
-                                <div className="lpModalSub">
-                                    {selectedReport.nomor_pengaduan}
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                className="lpModalClose"
-                                onClick={handleCloseDetail}
-                            >
-                                <FiX />
-                            </button>
-                        </div>
-                        <div className="lpModalBody">
-                            <div className="lpModalStatusRow">
-                                <span
-                                    className={`lpBadge ${selectedReport.status === "selesai" ? "badgeGreen" : "badgeOrange"}`}
-                                >
-                                    {getStatusLabel(selectedReport.status)}
-                                </span>
-                                <span
-                                    className={`lpBadge ${selectedReport.prioritas === "tinggi" ? "badgeRed" : selectedReport.prioritas === "rendah" ? "badgeBlue" : "badgeOrange"}`}
-                                >
-                                    {getPriorityLabel(selectedReport.prioritas)}
-                                </span>
-                            </div>
-                            <div className="lpModalGrid">
-                                <div className="lpModalLeft">
-                                    <section className="lpSection compact">
-                                        <div className="lpSectionTitle">
-                                            Data Pelapor
-                                        </div>
-                                        <div className="lpDetailInfoCard">
-                                            <div className="lpDetailLine">
-                                                <FiUser /> Nama:{" "}
-                                                {selectedReport.nama_pelapor}
-                                            </div>
-                                            <div className="lpDetailLine">
-                                                <FiPhone /> Telepon:{" "}
-                                                {selectedReport.nomor_telepon}
-                                            </div>
-                                            <div className="lpDetailLine">
-                                                <FiMapPin /> Lokasi Kejadian:{" "}
-                                                {selectedReport.lokasi_kejadian}
-                                            </div>
-                                        </div>
-                                    </section>
-                                    <section className="lpSection compact">
-                                        <div className="lpSectionTitle">
-                                            Paralegal yang Mengurus
-                                        </div>
-                                        <div className="lpParalegalCard">
-                                            <div className="lpParalegalName">
-                                                <FiUsers />{" "}
-                                                {selectedReport.paralegal_nama}
-                                            </div>
-                                            <div className="lpParalegalPhone">
-                                                <FiPhone />{" "}
-                                                {selectedReport.paralegal_hp ||
-                                                    "-"}
-                                            </div>
-                                        </div>
-                                    </section>
-                                    <section className="lpSection compact">
-                                        <div className="lpSectionTitle">
-                                            Informasi Laporan
-                                        </div>
-                                        <div className="lpDetailBlock">
-                                            <div className="lpDetailLabel">
-                                                Judul Laporan
-                                            </div>
-                                            <div className="lpDetailValue">
-                                                {selectedReport.judul_pengaduan}
-                                            </div>
-                                        </div>
-                                        <div className="lpDetailBlock">
-                                            <div className="lpDetailLabel">
-                                                Jenis Masalah
-                                            </div>
-                                            <span className="lpCategoryBadge">
-                                                {selectedReport.jenis_masalah}
-                                            </span>
-                                        </div>
-                                        <div className="lpDetailBlock">
-                                            <div className="lpDetailLabel">
-                                                Kronologi
-                                            </div>
-                                            <div className="lpDetailTextBox">
-                                                {selectedReport.kronologi}
-                                            </div>
-                                        </div>
-                                    </section>
-                                </div>
-                                <div className="lpModalRight">
-                                    <section className="lpSection compact">
-                                        <div className="lpSectionTitle">
-                                            Timeline Lengkap
-                                        </div>
-                                        <div className="lpTimeline">
-                                            {(selectedReport.updates || []).map(
-                                                (item, index) => (
-                                                    <div
-                                                        className="lpTimelineItem"
-                                                        key={`${item.title}-${index}`}
-                                                    >
-                                                        <div className="lpTimelineDot" />
-                                                        <div className="lpTimelineCard">
-                                                            <div className="lpTimelineHead">
-                                                                <div className="lpTimelineTitle">
-                                                                    {item.title}
-                                                                </div>
-                                                                <div className="lpTimelineDate">
-                                                                    {item.date}
-                                                                </div>
-                                                            </div>
-                                                            <div className="lpTimelineDesc">
-                                                                {item.desc}
-                                                            </div>
-                                                            <div className="lpTimelineMeta">
-                                                                <span>
-                                                                    <FiClock />{" "}
-                                                                    {item.time}
-                                                                </span>
-                                                                <span className="lpTimelineBy">
-                                                                    {item.by}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ),
-                                            )}
-                                        </div>
-                                    </section>
-                                    {selectedReport.lampiran?.length ? (
-                                        <section className="lpSection compact">
-                                            <div className="lpSectionTitle">
-                                                Lampiran
-                                            </div>
-                                            <div className="lpAttachmentList">
-                                                {selectedReport.lampiran.map(
-                                                    (file, index) => (
-                                                        <div
-                                                            className="lpAttachmentItem"
-                                                            key={`${file.id_lampiran || file.nama_file}-${index}`}
-                                                        >
-                                                            <div className="lpAttachmentInfo">
-                                                                <FiFileText />
-                                                                <div>
-                                                                    <div>
-                                                                        {getAttachmentFileName(
-                                                                            file,
-                                                                        )}
-                                                                    </div>
-                                                                    <small>
-                                                                        {formatFileSize(
-                                                                            file.size_bytes,
-                                                                        )}
-                                                                    </small>
-                                                                </div>
-                                                            </div>
-                                                            <button
-                                                                type="button"
-                                                                className="lpAttachmentEyeBtn"
-                                                                onClick={() =>
-                                                                    handleOpenLampiran(
-                                                                        file,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <FiEye />
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                className="lpAttachmentEyeBtn"
-                                                                onClick={() =>
-                                                                    handleDownloadLampiran(
-                                                                        file,
-                                                                    )
-                                                                }
-                                                            >
-                                                                <FiDownload />
-                                                            </button>
-                                                        </div>
-                                                    ),
-                                                )}
-                                            </div>
-                                        </section>
-                                    ) : null}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="lpModalFooter">
-                            <button
-                                type="button"
-                                className="lpBtn lpBtnPrint"
-                                onClick={handlePrint}
-                            >
-                                <FiPrinter /> Print
-                            </button>
-                            <button
-                                type="button"
-                                className="lpBtn lpBtnPrimary"
-                                onClick={handleCloseDetail}
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
-
-            <DeleteConfirmModal
-                open={!!deleteTargetId}
-                loading={deleting}
-                onCancel={() => !deleting && setDeleteTargetId(null)}
-                onConfirm={confirmDelete}
-            />
+                        </>
+                    )}
+                </>
+            )}
 
             {previewFile ? (
                 <div
-                    className="lpPreviewOverlay"
+                    className="lpvPreviewOverlay"
                     onClick={() => setPreviewFile(null)}
                 >
                     <div
-                        className="lpPreviewModal"
+                        className="lpvPreviewModal"
                         onClick={(event) => event.stopPropagation()}
                     >
-                        <div className="lpPreviewHeader">
-                            <div className="lpPreviewTitleWrap">
-                                <div className="lpPreviewTitle">
-                                    Preview Lampiran Foto
+                        <div className="lpvPreviewHeader">
+                            <div>
+                                <div className="lpvPreviewTitle">
+                                    Preview Lampiran
                                 </div>
-                                <div className="lpPreviewSub">
+                                <div className="lpvPreviewSub">
                                     {getAttachmentFileName(previewFile)}
                                 </div>
                             </div>
                             <button
                                 type="button"
-                                className="lpPreviewHeaderClose"
+                                className="lpdIconBtn"
                                 onClick={() => setPreviewFile(null)}
                             >
                                 <FiX />
                             </button>
                         </div>
-                        <div className="lpPreviewBody">
+                        <div className="lpvPreviewBody">
                             <img
                                 src={previewFile.signedUrl}
                                 alt={getAttachmentFileName(previewFile)}
-                                className="lpPreviewImage"
+                                className="lpvPreviewImage"
                             />
                         </div>
-                        <div className="lpPreviewFooter">
+                        <div className="lpvPreviewFooter">
                             <button
                                 type="button"
-                                className="lpBtn lpBtnPrimary lpPreviewCloseBtn"
+                                className="lpvGhostBtn"
+                                onClick={() =>
+                                    handleDownloadLampiran(previewFile)
+                                }
+                            >
+                                <FiDownload /> Unduh
+                            </button>
+                            <button
+                                type="button"
+                                className="lpvPrimaryBtn"
                                 onClick={() => setPreviewFile(null)}
                             >
                                 Tutup

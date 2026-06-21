@@ -244,6 +244,9 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
     Route::get('/admin', [AdminDashboardController::class, 'admin'])
         ->name('admin.dashboard');
 
+    Route::get('/admin/aktivitas-terbaru', [AdminDashboardController::class, 'admin'])
+        ->name('admin.aktivitas-terbaru.page');
+
     /* Admin Menu */
     Route::get('/admin/kelola-berita/{mode?}/{id?}', [AdminDashboardController::class, 'admin'])
         ->where('mode', 'tambah|edit|detail')
@@ -317,6 +320,12 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
 
     Route::get('/posbankum', [ParalegalDashboardController::class, 'posbankum'])
         ->name('posbankum.dashboard');
+
+    Route::patch('/paralegal/notifikasi/{id}/read', [ParalegalDashboardController::class, 'updateNotificationRead'])
+        ->name('paralegal.notifikasi.read');
+
+    Route::patch('/paralegal/notifikasi/read-all', [ParalegalDashboardController::class, 'markAllNotificationsRead'])
+        ->name('paralegal.notifikasi.read-all');
 
     Route::put('/paralegal/profile', [ParalegalProfileController::class, 'update'])
         ->name('paralegal.profile.update');

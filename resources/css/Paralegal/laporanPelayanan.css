@@ -1,1489 +1,1927 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+
 :root {
-    --lp-text: #374151;
-    --lp-text-dark: #111827;
-    --lp-white: #ffffff;
-    --lp-gray-50: #f9fafb;
-    --lp-gray-100: #f3f4f6;
-    --lp-gray-200: #e5e7eb;
-    --lp-gray-300: #d1d5db;
-    --lp-gray-500: #6b7280;
-    --lp-shadow: 0 8px 24px rgba(17, 24, 39, 0.12);
-    --lp-radius: 16px;
-
-    --lp-grad-total: linear-gradient(135deg, #2b3056, #3a4070, #4a5080);
-    --lp-grad-process: linear-gradient(135deg, #ffd82b, #ffab4a, #ff9f2e);
-    --lp-grad-done: linear-gradient(135deg, #006a4e, #1b7f5c, #2a8f6a);
-    --lp-grad-high: linear-gradient(135deg, #fb2c36, #e7000b);
-    --lp-grad-rate: linear-gradient(135deg, #ea580c, #ff6729);
-    --lp-grad-average: linear-gradient(135deg, #3a4070, #4a5080, #5a6090);
-
-    --lp-blue-bg: #d1e1fd;
+    --lp-navy-1: #2b3056;
+    --lp-navy-2: #3a4070;
+    --lp-navy-3: #4a5080;
+    --lp-yellow-1: #ffd82b;
+    --lp-yellow-2: #ffb33f;
+    --lp-yellow-3: #ff9f2e;
+    --lp-green-1: #006a4e;
+    --lp-green-2: #1b7f5c;
+    --lp-green-3: #1f946b;
+    --lp-red-1: #ef4444;
+    --lp-red-2: #dc2626;
+    --lp-orange-1: #f97316;
+    --lp-orange-2: #ea580c;
+    --lp-blue-soft: #dbeafe;
     --lp-blue-text: #0f3f93;
-
-    --lp-red-bg: #fee2e2;
-    --lp-red-text: #dc2626;
-
-    --lp-green-bg: #dcfce7;
+    --lp-green-soft: #dcfce7;
     --lp-green-text: #15803d;
-
-    --lp-detail-bg: #0f3f93;
-    --lp-detail-text: #ffffff;
-
-    --lp-bar-jenis: linear-gradient(135deg, #1454c4, #0f3f93);
-    --lp-bar-high: linear-gradient(135deg, #dc2626, #b91c1c);
-    --lp-bar-mid: linear-gradient(135deg, #ea580c, #c2410c);
-    --lp-bar-low: linear-gradient(135deg, #1454c4, #0f3f93);
+    --lp-red-soft: #fee2e2;
+    --lp-red-text: #dc2626;
+    --lp-orange-soft: #ffedd5;
+    --lp-orange-text: #c2410c;
+    --lp-indigo-soft: #eef2ff;
+    --lp-indigo-text: #4338ca;
+    --lp-muted: #6b7280;
+    --lp-border: #e5e7eb;
+    --lp-surface: #ffffff;
+    --lp-background: #f8fafc;
+    --lp-text: #111827;
+    --lp-shadow: 0 12px 22px rgba(17, 24, 39, 0.12);
+    --lp-radius: 16px;
 }
 
-.lpRoot {
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    box-sizing: border-box;
+.lpvWrap {
+    width: 100%;
     color: var(--lp-text);
-    font-family: "Outfit", sans-serif;
+    font-family:
+        "Outfit",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 }
 
-.lpRoot,
-.lpRoot * {
-    font-family: "Outfit", sans-serif;
+.lpvWrap *,
+.lpvWrap *::before,
+.lpvWrap *::after {
+    box-sizing: border-box;
 }
 
-.lpHeaderTitleWrap {
-    margin-bottom: 0;
-    margin-top: 0;
+.lpvWrap button,
+.lpvWrap input,
+.lpvWrap select,
+.lpvWrap textarea {
+    font-family: inherit;
 }
 
-.lpPageTitle {
+.lpvTitleWrap {
+    margin-bottom: 18px;
+}
+
+.lpvPageTitle,
+.lpdPageTitle {
     margin: 0;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
+    font-size: 26px;
     line-height: 1.15;
+    font-weight: 800;
+    color: var(--lp-text);
 }
 
-.lpPageUnderline {
-    width: 96px;
-    height: 5px;
-    border-radius: 999px;
+.lpvTitleLine {
+    width: 78px;
+    height: 4px;
     margin-top: 10px;
-    background: #f0b429;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--lp-yellow-1) 0%, #ffab4a 100%);
 }
 
-.lpStatsGrid {
+.lpvStatsGrid {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 14px;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 }
 
-.lpStatCard {
-    min-height: 112px;
-    border-radius: var(--lp-radius);
-    color: var(--lp-white);
-    padding: 18px;
+.lpvStatCard {
+    min-height: 86px;
     display: flex;
     align-items: center;
     gap: 14px;
-    box-shadow: var(--lp-shadow);
-}
-
-.lpStatCard.is-total {
-    background: var(--lp-grad-total);
-}
-.lpStatCard.is-process {
-    background: var(--lp-grad-process);
-}
-.lpStatCard.is-done {
-    background: var(--lp-grad-done);
-}
-.lpStatCard.is-high {
-    background: var(--lp-grad-high);
-}
-.lpStatCard.is-rate {
-    background: var(--lp-grad-rate);
-}
-.lpStatCard.is-average {
-    background: var(--lp-grad-average);
-}
-
-.lpStatIcon {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-}
-
-.lpStatIcon svg {
-    font-size: 32px;
-}
-
-.lpStatBody {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.lpStatLabel {
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.lpStatValue {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.lpTabBar {
-    background: var(--lp-white);
-    border: 1px solid var(--lp-gray-200);
-    border-radius: var(--lp-radius);
-    padding: 8px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    box-shadow: var(--lp-shadow);
-    margin-bottom: 18px;
-}
-
-.lpTabBtn {
-    border: 0;
-    outline: 0;
-    background: transparent;
+    padding: 18px;
     border-radius: 14px;
-    height: 50px;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--lp-text);
-    display: flex;
+    color: #fff;
+    box-shadow: var(--lp-shadow);
+}
+
+.lpvStatCard.toneNavy {
+    background: linear-gradient(
+        135deg,
+        var(--lp-navy-1),
+        var(--lp-navy-2),
+        var(--lp-navy-3)
+    );
+}
+
+.lpvStatCard.toneYellow {
+    background: linear-gradient(
+        135deg,
+        var(--lp-yellow-1),
+        var(--lp-yellow-2),
+        var(--lp-yellow-3)
+    );
+}
+
+.lpvStatCard.toneGreen {
+    background: linear-gradient(
+        135deg,
+        var(--lp-green-1),
+        var(--lp-green-2),
+        var(--lp-green-3)
+    );
+}
+
+.lpvStatCard.toneRed {
+    background: linear-gradient(135deg, var(--lp-red-1), var(--lp-red-2));
+}
+
+.lpvStatCard.toneOrange {
+    background: linear-gradient(135deg, var(--lp-orange-1), var(--lp-orange-2));
+}
+/* Icon Tingkat Selesai: lebih kecil dan lebih tipis */
+.lpvStatCard.toneOrange .lpvStatIcon svg {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+    stroke-width: 1.2;
+    transform: scaleX(0.82);
+}
+
+.lpvTabsRow .lpvTopTab:first-child svg,
+.lpvTabsRow .lpvTopTab:last-child svg {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+}
+
+.lpvStatCard.toneIndigo {
+    background: linear-gradient(135deg, var(--lp-navy-2), var(--lp-navy-3));
+}
+
+.lpvStatIcon {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    font-size: 32px;
+    line-height: 1;
+    flex: 0 0 auto;
+}
+
+.lpvStatIcon svg {
+    width: 32px;
+    height: 32px;
+    stroke-width: 1.9;
+}
+
+.lpvStatBody {
+    min-width: 0;
+}
+
+.lpvStatLabel {
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.lpvStatValue {
+    margin-top: 7px;
+    font-size: 33px;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.lpvToolbarCard,
+.lpvSearchCard,
+.lpvCard,
+.lpvFormCard,
+.lpvInfoCard,
+.lpdSummaryCard,
+.lpdPanel {
+    border-radius: 16px;
+    background: var(--lp-surface);
+    box-shadow: var(--lp-shadow);
+}
+
+.lpvToolbarCard {
+    margin-bottom: 18px;
+    padding: 12px;
+}
+
+.lpvTabsRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.lpvTopTab,
+.lpvPrimaryBtn,
+.lpvGhostBtn,
+.lpvDangerBtn,
+.lpdIconBtn {
+    border: 0;
+    cursor: pointer;
+    transition:
+        transform 0.18s ease,
+        filter 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.lpvTopTab:hover,
+.lpvPrimaryBtn:hover,
+.lpvGhostBtn:hover,
+.lpvDangerBtn:hover,
+.lpdIconBtn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
+}
+
+.lpvTopTab {
+    min-height: 50px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    cursor: pointer;
-}
-
-.lpTabBtn svg {
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.lpTabBtn.is-active {
-    background: var(--lp-grad-total);
-    color: var(--lp-white);
-    box-shadow: 0 6px 16px rgba(43, 48, 86, 0.28);
-}
-
-.lpToolbar {
-    background: var(--lp-white);
-    border: 1px solid var(--lp-gray-200);
-    border-radius: var(--lp-radius);
-    box-shadow: var(--lp-shadow);
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 18px;
-}
-
-.lpSearchWrap {
-    flex: 1;
-    min-width: 0;
-    height: 48px;
-    border: 1px solid var(--lp-gray-300);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 14px;
-    color: var(--lp-gray-500);
-}
-
-.lpSearchWrap input {
-    flex: 1;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    font-size: 15px;
-    color: var(--lp-text);
-}
-
-.lpFilterWrap {
-    position: relative;
-    min-width: 220px;
-    height: 48px;
-    border: 1px solid var(--lp-gray-300);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 14px;
-    color: var(--lp-text);
-    background: var(--lp-white);
-}
-
-.lpFilterWrap select {
-    border: 0;
-    outline: 0;
-    background: transparent;
-    appearance: none;
-    width: 100%;
-    font-size: 15px;
+    border-radius: 13px;
+    padding: 0 16px;
+    background: #fff;
+    color: #374151;
+    font-size: 14px;
     font-weight: 700;
-    color: var(--lp-text);
-    cursor: pointer;
+    border: 1px solid var(--lp-border);
 }
 
-.lpFilterChevron {
-    position: absolute;
-    right: 12px;
-    pointer-events: none;
+.lpvTopTab.active {
+    color: #fff;
+    border-color: transparent;
+    background: linear-gradient(
+        135deg,
+        var(--lp-navy-1),
+        var(--lp-navy-2),
+        var(--lp-navy-3)
+    );
+    box-shadow: 0 10px 20px rgba(43, 48, 86, 0.24);
 }
 
-.lpListWrap {
+.lpvSearchCard {
+    margin-bottom: 18px;
+    padding: 16px 18px;
     display: grid;
+    grid-template-columns: minmax(0, 1fr) 210px;
+    gap: 14px;
+    align-items: center;
+}
+
+.lpvSearchBox,
+.lpvFilterGroup,
+.lpvField input,
+.lpvField select,
+.lpvField textarea,
+.lpdNoAttachment {
+    border: 1px solid #d8dde6;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.lpvSearchBox {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    color: #9ca3af;
+}
+
+.lpvSearchBox input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    background: transparent;
+}
+
+.lpvSearchBox input::placeholder {
+    color: #9ca3af;
+}
+
+.lpvFilterGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    height: 50px;
+}
+
+.lpvFilterGroup select {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.lpvFilterIcon {
+    color: #6b7280;
+    display: inline-flex;
+}
+
+.lpvListWrap {
+    display: flex;
+    flex-direction: column;
     gap: 18px;
 }
 
-.lpReportCard,
-.lpPanelCard,
-.lpFormCard {
-    background: var(--lp-white);
-    border: 1px solid var(--lp-gray-200);
-    border-radius: var(--lp-radius);
-    box-shadow: var(--lp-shadow);
+.lpvCard {
+    padding: 18px;
 }
 
-.lpReportCard {
-    padding: 22px;
-}
-
-.lpReportTitleRow {
+.lpvCardHeader,
+.lpvFooterRow,
+.lpvActionRow,
+.lpvMetaRow,
+.lpvTagLine,
+.lpvUpdateTitle,
+.lpdTopbar,
+.lpdTopActions,
+.lpdBadgeRow,
+.lpdPartyRow,
+.lpdTimelineHead,
+.lpdAttachmentActions,
+.lpvPreviewHeader,
+.lpvPreviewFooter {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+}
+
+.lpvCardHeader,
+.lpvFooterRow,
+.lpdTopbar,
+.lpdPartyRow,
+.lpdTimelineHead,
+.lpvPreviewHeader,
+.lpvPreviewFooter {
     justify-content: space-between;
-    gap: 16px;
 }
 
-.lpReportTitle {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-}
-
-.lpBadgeRow {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.lpBadge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border-radius: 999px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.badgeBlue {
-    background: var(--lp-blue-bg);
-    color: var(--lp-blue-text);
-}
-
-.badgeRed {
-    background: var(--lp-red-bg);
-    color: var(--lp-red-text);
-}
-
-.badgeOrange {
-    background: #fee2e2;
-    color: #ea580c;
-}
-
-.badgeGreen {
-    background: var(--lp-green-bg);
-    color: var(--lp-green-text);
-}
-
-.lpReportNo {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--lp-gray-500);
-    margin-top: 8px;
-}
-
-.lpReportMeta {
-    display: flex;
-    flex-wrap: wrap;
+.lpvCardHeader,
+.lpvFooterRow,
+.lpdTopbar {
     gap: 14px;
-    margin-top: 10px;
-    color: var(--lp-gray-500);
-    font-size: 14px;
 }
 
-.lpReportMeta span {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.lpNameBadge {
-    margin-top: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: var(--lp-green-bg);
-    color: var(--lp-green-text);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.lpNameBadge svg {
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.lpCategoryRow {
-    margin-top: 12px;
-}
-
-.lpCategoryBadge {
-    display: inline-flex;
-    align-items: center;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: var(--lp-blue-bg);
-    color: var(--lp-blue-text);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.lpReportDesc {
-    margin: 16px 0 0;
-    font-size: 15px;
-    line-height: 1.75;
+.lpvCardTitle,
+.lpdCaseTitle,
+.lpvSectionHeading {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.3;
+    font-weight: 800;
     color: var(--lp-text);
 }
 
-.lpUpdateBox {
-    margin-top: 18px;
-    background: var(--lp-gray-50);
-    border: 1px solid var(--lp-gray-200);
-    border-radius: 14px;
-    padding: 16px;
+.lpvCardNumber,
+.lpdCode,
+.lpvSectionSub,
+.lpvUpdateMeta,
+.lpvBreadcrumb,
+.lpvPreviewSub {
+    color: var(--lp-muted);
+    font-size: 13px;
+    font-weight: 500;
 }
 
-.lpUpdateTitle {
+.lpvHeaderChips,
+.lpdBadgeRow,
+.lpvTagLine,
+.lpvActionRow,
+.lpdTopActions,
+.lpdAttachmentActions,
+.lpvPreviewFooter {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-    margin-bottom: 10px;
-}
-
-.lpUpdateItem {
-    display: flex;
-    align-items: flex-start;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
-.lpUpdateDot {
-    width: 8px;
-    height: 8px;
+.lpvChip,
+.lpvTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 32px;
+    padding: 0 12px;
     border-radius: 999px;
-    margin-top: 8px;
-    background: var(--lp-blue-text);
-    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-.lpUpdateContent {
-    min-width: 0;
+.lpvChip.isBlue {
+    background: var(--lp-blue-soft);
+    color: var(--lp-blue-text);
 }
 
-.lpUpdateHead {
+.lpvChip.isGreen,
+.lpvTag.isParalegal {
+    background: var(--lp-green-soft);
+    color: var(--lp-green-text);
+}
+
+.lpvChip.isRed {
+    background: var(--lp-red-soft);
+    color: var(--lp-red-text);
+}
+
+.lpvChip.isOrange,
+.lpvTag.isCategory.blue {
+    background: var(--lp-orange-soft);
+    color: var(--lp-orange-text);
+}
+
+.lpvChip.isNeutral,
+.lpvTag.isCategory.neutral {
+    background: var(--lp-indigo-soft);
+    color: var(--lp-indigo-text);
+}
+
+.lpvMetaRow,
+.lpvFooterMeta {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 10px 16px;
+    color: #6b7280;
     font-size: 13px;
-    color: var(--lp-gray-500);
+    font-weight: 500;
 }
 
-.lpUpdateHead strong {
-    color: var(--lp-text-dark);
+.lpvMetaRow {
+    margin-top: 14px;
 }
 
-.lpUpdateDesc {
-    margin-top: 4px;
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-.lpReportFooter {
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid var(--lp-gray-200);
-    display: flex;
+.lpvMetaRow span,
+.lpvFooterMeta span {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    gap: 7px;
 }
 
-.lpReportFootText {
+.lpvTagLine {
+    margin-top: 14px;
+}
+
+.lpvDescription {
+    margin: 14px 0 16px;
+    color: #374151;
     font-size: 14px;
-    color: var(--lp-gray-500);
+    line-height: 1.8;
 }
 
-.lpActionRow {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.lpBtn {
-    border: 0;
-    outline: 0;
+.lpvUpdateBox {
+    padding: 15px 16px;
     border-radius: 14px;
-    height: 42px;
-    padding: 0 16px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+}
+
+.lpvUpdateTitle {
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.lpvUpdateHeadline {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.lpvUpdateDesc {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #6b7280;
+}
+
+.lpvFooterRow {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #edf0f5;
+}
+
+.lpvPrimaryBtn,
+.lpvGhostBtn,
+.lpvDangerBtn {
+    min-height: 42px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    padding: 0 16px;
+    border-radius: 12px;
     font-size: 14px;
     font-weight: 700;
-    cursor: pointer;
 }
 
-.lpBtnPrimary {
-    background: var(--lp-detail-bg);
-    color: var(--lp-detail-text);
+.lpvPrimaryBtn {
+    color: #fff;
+    background: linear-gradient(
+        135deg,
+        var(--lp-navy-1),
+        var(--lp-navy-2),
+        var(--lp-navy-3)
+    );
+    box-shadow: 0 8px 16px rgba(43, 48, 86, 0.18);
 }
 
-.lpBtnDetail {
-    background: var(--lp-detail-bg);
-    color: var(--lp-detail-text);
+.lpvGhostBtn {
+    color: #374151;
+    background: #fff;
+    border: 1px solid var(--lp-border);
 }
 
-.lpBtnDelete {
-    background: var(--lp-red-bg);
-    color: var(--lp-red-text);
+.lpvGhostBtn.icon {
+    padding-inline: 14px;
 }
 
-.lpBtnGhost {
-    background: var(--lp-gray-100);
-    color: var(--lp-text);
+.lpvDangerBtn {
+    color: #d9485f;
+    background: #fff0f2;
 }
 
-.lpBtnPrint {
-    background: #4b5563;
-    color: var(--lp-white);
+.lpvEmptyState {
+    min-height: 160px;
+    border-radius: 16px;
+    border: 1px dashed #d7dce5;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.lpEmptyBox {
-    background: var(--lp-white);
-    border: 1px dashed var(--lp-gray-300);
-    border-radius: var(--lp-radius);
-    padding: 32px;
-    text-align: center;
-    color: var(--lp-gray-500);
-    font-weight: 700;
-}
-
-.lpStatsPage {
-    display: grid;
-    gap: 20px;
-}
-
-.lpStatsBoardGrid {
+.lpvStatisticGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 18px;
 }
 
-.lpPanelCard {
-    padding: 22px;
-}
-
-.lpPanelTitle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-    margin-bottom: 18px;
-}
-
-.lpBarList {
-    display: grid;
-    gap: 14px;
-}
-
-.lpBarItem {
-    display: grid;
-    gap: 6px;
-}
-
-.lpBarHead {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    font-size: 15px;
-}
-
-.lpBarHead strong {
-    color: var(--lp-blue-text);
-}
-
-.lpBarTrack {
-    width: 100%;
-    height: 8px;
-    border-radius: 999px;
-    background: var(--lp-gray-200);
-    overflow: hidden;
-}
-
-.lpBarFill {
-    height: 100%;
-    border-radius: 999px;
-}
-
-.lpBarFill.is-jenis {
-    background: var(--lp-bar-jenis);
-}
-
-.lpBarFill.is-priority-high {
-    background: var(--lp-bar-high);
-}
-
-.lpBarFill.is-priority-mid {
-    background: var(--lp-bar-mid);
-}
-
-.lpBarFill.is-priority-low {
-    background: var(--lp-bar-low);
-}
-
-.lpMiniStats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-}
-
-.lpMiniStat {
-    border-radius: 14px;
-    padding: 18px;
-    border-left: 4px solid transparent;
-    background: var(--lp-gray-50);
-}
-
-.lpMiniStat.blue {
-    background: rgba(20, 84, 196, 0.12);
-    border-left-color: #1454c4;
-}
-
-.lpMiniStat.green {
-    background: rgba(21, 128, 61, 0.12);
-    border-left-color: #15803d;
-}
-
-.lpMiniStat.slate {
-    background: rgba(74, 80, 128, 0.14);
-    border-left-color: #4a5080;
-}
-
-.lpMiniStat.orange {
-    background: rgba(234, 88, 12, 0.12);
-    border-left-color: #ea580c;
-}
-
-.lpMiniLabel {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--lp-text);
-    margin-bottom: 8px;
-}
-
-.lpMiniValue {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-}
-
-.lpFormCard {
+.lpvInfoCard {
     padding: 20px;
 }
 
-.lpInfoBox {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    background: rgba(20, 84, 196, 0.12);
-    color: var(--lp-blue-text);
-    border-left: 3px solid #2563eb;
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 18px;
-}
-
-.lpInfoBox svg {
-    font-size: 20px;
-    margin-top: 1px;
-}
-
-.lpInfoTitle {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.lpInfoText {
-    font-size: 14px;
-    line-height: 1.65;
-}
-
-.lpSection {
-    margin-top: 18px;
-}
-
-.lpSection.compact {
-    margin-top: 0;
-}
-
-.lpSectionTitle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-    padding-bottom: 10px;
-    margin-bottom: 14px;
-    border-bottom: 2px solid #1454c4;
-}
-
-.lpFormGrid {
-    display: grid;
-    gap: 16px;
-}
-
-.lpFormGrid.two {
-    grid-template-columns: 1fr 1fr;
-}
-
-.lpField {
-    display: grid;
-    gap: 8px;
-    margin-bottom: 14px;
-}
-
-.lpField label {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-}
-
-.lpRequiredMark {
-    color: var(--lp-red-text);
-    font-weight: 700;
-}
-
-.lpField input,
-.lpField textarea,
-.lpField select {
-    width: 100%;
-    border: 1px solid var(--lp-gray-300);
-    outline: 0;
-    border-radius: 12px;
-    padding: 13px 14px;
-    font-size: 14px;
-    color: var(--lp-text);
-    background: var(--lp-white);
-}
-
-.lpField textarea {
-    resize: vertical;
-    min-height: 120px;
-}
-
-.lpUploadBox {
-    border: 1px dashed var(--lp-gray-300);
-    border-radius: 14px;
-    padding: 28px 18px;
-    text-align: center;
-    cursor: pointer;
-    display: block;
-    background: var(--lp-white);
-}
-
-.lpUploadBox input {
-    display: none;
-}
-
-.lpUploadTextMain {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-}
-
-.lpUploadTextSub {
-    margin-top: 4px;
-    font-size: 13px;
-    color: var(--lp-gray-500);
-}
-
-.lpUploadList {
-    margin-top: 12px;
-    display: grid;
-    gap: 8px;
-}
-
-.lpUploadItem {
-    border: 1px solid var(--lp-gray-300);
-    border-radius: 12px;
-    padding: 10px 12px;
-    font-size: 14px;
-}
-
-.lpFormActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.lpModalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(17, 24, 39, 0.48);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    z-index: 9999;
-}
-
-.lpModal {
-    width: min(1200px, 100%);
-    max-height: calc(100vh - 48px);
-    overflow: hidden;
-    border-radius: 20px;
-    background: var(--lp-white);
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
-}
-
-.lpModalHeader {
-    background: var(--lp-detail-bg);
-    color: var(--lp-white);
-    padding: 22px 24px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.lpModalTitle {
-    font-size: 20px;
-    font-weight: 700;
-}
-
-.lpModalSub {
-    margin-top: 4px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.88);
-}
-
-.lpModalClose {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    border: 0;
-    background: rgba(255, 255, 255, 0.16);
-    color: var(--lp-white);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
+.lpvInfoCardTitle {
+    margin: 0 0 16px;
     font-size: 18px;
+    font-weight: 800;
 }
 
-.lpModalBody {
-    padding: 22px 24px;
-    max-height: calc(100vh - 210px);
-    overflow: auto;
-}
-
-.lpModalStatusRow {
+.lpvStatisticList {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-}
-
-.lpModalGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 22px;
-}
-
-.lpDetailInfoCard {
-    background: var(--lp-gray-50);
-    border: 1px solid var(--lp-gray-200);
-    border-radius: 14px;
-    padding: 16px;
-    display: grid;
-    gap: 10px;
-}
-
-.lpDetailLine {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 15px;
-}
-
-.lpParalegalCard {
-    background: var(--lp-green-bg);
-    color: var(--lp-green-text);
-    border-left: 3px solid #22c55e;
-    border-radius: 14px;
-    padding: 16px;
-}
-
-.lpParalegalName,
-.lpParalegalPhone {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-}
-
-.lpParalegalPhone {
-    margin-top: 8px;
-    font-weight: 700;
-}
-
-.lpDetailBlock {
-    margin-bottom: 14px;
-}
-
-.lpDetailLabel {
-    font-size: 14px;
-    color: var(--lp-gray-500);
-    margin-bottom: 6px;
-}
-
-.lpDetailValue {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-}
-
-.lpDetailTextBox {
-    background: var(--lp-gray-50);
-    border: 1px solid var(--lp-gray-200);
-    border-radius: 14px;
-    padding: 14px;
-    font-size: 15px;
-    line-height: 1.75;
-}
-
-.lpDetailMetaBox {
-    margin-bottom: 14px;
-    border: 1px solid rgba(20, 84, 196, 0.24);
-    background: rgba(20, 84, 196, 0.06);
-    border-radius: 14px;
-    padding: 14px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    flex-direction: column;
     gap: 14px;
 }
 
-.lpAttachmentList {
-    display: grid;
-    gap: 10px;
-}
-
-.lpAttachmentItem {
-    border: 1px solid var(--lp-gray-300);
-    border-radius: 12px;
-    padding: 12px 14px;
+.lpvStatisticList div,
+.lpvPriorityRow {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.lpvStatisticList span,
+.lpvPriorityLabel {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.lpvStatisticList strong,
+.lpvPriorityRow strong {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.lpvPriorityBars {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lpvPriorityTrack {
+    flex: 1;
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #eef2f7;
+}
+
+.lpvPriorityFill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--lp-yellow-1), #ffab4a);
+}
+
+.lpvFormCard {
+    padding: 22px;
+}
+
+.lpvFormHeader {
+    margin-bottom: 18px;
+}
+
+.lpvSectionSub {
+    margin-top: 6px;
+}
+
+.lpvFormGrid,
+.lpdFieldGrid,
+.lpvUploadList,
+.lpdAttachmentList {
+    display: grid;
+    gap: 16px;
+}
+
+.lpvFormGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lpvField {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
 }
 
-.lpAttachmentEye {
-    margin-left: auto;
-    color: var(--lp-blue-text);
+.lpvField span {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
 }
 
-.lpTimeline {
-    position: relative;
-    padding-left: 22px;
+.lpvField input,
+.lpvField select,
+.lpvField textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    outline: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
 }
 
-.lpTimeline::before {
-    content: "";
-    position: absolute;
-    left: 9px;
-    top: 6px;
-    bottom: 6px;
-    width: 2px;
-    background: var(--lp-gray-300);
+.lpvField textarea {
+    resize: vertical;
+    min-height: 112px;
 }
 
-.lpTimelineItem {
-    position: relative;
+.lpvField.span2,
+.lpvFormActions.span2 {
+    grid-column: span 2;
+}
+
+.lpvUploadList {
+    grid-template-columns: 1fr;
+}
+
+.lpvUploadItem,
+.lpdAttachmentItem {
+    min-height: 58px;
+    padding: 12px 14px;
+    border: 1px solid #e9edf3;
+    border-radius: 12px;
     display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-}
-
-.lpTimelineDot {
-    position: absolute;
-    left: -22px;
-    top: 14px;
-    width: 18px;
-    height: 18px;
-    border-radius: 999px;
-    background: var(--lp-detail-bg);
-    border: 4px solid var(--lp-white);
-    box-shadow: 0 0 0 2px rgba(15, 63, 147, 0.18);
-}
-
-.lpTimelineCard {
-    flex: 1;
-    border: 1px solid var(--lp-gray-300);
-    border-radius: 16px;
-    padding: 16px;
-    background: var(--lp-white);
-}
-
-.lpTimelineHead {
-    display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 12px;
+    background: #fff;
+}
+
+.lpvUploadItem span,
+.lpdAttachmentInfo strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.lpvUploadItem small,
+.lpdAttachmentInfo small {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.lpvFormActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.lpvBreadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.lpdWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.lpdSummaryCard {
+    padding: 18px;
+}
+
+.lpdCaseTitle {
+    margin-top: 8px;
+    font-size: 28px;
+}
+
+.lpdMetricGrid {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.lpdMetricCard {
+    border: 1px solid var(--lp-border);
+    border-radius: 14px;
+    padding: 14px 15px;
+}
+
+.lpdMetricLabel,
+.lpdPartyCol span,
+.lpdFieldItem span,
+.lpdStoryTitle {
+    display: block;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.lpdMetricValue,
+.lpdPartyCol strong,
+.lpdFieldItem strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 800;
+    color: #111827;
+}
+
+.lpdPartyRow {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #edf0f5;
+    gap: 18px;
+}
+
+.lpdPartyCol {
+    flex: 1;
+}
+
+.lpdMainGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(290px, 0.85fr);
+    gap: 18px;
+}
+
+.lpdLeftColumn,
+.lpdRightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.lpdPanel {
+    padding: 0 0 18px;
+    overflow: hidden;
+}
+
+.lpdPanelHead {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.lpdPanelHead h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.lpdPanelHead span {
+    display: block;
+    width: 54px;
+    height: 3px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--lp-yellow-1), #ffab4a);
+}
+
+.lpdPanelIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--lp-blue-text);
+    background: #eef2ff;
+    font-size: 18px;
+}
+
+.lpdFieldGrid {
+    padding: 16px 18px 0;
+    grid-template-columns: 1fr;
+}
+
+.lpdFieldGrid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lpdFieldItem {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.lpdStoryTitle,
+.lpdStoryBox,
+.lpdDetailMeta,
+.lpdNoteBox,
+.lpdTimeline,
+.lpdNoAttachment,
+.lpdAttachmentList {
+    margin-inline: 18px;
+}
+
+.lpdStoryTitle {
+    margin-top: 16px;
     margin-bottom: 10px;
 }
 
-.lpTimelineTitle {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--lp-text-dark);
-}
-
-.lpTimelineDate {
+.lpdStoryBox {
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    background: #f8fafc;
+    color: #374151;
     font-size: 14px;
-    font-weight: 700;
-    color: var(--lp-gray-500);
+    line-height: 1.85;
 }
 
-.lpTimelineDesc {
+.lpdDetailMeta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.lpdNoteBox {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #fdba74;
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+.lpdNoteBox.success {
+    border-color: #86efac;
+    background: #ecfdf5;
+    color: #166534;
+}
+
+.lpdNoteBox strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.lpdNoteBox p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.lpdTimeline {
+    position: relative;
+    padding: 16px 0 0 18px;
+}
+
+.lpdTimeline::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    bottom: 0;
+    left: 6px;
+    width: 2px;
+    background: #dde6f4;
+}
+
+.lpdTimelineItem {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 16px;
+}
+
+.lpdTimelineDot {
+    position: absolute;
+    left: -1px;
+    top: 12px;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--lp-navy-1);
+    border: 4px solid #eef2ff;
+    z-index: 1;
+}
+
+.lpdTimelineCard {
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--lp-border);
+    background: #fff;
+}
+
+.lpdTimelineHead {
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.lpdTimelineHead strong {
     font-size: 15px;
-    line-height: 1.7;
-    color: var(--lp-text);
+    font-weight: 800;
+    color: #111827;
 }
 
-.lpTimelineMeta {
-    margin-top: 12px;
+.lpdTimelineHead span,
+.lpdTimelineCard small {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lpdTimelineCard p {
+    margin: 0 0 10px;
+    color: #374151;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.lpdAttachmentList {
+    grid-template-columns: 1fr;
+    margin-top: 16px;
+}
+
+.lpdAttachmentInfo {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     gap: 12px;
-    font-size: 14px;
-    color: var(--lp-gray-500);
+    min-width: 0;
 }
 
-.lpTimelineMeta span {
+.lpdAttachmentInfo svg {
+    color: #ef4444;
+    font-size: 18px;
+    flex: 0 0 auto;
+}
+
+.lpdAttachmentInfo > div {
+    min-width: 0;
+}
+
+.lpdAttachmentInfo strong,
+.lpdAttachmentInfo small {
+    display: block;
+}
+
+.lpdIconBtn {
+    width: 36px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    border-radius: 10px;
+    color: #4b5563;
+    background: #f8fafc;
 }
 
-.lpTimelineBy {
-    color: var(--lp-blue-text);
-    font-weight: 700;
-}
-
-.lpModalFooter {
-    border-top: 1px solid var(--lp-gray-200);
-    padding: 18px 24px;
+.lpdNoAttachment {
+    min-height: 60px;
+    margin-top: 16px;
     display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    background: var(--lp-white);
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
 }
 
-@media (max-width: 1280px) {
-    .lpStatsGrid {
+.lpvPreviewOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(17, 24, 39, 0.55);
+}
+
+.lpvPreviewModal {
+    width: min(820px, 100%);
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 18px 36px rgba(17, 24, 39, 0.24);
+}
+
+.lpvPreviewHeader,
+.lpvPreviewFooter {
+    padding: 16px 18px;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.lpvPreviewTitle {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.lpvPreviewFooter {
+    border-bottom: 0;
+    border-top: 1px solid #edf0f5;
+}
+
+.lpvPreviewBody {
+    padding: 18px;
+    overflow: auto;
+    background: #f8fafc;
+}
+
+.lpvPreviewImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 14px;
+    background: #fff;
+}
+
+@media (max-width: 1200px) {
+    .lpvStatsGrid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
-    .lpMiniStats {
-        grid-template-columns: repeat(2, 1fr);
+    .lpdMainGrid {
+        grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 980px) {
-    .lpStatsBoardGrid,
-    .lpModalGrid,
-    .lpFormGrid.two {
-        grid-template-columns: 1fr;
-    }
-
-    .lpTabBar {
+@media (max-width: 992px) {
+    .lpvTabsRow,
+    .lpdFieldGrid.three,
+    .lpdMetricGrid,
+    .lpvFormGrid,
+    .lpvStatisticGrid,
+    .lpvSearchCard {
         grid-template-columns: 1fr 1fr;
     }
 
-    .lpToolbar {
-        flex-direction: column;
-        align-items: stretch;
+    .lpvSearchCard {
+        grid-template-columns: 1fr;
     }
 
-    .lpFilterWrap {
-        min-width: 100%;
+    .lpdDetailMeta {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 768px) {
-    .lpStatsGrid,
-    .lpMiniStats,
-    .lpTabBar {
+    .lpvPageTitle,
+    .lpdPageTitle {
+        font-size: 22px;
+    }
+
+    .lpvStatsGrid,
+    .lpvTabsRow,
+    .lpvFormGrid,
+    .lpdMetricGrid,
+    .lpdFieldGrid.three,
+    .lpvStatisticGrid {
         grid-template-columns: 1fr;
     }
 
-    .lpReportTitleRow,
-    .lpReportFooter,
-    .lpTimelineHead,
-    .lpTimelineMeta,
-    .lpDetailMetaBox {
+    .lpvField.span2,
+    .lpvFormActions.span2 {
+        grid-column: auto;
+    }
+
+    .lpvCardHeader,
+    .lpvFooterRow,
+    .lpdTopbar,
+    .lpdPartyRow,
+    .lpdTimelineHead,
+    .lpvPreviewHeader,
+    .lpvPreviewFooter {
         flex-direction: column;
-        display: flex;
         align-items: flex-start;
     }
 
-    .lpModalOverlay {
+    .lpvActionRow,
+    .lpdTopActions,
+    .lpvPreviewFooter {
+        width: 100%;
+    }
+
+    .lpvActionRow > button,
+    .lpdTopActions > button,
+    .lpvPreviewFooter > button,
+    .lpvFormActions > button {
+        width: 100%;
+    }
+
+    .lpvFormActions {
+        flex-direction: column-reverse;
+    }
+
+    .lpdSummaryCard,
+    .lpvCard,
+    .lpvFormCard,
+    .lpvInfoCard,
+    .lpdPanel,
+    .lpvSearchCard,
+    .lpvToolbarCard {
+        padding-inline: 14px;
+    }
+
+    .lpdStoryTitle,
+    .lpdStoryBox,
+    .lpdDetailMeta,
+    .lpdNoteBox,
+    .lpdTimeline,
+    .lpdNoAttachment,
+    .lpdAttachmentList {
+        margin-inline: 14px;
+    }
+
+    .lpdPanelHead,
+    .lpdFieldGrid {
+        padding-inline: 14px;
+    }
+
+    .lpvPreviewOverlay {
         padding: 12px;
     }
+}
 
-    .lpModal {
-        max-height: calc(100vh - 24px);
+@media (max-width: 540px) {
+    .lpvStatCard {
+        min-height: 78px;
+        padding: 14px;
+    }
+
+    .lpvStatValue {
+        font-size: 26px;
+    }
+
+    .lpvTopTab,
+    .lpvPrimaryBtn,
+    .lpvGhostBtn,
+    .lpvDangerBtn {
+        min-height: 44px;
+        font-size: 13px;
+    }
+
+    .lpvCardTitle,
+    .lpdCaseTitle,
+    .lpvSectionHeading {
+        font-size: 16px;
+    }
+
+    .lpdCaseTitle {
+        font-size: 22px;
+    }
+
+    .lpvMetaRow,
+    .lpvFooterMeta,
+    .lpvDescription,
+    .lpdTimelineCard p {
+        font-size: 12px;
     }
 }
 
-.lpAttachmentInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
-    flex: 1;
+/* Update khusus tampilan Buat Laporan dan Statistik */
+.lpvCreateCard {
+    padding: 22px 24px 24px;
+    border-radius: 15px;
 }
 
-.lpAttachmentEyeBtn {
-    border: none;
-    background: transparent;
-    color: #0f3f93;
+.lpvGuideBox {
+    min-height: 66px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+    border-left: 4px solid #2563eb;
+    border-radius: 11px;
+    background: #dbeafe;
+    color: #2b3056;
+}
+
+.lpvGuideIcon {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    font-size: 20px;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    transition: all 0.2s ease;
+    flex: 0 0 auto;
+    color: #2b3056;
 }
 
-.lpAttachmentEyeBtn:hover {
-    background: #d1e1fd;
+.lpvGuideTitle {
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #111827;
 }
 
-.lpAttachmentEyeBtn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.lpvGuideBox p {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    font-weight: 500;
+    color: #3a4070;
 }
 
-.lpPreviewOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.62);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    z-index: 9999;
-}
-
-.lpPreviewModal {
-    width: min(960px, 100%);
-    max-height: 90vh;
-    background: #ffffff;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+.lpvCreateForm {
     display: flex;
     flex-direction: column;
+    gap: 22px;
 }
 
-.lpPreviewHeader {
+.lpvFormSection {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+.lpvFormSectionTitle {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 18px 22px;
-    background: linear-gradient(135deg, #2b3056, #3a4070, #4a5080);
-    color: #ffffff;
-}
-
-.lpPreviewTitleWrap {
-    min-width: 0;
-}
-
-.lpPreviewTitle {
-    font-size: 24px;
-    font-weight: 700;
+    gap: 9px;
+    color: #111827;
+    font-size: 18px;
     line-height: 1.2;
+    font-weight: 800;
 }
 
-.lpPreviewSub {
-    margin-top: 4px;
-    font-size: 14px;
-    opacity: 0.92;
-    word-break: break-word;
+.lpvFormSectionTitle.textOnly {
+    gap: 0;
 }
 
-.lpPreviewHeaderClose {
-    border: none;
-    background: rgba(255, 255, 255, 0.14);
-    color: #ffffff;
-    width: 44px;
-    height: 44px;
+.lpvFormSectionTitle svg {
+    width: 18px;
+    height: 18px;
+    color: #111827;
+}
+
+.lpvFormSectionLine {
+    width: 100%;
+    height: 2px;
+    margin-top: -6px;
+    background: #3a4070;
+    opacity: 0.72;
+}
+
+.lpvCreateGrid {
+    display: grid;
+    gap: 18px 26px;
+}
+
+.lpvCreateGrid.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lpvCreateGrid.two.narrow {
+    grid-template-columns: minmax(0, 310px) minmax(0, 360px);
+    justify-content: space-between;
+}
+
+.lpvCreateGrid.one {
+    grid-template-columns: 1fr;
+}
+
+.lpvCreateField {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lpvCreateField > span {
+    color: #111827;
+    font-size: 12.5px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.lpvCreateField b {
+    color: #ef4444;
+}
+
+.lpvCreateField input,
+.lpvCreateField select,
+.lpvCreateField textarea,
+.lpvInputShell {
+    width: 100%;
+    border: 1px solid #d8dde6;
     border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 22px;
-}
-
-.lpPreviewHeaderClose:hover {
-    background: rgba(255, 255, 255, 0.22);
-}
-
-.lpPreviewBody {
-    padding: 20px;
-    background: #f8fafc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: auto;
-}
-
-.lpPreviewImage {
-    max-width: 100%;
-    max-height: calc(90vh - 180px);
-    object-fit: contain;
-    border-radius: 16px;
-    background: #ffffff;
-    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
-}
-
-.lpPreviewFooter {
-    display: flex;
-    justify-content: flex-end;
-    padding: 16px 20px 20px;
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
-}
-
-.lpPreviewCloseBtn {
-    background: #0f3f93 !important;
-    color: #ffffff !important;
-    border: none;
-}
-
-/* ===== Hover & Action States ===== */
-.lpRoot button,
-.lpRoot [role="button"] {
-    transition:
-        background 180ms ease,
-        color 180ms ease,
-        box-shadow 180ms ease,
-        transform 180ms ease,
-        filter 180ms ease;
-}
-
-.lpRoot button:not(:disabled):hover,
-.lpRoot button:not(:disabled):focus-visible,
-.lpRoot [role="button"]:hover,
-.lpRoot [role="button"]:focus-visible {
-    transform: translateY(-1px);
-    filter: brightness(1.04);
-    box-shadow:
-        0 4px 6px -4px rgba(0, 0, 0, 0.1),
-        0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.lpRoot button:not(:disabled):active,
-.lpRoot [role="button"]:active {
-    transform: translateY(0);
-}
-
-/* ===== Revisi: empty state, search hover, filter select ===== */
-.lpSearchWrap,
-.lpFilterWrap {
+    background: #fff;
+    color: #374151;
     transition:
         border-color 0.18s ease,
         box-shadow 0.18s ease;
 }
 
-.lpSearchWrap:hover,
-.lpSearchWrap:focus-within,
-.lpFilterWrap:hover,
-.lpFilterWrap:focus-within {
-    border-color: #b8c3d6;
-    box-shadow:
-        0 4px 6px -4px rgba(0, 0, 0, 0.1),
-        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+.lpvCreateField input,
+.lpvCreateField select,
+.lpvCreateField textarea {
+    min-height: 47px;
+    padding: 0 16px;
+    outline: 0;
+    font-size: 13.5px;
+    font-weight: 500;
 }
 
-.lpSearchWrap input:focus,
-.lpSearchWrap input:focus-visible,
-.lpFilterWrap select:focus,
-.lpFilterWrap select:focus-visible {
-    outline: none;
+.lpvCreateField select {
+    cursor: pointer;
+}
+
+.lpvCreateField textarea {
+    min-height: 160px;
+    padding: 15px 16px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.lpvCreateField input::placeholder,
+.lpvCreateField textarea::placeholder,
+.lpvInputShell input::placeholder {
+    color: #9ca3af;
+}
+
+.lpvCreateField input:focus,
+.lpvCreateField select:focus,
+.lpvCreateField textarea:focus,
+.lpvInputShell:focus-within {
+    border-color: #9db7f3;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.lpvInputShell {
+    min-height: 47px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+}
+
+.lpvInputShell.disabled {
+    background: #f8fafc;
+}
+
+.lpvInputShell > svg {
+    width: 17px;
+    height: 17px;
+    color: #9ca3af;
+    flex: 0 0 auto;
+}
+
+.lpvInputShell input,
+.lpvInputShell select {
+    min-height: 45px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     box-shadow: none;
 }
 
-.lpFilterWrap select option {
-    color: var(--lp-text);
-    background: var(--lp-white);
-    font-weight: 700;
+.lpvInputShell input:focus,
+.lpvInputShell select:focus {
+    box-shadow: none;
 }
 
-.lpEmptyCard {
-    min-height: 376px;
-    border-radius: 16px;
-    background: #ffffff;
-    border: 1px solid #dfe3ea;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+.lpvDropzone {
+    min-height: 126px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 6px;
+    padding: 20px;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    background: #fff;
+    cursor: pointer;
     text-align: center;
-    padding: 40px 24px;
-    color: #475467;
 }
 
-.lpEmptyCard.is-loading {
-    min-height: 150px;
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.lpEmptyIcon {
-    width: 88px;
-    height: 88px;
-    border-radius: 999px;
-    background: #f2f4f7;
-    display: grid;
-    place-items: center;
-    color: #98a2b3;
-    margin-bottom: 26px;
-}
-
-.lpEmptyIcon svg {
-    width: 43px;
-    height: 43px;
-}
-
-.lpEmptyCard h2 {
-    margin: 0 0 13px;
-    color: #111827;
-    font-size: 20px;
-    line-height: 1.2;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-
-.lpEmptyCard p {
-    margin: 0;
-    color: #475467;
-    font-size: 15px;
-    line-height: 1.45;
-    font-weight: 700;
-}
-
-/* =========================================================
-   Sinkron layout dengan paralegalDashboard.css
-   Judul, padding konten, dan jarak halaman utama diambil dari .pb2Top/.pb2Content.
-========================================================= */
-.lpRoot {
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    width: 100%;
-    min-height: auto;
-}
-
-.lpHeaderTitleWrap {
+.lpvDropzone input {
     display: none;
 }
 
-.lpStatsGrid {
-    margin-top: 0;
+.lpvDropIcon {
+    width: 46px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 35px;
 }
 
-@media (max-width: 720px) {
-    .lpRoot {
-        padding-left: 0;
-        padding-right: 0;
-        padding-bottom: 0;
-    }
+.lpvDropzone strong {
+    color: #111827;
+    font-size: 12.5px;
+    font-weight: 800;
 }
 
-/* ===== Mobile polish - Laporan Pelayanan ===== */
-@media (max-width: 768px) {
-    .lpRoot {
-        width: 100%;
-        min-width: 0;
-        overflow-x: hidden;
-    }
-
-    .lpStatsGrid,
-    .lpFormGrid,
-    .lpReportGrid,
-    .lpSummaryGrid,
-    .lpDetailGrid,
-    .lpTimelineGrid,
-    .lpDeleteActions,
-    .lpModalActions {
-        grid-template-columns: 1fr !important;
-    }
-
-    .lpTopRow,
-    .lpToolbar,
-    .lpFormHead,
-    .lpCardHead,
-    .lpCardFooter,
-    .lpDetailHead,
-    .lpModalHead,
-    .lpModalActions,
-    .lpFilterRow {
-        flex-direction: column;
-        align-items: stretch !important;
-        gap: 12px;
-    }
-
-    .lpSearch,
-    .lpSelect,
-    .lpInputWrap,
-    .lpBtn,
-    .lpAddBtn,
-    .lpActionBtn,
-    .lpTab,
-    .lpModalActions button {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .lpTabs {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .lpReportList,
-    .lpTableWrap,
-    .lpChartWrap {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .lpModalOverlay,
-    .lpDeleteOverlay,
-    .lpDetailOverlay {
-        padding: 12px;
-        align-items: flex-start;
-    }
-
-    .lpModal,
-    .lpDetailModal,
-    .lpDeleteModal {
-        width: 100% !important;
-        max-width: calc(100vw - 24px) !important;
-        max-height: calc(100dvh - 24px) !important;
-        border-radius: 18px !important;
-    }
+.lpvDropzone small {
+    color: #6b7280;
+    font-size: 11.5px;
+    font-weight: 500;
 }
 
-@media (max-width: 480px) {
-    .lpStatCard,
-    .lpFormCard,
-    .lpReportCard,
-    .lpEmptyCard,
-    .lpModal,
-    .lpDetailModal,
-    .lpDeleteModal {
-        border-radius: 16px !important;
-    }
-
-    .lpPageTitle {
-        font-size: 21px;
-        line-height: 1.2;
-    }
+.lpvUploadList.isCreate {
+    margin-top: -2px;
 }
 
-/* ===== Revisi modal mobile Laporan Pelayanan: konten modal tidak melempar scroll ke belakang ===== */
-.lpModalOverlay,
-.lpPreviewOverlay,
-.lpDeleteOverlay,
-.lpDetailOverlay {
-    overscroll-behavior: contain;
+.lpvCreateActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 2px;
 }
 
-.lpModal,
-.lpPreviewModal,
-.lpDeleteModal,
-.lpDetailModal {
-    max-height: calc(100dvh - 28px);
+.lpvResetBtn,
+.lpvSendBtn {
+    min-height: 45px;
+    border: 0;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 22px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 800;
+    transition:
+        transform 0.18s ease,
+        filter 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.lpvResetBtn:hover,
+.lpvSendBtn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.03);
+}
+
+.lpvResetBtn {
+    color: #4b5563;
+    background: #e5e7eb;
+}
+
+.lpvSendBtn {
+    min-width: 178px;
+    color: #fff;
+    background: linear-gradient(
+        135deg,
+        var(--lp-navy-1),
+        var(--lp-navy-2),
+        var(--lp-navy-3)
+    );
+    box-shadow: 0 9px 18px rgba(43, 48, 86, 0.22);
+}
+
+.lpvSendBtn:disabled,
+.lpvResetBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.72;
+}
+
+.lpvStatContent {
     display: flex;
     flex-direction: column;
+    gap: 24px;
 }
 
-.lpModalBody,
-.lpPreviewBody,
-.lpDetailBody {
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+.lpvStatPanelGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.lpvStatPanel,
+.lpvPerformancePanel {
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--lp-shadow);
+}
+
+.lpvStatPanel {
+    min-height: 330px;
+    padding: 24px 28px 26px;
+}
+
+.lpvStatPanelTitle,
+.lpvPerformanceTitle {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 22px;
+    color: #111827;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.lpvStatPanelTitle svg,
+.lpvPerformanceTitle svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+}
+
+.lpvStatPanelTitle.isBlue svg {
+    color: #3a4070;
+}
+
+.lpvStatPanelTitle.isRed svg {
+    color: #ef4444;
+}
+
+.lpvBarList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.lpvBarList.priority {
+    gap: 22px;
+}
+
+.lpvBarRow {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.lpvBarHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    color: #2b3056;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.lpvBarHead strong {
+    color: #2b3056;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.lpvBarHead strong.priorityText.tinggi {
+    color: #dc2626;
+}
+
+.lpvBarHead strong.priorityText.sedang {
+    color: #ea580c;
+}
+
+.lpvBarHead strong.priorityText.rendah {
+    color: #3a4070;
+}
+
+.lpvStatTrack {
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e5e7eb;
+}
+
+.lpvStatFill {
+    height: 100%;
+    min-width: 2px;
+    border-radius: inherit;
+}
+
+.lpvStatFill.isBlue {
+    background: #1454c4;
+}
+
+.lpvStatFill.priority.tinggi {
+    background: #dc2626;
+}
+
+.lpvStatFill.priority.sedang {
+    background: #ea580c;
+}
+
+.lpvStatFill.priority.rendah {
+    background: #3a4070;
+}
+
+.lpvPerformancePanel {
+    padding: 24px 28px 28px;
+}
+
+.lpvPerformanceTitle {
+    margin-bottom: 20px;
+}
+
+.lpvPerformanceTitle svg {
+    color: #15803d;
+}
+
+.lpvPerformanceGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.lpvPerformanceCard {
+    min-height: 88px;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border-left: 4px solid transparent;
+}
+
+.lpvPerformanceCard span {
+    display: block;
+    margin-bottom: 9px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.lpvPerformanceCard strong {
+    display: block;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.lpvPerformanceCard.blue,
+.lpvPerformanceCard.indigo {
+    border-left-color: #3a4070;
+    background: #dbeafe;
+    color: #2b3056;
+}
+
+.lpvPerformanceCard.green {
+    border-left-color: #15803d;
+    background: #ecfdf5;
+    color: #15803d;
+}
+
+.lpvPerformanceCard.orange {
+    border-left-color: #ea580c;
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+@media (max-width: 1180px) {
+    .lpvPerformanceGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .lpvCreateGrid.two,
+    .lpvCreateGrid.two.narrow,
+    .lpvStatPanelGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .lpvStatPanel {
+        min-height: auto;
+    }
 }
 
 @media (max-width: 768px) {
-    .lpModalOverlay,
-    .lpPreviewOverlay,
-    .lpDeleteOverlay,
-    .lpDetailOverlay {
-        padding: 10px;
-        overflow: hidden;
+    .lpvCreateCard {
+        padding: 16px;
     }
 
-    .lpModal,
-    .lpPreviewModal,
-    .lpDeleteModal,
-    .lpDetailModal {
+    .lpvGuideBox {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .lpvFormSectionTitle {
+        font-size: 16px;
+    }
+
+    .lpvCreateActions {
+        flex-direction: column-reverse;
+    }
+
+    .lpvResetBtn,
+    .lpvSendBtn {
         width: 100%;
-        max-height: calc(100dvh - 20px);
+    }
+
+    .lpvStatPanel,
+    .lpvPerformancePanel {
+        padding: 18px;
+    }
+
+    .lpvStatPanelTitle,
+    .lpvPerformanceTitle {
+        font-size: 18px;
+    }
+
+    .lpvPerformanceGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .lpvCreateField input,
+    .lpvCreateField select,
+    .lpvCreateField textarea,
+    .lpvInputShell {
+        min-height: 44px;
+        font-size: 12.5px;
+    }
+
+    .lpvCreateField textarea {
+        min-height: 132px;
+    }
+
+    .lpvDropzone {
+        min-height: 110px;
+    }
+
+    .lpvBarHead {
+        font-size: 13px;
+    }
+
+    .lpvPerformanceCard strong {
+        font-size: 28px;
+    }
+}
+
+/* Dropdown custom Nama Paralegal */
+.lpvParalegalDropdown {
+    position: relative;
+    width: 100%;
+    z-index: 30;
+}
+
+.lpvParalegalTrigger {
+    width: 100%;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #111827;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+}
+
+.lpvParalegalTrigger.active,
+.lpvParalegalTrigger:focus {
+    border-color: #8fb3ff;
+    box-shadow: 0 0 0 3px rgba(143, 179, 255, 0.22);
+}
+
+.lpvParalegalTrigger > svg {
+    width: 18px;
+    height: 18px;
+    color: #9ca3af;
+    flex: 0 0 auto;
+}
+
+.lpvParalegalTrigger span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lpvParalegalTrigger span.isPlaceholder {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.lpvParalegalArrow {
+    margin-left: auto;
+    transform: rotate(90deg);
+    color: #6b7280 !important;
+}
+
+.lpvParalegalMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 80;
+    overflow: hidden;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 14px 30px rgba(17, 24, 39, 0.16);
+}
+
+.lpvParalegalOption {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border: 0;
+    background: #ffffff;
+    color: #111827;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.lpvParalegalOption:hover,
+.lpvParalegalOption.selected {
+    background: #eef2ff;
+    color: #2b3056;
+}
+
+.lpvParalegalOption.muted {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.lpvSendBtn svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+.lpvStatPanelTitle svg {
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
+    flex: 0 0 auto;
+}
+/* Besarkan icon tab Laporan Aktif dan Riwayat Selesai */
+.lpvTabsRow .lpvTopTab:nth-child(2) svg,
+.lpvTabsRow .lpvTopTab:nth-child(3) svg {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+    flex: 0 0 auto;
+}
+@media (max-width: 768px) {
+    .lpvParalegalTrigger {
+        min-height: 50px;
+        font-size: 13px;
+    }
+
+    .lpvParalegalOption {
+        min-height: 42px;
+        font-size: 13px;
     }
 }

@@ -562,6 +562,7 @@ class DashboardController extends Controller
                 'ref_table' => (string) $this->rowValue($row, ['ref_table', 'reference_table', 'table'], ''),
                 'ref_id' => $this->rowValue($row, ['ref_id', 'reference_id', 'id_ref']),
                 'is_read' => (bool) $this->rowValue($row, ['is_read', 'dibaca'], false),
+                'read_at' => $this->rowValue($row, ['read_at'], null),
                 'created_at' => $this->rowValue($row, ['created_at', 'tanggal'], now()->toISOString()),
             ];
         })->toArray();
@@ -663,6 +664,15 @@ class DashboardController extends Controller
             $id = $this->rowValue($row, ['id_pengaduan', 'id'], $index + 1);
             $extra = $this->parseJson($this->rowValue($row, ['catatan_admin'], '{}'));
             $updates = $extra['updates'] ?? [];
+            if (!is_array($updates)) {
+                $updates = [];
+            }
+            $storedProgress = array_key_exists('progress', $extra) ? (int) $extra['progress'] : null;
+            $computedProgress = $storedProgress !== null
+                ? max(0, min(100, $storedProgress))
+                : ($this->normalizeCaseStatus($this->rowValue($row, ['status'], 'diproses')) === 'Selesai'
+                    ? 100
+                    : max(0, min(95, max(0, count($updates) - 1) * 25)));
             $userId = $this->rowValue($row, ['user_id', 'created_by', 'masyarakat_id']);
             $context = $userId ? $contextMap->get((string) $userId) : null;
             $idParalegal = $this->rowValue($row, ['id_paralegal'], $extra['id_paralegal'] ?? $userId);
@@ -693,7 +703,8 @@ class DashboardController extends Controller
                 'kecamatan_nama' => (string) $this->rowValue($context, ['kecamatan_nama'], ''),
                 'kabupaten_nama' => (string) $this->rowValue($context, ['kabupaten_nama'], ''),
                 'lampiran' => $lampiranMap[$id] ?? [],
-                'updates' => is_array($updates) ? $updates : [],
+                'updates' => $updates,
+                'progress' => $computedProgress,
             ];
         })->toArray();
     }
@@ -910,7 +921,15 @@ class DashboardController extends Controller
             $createdByRow = $createdBy ? $userMap->get((string) $createdBy) : null;
 
             $status = $this->normalizeCaseStatus($this->rowValue($row, ['status'], $extra['status'] ?? 'Diproses'));
-            $progress = $extra['progress'] ?? ($status === 'Selesai' ? 100 : ($status === 'Mediasi' ? 60 : 45));
+            $updates = $extra['updates'] ?? [];
+            if (!is_array($updates)) {
+                $updates = [];
+            }
+            $progress = array_key_exists('progress', $extra)
+                ? (int) $extra['progress']
+                : ($status === 'Selesai'
+                    ? 100
+                    : max(0, min(95, max(0, count($updates) - 1) * 25)));
 
             $posbankumName = (string) $this->rowValue($posRow, ['nama', 'nama_posbankum', 'name'], $this->rowValue($context, ['posbankum_nama'], 'Posbankum Belum Dipetakan'));
             $kabupatenKota = (string) $this->rowValue($row, ['kabupaten_kota', 'wilayah', 'kota'], $this->rowValue($context, ['kabupaten_nama'], ''));
@@ -1226,6 +1245,138 @@ class DashboardController extends Controller
         }
 
         return $mapped->values()->toArray();
+    }
+
+    private function notificationIdColumn(): ?string
+    {
+        return $this->firstExistingColumn('notifikasi', ['id_notifikasi', 'id']);
+    }
+
+    private function notificationReadColumn(): ?string
+    {
+        return $this->firstExistingColumn('notifikasi', ['is_read', 'dibaca']);
+    }
+
+    private function notificationScopedQuery(Request $request)
+    {
+        $query = DB::table('notifikasi');
+        $idPosbankum = $this->resolveUserPosbankumId($request->user());
+
+        if ($idPosbankum && $this->hasColumn('notifikasi', 'id_posbankum')) {
+            $query->where('id_posbankum', $idPosbankum);
+        }
+
+        return $query;
+    }
+
+    private function requestBooleanValue(Request $request, string $key, bool $default = true): bool
+    {
+        if (!$request->has($key)) {
+            return $default;
+        }
+
+        $value = $request->input($key);
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value === 1;
+        }
+
+        $parsed = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        return $parsed ?? $default;
+    }
+
+    public function updateNotificationRead(Request $request, mixed $id)
+    {
+        if (!$this->hasTable('notifikasi')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tabel notifikasi tidak ditemukan.',
+            ], 404);
+        }
+
+        $idColumn = $this->notificationIdColumn();
+        $readColumn = $this->notificationReadColumn();
+
+        if (!$idColumn || !$readColumn) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kolom status baca notifikasi tidak ditemukan.',
+            ], 422);
+        }
+
+        $nextRead = $this->requestBooleanValue($request, 'is_read', true);
+        $query = $this->notificationScopedQuery($request)->where($idColumn, $id);
+
+        if (!(clone $query)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notifikasi tidak ditemukan.',
+            ], 404);
+        }
+
+        $updates = [
+            $readColumn => $nextRead ? 1 : 0,
+        ];
+
+        if ($this->hasColumn('notifikasi', 'read_at')) {
+            $updates['read_at'] = $nextRead ? now() : null;
+        }
+
+        if ($this->hasColumn('notifikasi', 'updated_at')) {
+            $updates['updated_at'] = now();
+        }
+
+        (clone $query)->update($updates);
+
+        return response()->json([
+            'success' => true,
+            'id_notifikasi' => $id,
+            'is_read' => $nextRead,
+            'read_at' => $updates['read_at'] ?? null,
+        ]);
+    }
+
+    public function markAllNotificationsRead(Request $request)
+    {
+        if (!$this->hasTable('notifikasi')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tabel notifikasi tidak ditemukan.',
+            ], 404);
+        }
+
+        $readColumn = $this->notificationReadColumn();
+
+        if (!$readColumn) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kolom status baca notifikasi tidak ditemukan.',
+            ], 422);
+        }
+
+        $updates = [
+            $readColumn => 1,
+        ];
+
+        if ($this->hasColumn('notifikasi', 'read_at')) {
+            $updates['read_at'] = now();
+        }
+
+        if ($this->hasColumn('notifikasi', 'updated_at')) {
+            $updates['updated_at'] = now();
+        }
+
+        $affected = $this->notificationScopedQuery($request)->update($updates);
+
+        return response()->json([
+            'success' => true,
+            'updated' => $affected,
+        ]);
     }
 
     private function renderDashboard(Request $request): Response

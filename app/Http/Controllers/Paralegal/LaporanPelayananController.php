@@ -270,15 +270,34 @@ class LaporanPelayananController extends Controller
             $updates = [];
         }
 
-        $updates[] = [
-            'title' => $status === 'selesai' ? 'Laporan Selesai' : 'Laporan Diterima',
-            'date' => now()->locale('id')->translatedFormat('j F Y'),
-            'time' => now()->format('H:i'),
-            'desc' => $status === 'selesai'
-                ? 'Laporan ditandai selesai oleh Posbankum.'
-                : 'Laporan berhasil dibuat dan masuk ke antrian pemeriksaan awal.',
-            'by' => $request->user()->nama_lengkap ?? $request->user()->name ?? 'Admin Posbankum',
-        ];
+        $mode = (string) $request->input('update_mode', 'append');
+        $nextProgress = (int) $request->input('progress', $old['progress'] ?? 0);
+        $nextProgress = max(0, min(100, $nextProgress));
+
+        if ($status === 'selesai') {
+            $nextProgress = 100;
+        }
+
+        $title = $request->input('progress_title');
+        $desc = $request->input('progress_desc');
+
+        if ($mode === 'reset' || empty($updates)) {
+            $updates = [];
+        }
+
+        if ($request->boolean('append_update', true)) {
+            $updates[] = [
+                'title' => $title ?: ($status === 'selesai' ? 'Kasus Selesai' : (empty($old) ? 'Laporan Diterima' : 'Update Status')),
+                'date' => now()->locale('id')->translatedFormat('j F Y'),
+                'time' => now()->format('H:i'),
+                'desc' => $desc ?: ($status === 'selesai'
+                    ? 'Laporan ditandai selesai oleh Posbankum.'
+                    : (empty($old)
+                        ? 'Laporan berhasil dibuat dan masuk ke antrian pemeriksaan awal.'
+                        : 'Progres penanganan laporan diperbarui.')),
+                'by' => $request->user()->nama_lengkap ?? $request->user()->name ?? 'Admin Posbankum',
+            ];
+        }
 
         return json_encode([
             'nik' => $this->digitsOnly($request->input('nik')),
@@ -288,6 +307,7 @@ class LaporanPelayananController extends Controller
             'paralegal_nama' => $request->input('paralegal_nama', $old['paralegal_nama'] ?? ''),
             'paralegal_hp' => $request->input('paralegal_hp', $old['paralegal_hp'] ?? ''),
             'catatan_internal' => $request->input('catatan_internal', $old['catatan_internal'] ?? ''),
+            'progress' => $nextProgress,
             'updates' => $updates,
         ], JSON_UNESCAPED_UNICODE);
     }
@@ -500,6 +520,11 @@ class LaporanPelayananController extends Controller
 
         $validated = $request->validate([
             'status' => ['required', 'in:diproses,selesai'],
+            'progress' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'progress_title' => ['nullable', 'string', 'max:120'],
+            'progress_desc' => ['nullable', 'string'],
+            'append_update' => ['nullable', 'boolean'],
+            'update_mode' => ['nullable', 'in:append,reset'],
         ]);
 
         $idColumn = $this->pengaduanKeyColumn();
@@ -515,9 +540,16 @@ class LaporanPelayananController extends Controller
             'id_paralegal' => $oldCatatan['id_paralegal'] ?? $this->rowValue($row, ['id_paralegal', 'user_id'], ''),
             'paralegal_nama' => $oldCatatan['paralegal_nama'] ?? '',
             'paralegal_hp' => $oldCatatan['paralegal_hp'] ?? '',
-            'catatan_internal' => $oldCatatan['catatan_internal'] ?? '',
+            'catatan_internal' => $request->input('catatan_internal', $oldCatatan['catatan_internal'] ?? ''),
             'nik' => $oldCatatan['nik'] ?? '',
             'nama_lurah' => $oldCatatan['nama_lurah'] ?? '',
+            'progress' => $validated['status'] === 'selesai'
+                ? 100
+                : (int) ($validated['progress'] ?? ($oldCatatan['progress'] ?? 0)),
+            'progress_title' => $validated['progress_title'] ?? null,
+            'progress_desc' => $validated['progress_desc'] ?? null,
+            'append_update' => $request->has('append_update') ? $request->boolean('append_update') : true,
+            'update_mode' => $validated['update_mode'] ?? 'append',
         ]);
 
         $payload = [];

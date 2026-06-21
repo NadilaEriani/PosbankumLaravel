@@ -1,10 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
 
 .prfPage {
+    width: 100%;
     display: grid;
     gap: 22px;
-    width: 100%;
     font-family: "Outfit", sans-serif;
+    color: var(--pb-text, #151c2e);
 }
 
 .prfPage *,
@@ -14,605 +15,648 @@
     font-family: inherit;
 }
 
-.prfHeadRow {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
+.prfHeader {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.prfHeaderLeft {
+    display: flex;
+    align-items: flex-start;
     gap: 14px;
+    min-width: 0;
 }
 
 .prfBackBtn {
-    width: 46px;
-    height: 46px;
-    border: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--pb-line, #e6e9ef);
     border-radius: 999px;
-    background: #e5e7eb;
-    color: #6b7280;
+    background: var(--pb-card, #ffffff);
+    color: var(--pb-muted, #6b7280);
     display: grid;
     place-items: center;
-    font-size: 21px;
-    cursor: pointer;
-}
-
-.prfHeadCopy h2 {
-    margin: 0;
-    font-size: 24px;
-    line-height: 1.12;
-    font-weight: 700;
-    color: #151c2e;
-}
-
-.prfHeadCopy p {
-    margin: 6px 0 0;
-    font-size: 14px;
-    line-height: 1.35;
-    font-weight: 500;
-    color: #6b7280;
-}
-
-.prfLayout {
-    display: grid;
-    grid-template-columns: 300px minmax(0, 1fr);
-    gap: 22px;
-    align-items: start;
-}
-
-.prfSideCard,
-.prfMainCard {
-    border-radius: 24px;
-    background: #ffffff;
-    border: 1px solid #e6e9ef;
-    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.1);
-}
-
-.prfSideCard {
-    padding: 26px 22px;
-    display: grid;
-    gap: 16px;
-}
-
-.prfAvatarWrap {
-    width: 108px;
-    height: 108px;
-    border-radius: 999px;
-    margin: 0 auto;
-    background: linear-gradient(135deg, #0f3f93 0%, #0a2a62 100%);
-    color: #ffffff;
-    box-shadow: 0 20px 28px rgba(10, 42, 98, 0.28);
-    display: grid;
-    place-items: center;
-    font-size: 46px;
-}
-
-.prfSideTitle {
-    text-align: center;
     font-size: 20px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: #151c2e;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+    flex: 0 0 auto;
 }
 
-.prfSideSub {
-    margin-top: -8px;
-    text-align: center;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 500;
+.prfTitleBlock {
+    min-width: 0;
+    padding-top: 2px;
 }
 
-.prfBadgeRow {
+.prfBreadcrumb {
     display: flex;
-    justify-content: center;
-}
-
-.prfBadge,
-.prfCountBadge {
-    min-height: 28px;
-    padding: 0 12px;
-    border-radius: 999px;
-    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    line-height: 1;
+    gap: 9px;
+    color: var(--pb-muted, #6b7280);
+    font-size: 13px;
+    line-height: 1.2;
     font-weight: 700;
     white-space: nowrap;
 }
 
-.prfBadge.is-yellow {
-    background: #f7c62f;
-    color: #151c2e;
+.prfBreadcrumb b {
+    color: var(--pb-text, #151c2e);
+    font-weight: 800;
 }
 
-.prfBadge.is-blue {
-    background: #0f3f93;
-    color: #ffffff;
+.prfTitleBlock h2 {
+    margin: 12px 0 0;
+    color: var(--pb-text, #151c2e);
+    font-size: 25px;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
-.prfBadge.is-soft,
-.prfCountBadge {
-    background: #dcfce7;
-    color: #15803d;
+.prfTitleLine {
+    width: 58px;
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: var(--pb-active-yellow, #f7c62f);
+    display: block;
 }
 
-.prfSideDivider {
-    height: 1px;
-    background: #e5e7eb;
-}
-
-.prfSideMeta,
-.prfPosMetaGrid,
-.prfTeamMeta {
-    display: grid;
-    gap: 12px;
-    color: #4b5563;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.prfSideMeta span,
-.prfPosMetaGrid span,
-.prfTeamMeta span {
-    display: inline-flex;
-    align-items: flex-start;
+.prfActions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     gap: 10px;
+    flex: 0 0 auto;
+}
+
+.prfBtn {
+    min-height: 42px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.prfBtn svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+}
+
+.prfBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.prfBtnPrimary {
+    background: var(--pb-nav-blue, #2f3569);
+    color: #ffffff;
+    box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
+}
+
+.prfBtnLight {
+    background: var(--pb-card, #ffffff);
+    color: var(--pb-text, #151c2e);
+    border: 1px solid var(--pb-line, #e6e9ef);
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+.prfCard {
+    width: 100%;
+    border: 1px solid var(--pb-line, #e6e9ef);
+    border-radius: 24px;
+    background: var(--pb-card, #ffffff);
+    box-shadow: var(--pb-shadow, 0 18px 38px rgba(15, 23, 42, 0.1));
+    padding: 28px 30px 30px;
+    display: grid;
+    gap: 24px;
+}
+
+.prfEditNotice {
+    min-height: 70px;
+    border: 1px solid #9bbdff;
+    border-radius: 14px;
+    background: #eef4ff;
+    padding: 15px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.prfEditNoticeIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    background: var(--pb-card, #ffffff);
+    color: var(--pb-nav-blue, #2f3569);
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    flex: 0 0 auto;
+}
+
+.prfEditNoticeTitle {
+    color: var(--pb-text, #151c2e);
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.prfEditNotice p {
+    margin: 5px 0 0;
+    color: var(--pb-muted, #6b7280);
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+.prfInfoArea {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+    gap: 30px;
+    align-items: start;
+}
+
+.prfAccountSection,
+.prfPosSection,
+.prfTeamSection {
     min-width: 0;
-    line-height: 1.45;
+    display: grid;
+    gap: 16px;
+}
+
+.prfSectionHead h3,
+.prfTeamHead h3 {
+    margin: 0;
+    color: var(--pb-text, #151c2e);
+    font-size: 19px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.prfSectionHead p,
+.prfTeamHead p {
+    margin: 8px 0 0;
+    color: var(--pb-muted, #6b7280);
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+.prfAccountGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.prfAccountBox {
+    min-height: 68px;
+    border: 1px solid var(--pb-line, #e6e9ef);
+    border-radius: 14px;
+    background: var(--pb-card, #ffffff);
+    padding: 15px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.prfAccountBox.is-active {
+    border-color: #9bbdff;
+}
+
+.prfBoxIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    background: var(--pb-soft-blue, #d1e1fd);
+    color: var(--pb-nav-blue, #2f3569);
+    display: grid;
+    place-items: center;
+    font-size: 21px;
+    flex: 0 0 auto;
+}
+
+.prfBoxBody {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+}
+
+.prfBoxBody span {
+    color: var(--pb-muted, #6b7280);
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.prfBoxBody strong {
+    color: var(--pb-text, #151c2e);
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 800;
     overflow-wrap: anywhere;
 }
 
-.prfSideMeta svg,
-.prfPosMetaGrid svg,
-.prfTeamMeta svg {
+.prfBoxBody small {
+    color: var(--pb-muted, #6b7280);
+    font-size: 11px;
+    line-height: 1.25;
+    font-weight: 500;
+}
+
+.prfBoxBody input {
+    width: 100%;
+    min-height: 22px;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--pb-text, #151c2e);
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 800;
+}
+
+.prfBoxBody input::placeholder {
+    color: var(--pb-muted, #6b7280);
+}
+
+.prfPosBox {
+    border: 1px solid var(--pb-line, #e6e9ef);
+    border-radius: 16px;
+    background: var(--pb-card, #ffffff);
+    padding: 18px;
+    min-height: 212px;
+}
+
+.prfPosTop {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.prfPosIconBox {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--pb-soft-blue, #d1e1fd);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
     flex: 0 0 auto;
+}
+
+.prfPosIconBox img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    display: block;
+}
+
+.prfPosTop h4 {
+    margin: 1px 0 0;
+    color: var(--pb-text, #151c2e);
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.prfPosTop p {
+    margin: 7px 0 0;
+    color: var(--pb-muted, #6b7280);
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.prfPosMeta {
+    margin-top: 18px;
+    padding-left: 62px;
+    display: grid;
+    gap: 13px;
+}
+
+.prfPosMeta span {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 10px;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.prfPosMeta svg,
+.prfTeamMeta svg {
+    color: var(--pb-muted, #6b7280);
+    width: 15px;
+    height: 15px;
     margin-top: 2px;
+    flex: 0 0 auto;
 }
 
-.prfMainCard {
-    padding: 24px 26px;
-    display: grid;
-    gap: 26px;
+.prfPosMeta b {
+    color: var(--pb-text, #151c2e);
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 700;
+    overflow-wrap: anywhere;
 }
 
-.prfSection {
-    display: grid;
-    gap: 18px;
+.prfDivider {
+    height: 1px;
+    background: var(--pb-line, #e6e9ef);
 }
 
-.prfSection + .prfSection {
-    border-top: 1px solid #e5e7eb;
-    padding-top: 22px;
-}
-
-.prfSectionHead {
+.prfTeamHead {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
-    flex-wrap: wrap;
 }
 
-.prfSectionTitle {
-    font-size: 18px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: #151c2e;
-}
-
-.prfSectionTitle.withIcon {
+.prfTeamHead h3 {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
-.prfSectionSub {
-    margin-top: 6px;
-    font-size: 13px;
-    line-height: 1.35;
-    color: #6b7280;
+.prfTeamHead h3 svg {
+    width: 18px;
+    height: 18px;
 }
 
-.prfInfoGrid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-}
-
-.prfInfoItem,
-.prfPosCard,
-.prfTeamCard,
-.prfEmptyBox {
-    border-radius: 18px;
-    border: 1px solid #e6e9ef;
-    background: #ffffff;
-}
-
-.prfInfoItem {
-    min-height: 86px;
-    padding: 16px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.prfInfoIcon {
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
-    padding: 10px;
-    background: #d1e1fd;
-    color: #0f3f93;
-    flex: 0 0 auto;
-}
-
-.prfInfoLabel {
-    font-size: 12px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: #6b7280;
-}
-
-.prfInfoValue {
-    margin-top: 6px;
-    font-size: 15px;
-    line-height: 1.35;
-    font-weight: 700;
-    color: #151c2e;
-    overflow-wrap: anywhere;
-}
-
-.prfPosCard {
-    padding: 18px;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 16px;
-}
-
-.prfPosIconWrap {
-    width: 62px;
-    height: 62px;
-    border-radius: 18px;
-    background: #d1e1fd;
-    display: grid;
-    place-items: center;
-}
-
-.prfPosIcon {
-    width: 32px;
-    height: 32px;
-    display: inline-block;
-    background: #0f3f93;
-    -webkit-mask: var(--mask-url) center / contain no-repeat;
-    mask: var(--mask-url) center / contain no-repeat;
-}
-
-.prfPosTitle {
-    font-size: 20px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: #151c2e;
-}
-
-.prfPosSub {
-    margin-top: 5px;
-    font-size: 14px;
-    line-height: 1.35;
-    color: #6b7280;
-}
-
-.prfPosMetaGrid {
-    margin-top: 16px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.prfCountBadge {
+    min-height: 23px;
+    padding: 0 13px;
+    border-radius: 999px;
+    background: var(--pb-soft-green, #dcfce7);
+    color: var(--pb-inner-green, #15803d);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 800;
+    white-space: nowrap;
+    margin-top: 2px;
 }
 
 .prfTeamList {
     display: grid;
-    gap: 14px;
+    gap: 10px;
 }
 
-.prfTeamCard {
-    padding: 14px;
+.prfTeamItem {
+    min-height: 86px;
+    border: 1px solid var(--pb-line, #e6e9ef);
+    border-radius: 14px;
+    background: var(--pb-card, #ffffff);
+    padding: 15px;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
     gap: 14px;
-    align-items: flex-start;
 }
 
-.prfTeamCard.is-current {
-    background: #eef4ff;
+.prfTeamItem.is-current {
     border-color: #9bbdff;
+    background: #eef4ff;
 }
 
 .prfTeamAvatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    background: #2f3569;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: var(--pb-inner-blue, #0f3f93);
     color: #ffffff;
     display: grid;
     place-items: center;
-    font-size: 22px;
+    font-size: 19px;
+    flex: 0 0 auto;
 }
 
 .prfTeamBody {
     min-width: 0;
 }
 
-.prfTeamTop {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-}
-
 .prfTeamName {
-    font-size: 16px;
+    color: var(--pb-text, #151c2e);
+    font-size: 15px;
     line-height: 1.25;
-    font-weight: 700;
-    color: #151c2e;
+    font-weight: 800;
     overflow-wrap: anywhere;
 }
 
 .prfTeamMeta {
-    margin-top: 10px;
-    gap: 8px;
-}
-
-.prfEmptyBox {
-    padding: 18px;
-    color: #6b7280;
-    font-size: 14px;
+    margin-top: 8px;
+    display: grid;
+    gap: 5px;
+    color: var(--pb-muted, #6b7280);
+    font-size: 12px;
+    line-height: 1.3;
     font-weight: 600;
 }
 
-.prfPage button {
+.prfTeamMeta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.prfTeamBadge {
+    min-height: 24px;
+    padding: 0 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.prfTeamBadge svg {
+    width: 12px;
+    height: 12px;
+}
+
+.prfTeamBadge.is-you {
+    background: var(--pb-nav-blue, #2f3569);
+    color: #ffffff;
+}
+
+.prfTeamBadge.is-active {
+    background: var(--pb-soft-green, #dcfce7);
+    color: var(--pb-inner-green, #15803d);
+}
+
+.prfEmptyBox {
+    min-height: 74px;
+    border: 1px solid var(--pb-line, #e6e9ef);
+    border-radius: 14px;
+    background: var(--pb-card, #ffffff);
+    color: var(--pb-muted, #6b7280);
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+.prfPage button,
+.prfPhoneBox {
     transition:
         background 180ms ease,
         color 180ms ease,
         box-shadow 180ms ease,
         transform 180ms ease,
-        filter 180ms ease;
+        filter 180ms ease,
+        border-color 180ms ease;
 }
 
 .prfPage button:not(:disabled):hover,
 .prfPage button:not(:disabled):focus-visible {
     transform: translateY(-1px);
     filter: brightness(1.04);
-    box-shadow:
-        0 4px 6px -4px rgba(0, 0, 0, 0.1),
-        0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 1080px) {
-    .prfLayout {
+@media (max-width: 1180px) {
+    .prfInfoArea {
         grid-template-columns: 1fr;
+        gap: 24px;
     }
 
-    .prfSideCard {
-        max-width: none;
+    .prfPosBox {
+        min-height: auto;
     }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
     .prfPage {
         gap: 18px;
     }
 
-    .prfHeadRow {
+    .prfHeader {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+    }
+
+    .prfHeaderLeft {
+        width: 100%;
+    }
+
+    .prfActions {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .prfCard {
+        border-radius: 20px;
+        padding: 22px 18px 24px;
+        gap: 22px;
+    }
+
+    .prfAccountGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .prfPosMeta {
+        padding-left: 0;
+    }
+
+    .prfTeamItem {
         grid-template-columns: auto minmax(0, 1fr);
         align-items: flex-start;
     }
 
+    .prfTeamBadge {
+        grid-column: 2 / 3;
+        justify-self: start;
+        margin-top: -2px;
+    }
+}
+
+@media (max-width: 560px) {
+    .prfBreadcrumb {
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+
+    .prfTitleBlock h2 {
+        font-size: 23px;
+    }
+
     .prfBackBtn {
-        width: 42px;
-        height: 42px;
+        width: 38px;
+        height: 38px;
         font-size: 19px;
     }
 
-    .prfHeadCopy h2 {
-        font-size: 22px;
-    }
-
-    .prfMainCard,
-    .prfSideCard {
-        border-radius: 20px;
-    }
-
-    .prfMainCard {
-        padding: 20px 16px;
-        gap: 22px;
-    }
-
-    .prfInfoGrid,
-    .prfPosMetaGrid {
+    .prfActions {
+        display: grid;
         grid-template-columns: 1fr;
     }
 
-    .prfPosCard {
-        grid-template-columns: 1fr;
-    }
-
-    .prfPosIconWrap {
-        width: 58px;
-        height: 58px;
-    }
-
-    .prfTeamTop {
-        flex-direction: column;
-        gap: 8px;
-    }
-}
-
-@media (max-width: 430px) {
-    .prfTeamCard {
-        grid-template-columns: 1fr;
-    }
-
-    .prfTeamAvatar {
-        width: 44px;
-        height: 44px;
-    }
-}
-
-/* ===== Revisi: aksi dan form profil paralegal ===== */
-.prfHeadRow {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-}
-
-.prfHeadActions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.prfActionBtn {
-    min-height: 42px;
-    padding: 0 18px;
-    border: 0;
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.prfActionBtn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.prfActionBlue {
-    background: #0f3f93;
-    color: #ffffff;
-    box-shadow: 0 10px 22px rgba(15, 63, 147, 0.24);
-}
-
-.prfActionPrimary {
-    background: #16a34a;
-    color: #ffffff;
-    box-shadow: 0 10px 22px rgba(22, 163, 74, 0.18);
-}
-
-.prfActionGhost {
-    background: #9ca3af;
-    color: #ffffff;
-    box-shadow: none;
-}
-
-.prfAlert {
-    border-radius: 16px;
-    padding: 14px 16px;
-    font-size: 14px;
-    line-height: 1.35;
-    font-weight: 700;
-}
-
-.prfAlert.is-danger {
-    background: #fee2e2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-}
-
-.prfAlert.is-success {
-    background: #dcfce7;
-    color: #15803d;
-    border: 1px solid #bbf7d0;
-}
-
-.prfFormGrid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-}
-
-.prfField {
-    display: grid;
-    gap: 8px;
-}
-
-.prfLabel {
-    font-size: 13px;
-    line-height: 1.2;
-    font-weight: 700;
-    color: #151c2e;
-}
-
-.prfInputWrap {
-    min-height: 56px;
-    border-radius: 18px;
-    border: 1px solid #e6e9ef;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 16px;
-}
-
-.prfInputIcon {
-    width: 20px;
-    height: 20px;
-    color: #0f3f93;
-    flex: 0 0 auto;
-}
-
-.prfInput {
-    width: 100%;
-    border: 0;
-    outline: none;
-    background: transparent;
-    color: #151c2e;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.prfInput::placeholder {
-    color: #9ca3af;
-}
-
-.prfInput:focus,
-.prfInput:focus-visible,
-.prfInputWrap:focus-within {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-@media (max-width: 760px) {
-    .prfHeadRow {
-        grid-template-columns: auto minmax(0, 1fr);
-    }
-
-    .prfHeadActions {
-        grid-column: 1 / -1;
-        justify-content: stretch;
-    }
-
-    .prfActionBtn {
-        flex: 1 1 0;
-        min-width: 0;
-    }
-
-    .prfFormGrid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 430px) {
-    .prfHeadActions {
-        gap: 8px;
-    }
-
-    .prfActionBtn {
+    .prfBtn {
         width: 100%;
-        flex: 1 1 100%;
     }
 
-    .prfInputWrap {
-        min-height: 52px;
-        border-radius: 16px;
-        padding: 0 14px;
+    .prfEditNotice {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .prfAccountBox {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .prfBoxIcon {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+        font-size: 19px;
+    }
+
+    .prfPosTop {
+        grid-template-columns: 1fr;
+    }
+
+    .prfTeamHead {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .prfTeamItem {
+        grid-template-columns: 1fr;
+        gap: 11px;
+    }
+
+    .prfTeamBadge {
+        grid-column: auto;
     }
 }
