@@ -39,8 +39,37 @@ class PengaduanController extends Controller
                 $data = DB::table('pengaduan as p')
                     ->join('masyarakat as m', 'm.id_user', '=', 'p.user_id')
                     ->where('m.id_kelurahan', $id_kelurahan_posbankum)
-                    ->select('p.*')
-                    ->orderBy('p.created_at', 'desc')
+                    ->select([
+                        'p.*',
+                        DB::raw("
+                            (
+                                CASE p.status
+                                    WHEN 'menunggu' THEN 10000
+                                    WHEN 'diproses' THEN 5000
+                                    WHEN 'selesai' THEN 0
+                                    ELSE 0
+                                END
+                                +
+                                CASE p.prioritas
+                                    WHEN 'Sangat Tinggi' THEN 500
+                                    WHEN 'Tinggi' THEN 400
+                                    WHEN 'Menengah' THEN 300
+                                    WHEN 'Normal' THEN 200
+                                    WHEN 'Rendah' THEN 100
+                                    ELSE 200
+                                END
+                                +
+                                CASE
+                                    WHEN p.prioritas IN ('Sangat Tinggi', 'Tinggi') 
+                                    THEN DATEDIFF(NOW(), p.tanggal_kejadian) * 2.0
+                                    ELSE DATEDIFF(NOW(), p.tanggal_kejadian) * 0.2
+                                END
+                                +
+                                TIMESTAMPDIFF(HOUR, p.created_at, NOW()) * 0.5
+                            ) AS priority_score
+                        ")
+                    ])
+                    ->orderBy('priority_score', 'desc')
                     ->get();
             } else {
                 // Paralegal belum ditugaskan ke posbankum manapun
@@ -93,7 +122,7 @@ class PengaduanController extends Controller
             'waktu_kejadian' => $request->waktu_kejadian,
             'lokasi_kejadian' => $request->lokasi_kejadian,
             'status' => 'menunggu',
-            'prioritas' => $request->prioritas ?? 'Normal',
+            'prioritas' => $this->determinePriority($request->jenis_masalah),
             'user_id' => $request->user()->id_user,
             // id_paralegal = NULL (belum ada yang klaim)
             'created_at' => now(),
@@ -214,5 +243,24 @@ class PengaduanController extends Controller
             'message' => 'Statistik pengaduan berhasil dimuat',
             'data' => $data
         ]);
+    }
+
+    private function determinePriority($jenisMasalah)
+    {
+        $jenis = strtolower(trim($jenisMasalah));
+        
+        if (str_contains($jenis, 'kekerasan & pelanggaran fisik') || str_contains($jenis, 'seksual') || str_contains($jenis, 'narkotika')) {
+            return 'Sangat Tinggi';
+        }
+        if (str_contains($jenis, 'gender') || str_contains($jenis, 'bullying') || str_contains($jenis, 'perundungan') || str_contains($jenis, 'siber') || str_contains($jenis, 'digital')) {
+            return 'Tinggi';
+        }
+        if (str_contains($jenis, 'keluarga') || str_contains($jenis, 'perdata rumah tangga') || str_contains($jenis, 'perburuhan') || str_contains($jenis, 'ketenagakerjaan') || str_contains($jenis, 'tanah')) {
+            return 'Menengah';
+        }
+        if (str_contains($jenis, 'properti') || str_contains($jenis, 'harta benda') || (str_contains($jenis, 'perdata') && str_contains($jenis, 'umum'))) {
+            return 'Normal';
+        }
+        return 'Rendah';
     }
 }
