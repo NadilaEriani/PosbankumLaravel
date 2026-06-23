@@ -49,16 +49,16 @@ class UploadController extends Controller
         ], 400);
     }
 
-    /**
-     * Ambil daftar lampiran milik sebuah pengaduan.
-     * Route: GET /pengaduan/{id}/lampiran
-     */
     public function getLampiran($id)
     {
         $data = DB::table('pengaduan_lampiran')
             ->where('id_pengaduan', $id)
             ->orderBy('created_at', 'asc')
             ->get();
+
+        foreach ($data as $item) {
+            $item->path_file = url("api/pengaduan/{$id}/lampiran/{$item->id_lampiran}/view");
+        }
 
         return response()->json([
             'status' => true,
@@ -96,11 +96,8 @@ class UploadController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
 
-            // Simpan ke storage/app/public/lampiran/{id_pengaduan}/
-            $path = $file->store("lampiran/{$id}", 'public');
-
-            // Buat URL publik
-            $url = asset('storage/' . $path);
+            // Simpan ke storage/app/lampiran/{id_pengaduan}/ (disk local = private)
+            $path = $file->store("lampiran/{$id}", 'local');
 
             // Insert ke tabel pengaduan_lampiran
             $idLampiran = (string) Str::uuid();
@@ -109,7 +106,7 @@ class UploadController extends Controller
                 'id_pengaduan'    => $id,
                 'id_timeline'     => $request->id_timeline,
                 'nama_file'       => $file->getClientOriginalName(),
-                'path_file'       => $url,
+                'path_file'       => $path, // Simpan relative path: lampiran/{id_pengaduan}/filename.ext
                 'mime_type'       => $file->getClientMimeType(),
                 'size_bytes'      => $file->getSize(),
                 'jenis_lampiran'  => $request->jenis_lampiran ?? 'bukti_awal',
@@ -118,6 +115,8 @@ class UploadController extends Controller
             ]);
 
             $data = DB::table('pengaduan_lampiran')->where('id_lampiran', $idLampiran)->first();
+            // Map path_file ke secure URL untuk output response
+            $data->path_file = url("api/pengaduan/{$id}/lampiran/{$idLampiran}/view");
 
             return response()->json([
                 'status' => true,
@@ -130,5 +129,89 @@ class UploadController extends Controller
             'status' => false,
             'message' => 'File tidak ditemukan dalam request'
         ], 400);
+    }
+
+    /**
+     * Tampilkan/unduh file secara terproteksi.
+     * Route: GET /pengaduan/{id}/lampiran/{id_lampiran}/view
+     */
+    public function viewLampiranPrivate(Request $request, $id, $id_lampiran)
+    {
+        $user = $request->user();
+
+        // 1. Ambil data lampiran
+        $lampiran = DB::table('pengaduan_lampiran')
+            ->where('id_lampiran', $id_lampiran)
+            ->where('id_pengaduan', $id)
+            ->first();
+
+        if (!$lampiran) {
+            return response()->json(['status' => false, 'message' => 'Lampiran tidak ditemukan'], 404);
+        }
+
+        // 2. Ambil data pengaduan untuk cek kepemilikan / penugasan
+        $pengaduan = DB::table('pengaduan')
+            ->where('id_pengaduan', $id)
+            ->first();
+
+        if (!$pengaduan) {
+            return response()->json(['status' => false, 'message' => 'Pengaduan tidak ditemukan'], 404);
+        }
+
+        // 3. Pengecekan Otorisasi Berdasarkan Role
+        $isAuthorized = false;
+
+        if ($user->role === 'admin') {
+            $isAuthorized = true;
+        } elseif ($user->role === 'warga') {
+            // Warga hanya boleh akses lampiran aduannya sendiri
+            if ($user->id_user === $pengaduan->user_id) {
+                $isAuthorized = true;
+            }
+        } elseif ($user->role === 'paralegal') {
+            // Paralegal hanya boleh akses lampiran aduan yang kelurahan pembuatnya
+            // sama dengan kelurahan posbankum tempat dia bertugas
+            $id_kelurahan_posbankum = DB::table('posbankum_paralegal as pp')
+                ->join('posbankum as pos', 'pos.id_posbankum', '=', 'pp.id_posbankum')
+                ->where('pp.id_user', $user->id_user)
+                ->where('pp.status', 'aktif')
+                ->orderBy('pp.is_primary', 'desc')
+                ->value('pos.id_kelurahan');
+
+            if ($id_kelurahan_posbankum) {
+                $pelapor = DB::table('masyarakat')
+                    ->where('id_user', $pengaduan->user_id)
+                    ->first();
+                
+                if ($pelapor && $pelapor->id_kelurahan === $id_kelurahan_posbankum) {
+                    $isAuthorized = true;
+                }
+            }
+        }
+
+        if (!$isAuthorized) {
+            return response()->json(['status' => false, 'message' => 'Anda tidak memiliki hak akses untuk dokumen ini'], 403);
+        }
+
+        // 4. Kirim file securely dari storage private
+        $path = $lampiran->path_file;
+        
+        // Backward compatibility: parser URL jika bertipe publik URL lama
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            $parsed = parse_url($path, PHP_URL_PATH);
+            if ($parsed && str_starts_with($parsed, '/storage/')) {
+                $path = 'public/' . substr($parsed, 9);
+            }
+        }
+
+        $filePath = storage_path('app/' . $path);
+        if (!file_exists($filePath)) {
+            return response()->json(['status' => false, 'message' => 'File fisik tidak ditemukan di server'], 404);
+        }
+
+        return response()->file($filePath, [
+            'Content-Type' => $lampiran->mime_type ?? 'application/octet-stream',
+            'Content-Disposition' => 'inline; filename="' . $lampiran->nama_file . '"'
+        ]);
     }
 }

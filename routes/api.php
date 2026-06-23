@@ -140,6 +140,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // -------------------------------------------------------------------------
     Route::get('/pengaduan/{id}/lampiran',  [UploadController::class, 'getLampiran']);
     Route::post('/pengaduan/{id}/lampiran', [UploadController::class, 'uploadLampiran']);
+    Route::get('/pengaduan/{id}/lampiran/{id_lampiran}/view', [UploadController::class, 'viewLampiranPrivate']);
 
     // -------------------------------------------------------------------------
     // TIMELINE / PROGRES KASUS
