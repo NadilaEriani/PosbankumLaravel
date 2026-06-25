@@ -1,14 +1,16 @@
 name: Auto Deploy to VPS
-
 on:
   push:
     branches:
       - main
 
+concurrency:
+  group: production
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -18,8 +20,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            set -e
             cd /var/www/project
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             composer install --no-dev --optimize-autoloader --no-interaction
             pnpm install --frozen-lockfile
             pnpm run build
