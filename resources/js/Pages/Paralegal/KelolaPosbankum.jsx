@@ -1,7 +1,7 @@
 import { MdLocationSearching } from "react-icons/md";
 import { router } from "@inertiajs/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import SuccessToast from "../../components/ui/SuccessToast";
+import SuccessToast from "../../Components/ui/SuccessToast";
 import {
     FiFileText,
     FiUpload,
