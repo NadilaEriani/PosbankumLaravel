@@ -2950,3 +2950,77 @@
         width: 100% !important;
     }
 }
+
+
+/* =========================================================
+   FIX WARNA TOMBOL MANAJEMEN AKUN
+   Semua tombol aksi utama pada halaman tambah, edit, dan detail
+   disamakan dengan warna navbar / tombol header.
+   ========================================================= */
+.kpShell {
+    --kp-navbar-button-color: #343a73;
+    --kp-navbar-button-hover: #2f3569;
+    --kp-navbar-button-shadow: rgba(52, 58, 115, 0.25);
+}
+
+/* Tombol Tambah Paralegal di halaman list */
+.kpAddTop,
+.kpAddTop:hover,
+.kpAddTop:focus-visible {
+    background: var(--kp-navbar-button-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 18px var(--kp-navbar-button-shadow) !important;
+}
+
+.kpAddTop:hover:not(:disabled),
+.kpAddTop:focus-visible:not(:disabled) {
+    background: var(--kp-navbar-button-hover) !important;
+}
+
+/* Tombol Simpan pada form tambah/edit dan tombol Kembali ke Daftar pada detail */
+.kpPageBtnPrimary,
+.kpPageTop .kpPageBtnPrimary,
+.kpPageTop .kpPageBtnPrimary:not(.kpDetailBackBtn),
+.kpPageBtnPrimary.kpDetailBackBtn,
+.kpFormPage .kpPageBtnPrimary,
+.kpFormPage .kpPageActions .kpPageBtnPrimary,
+.kpSaveBtn {
+    background: var(--kp-navbar-button-color) !important;
+    color: #ffffff !important;
+    border: 0 !important;
+    box-shadow: 0 10px 20px var(--kp-navbar-button-shadow) !important;
+}
+
+.kpPageBtnPrimary:hover:not(:disabled),
+.kpPageTop .kpPageBtnPrimary:hover:not(:disabled),
+.kpPageBtnPrimary.kpDetailBackBtn:hover:not(:disabled),
+.kpFormPage .kpPageBtnPrimary:hover:not(:disabled),
+.kpFormPage .kpPageActions .kpPageBtnPrimary:hover:not(:disabled),
+.kpSaveBtn:hover:not(:disabled) {
+    background: var(--kp-navbar-button-hover) !important;
+    filter: none !important;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 22px rgba(52, 58, 115, 0.3) !important;
+}
+
+/* Tombol primary lama pada modal tetap ikut warna navbar jika masih dipakai */
+.kpBtnPrimary,
+.kpBtnPrimary:hover,
+.kpEmptyBtn,
+.kpEmptyBtn:hover {
+    background: var(--kp-navbar-button-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 18px var(--kp-navbar-button-shadow) !important;
+}
+
+.kpBtnPrimary:hover:not(:disabled),
+.kpEmptyBtn:hover:not(:disabled) {
+    background: var(--kp-navbar-button-hover) !important;
+}
+
+/* Pagination aktif ikut warna navbar agar konsisten di Manajemen Akun */
+.kpPageBtn.is-active {
+    background: var(--kp-navbar-button-color) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 18px var(--kp-navbar-button-shadow) !important;
+}
