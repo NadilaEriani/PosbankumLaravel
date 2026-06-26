@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiAlertTriangle,
     FiCalendar,
@@ -57,6 +57,13 @@ const MAX_TITLE_LENGTH = 100;
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_UPLOAD_TYPES = ["image/png", "image/jpeg", "application/pdf"];
 const ALLOWED_UPLOAD_EXTENSIONS = [".png", ".jpg", ".jpeg", ".pdf"];
+
+const PRIORITY_FILTER_OPTIONS = [
+    { value: "semua", triggerLabel: "Semua Prioritas", optionLabel: "Semua" },
+    { value: "tinggi", triggerLabel: "Tinggi", optionLabel: "Tinggi" },
+    { value: "sedang", triggerLabel: "Sedang", optionLabel: "Sedang" },
+    { value: "rendah", triggerLabel: "Rendah", optionLabel: "Rendah" },
+];
 
 function firstFilled(...values) {
     for (const value of values) {
@@ -618,6 +625,8 @@ export default function LaporanPelayanan({
     const [tab, setTab] = useState("aktif");
     const [search, setSearch] = useState("");
     const [priorityFilter, setPriorityFilter] = useState("semua");
+    const [priorityDropdownOpen, setPriorityDropdownOpen] = useState(false);
+    const priorityDropdownRef = useRef(null);
     const [selectedReport, setSelectedReport] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
     const [saving, setSaving] = useState(false);
@@ -640,6 +649,30 @@ export default function LaporanPelayanan({
             setToastReject(String(flash?.error || flash?.reject));
         }
     }, [flash]);
+
+    useEffect(() => {
+        const handleOutsideClick = (event) => {
+            if (
+                priorityDropdownRef.current &&
+                !priorityDropdownRef.current.contains(event.target)
+            ) {
+                setPriorityDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        };
+    }, []);
+
+    const priorityFilterLabel = useMemo(() => {
+        return (
+            PRIORITY_FILTER_OPTIONS.find(
+                (option) => option.value === priorityFilter,
+            )?.triggerLabel || "Semua Prioritas"
+        );
+    }, [priorityFilter]);
 
     const paralegalOptions = useMemo(() => {
         return (initialParalegals || []).map((item, index) => ({
@@ -1024,15 +1057,45 @@ export default function LaporanPelayanan({
                 <div className="lpvFilterIcon">
                     <FiFilter />
                 </div>
-                <select
-                    value={priorityFilter}
-                    onChange={(event) => setPriorityFilter(event.target.value)}
+                <div
+                    className={`lpvPriorityDropdown ${priorityDropdownOpen ? "is-open" : ""}`}
+                    ref={priorityDropdownRef}
                 >
-                    <option value="semua">Semua Prioritas</option>
-                    <option value="tinggi">Prioritas Tinggi</option>
-                    <option value="sedang">Prioritas Sedang</option>
-                    <option value="rendah">Prioritas Rendah</option>
-                </select>
+                    <button
+                        type="button"
+                        className="lpvPriorityTrigger"
+                        onClick={() =>
+                            setPriorityDropdownOpen((current) => !current)
+                        }
+                        aria-haspopup="listbox"
+                        aria-expanded={priorityDropdownOpen}
+                    >
+                        <span>{priorityFilterLabel}</span>
+                        <FiChevronRight />
+                    </button>
+
+                    {priorityDropdownOpen ? (
+                        <div className="lpvPriorityMenu" role="listbox">
+                            {PRIORITY_FILTER_OPTIONS.map((option) => (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    className={`lpvPriorityOption ${priorityFilter === option.value ? "is-active" : ""}`}
+                                    onClick={() => {
+                                        setPriorityFilter(option.value);
+                                        setPriorityDropdownOpen(false);
+                                    }}
+                                    role="option"
+                                    aria-selected={
+                                        priorityFilter === option.value
+                                    }
+                                >
+                                    {option.optionLabel}
+                                </button>
+                            ))}
+                        </div>
+                    ) : null}
+                </div>
             </div>
         </div>
     );

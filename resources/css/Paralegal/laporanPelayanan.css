@@ -131,7 +131,7 @@
 .lpvStatCard.toneOrange {
     background: linear-gradient(135deg, var(--lp-orange-1), var(--lp-orange-2));
 }
-/* Icon Tingkat Selesai: lebih kecil dan lebih tipis */
+
 .lpvStatCard.toneOrange .lpvStatIcon svg {
     width: 28px;
     height: 28px;
@@ -270,7 +270,6 @@
 }
 
 .lpvSearchBox,
-.lpvFilterGroup,
 .lpvField input,
 .lpvField select,
 .lpvField textarea,
@@ -305,26 +304,118 @@
 }
 
 .lpvFilterGroup {
+    position: relative;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 10px;
-    padding: 0 14px;
     height: 50px;
-}
-
-.lpvFilterGroup select {
-    width: 100%;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
+    overflow: visible;
 }
 
 .lpvFilterIcon {
     color: #6b7280;
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.lpvPriorityDropdown {
+    position: relative;
+    width: 170px;
+    z-index: 20;
+}
+
+.lpvPriorityDropdown.is-open {
+    z-index: 120;
+}
+
+.lpvPriorityTrigger {
+    width: 100%;
+    height: 50px;
+    border: 1px solid #d8dde6;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #374151;
+    padding: 0 12px 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.lpvPriorityTrigger span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lpvPriorityTrigger svg {
+    width: 18px;
+    height: 18px;
+    color: #6b7280;
+    transform: rotate(90deg);
+    flex: 0 0 auto;
+}
+
+.lpvPriorityDropdown.is-open .lpvPriorityTrigger {
+    border-color: #d8dde6;
+    box-shadow: none;
+}
+
+.lpvPriorityDropdown.is-open .lpvPriorityTrigger svg {
+    transform: rotate(-90deg);
+}
+
+.lpvPriorityMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 150px;
+    padding: 12px 0;
+    border: 1px solid #d8dde6;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 16px 28px rgba(17, 24, 39, 0.22);
+    z-index: 140;
+}
+
+.lpvPriorityOption {
+    width: 100%;
+    min-height: 38px;
+    border: 0;
+    background: #ffffff;
+    color: #374151;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.lpvPriorityOption.is-active {
+    color: #1454c4;
+    font-weight: 800;
+}
+
+.lpvPriorityOption:hover,
+.lpvPriorityOption:focus-visible {
+    background: #f8fafc;
+    color: #1454c4;
+    transform: none;
+    filter: none;
+    box-shadow: none;
 }
 
 .lpvListWrap {
@@ -1232,7 +1323,7 @@
     }
 }
 
-/* Update khusus tampilan Buat Laporan dan Statistik */
+
 .lpvCreateCard {
     padding: 22px 24px 24px;
     border-radius: 15px;
@@ -1799,7 +1890,7 @@
     }
 }
 
-/* Dropdown custom Nama Paralegal */
+
 .lpvParalegalDropdown {
     position: relative;
     width: 100%;
@@ -1906,7 +1997,7 @@
     font-size: 26px;
     flex: 0 0 auto;
 }
-/* Besarkan icon tab Laporan Aktif dan Riwayat Selesai */
+
 .lpvTabsRow .lpvTopTab:nth-child(2) svg,
 .lpvTabsRow .lpvTopTab:nth-child(3) svg {
     width: 24px;
@@ -1923,5 +2014,31 @@
     .lpvParalegalOption {
         min-height: 42px;
         font-size: 13px;
+    }
+}
+
+@media (max-width: 992px) {
+    .lpvFilterGroup {
+        justify-content: flex-start;
+    }
+
+    .lpvPriorityDropdown {
+        width: min(190px, 100%);
+    }
+}
+
+@media (max-width: 540px) {
+    .lpvFilterGroup {
+        width: 100%;
+    }
+
+    .lpvPriorityDropdown {
+        width: 100%;
+    }
+
+    .lpvPriorityMenu {
+        left: 0;
+        right: auto;
+        width: 100%;
     }
 }
