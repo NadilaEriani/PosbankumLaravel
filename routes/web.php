@@ -81,6 +81,101 @@ Route::get('/', function () {
                 ->toArray();
         }
 
+        $paralegalContacts = [];
+
+        if (
+            $ids->isNotEmpty() &&
+            Schema::hasTable('posbankum_paralegal') &&
+            Schema::hasTable('users') &&
+            Schema::hasColumn('posbankum_paralegal', 'id_posbankum') &&
+            Schema::hasColumn('posbankum_paralegal', 'id_user')
+        ) {
+            $userKeyColumn = Schema::hasColumn('users', 'id_user') ? 'id_user' : 'id';
+
+            if (Schema::hasColumn('users', $userKeyColumn)) {
+                $phoneColumns = array_values(array_filter(
+                    ['nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon'],
+                    fn($column) => Schema::hasColumn('users', $column)
+                ));
+                $emailColumns = array_values(array_filter(
+                    ['email', 'email_kantor', 'email_akun'],
+                    fn($column) => Schema::hasColumn('users', $column)
+                ));
+                $selectColumns = ['pp.id_posbankum'];
+
+                foreach (array_merge($phoneColumns, $emailColumns) as $column) {
+                    $selectColumns[] = 'u.' . $column . ' as ' . $column;
+                }
+
+                $contactQuery = DB::table('posbankum_paralegal as pp')
+                    ->join('users as u', 'u.' . $userKeyColumn, '=', 'pp.id_user')
+                    ->whereIn('pp.id_posbankum', $ids);
+
+                if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+                    $contactQuery->where('pp.status', 'aktif');
+                }
+
+                if (Schema::hasColumn('users', 'role')) {
+                    $contactQuery->where('u.role', 'paralegal');
+                }
+
+                if (Schema::hasColumn('users', 'status')) {
+                    $contactQuery->where('u.status', 'aktif');
+                }
+
+                if (Schema::hasColumn('posbankum_paralegal', 'is_primary')) {
+                    $contactQuery->orderByDesc('pp.is_primary');
+                }
+
+                foreach (['assigned_at', 'created_at'] as $column) {
+                    if (Schema::hasColumn('posbankum_paralegal', $column)) {
+                        $contactQuery->orderBy('pp.' . $column);
+                    }
+                }
+
+                if (Schema::hasColumn('users', 'created_at')) {
+                    $contactQuery->orderBy('u.created_at');
+                }
+
+                $contactQuery
+                    ->select($selectColumns)
+                    ->get()
+                    ->each(function ($row) use (&$paralegalContacts, $phoneColumns, $emailColumns) {
+                        $idPosbankum = (string) ($row->id_posbankum ?? '');
+
+                        if ($idPosbankum === '' || isset($paralegalContacts[$idPosbankum])) {
+                            return;
+                        }
+
+                        $phone = '-';
+                        $email = '-';
+
+                        foreach ($phoneColumns as $column) {
+                            $value = trim((string) ($row->{$column} ?? ''));
+
+                            if ($value !== '' && $value !== '-') {
+                                $phone = $value;
+                                break;
+                            }
+                        }
+
+                        foreach ($emailColumns as $column) {
+                            $value = trim((string) ($row->{$column} ?? ''));
+
+                            if ($value !== '' && $value !== '-') {
+                                $email = $value;
+                                break;
+                            }
+                        }
+
+                        $paralegalContacts[$idPosbankum] = [
+                            'phone' => $phone,
+                            'email' => $email,
+                        ];
+                    });
+            }
+        }
+
         $caseCounts = [];
 
         if (
@@ -95,13 +190,40 @@ Route::get('/', function () {
                 ->toArray();
         }
 
+        $cleanContact = function (...$values): string {
+            foreach ($values as $value) {
+                $clean = trim((string) ($value ?? ''));
+
+                if ($clean !== '' && $clean !== '-') {
+                    return $clean;
+                }
+            }
+
+            return '-';
+        };
+
         $posbankums = $rows
-            ->map(function ($row) use ($paralegalCounts, $caseCounts) {
+            ->map(function ($row) use ($paralegalCounts, $caseCounts, $paralegalContacts, $cleanContact) {
+                $idPosbankum = $row->id_posbankum ?? null;
                 $statusTagging = strtolower((string) ($row->status_verifikasi_tagging_area ?? ''));
+                $paralegalContact = $paralegalContacts[(string) $idPosbankum] ?? [];
+                $phone = $cleanContact(
+                    $row->nomor_tlp ?? null,
+                    $row->nomor_telepon ?? null,
+                    $row->phone ?? null,
+                    $row->telepon ?? null,
+                    $paralegalContact['phone'] ?? null
+                );
+                $email = $cleanContact(
+                    $row->email_akun ?? null,
+                    $row->email ?? null,
+                    $row->email_posbankum ?? null,
+                    $paralegalContact['email'] ?? null
+                );
 
                 return [
-                    'id' => $row->id_posbankum,
-                    'id_posbankum' => $row->id_posbankum,
+                    'id' => $idPosbankum,
+                    'id_posbankum' => $idPosbankum,
                     'name' => $row->nama,
                     'nama' => $row->nama,
                     'address' => $row->alamat ?: trim(implode(', ', array_filter([
@@ -110,10 +232,10 @@ Route::get('/', function () {
                         $row->kabupaten_nama ?? '',
                     ]))),
                     'alamat' => $row->alamat,
-                    'phone' => $row->nomor_tlp ?: '-',
-                    'nomor_tlp' => $row->nomor_tlp,
-                    'email' => $row->email_akun ?: '-',
-                    'email_akun' => $row->email_akun,
+                    'phone' => $phone,
+                    'nomor_tlp' => $phone,
+                    'email' => $email,
+                    'email_akun' => $email,
                     'district' => $row->kecamatan_nama ?? '',
                     'kelurahan_nama' => $row->kelurahan_nama ?? '',
                     'kecamatan_nama' => $row->kecamatan_nama ?? '',
@@ -129,8 +251,8 @@ Route::get('/', function () {
                     'status' => $statusTagging === 'ditolak'
                         ? 'Ditolak'
                         : ($statusTagging === 'menunggu' ? 'Menunggu' : 'Aktif'),
-                    'paralegalCount' => (int) ($paralegalCounts[$row->id_posbankum] ?? 0),
-                    'caseCount' => (int) ($caseCounts[$row->id_posbankum] ?? 0),
+                    'paralegalCount' => (int) ($paralegalCounts[$idPosbankum] ?? 0),
+                    'caseCount' => (int) ($caseCounts[$idPosbankum] ?? 0),
                     'operationalHours' => 'Senin - Jumat, 08:00 - 16:00 WIB',
                 ];
             })
