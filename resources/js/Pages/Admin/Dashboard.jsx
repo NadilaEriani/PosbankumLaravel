@@ -161,28 +161,99 @@ function getRowIdCandidates(row = {}) {
         .filter(Boolean);
 }
 
+function getPosbankumOnlyIdCandidates(row = {}) {
+    return [
+        row.id_posbankum,
+        row.posbankum_id,
+        row.posbankumId,
+        row.id_pos,
+    ]
+        .filter((value) => value !== undefined && value !== null)
+        .map((value) => String(value).trim())
+        .filter(Boolean);
+}
+
+function getPosbankumName(row = {}) {
+    return normalizeComparable(
+        row.name ||
+            row.nama ||
+            row.nama_posbankum ||
+            row.posbankum_nama ||
+            row.posbankumName ||
+            row.posbankum,
+    );
+}
+
 function findMatchingDetailRow(target = {}, rows = []) {
     const targetIds = new Set(getRowIdCandidates(target));
-    const targetName = normalizeComparable(
-        target.name || target.nama || target.nama_posbankum || target.posbankum,
-    );
+    const targetName = getPosbankumName(target);
 
     return (
         rows.find((row) => {
             const rowIds = getRowIdCandidates(row);
             if (rowIds.some((id) => targetIds.has(id))) return true;
 
-            const rowName = normalizeComparable(
-                row.name || row.nama || row.nama_posbankum || row.posbankum,
-            );
+            const rowName = getPosbankumName(row);
 
             return targetName && rowName && targetName === rowName;
         }) || null
     );
 }
 
-function mergePosbankumDetail(target = {}, rows = []) {
-    const matched = findMatchingDetailRow(target, rows) || {};
+function findFirstParalegalForPosbankum(target = {}, rows = []) {
+    const targetIds = new Set([
+        ...getPosbankumOnlyIdCandidates(target),
+        ...getRowIdCandidates(target),
+    ]);
+    const targetName = getPosbankumName(target);
+
+    const matches = (rows || [])
+        .map((row, index) => ({ row, index }))
+        .filter(({ row }) => {
+            const rowIds = getPosbankumOnlyIdCandidates(row);
+            if (rowIds.some((id) => targetIds.has(id))) return true;
+
+            const rowName = getPosbankumName(row);
+
+            return targetName && rowName && targetName === rowName;
+        });
+
+    if (!matches.length) return null;
+
+    return matches
+        .sort((a, b) => {
+            const aTime = getComparableTime(a.row);
+            const bTime = getComparableTime(b.row);
+
+            if (aTime !== bTime) return aTime - bTime;
+
+            return a.index - b.index;
+        })[0].row;
+}
+
+function getComparableTime(row = {}) {
+    const value = firstFilledContact(
+        row.assigned_at,
+        row.created_at,
+        row.tanggal_daftarkan,
+        row.tanggal_dibuat,
+        row.registered_at,
+        row.updated_at,
+    );
+
+    if (!value) return Number.MAX_SAFE_INTEGER;
+
+    const time = new Date(String(value).replace(" ", "T")).getTime();
+
+    return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
+}
+
+function mergePosbankumDetail(target = {}, detailRows = [], accountRows = []) {
+    const matched = findMatchingDetailRow(target, detailRows) || {};
+    const paralegal = findFirstParalegalForPosbankum(
+        { ...matched, ...target },
+        accountRows,
+    ) || {};
     const merged = { ...matched, ...target };
 
     return {
@@ -200,6 +271,13 @@ function mergePosbankumDetail(target = {}, rows = []) {
             merged.wilayah,
         ),
         phone: firstFilledContact(
+            paralegal.nomor_telepon,
+            paralegal.nomor_tlp,
+            paralegal.no_hp,
+            paralegal.nomor_hp,
+            paralegal.no_telp,
+            paralegal.telepon,
+            paralegal.phone,
             merged.phone,
             merged.nomor_tlp,
             merged.nomor_telepon,
@@ -212,6 +290,10 @@ function mergePosbankumDetail(target = {}, rows = []) {
             matched.no_hp,
         ),
         email: firstFilledContact(
+            paralegal.email,
+            paralegal.email_user,
+            paralegal.email_paralegal,
+            paralegal.email_akun,
             merged.email,
             merged.email_akun,
             merged.email_posbankum,
@@ -544,9 +626,9 @@ export default function AdminDashboard() {
     const selectedPosDetailData = useMemo(
         () =>
             selectedPosDetail
-                ? mergePosbankumDetail(selectedPosDetail, detailRows)
+                ? mergePosbankumDetail(selectedPosDetail, detailRows, accountRows)
                 : null,
-        [selectedPosDetail, detailRows],
+        [selectedPosDetail, detailRows, accountRows],
     );
 
     const selectedPosDetailPhone = selectedPosDetailData?.phone || "";
