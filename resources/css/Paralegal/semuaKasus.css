@@ -641,102 +641,185 @@
     display: grid;
     place-items: center;
     padding: 18px;
-    background: rgba(2, 6, 23, 0.55);
+    background: rgba(2, 6, 23, 0.58);
     overscroll-behavior: contain;
 }
 
 .skFilterCard {
-    width: min(780px, calc(100vw - 36px));
+    width: min(648px, calc(100vw - 36px));
     max-height: calc(100dvh - 36px);
-    overflow: auto;
+    overflow: hidden;
     background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.28);
+    border-radius: 15px;
+    box-shadow:
+        0 32px 60px rgba(0, 0, 0, 0.36),
+        0 12px 24px rgba(15, 23, 42, 0.22);
+    display: flex;
+    flex-direction: column;
 }
 
 .skModalHead {
-    min-height: 64px;
-    padding: 0 22px;
+    min-height: 68px;
+    padding: 0 24px;
     color: #ffffff;
-    background: linear-gradient(135deg, #2b3056, #3a4070, #4a5080);
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 58%, #4a5080 100%);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
+    gap: 16px;
+    flex-shrink: 0;
 }
 
 .skModalTitle {
     color: #ffffff;
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 21px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.skModalTitle svg {
+    width: 23px;
+    height: 23px;
+    flex: 0 0 auto;
+    stroke-width: 2.2;
 }
 
 .skModalClose {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
     display: grid;
     place-items: center;
     background: rgba(255, 255, 255, 0.18);
     color: #ffffff;
+    box-shadow: none;
+}
+
+.skModalClose svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2.2;
+}
+
+.skModalClose:hover,
+.skModalClose:focus-visible {
+    background: rgba(255, 255, 255, 0.26);
+    transform: none;
+    filter: none;
 }
 
 .skModalBody {
-    padding: 22px;
-}
-
-.skFilterGrid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.skFilterField label {
-    display: block;
-    margin-bottom: 8px;
-    color: #111827;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.skFilterField select {
-    width: 100%;
-    height: 46px;
-    border: 1px solid #d8dde6;
-    border-radius: 14px;
-    padding: 0 14px;
+    padding: 23px 24px 26px;
+    overflow-y: auto;
     background: #ffffff;
+}
+
+.skFilterSection {
+    display: grid;
+    gap: 13px;
+}
+
+.skFilterSection + .skFilterSection {
+    margin-top: 24px;
+}
+
+.skFilterSectionTitle {
+    margin: 0;
     color: #111827;
     font-size: 14px;
-    font-weight: 500;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.skFilterChoiceGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.skFilterChoiceGrid.is-sort {
+    grid-template-columns: 1fr;
+}
+
+.skFilterChoice {
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background: #f0f1f4;
+    color: #374151;
+    padding: 0 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: none;
+    transition:
+        transform 0.18s ease,
+        filter 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease,
+        color 0.18s ease;
+}
+
+.skFilterChoiceGrid.is-sort .skFilterChoice {
+    justify-content: flex-start;
+    min-height: 48px;
+}
+
+.skFilterChoice.is-active {
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 58%, #4a5080 100%);
+    color: #ffffff;
+    box-shadow: 0 10px 18px rgba(43, 48, 86, 0.28);
+}
+
+.skFilterChoice:hover,
+.skFilterChoice:focus-visible {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
 }
 
 .skModalActions {
-    padding: 16px 22px;
-    background: #f9fafb;
-    border-top: 1px solid var(--sk-border);
+    padding: 16px 24px;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 12px;
+    flex-shrink: 0;
 }
 
 .skFooterGhost,
 .skFooterPrimary {
-    min-width: 110px;
+    min-width: 142px;
     height: 44px;
     border-radius: 14px;
     font-size: 14px;
-    font-weight: 700;
+    line-height: 1.2;
+    font-weight: 800;
 }
 
 .skFooterGhost {
     background: #e5e7eb;
     color: #374151;
+    box-shadow: none;
 }
 
 .skFooterPrimary {
-    background: linear-gradient(135deg, #2b3056, #3a4070, #4a5080);
+    min-width: 160px;
+    background: linear-gradient(135deg, #2b3056 0%, #3a4070 58%, #4a5080 100%);
     color: #ffffff;
+    box-shadow: 0 10px 18px rgba(43, 48, 86, 0.25);
 }
 
 /* Detail page */
@@ -1193,5 +1276,56 @@
 
     .skStatValue {
         font-size: 30px;
+    }
+}
+
+/* Revisi modal Filter & Urutkan agar mengikuti desain referensi. */
+@media (max-width: 760px) {
+    .skModalOverlay {
+        padding: 12px;
+        align-items: start;
+        place-items: start center;
+    }
+
+    .skFilterCard {
+        width: 100%;
+        max-height: calc(100dvh - 24px);
+        border-radius: 15px;
+    }
+
+    .skModalHead {
+        min-height: 64px;
+        padding: 0 18px;
+    }
+
+    .skModalTitle {
+        font-size: 19px;
+        gap: 10px;
+    }
+
+    .skModalBody {
+        padding: 20px 18px 22px;
+    }
+
+    .skFilterChoiceGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .skModalActions {
+        padding: 14px 18px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .skFooterGhost,
+    .skFooterPrimary {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 430px) {
+    .skModalActions {
+        grid-template-columns: 1fr;
     }
 }

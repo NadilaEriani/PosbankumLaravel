@@ -32,7 +32,6 @@ const CATEGORY_OPTIONS = [
     "Hukum Ketenagakerjaan",
     "Hukum Waris",
     "Pertanahan",
-    "Lainnya",
 ];
 
 const STATUS_OPTIONS = ["Semua", "Diproses", "Mediasi", "Selesai"];
@@ -899,47 +898,99 @@ function FilterPanel({
     onApply,
     onReset,
 }) {
-    const fields = [
-        ["kategori", CATEGORY_OPTIONS, "Kategori"],
-        ["status", STATUS_OPTIONS, "Status"],
-        ["prioritas", PRIORITY_OPTIONS, "Prioritas"],
-        ["urutkan", SORT_OPTIONS, "Urutkan"],
+    const sections = [
+        {
+            key: "kategori",
+            title: "Kategori Kasus",
+            options: CATEGORY_OPTIONS,
+        },
+        {
+            key: "status",
+            title: "Status Kasus",
+            options: STATUS_OPTIONS,
+        },
+        {
+            key: "prioritas",
+            title: "Prioritas",
+            options: PRIORITY_OPTIONS,
+        },
+        {
+            key: "urutkan",
+            title: "Urutkan Berdasarkan",
+            options: SORT_OPTIONS,
+            isSort: true,
+        },
     ];
 
+    const updateDraftFilter = (key, value) => {
+        setDraftFilters((previous) => ({
+            ...previous,
+            [key]: value,
+        }));
+    };
+
     return (
-        <div className="skModalOverlay" role="dialog" aria-modal="true">
-            <div className="skFilterCard">
+        <div className="skModalOverlay" role="presentation">
+            <div
+                className="skFilterCard"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="skFilterModalTitle"
+            >
                 <div className="skModalHead">
-                    <div className="skModalTitle">Filter & Urutkan</div>
+                    <div className="skModalTitle" id="skFilterModalTitle">
+                        <BsSliders2 aria-hidden="true" />
+                        <span>Filter &amp; Urutkan Kasus</span>
+                    </div>
                     <button
                         className="skModalClose"
                         type="button"
                         onClick={onClose}
+                        aria-label="Tutup filter"
                     >
                         <FiX />
                     </button>
                 </div>
 
-                <div className="skModalBody skFilterGrid">
-                    {fields.map(([key, options, label]) => (
-                        <div className="skFilterField" key={key}>
-                            <label>{label}</label>
-                            <select
-                                value={draftFilters[key]}
-                                onChange={(event) =>
-                                    setDraftFilters((previous) => ({
-                                        ...previous,
-                                        [key]: event.target.value,
-                                    }))
-                                }
+                <div className="skModalBody">
+                    {sections.map((section) => (
+                        <section
+                            className="skFilterSection"
+                            key={section.key}
+                            aria-labelledby={`sk-filter-${section.key}`}
+                        >
+                            <h3
+                                className="skFilterSectionTitle"
+                                id={`sk-filter-${section.key}`}
                             >
-                                {options.map((item) => (
-                                    <option key={item} value={item}>
-                                        {item}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                                {section.title}
+                            </h3>
+
+                            <div
+                                className={`skFilterChoiceGrid ${section.isSort ? "is-sort" : ""}`}
+                            >
+                                {section.options.map((option) => {
+                                    const active =
+                                        draftFilters[section.key] === option;
+
+                                    return (
+                                        <button
+                                            key={option}
+                                            className={`skFilterChoice ${active ? "is-active" : ""}`}
+                                            type="button"
+                                            onClick={() =>
+                                                updateDraftFilter(
+                                                    section.key,
+                                                    option,
+                                                )
+                                            }
+                                        >
+                                            {option}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </section>
                     ))}
                 </div>
 
@@ -949,14 +1000,14 @@ function FilterPanel({
                         type="button"
                         onClick={onReset}
                     >
-                        Reset
+                        Reset Semua
                     </button>
                     <button
                         className="skFooterPrimary"
                         type="button"
                         onClick={onApply}
                     >
-                        Terapkan
+                        Terapkan Filter
                     </button>
                 </div>
             </div>
