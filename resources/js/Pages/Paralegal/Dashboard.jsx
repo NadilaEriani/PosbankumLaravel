@@ -24,6 +24,7 @@ import {
     FiBellOff,
     FiMail,
     FiPhone,
+    FiPlus,
 } from "react-icons/fi";
 
 import logo from "../../assets/logo.png";
@@ -502,8 +503,24 @@ function ConfirmModal({
     );
 }
 
-function EmptyBox({ children }) {
-    return <div className="pb2Empty">{children}</div>;
+function EmptyDashboardState({ icon, title, description, buttonLabel, onAction }) {
+    return (
+        <div className="pb2DashboardEmpty">
+            <div className="pb2DashboardEmptyIcon">{icon}</div>
+            <div className="pb2DashboardEmptyTitle">{title}</div>
+            <div className="pb2DashboardEmptyDesc">{description}</div>
+            {buttonLabel && onAction ? (
+                <button
+                    className="pb2DashboardEmptyAction"
+                    type="button"
+                    onClick={onAction}
+                >
+                    <FiPlus />
+                    {buttonLabel}
+                </button>
+            ) : null}
+        </div>
+    );
 }
 
 export default function PosbankumDashboard({
@@ -928,7 +945,13 @@ export default function PosbankumDashboard({
                             </button>
                         ))
                     ) : (
-                        <EmptyBox>Belum ada kasus.</EmptyBox>
+                        <EmptyDashboardState
+                            icon={<FiFileText />}
+                            title="Belum Ada Kasus"
+                            description="Belum ada kasus terbaru dari seluruh Posbankum Riau"
+                            buttonLabel="Lihat Semua Kasus"
+                            onAction={() => openMenu("Semua Kasus")}
+                        />
                     )}
                 </div>
 
@@ -1010,7 +1033,13 @@ export default function PosbankumDashboard({
                             </button>
                         ))
                     ) : (
-                        <EmptyBox>Belum ada kegiatan.</EmptyBox>
+                        <EmptyDashboardState
+                            icon={<FiCalendar />}
+                            title="Belum Ada Kegiatan"
+                            description="Belum ada kegiatan yang ditambahkan untuk bulan ini"
+                            buttonLabel="Tambah Kegiatan"
+                            onAction={() => openMenu("Kelola Kegiatan")}
+                        />
                     )}
                 </div>
             </div>

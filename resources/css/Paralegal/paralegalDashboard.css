@@ -2467,3 +2467,87 @@ button.pb2CaseCard:active,
 button.pb2KegiatanItem:active {
     transform: translateY(0);
 }
+
+.pb2DashboardEmpty {
+    grid-column: 1 / -1;
+    min-height: 230px;
+    width: 100%;
+    border-radius: 18px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px 36px;
+    color: #4b5563;
+}
+
+.pb2DashboardEmptyIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #98a2b3;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    margin-bottom: 18px;
+}
+
+.pb2DashboardEmptyIcon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.pb2DashboardEmptyTitle {
+    color: #374151;
+    font-size: 13px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.pb2DashboardEmptyDesc {
+    margin-top: 10px;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 500;
+}
+
+.pb2DashboardEmptyAction {
+    min-height: 40px;
+    margin-top: 22px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 14px;
+    background: #3a4070;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
+}
+
+.pb2DashboardEmptyAction svg {
+    width: 14px;
+    height: 14px;
+}
+
+.pb2DashboardEmptyAction:hover,
+.pb2DashboardEmptyAction:focus-visible {
+    background: #3a4070;
+    color: #ffffff;
+    outline: none;
+}
+
+@media (max-width: 720px) {
+    .pb2DashboardEmpty {
+        min-height: 210px;
+        padding: 34px 18px 30px;
+    }
+}
