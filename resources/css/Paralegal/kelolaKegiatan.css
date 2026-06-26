@@ -2105,3 +2105,21 @@
     color: #ffffff !important;
     filter: brightness(1.04);
 }
+
+.kk-list > .kk-emptyCard {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 376px;
+}
+
+.kk-list > .kk-emptyCard.is-loading {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+@media (max-width: 720px) {
+    .kk-list > .kk-emptyCard {
+        min-height: 300px;
+    }
+}
+
