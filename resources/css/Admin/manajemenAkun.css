@@ -2938,7 +2938,7 @@
     }
 }
 
-/* Lebar tombol simpan agar teks tidak padat pada halaman edit. */
+
 .kpSaveBtn {
     min-width: 172px !important;
     white-space: nowrap !important;
@@ -2951,10 +2951,6 @@
     }
 }
 
-/* =========================================================
-   FINAL FIX: Samakan warna tombol halaman tambah/edit/detail
-   dengan tombol Tambah Paralegal.
-   ========================================================= */
 .kpShell .kpAddTop,
 .kpShell .kpPageTop .kpPageActions .kpPageBtnPrimary,
 .kpShell .kpPageTop .kpPageActions .kpPageBtnPrimary.kpSaveBtn,
