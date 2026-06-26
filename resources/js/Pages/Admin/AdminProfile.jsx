@@ -10,16 +10,14 @@ import {
     FiMail,
     FiPhone,
     FiMapPin,
-    FiEyeOff,
-    FiKey,
 } from "react-icons/fi";
 import { BiShield } from "react-icons/bi";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { IoAlertCircleOutline } from "react-icons/io5";
-import { MdOutlineShield } from "react-icons/md";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import posbankum from "../../assets/icon.png";
+import birdIcon from "../../assets/burung5.png";
 import "../../../css/Admin/adminProfile.css";
 
 const INITIAL_FORM = {
@@ -32,12 +30,6 @@ const INITIAL_FORM = {
     unit_kerja: "",
     alamat_kantor: "",
     foto_profile: "",
-};
-
-const INITIAL_PASSWORD = {
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
 };
 
 const EXTENDED_PROFILE_COLUMNS = [
@@ -161,58 +153,6 @@ function getFirstError(
     return fallback;
 }
 
-function getPasswordRules(password) {
-    const value = password || "";
-
-    return [
-        { key: "min", label: "Minimal 8 karakter", valid: value.length >= 8 },
-        {
-            key: "upper",
-            label: "Mengandung huruf besar",
-            valid: /[A-Z]/.test(value),
-        },
-        {
-            key: "lower",
-            label: "Mengandung huruf kecil",
-            valid: /[a-z]/.test(value),
-        },
-        {
-            key: "number",
-            label: "Mengandung angka",
-            valid: /[0-9]/.test(value),
-        },
-    ];
-}
-
-function validateAdminPassword(values) {
-    const errors = {};
-    const next = values.newPassword || "";
-
-    if (!values.currentPassword) {
-        errors.currentPassword = "Password saat ini wajib diisi.";
-    }
-
-    if (!next) {
-        errors.newPassword = "Password baru wajib diisi.";
-    } else if (next.length < 8) {
-        errors.newPassword = "Minimal 8 karakter.";
-    } else if (!/[A-Z]/.test(next)) {
-        errors.newPassword = "Harus mengandung huruf besar.";
-    } else if (!/[a-z]/.test(next)) {
-        errors.newPassword = "Harus mengandung huruf kecil.";
-    } else if (!/[0-9]/.test(next)) {
-        errors.newPassword = "Harus mengandung angka.";
-    }
-
-    if (!values.confirmPassword) {
-        errors.confirmPassword = "Konfirmasi password wajib diisi.";
-    } else if (values.confirmPassword !== next) {
-        errors.confirmPassword = "Konfirmasi password belum sama.";
-    }
-
-    return errors;
-}
-
 function hasExtendedSchema(user) {
     if (!user || typeof user !== "object") return false;
 
@@ -229,16 +169,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
     const [fieldErrors, setFieldErrors] = useState({});
     const [form, setForm] = useState(() => buildFormData(user));
     const [initialForm, setInitialForm] = useState(() => buildFormData(user));
-    const [passwordOpen, setPasswordOpen] = useState(false);
-    const [passwordSaving, setPasswordSaving] = useState(false);
-    const [passwordError, setPasswordError] = useState("");
-    const [passwordFieldErrors, setPasswordFieldErrors] = useState({});
-    const [passwordForm, setPasswordForm] = useState(INITIAL_PASSWORD);
-    const [showPassword, setShowPassword] = useState({
-        currentPassword: false,
-        newPassword: false,
-        confirmPassword: false,
-    });
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [photoFile, setPhotoFile] = useState(null);
@@ -282,11 +212,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                 ? ""
                 : photoPreview || getProfilePhotoUrl(form.foto_profile),
         [form.foto_profile, photoPreview, removePhotoRequested],
-    );
-
-    const passwordRules = useMemo(
-        () => getPasswordRules(passwordForm.newPassword),
-        [passwordForm.newPassword],
     );
 
     const handleChange = (field, value) => {
@@ -467,66 +392,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
         });
     };
 
-    const closePasswordModal = () => {
-        if (passwordSaving) return;
-
-        setPasswordOpen(false);
-        setPasswordForm(INITIAL_PASSWORD);
-        setPasswordError("");
-        setPasswordFieldErrors({});
-        setShowPassword({
-            currentPassword: false,
-            newPassword: false,
-            confirmPassword: false,
-        });
-    };
-
-    const handlePasswordChange = () => {
-        if (passwordSaving) return;
-
-        const errors = validateAdminPassword(passwordForm);
-        setPasswordFieldErrors(errors);
-        setPasswordError("");
-
-        if (Object.keys(errors).length) return;
-
-        setPasswordSaving(true);
-
-        router.post(
-            "/admin/profile/password",
-            {
-                current_password: passwordForm.currentPassword,
-                password: passwordForm.newPassword,
-                password_confirmation: passwordForm.confirmPassword,
-            },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                onSuccess: () => {
-                    closePasswordModal();
-                    setSuccessMessage("Password berhasil diperbarui!");
-                },
-                onError: (errors) => {
-                    const normalizedErrors = {
-                        currentPassword: errors?.current_password,
-                        newPassword: errors?.password,
-                        confirmPassword: errors?.password_confirmation,
-                    };
-
-                    setPasswordFieldErrors((prev) => ({
-                        ...prev,
-                        ...normalizedErrors,
-                    }));
-                    setPasswordError(getFirstError(errors));
-                    setErrorMessage(getFirstError(errors));
-                },
-                onFinish: () => {
-                    setPasswordSaving(false);
-                },
-            },
-        );
-    };
-
     const renderField = (
         label,
         field,
@@ -656,13 +521,11 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                             className={`apf-avatarEditBox ${editing ? "is-editing" : ""}`}
                         >
                             <div className="apf-avatarWrap">
-                                {displayPhoto ? (
-                                    <img
-                                        src={displayPhoto}
-                                        alt="Foto profil admin"
-                                        className="apf-avatar"
-                                    />
-                                ) : null}
+                                <img
+                                    src={displayPhoto || birdIcon}
+                                    alt="Foto profil admin"
+                                    className="apf-avatar"
+                                />
                             </div>
 
                             {editing ? (
@@ -760,7 +623,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                         })}
 
                         {renderField("Nomor Kantor", "nomor_kantor", {
-                            required: true,
                             icon: <FiPhone />,
                             placeholder: "Masukkan nomor kantor",
                         })}
@@ -794,46 +656,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                         })}
                     </div>
 
-                    <div className="apf-divider" />
-
-                    <div className="apf-security">
-                        <div className="apf-securityHead">
-                            <MdOutlineShield /> Keamanan Akun
-                        </div>
-
-                        <div className="apf-securityCard">
-                            <div className="apf-securityCopy">
-                                <div className="apf-securityTitle">
-                                    Password
-                                </div>
-                                <p>
-                                    Ubah password secara berkala untuk menjaga
-                                    keamanan akun Anda. Password harus minimal 8
-                                    karakter dengan kombinasi huruf besar, huruf
-                                    kecil, dan angka.
-                                </p>
-
-                                <div className="apf-securityMeta">
-                                    <IoAlertCircleOutline className="apf-lastChangedIcon" />
-                                    <span>
-                                        Terakhir diubah: mengikuti sistem
-                                        autentikasi aktif
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="apf-securityAction">
-                                <button
-                                    className="apf-btn apf-btnOrange apf-passwordBtn"
-                                    type="button"
-                                    onClick={() => setPasswordOpen(true)}
-                                >
-                                    <FiKey /> Ubah Password
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
                     <div className="apf-infoCard">
                         <IoAlertCircleOutline className="apf-infoIcon" />
                         <div className="apf-infoTextWrap">
@@ -851,218 +673,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                 </div>
             </div>
 
-            {passwordOpen ? (
-                <div className="apf-modalOverlay" role="presentation">
-                    <div className="apf-modal" role="dialog" aria-modal="true">
-                        <div className="apf-modalHead">
-                            <div className="apf-modalTitle">
-                                <FiKey /> Ubah Password
-                            </div>
-                            <button
-                                className="apf-modalClose"
-                                type="button"
-                                onClick={closePasswordModal}
-                                aria-label="Tutup modal password"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <div className="apf-modalBody">
-                            <label className="apf-field is-full">
-                                <span className="apf-label">
-                                    Password Saat Ini{" "}
-                                    <span className="apf-required">*</span>
-                                </span>
-                                <span className="apf-inputWrap">
-                                    <span className="apf-inputIcon">
-                                        <FiKey />
-                                    </span>
-                                    <input
-                                        className="apf-input"
-                                        type={
-                                            showPassword.currentPassword
-                                                ? "text"
-                                                : "password"
-                                        }
-                                        value={passwordForm.currentPassword}
-                                        placeholder="Masukkan password saat ini"
-                                        onChange={(event) =>
-                                            setPasswordForm((prev) => ({
-                                                ...prev,
-                                                currentPassword:
-                                                    event.target.value,
-                                            }))
-                                        }
-                                    />
-                                    <button
-                                        className="apf-eyeBtn"
-                                        type="button"
-                                        onClick={() =>
-                                            setShowPassword((prev) => ({
-                                                ...prev,
-                                                currentPassword:
-                                                    !prev.currentPassword,
-                                            }))
-                                        }
-                                        aria-label="Tampilkan atau sembunyikan password saat ini"
-                                    >
-                                        <FiEyeOff />
-                                    </button>
-                                </span>
-                                {passwordFieldErrors.currentPassword ? (
-                                    <span className="apf-errorText">
-                                        {passwordFieldErrors.currentPassword}
-                                    </span>
-                                ) : null}
-                            </label>
-
-                            <label className="apf-field is-full">
-                                <span className="apf-label">
-                                    Password Baru{" "}
-                                    <span className="apf-required">*</span>
-                                </span>
-                                <span className="apf-inputWrap">
-                                    <span className="apf-inputIcon">
-                                        <FiKey />
-                                    </span>
-                                    <input
-                                        className="apf-input"
-                                        type={
-                                            showPassword.newPassword
-                                                ? "text"
-                                                : "password"
-                                        }
-                                        value={passwordForm.newPassword}
-                                        placeholder="Minimal 8 karakter"
-                                        onChange={(event) =>
-                                            setPasswordForm((prev) => ({
-                                                ...prev,
-                                                newPassword: event.target.value,
-                                            }))
-                                        }
-                                    />
-                                    <button
-                                        className="apf-eyeBtn"
-                                        type="button"
-                                        onClick={() =>
-                                            setShowPassword((prev) => ({
-                                                ...prev,
-                                                newPassword: !prev.newPassword,
-                                            }))
-                                        }
-                                        aria-label="Tampilkan atau sembunyikan password baru"
-                                    >
-                                        <FiEyeOff />
-                                    </button>
-                                </span>
-                                {passwordFieldErrors.newPassword ? (
-                                    <span className="apf-errorText">
-                                        {passwordFieldErrors.newPassword}
-                                    </span>
-                                ) : null}
-                            </label>
-
-                            <ul className="apf-ruleList">
-                                {passwordRules.map((rule) => (
-                                    <li
-                                        key={rule.key}
-                                        className={rule.valid ? "is-valid" : ""}
-                                    >
-                                        {rule.label}
-                                    </li>
-                                ))}
-                            </ul>
-
-                            <label className="apf-field is-full">
-                                <span className="apf-label">
-                                    Konfirmasi Password Baru{" "}
-                                    <span className="apf-required">*</span>
-                                </span>
-                                <span className="apf-inputWrap">
-                                    <span className="apf-inputIcon">
-                                        <FiKey />
-                                    </span>
-                                    <input
-                                        className="apf-input"
-                                        type={
-                                            showPassword.confirmPassword
-                                                ? "text"
-                                                : "password"
-                                        }
-                                        value={passwordForm.confirmPassword}
-                                        placeholder="Ulangi password baru"
-                                        onChange={(event) =>
-                                            setPasswordForm((prev) => ({
-                                                ...prev,
-                                                confirmPassword:
-                                                    event.target.value,
-                                            }))
-                                        }
-                                    />
-                                    <button
-                                        className="apf-eyeBtn"
-                                        type="button"
-                                        onClick={() =>
-                                            setShowPassword((prev) => ({
-                                                ...prev,
-                                                confirmPassword:
-                                                    !prev.confirmPassword,
-                                            }))
-                                        }
-                                        aria-label="Tampilkan atau sembunyikan konfirmasi password"
-                                    >
-                                        <FiEyeOff />
-                                    </button>
-                                </span>
-                                {passwordFieldErrors.confirmPassword ? (
-                                    <span className="apf-errorText">
-                                        {passwordFieldErrors.confirmPassword}
-                                    </span>
-                                ) : null}
-                            </label>
-
-                            {passwordError ? (
-                                <div className="apf-alert is-danger">
-                                    {passwordError}
-                                </div>
-                            ) : null}
-
-                            <div className="apf-passwordInfo">
-                                <div className="apf-passwordInfoTitle">
-                                    <IoAlertCircleOutline /> Keamanan Password
-                                </div>
-                                <p>
-                                    Pastikan password Anda kuat dan tidak mudah
-                                    ditebak. Jangan gunakan password yang sama
-                                    dengan akun lain.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="apf-modalFoot">
-                            <button
-                                className="apf-btn apf-btnGhost apf-btnModal"
-                                type="button"
-                                onClick={closePasswordModal}
-                                disabled={passwordSaving}
-                            >
-                                Batal
-                            </button>
-                            <button
-                                className="apf-btn apf-btnOrange apf-btnModal"
-                                type="button"
-                                onClick={handlePasswordChange}
-                                disabled={passwordSaving}
-                            >
-                                {passwordSaving
-                                    ? "Memproses..."
-                                    : "Ubah Password"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            ) : null}
         </section>
     );
 }

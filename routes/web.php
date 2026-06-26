@@ -15,7 +15,6 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -484,86 +483,6 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
             ->back()
             ->with('success', 'Profil admin berhasil diperbarui.');
     })->name('admin.profile.update');
-
-    Route::post('/admin/profile/password', function (Request $request) {
-        $user = $request->user();
-
-        if (!$user) {
-            abort(403);
-        }
-
-        if ($request->has('currentPassword')) {
-            $request->merge([
-                'current_password' => $request->input('currentPassword'),
-                'password' => $request->input('newPassword'),
-                'password_confirmation' => $request->input('confirmPassword'),
-            ]);
-        }
-
-        $data = $request->validate(
-            [
-                'current_password' => ['required', 'string'],
-                'password' => [
-                    'required',
-                    'string',
-                    'min:8',
-                    'confirmed',
-                    'regex:/[A-Z]/',
-                    'regex:/[a-z]/',
-                    'regex:/[0-9]/',
-                ],
-            ],
-            [
-                'current_password.required' => 'Password saat ini wajib diisi.',
-                'password.required' => 'Password baru wajib diisi.',
-                'password.min' => 'Password baru minimal 8 karakter.',
-                'password.confirmed' => 'Konfirmasi password belum sama.',
-                'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, dan angka.',
-            ]
-        );
-
-        $currentHash = $user->password_hash ?? $user->password ?? null;
-
-        if (!$currentHash || !Hash::check($data['current_password'], $currentHash)) {
-            throw ValidationException::withMessages([
-                'current_password' => 'Password saat ini tidak sesuai.',
-            ]);
-        }
-
-        $payload = [];
-
-        if (Schema::hasColumn('users', 'password_hash')) {
-            $payload['password_hash'] = Hash::make($data['password']);
-        }
-
-        if (Schema::hasColumn('users', 'password')) {
-            $payload['password'] = Hash::make($data['password']);
-        }
-
-        if (Schema::hasColumn('users', 'updated_at')) {
-            $payload['updated_at'] = now();
-        }
-
-        if (empty($payload)) {
-            throw ValidationException::withMessages([
-                'password' => 'Kolom password belum tersedia pada tabel users.',
-            ]);
-        }
-
-        $userKeyColumn = Schema::hasColumn('users', 'id_user') ? 'id_user' : 'id';
-        $userKey = $user->{$userKeyColumn}
-            ?? $user->id_user
-            ?? $user->id
-            ?? $user->getKey();
-
-        DB::table('users')
-            ->where($userKeyColumn, $userKey)
-            ->update($payload);
-
-        return redirect()
-            ->back()
-            ->with('success', 'Password berhasil diperbarui.');
-    })->name('admin.profile.password');
 
     /* Profile */
     Route::get('/profile', [ProfileController::class, 'edit'])
