@@ -1384,6 +1384,7 @@ class DashboardController extends Controller
         $user = $request->user();
         $idPosbankum = $this->resolveUserPosbankumId($user);
         $posbankum = $this->posbankumById($idPosbankum);
+        $semuaKasusRows = $this->semuaKasusRows();
 
         return Inertia::render('Paralegal/Dashboard', [
             'auth' => [
@@ -1396,10 +1397,10 @@ class DashboardController extends Controller
                 'completedActivities' => $this->completedActivitiesCount($idPosbankum),
                 'activeParalegal' => $this->paralegalCount($idPosbankum, $posbankum),
             ],
-            'kasusTerbaru' => $this->latestPengaduan($idPosbankum),
+            'kasusTerbaru' => array_slice($semuaKasusRows, 0, 6),
             'kegiatanTerbaru' => $this->latestKegiatan($idPosbankum),
             'kegiatanRows' => $this->kegiatanRows($idPosbankum),
-            'semuaKasusRows' => $this->semuaKasusRows(),
+            'semuaKasusRows' => $semuaKasusRows,
             'posbankumDocuments' => $this->posbankumDocumentRows($idPosbankum),
             'posbankumLocation' => $this->posbankumLocation($posbankum),
             'notifications' => $this->notifications($idPosbankum),
