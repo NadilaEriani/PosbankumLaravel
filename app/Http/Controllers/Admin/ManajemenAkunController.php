@@ -217,7 +217,11 @@ class ManajemenAkunController extends Controller
         $this->addColumn($payload, 'users', 'nama_lengkap', $data['nama_lengkap']);
         $this->addColumn($payload, 'users', 'name', $data['nama_lengkap']);
         $this->addColumn($payload, 'users', 'email', $data['email']);
-        $this->addColumn($payload, 'users', 'nomor_telepon', $data['nomor_telepon'] ?? null);
+
+        foreach (['nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon'] as $phoneColumn) {
+            $this->addColumn($payload, 'users', $phoneColumn, $data['nomor_telepon'] ?? null);
+        }
+
         $this->addColumn($payload, 'users', 'role', 'paralegal');
         $this->addColumn($payload, 'users', 'id_posbankum', $data['id_posbankum']);
         $this->addColumn($payload, 'users', 'status', 'aktif');
@@ -419,21 +423,21 @@ class ManajemenAkunController extends Controller
             DB::transaction(function () use ($idUser) {
                 $userKeyColumn = $this->userKeyColumn();
 
-                /*
-                 * Hapus relasi paralegal terlebih dahulu.
-                 * Ini supaya data di tabel posbankum_paralegal tidak menyisakan email/user lama.
-                 */
+
+
+
+
                 if ($this->hasTable('posbankum_paralegal')) {
                     DB::table('posbankum_paralegal')
                         ->where('id_user', $idUser)
                         ->delete();
                 }
 
-                /*
-                 * Hapus akun paralegal dari tabel users.
-                 * Dengan ini email benar-benar hilang dari database,
-                 * sehingga bisa digunakan lagi untuk membuat akun baru.
-                 */
+
+
+
+
+
                 DB::table('users')
                     ->where($userKeyColumn, $idUser)
                     ->where('role', 'paralegal')

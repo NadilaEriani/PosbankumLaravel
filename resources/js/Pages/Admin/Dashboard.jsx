@@ -129,199 +129,6 @@ function formatActivityDateTime(value) {
         .replace(".", ":")} WIB`;
 }
 
-function normalizeComparable(value) {
-    return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/^posbankum\s+/i, "")
-        .replace(/\s+/g, " ");
-}
-
-function firstFilledContact(...values) {
-    for (const value of values) {
-        const text = String(value ?? "").trim();
-        if (text && text !== "-" && text.toLowerCase() !== "null") {
-            return text;
-        }
-    }
-
-    return "";
-}
-
-function getRowIdCandidates(row = {}) {
-    return [
-        row.id,
-        row.id_posbankum,
-        row.posbankum_id,
-        row.id_pos,
-        row.value,
-    ]
-        .filter((value) => value !== undefined && value !== null)
-        .map((value) => String(value).trim())
-        .filter(Boolean);
-}
-
-function getPosbankumOnlyIdCandidates(row = {}) {
-    return [
-        row.id_posbankum,
-        row.posbankum_id,
-        row.posbankumId,
-        row.id_pos,
-    ]
-        .filter((value) => value !== undefined && value !== null)
-        .map((value) => String(value).trim())
-        .filter(Boolean);
-}
-
-function getPosbankumName(row = {}) {
-    return normalizeComparable(
-        row.name ||
-            row.nama ||
-            row.nama_posbankum ||
-            row.posbankum_nama ||
-            row.posbankumName ||
-            row.posbankum,
-    );
-}
-
-function findMatchingDetailRow(target = {}, rows = []) {
-    const targetIds = new Set(getRowIdCandidates(target));
-    const targetName = getPosbankumName(target);
-
-    return (
-        rows.find((row) => {
-            const rowIds = getRowIdCandidates(row);
-            if (rowIds.some((id) => targetIds.has(id))) return true;
-
-            const rowName = getPosbankumName(row);
-
-            return targetName && rowName && targetName === rowName;
-        }) || null
-    );
-}
-
-function findFirstParalegalForPosbankum(target = {}, rows = []) {
-    const targetIds = new Set([
-        ...getPosbankumOnlyIdCandidates(target),
-        ...getRowIdCandidates(target),
-    ]);
-    const targetName = getPosbankumName(target);
-
-    const matches = (rows || [])
-        .map((row, index) => ({ row, index }))
-        .filter(({ row }) => {
-            const rowIds = getPosbankumOnlyIdCandidates(row);
-            if (rowIds.some((id) => targetIds.has(id))) return true;
-
-            const rowName = getPosbankumName(row);
-
-            return targetName && rowName && targetName === rowName;
-        });
-
-    if (!matches.length) return null;
-
-    return matches
-        .sort((a, b) => {
-            const aTime = getComparableTime(a.row);
-            const bTime = getComparableTime(b.row);
-
-            if (aTime !== bTime) return aTime - bTime;
-
-            return a.index - b.index;
-        })[0].row;
-}
-
-function getComparableTime(row = {}) {
-    const value = firstFilledContact(
-        row.assigned_at,
-        row.created_at,
-        row.tanggal_daftarkan,
-        row.tanggal_dibuat,
-        row.registered_at,
-        row.updated_at,
-    );
-
-    if (!value) return Number.MAX_SAFE_INTEGER;
-
-    const time = new Date(String(value).replace(" ", "T")).getTime();
-
-    return Number.isNaN(time) ? Number.MAX_SAFE_INTEGER : time;
-}
-
-function mergePosbankumDetail(target = {}, detailRows = [], accountRows = []) {
-    const matched = findMatchingDetailRow(target, detailRows) || {};
-    const paralegal = findFirstParalegalForPosbankum(
-        { ...matched, ...target },
-        accountRows,
-    ) || {};
-    const merged = { ...matched, ...target };
-
-    return {
-        ...merged,
-        name: firstFilledContact(
-            merged.name,
-            merged.nama,
-            merged.nama_posbankum,
-            merged.posbankum,
-        ),
-        address: firstFilledContact(
-            merged.address,
-            merged.alamat,
-            merged.lokasi,
-            merged.wilayah,
-        ),
-        phone: firstFilledContact(
-            paralegal.nomor_telepon,
-            paralegal.nomor_tlp,
-            paralegal.no_hp,
-            paralegal.nomor_hp,
-            paralegal.no_telp,
-            paralegal.telepon,
-            paralegal.phone,
-            merged.phone,
-            merged.nomor_tlp,
-            merged.nomor_telepon,
-            merged.telepon,
-            merged.no_hp,
-            matched.phone,
-            matched.nomor_tlp,
-            matched.nomor_telepon,
-            matched.telepon,
-            matched.no_hp,
-        ),
-        email: firstFilledContact(
-            paralegal.email,
-            paralegal.email_user,
-            paralegal.email_paralegal,
-            paralegal.email_akun,
-            merged.email,
-            merged.email_akun,
-            merged.email_posbankum,
-            matched.email,
-            matched.email_akun,
-            matched.email_posbankum,
-        ),
-        latitude: firstFilledContact(merged.latitude, matched.latitude),
-        longitude: firstFilledContact(merged.longitude, matched.longitude),
-    };
-}
-
-function buildWhatsAppUrl(phone) {
-    const number = String(phone || "").replace(/\D/g, "");
-    if (!number) return "";
-    return `https://wa.me/${number}`;
-}
-
-function buildMapsUrl(item = {}) {
-    if (item.latitude && item.longitude) {
-        return `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`;
-    }
-
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        item.address || item.name || "",
-    )}`;
-}
-
 const ACTIVITY_FILTERS = [
     { key: "today", label: "Hari Ini" },
     { key: "7", label: "7 Hari" },
@@ -350,6 +157,52 @@ function pickTone(type) {
     if (value.includes("berita")) return "orange";
 
     return "blue";
+}
+
+function cleanContactText(value) {
+    const text = String(value ?? "").trim();
+
+    if (!text || text === "-" || text.toLowerCase() === "null") {
+        return "";
+    }
+
+    return text;
+}
+
+function firstContactValue(...values) {
+    for (const value of values) {
+        const text = cleanContactText(value);
+
+        if (text) {
+            return text;
+        }
+    }
+
+    return "";
+}
+
+function normalizePosbankumLookup(value) {
+    return String(value ?? "")
+        .trim()
+        .replace(/^posbankum\s+/i, "")
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+}
+
+function contactDateSortValue(value) {
+    const text = cleanContactText(value);
+
+    if (!text) {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    const date = new Date(text);
+
+    if (Number.isNaN(date.getTime())) {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    return date.getTime();
 }
 
 export default function AdminDashboard() {
@@ -623,19 +476,139 @@ export default function AdminDashboard() {
         ACTIVITY_FILTERS.find((item) => item.key === activityRange)?.label ||
         "Hari Ini";
 
-    const selectedPosDetailData = useMemo(
-        () =>
-            selectedPosDetail
-                ? mergePosbankumDetail(selectedPosDetail, detailRows, accountRows)
-                : null,
-        [selectedPosDetail, detailRows, accountRows],
-    );
+    const selectedModalDetail = useMemo(() => {
+        if (!selectedPosDetail) {
+            return null;
+        }
 
-    const selectedPosDetailPhone = selectedPosDetailData?.phone || "";
-    const selectedPosDetailEmail = selectedPosDetailData?.email || "";
-    const selectedPosDetailWhatsappUrl = buildWhatsAppUrl(
-        selectedPosDetailPhone,
-    );
+        const selectedId = firstContactValue(
+            selectedPosDetail.id,
+            selectedPosDetail.id_posbankum,
+            selectedPosDetail.posbankum_id,
+        );
+        const selectedName = normalizePosbankumLookup(
+            firstContactValue(
+                selectedPosDetail.name,
+                selectedPosDetail.nama,
+                selectedPosDetail.posbankum_nama,
+            ),
+        );
+
+        const isSamePosbankum = (row) => {
+            const rowId = firstContactValue(
+                row?.id,
+                row?.id_posbankum,
+                row?.posbankum_id,
+            );
+
+            if (selectedId && rowId && String(rowId) === String(selectedId)) {
+                return true;
+            }
+
+            const rowName = normalizePosbankumLookup(
+                firstContactValue(
+                    row?.name,
+                    row?.nama,
+                    row?.posbankum_nama,
+                    row?.nama_posbankum,
+                    row?.posbankum,
+                ),
+            );
+
+            return Boolean(selectedName && rowName && selectedName === rowName);
+        };
+
+        const detailMatch = detailRows.find(isSamePosbankum) || {};
+        const firstParalegal =
+            [...accountRows]
+                .filter(isSamePosbankum)
+                .sort(
+                    (a, b) =>
+                        contactDateSortValue(
+                            firstContactValue(
+                                a?.assigned_at,
+                                a?.relasi_created_at,
+                                a?.created_at,
+                            ),
+                        ) -
+                        contactDateSortValue(
+                            firstContactValue(
+                                b?.assigned_at,
+                                b?.relasi_created_at,
+                                b?.created_at,
+                            ),
+                        ),
+                )[0] || {};
+
+        const phone = firstContactValue(
+            selectedPosDetail.paralegalPhone,
+            detailMatch.paralegalPhone,
+            firstParalegal.nomor_telepon,
+            firstParalegal.nomor_tlp,
+            firstParalegal.no_hp,
+            firstParalegal.phone,
+            firstParalegal.telepon,
+            selectedPosDetail.phone,
+            detailMatch.phone,
+            selectedPosDetail.nomor_tlp,
+            detailMatch.nomor_tlp,
+            selectedPosDetail.nomor_telepon,
+            detailMatch.nomor_telepon,
+        );
+
+        const email = firstContactValue(
+            selectedPosDetail.paralegalEmail,
+            detailMatch.paralegalEmail,
+            firstParalegal.email,
+            firstParalegal.email_kantor,
+            firstParalegal.email_akun,
+            selectedPosDetail.email,
+            detailMatch.email,
+            selectedPosDetail.email_akun,
+            detailMatch.email_akun,
+            selectedPosDetail.email_posbankum,
+            detailMatch.email_posbankum,
+        );
+
+        return {
+            ...detailMatch,
+            ...selectedPosDetail,
+            name:
+                firstContactValue(
+                    selectedPosDetail.name,
+                    detailMatch.name,
+                    selectedPosDetail.nama,
+                    detailMatch.nama,
+                    selectedPosDetail.posbankum_nama,
+                    detailMatch.posbankum_nama,
+                ) || "-",
+            address:
+                firstContactValue(
+                    selectedPosDetail.address,
+                    detailMatch.address,
+                    selectedPosDetail.alamat,
+                    detailMatch.alamat,
+                    selectedPosDetail.lokasi,
+                    detailMatch.lokasi,
+                ) || "Alamat belum tersedia",
+            phone: phone || "-",
+            email: email || "-",
+            latitude: firstContactValue(
+                selectedPosDetail.latitude,
+                detailMatch.latitude,
+                selectedPosDetail.lat,
+                detailMatch.lat,
+            ),
+            longitude: firstContactValue(
+                selectedPosDetail.longitude,
+                detailMatch.longitude,
+                selectedPosDetail.lng,
+                detailMatch.lng,
+                selectedPosDetail.long,
+                detailMatch.long,
+            ),
+        };
+    }, [accountRows, detailRows, selectedPosDetail]);
 
     const handleExport = () => {
         const rows = filteredDetailRows.map((row) => ({
@@ -1414,7 +1387,7 @@ export default function AdminDashboard() {
                 </footer>
             </main>
 
-            {selectedPosDetailData ? (
+            {selectedPosDetail && selectedModalDetail ? (
                 <div className="ad-modalOverlay">
                     <div
                         className="ad-modalBackdrop"
@@ -1428,7 +1401,7 @@ export default function AdminDashboard() {
                         <div className="ad-detailModalHead">
                             <div className="ad-detailModalHeadText">
                                 <div className="ad-detailModalTitle">
-                                    {selectedPosDetailData.name || "-"}
+                                    {selectedModalDetail.name}
                                 </div>
                                 <div className="ad-detailModalSub">
                                     Detail Posbankum
@@ -1449,7 +1422,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-blue">
                                     <FiUsers className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetailData.paralegalCount || 0}
+                                        {selectedModalDetail.paralegalCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Paralegal
@@ -1459,7 +1432,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-green">
                                     <FiCalendar className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetailData.activityCount || 0}
+                                        {selectedModalDetail.activityCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Kegiatan
@@ -1469,7 +1442,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-orange">
                                     <TbFileCheck className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetailData.caseCount || 0}
+                                        {selectedModalDetail.caseCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Kasus
@@ -1479,7 +1452,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-blueAlt">
                                     <BsCheck2Circle className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetailData.status || "Aktif"}
+                                        {selectedModalDetail.status || "Aktif"}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Status
@@ -1500,7 +1473,7 @@ export default function AdminDashboard() {
                                                 Alamat
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetailData.address ||
+                                                {selectedModalDetail.address ||
                                                     "-"}
                                             </div>
                                         </div>
@@ -1513,7 +1486,7 @@ export default function AdminDashboard() {
                                                 Telepon
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetailPhone || "-"}
+                                                {selectedModalDetail.phone || "-"}
                                             </div>
                                         </div>
                                     </div>
@@ -1525,7 +1498,7 @@ export default function AdminDashboard() {
                                                 Email
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetailEmail || "-"}
+                                                {selectedModalDetail.email || "-"}
                                             </div>
                                         </div>
                                     </div>
@@ -1535,14 +1508,15 @@ export default function AdminDashboard() {
                                     <button
                                         type="button"
                                         className="ad-detailActionBtn is-green"
-                                        onClick={() => {
-                                            if (!selectedPosDetailWhatsappUrl) return;
+                                        onClick={() =>
                                             window.open(
-                                                selectedPosDetailWhatsappUrl,
+                                                `https://wa.me/${String(
+                                                    selectedModalDetail.phone ||
+                                                        "",
+                                                ).replace(/\D/g, "")}`,
                                                 "_blank",
-                                            );
-                                        }}
-                                        disabled={!selectedPosDetailWhatsappUrl}
+                                            )
+                                        }
                                     >
                                         <FiPhone />
                                         Hubungi
@@ -1553,9 +1527,14 @@ export default function AdminDashboard() {
                                         className="ad-detailActionBtn is-navy"
                                         onClick={() =>
                                             window.open(
-                                                buildMapsUrl(
-                                                    selectedPosDetailData,
-                                                ),
+                                                selectedModalDetail.latitude &&
+                                                    selectedModalDetail.longitude
+                                                    ? `https://www.google.com/maps/search/?api=1&query=${selectedModalDetail.latitude},${selectedModalDetail.longitude}`
+                                                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                                          selectedModalDetail.address ||
+                                                              selectedModalDetail.name ||
+                                                              "",
+                                                      )}`,
                                                 "_blank",
                                             )
                                         }
