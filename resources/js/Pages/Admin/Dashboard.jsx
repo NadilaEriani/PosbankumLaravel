@@ -129,6 +129,117 @@ function formatActivityDateTime(value) {
         .replace(".", ":")} WIB`;
 }
 
+function normalizeComparable(value) {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/^posbankum\s+/i, "")
+        .replace(/\s+/g, " ");
+}
+
+function firstFilledContact(...values) {
+    for (const value of values) {
+        const text = String(value ?? "").trim();
+        if (text && text !== "-" && text.toLowerCase() !== "null") {
+            return text;
+        }
+    }
+
+    return "";
+}
+
+function getRowIdCandidates(row = {}) {
+    return [
+        row.id,
+        row.id_posbankum,
+        row.posbankum_id,
+        row.id_pos,
+        row.value,
+    ]
+        .filter((value) => value !== undefined && value !== null)
+        .map((value) => String(value).trim())
+        .filter(Boolean);
+}
+
+function findMatchingDetailRow(target = {}, rows = []) {
+    const targetIds = new Set(getRowIdCandidates(target));
+    const targetName = normalizeComparable(
+        target.name || target.nama || target.nama_posbankum || target.posbankum,
+    );
+
+    return (
+        rows.find((row) => {
+            const rowIds = getRowIdCandidates(row);
+            if (rowIds.some((id) => targetIds.has(id))) return true;
+
+            const rowName = normalizeComparable(
+                row.name || row.nama || row.nama_posbankum || row.posbankum,
+            );
+
+            return targetName && rowName && targetName === rowName;
+        }) || null
+    );
+}
+
+function mergePosbankumDetail(target = {}, rows = []) {
+    const matched = findMatchingDetailRow(target, rows) || {};
+    const merged = { ...matched, ...target };
+
+    return {
+        ...merged,
+        name: firstFilledContact(
+            merged.name,
+            merged.nama,
+            merged.nama_posbankum,
+            merged.posbankum,
+        ),
+        address: firstFilledContact(
+            merged.address,
+            merged.alamat,
+            merged.lokasi,
+            merged.wilayah,
+        ),
+        phone: firstFilledContact(
+            merged.phone,
+            merged.nomor_tlp,
+            merged.nomor_telepon,
+            merged.telepon,
+            merged.no_hp,
+            matched.phone,
+            matched.nomor_tlp,
+            matched.nomor_telepon,
+            matched.telepon,
+            matched.no_hp,
+        ),
+        email: firstFilledContact(
+            merged.email,
+            merged.email_akun,
+            merged.email_posbankum,
+            matched.email,
+            matched.email_akun,
+            matched.email_posbankum,
+        ),
+        latitude: firstFilledContact(merged.latitude, matched.latitude),
+        longitude: firstFilledContact(merged.longitude, matched.longitude),
+    };
+}
+
+function buildWhatsAppUrl(phone) {
+    const number = String(phone || "").replace(/\D/g, "");
+    if (!number) return "";
+    return `https://wa.me/${number}`;
+}
+
+function buildMapsUrl(item = {}) {
+    if (item.latitude && item.longitude) {
+        return `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}`;
+    }
+
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        item.address || item.name || "",
+    )}`;
+}
+
 const ACTIVITY_FILTERS = [
     { key: "today", label: "Hari Ini" },
     { key: "7", label: "7 Hari" },
@@ -429,6 +540,20 @@ export default function AdminDashboard() {
     const activeActivityFilterLabel =
         ACTIVITY_FILTERS.find((item) => item.key === activityRange)?.label ||
         "Hari Ini";
+
+    const selectedPosDetailData = useMemo(
+        () =>
+            selectedPosDetail
+                ? mergePosbankumDetail(selectedPosDetail, detailRows)
+                : null,
+        [selectedPosDetail, detailRows],
+    );
+
+    const selectedPosDetailPhone = selectedPosDetailData?.phone || "";
+    const selectedPosDetailEmail = selectedPosDetailData?.email || "";
+    const selectedPosDetailWhatsappUrl = buildWhatsAppUrl(
+        selectedPosDetailPhone,
+    );
 
     const handleExport = () => {
         const rows = filteredDetailRows.map((row) => ({
@@ -1207,7 +1332,7 @@ export default function AdminDashboard() {
                 </footer>
             </main>
 
-            {selectedPosDetail ? (
+            {selectedPosDetailData ? (
                 <div className="ad-modalOverlay">
                     <div
                         className="ad-modalBackdrop"
@@ -1221,7 +1346,7 @@ export default function AdminDashboard() {
                         <div className="ad-detailModalHead">
                             <div className="ad-detailModalHeadText">
                                 <div className="ad-detailModalTitle">
-                                    {selectedPosDetail.name}
+                                    {selectedPosDetailData.name || "-"}
                                 </div>
                                 <div className="ad-detailModalSub">
                                     Detail Posbankum
@@ -1242,7 +1367,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-blue">
                                     <FiUsers className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.paralegalCount || 0}
+                                        {selectedPosDetailData.paralegalCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Paralegal
@@ -1252,7 +1377,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-green">
                                     <FiCalendar className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.activityCount || 0}
+                                        {selectedPosDetailData.activityCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Kegiatan
@@ -1262,7 +1387,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-orange">
                                     <TbFileCheck className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.caseCount || 0}
+                                        {selectedPosDetailData.caseCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Kasus
@@ -1272,7 +1397,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-blueAlt">
                                     <BsCheck2Circle className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.status || "Aktif"}
+                                        {selectedPosDetailData.status || "Aktif"}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Status
@@ -1293,7 +1418,7 @@ export default function AdminDashboard() {
                                                 Alamat
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetail.address ||
+                                                {selectedPosDetailData.address ||
                                                     "-"}
                                             </div>
                                         </div>
@@ -1306,7 +1431,7 @@ export default function AdminDashboard() {
                                                 Telepon
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetail.phone || "-"}
+                                                {selectedPosDetailPhone || "-"}
                                             </div>
                                         </div>
                                     </div>
@@ -1318,7 +1443,7 @@ export default function AdminDashboard() {
                                                 Email
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetail.email || "-"}
+                                                {selectedPosDetailEmail || "-"}
                                             </div>
                                         </div>
                                     </div>
@@ -1328,15 +1453,14 @@ export default function AdminDashboard() {
                                     <button
                                         type="button"
                                         className="ad-detailActionBtn is-green"
-                                        onClick={() =>
+                                        onClick={() => {
+                                            if (!selectedPosDetailWhatsappUrl) return;
                                             window.open(
-                                                `https://wa.me/${String(
-                                                    selectedPosDetail.phone ||
-                                                        "",
-                                                ).replace(/\D/g, "")}`,
+                                                selectedPosDetailWhatsappUrl,
                                                 "_blank",
-                                            )
-                                        }
+                                            );
+                                        }}
+                                        disabled={!selectedPosDetailWhatsappUrl}
                                     >
                                         <FiPhone />
                                         Hubungi
@@ -1347,14 +1471,9 @@ export default function AdminDashboard() {
                                         className="ad-detailActionBtn is-navy"
                                         onClick={() =>
                                             window.open(
-                                                selectedPosDetail.latitude &&
-                                                    selectedPosDetail.longitude
-                                                    ? `https://www.google.com/maps/search/?api=1&query=${selectedPosDetail.latitude},${selectedPosDetail.longitude}`
-                                                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                                          selectedPosDetail.address ||
-                                                              selectedPosDetail.name ||
-                                                              "",
-                                                      )}`,
+                                                buildMapsUrl(
+                                                    selectedPosDetailData,
+                                                ),
                                                 "_blank",
                                             )
                                         }
