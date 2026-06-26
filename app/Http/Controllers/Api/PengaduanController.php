@@ -18,12 +18,12 @@ class PengaduanController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $query = null;
 
         if ($user->role === 'warga') {
-            $data = DB::table('pengaduan')
+            $query = DB::table('pengaduan')
                 ->where('user_id', $user->id_user)
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->orderBy('created_at', 'desc');
 
         } elseif ($user->role === 'paralegal') {
             // Ambil id_kelurahan dari posbankum tempat paralegal bertugas
@@ -36,7 +36,7 @@ class PengaduanController extends Controller
 
             if ($id_kelurahan_posbankum) {
                 // Ambil pengaduan dimana warga pengaju tinggal di kelurahan yang sama
-                $data = DB::table('pengaduan as p')
+                $query = DB::table('pengaduan as p')
                     ->join('masyarakat as m', 'm.id_user', '=', 'p.user_id')
                     ->where('m.id_kelurahan', $id_kelurahan_posbankum)
                     ->select([
@@ -69,11 +69,18 @@ class PengaduanController extends Controller
                             ) AS priority_score
                         ")
                     ])
-                    ->orderBy('priority_score', 'desc')
-                    ->get();
+                    ->orderBy('priority_score', 'desc');
+            }
+        }
+
+        if ($query) {
+            if ($request->has('page') || $request->has('limit')) {
+                $limit = (int) $request->input('limit', 10);
+                $page = (int) $request->input('page', 1);
+                $offset = ($page - 1) * $limit;
+                $data = $query->limit($limit)->offset($offset)->get();
             } else {
-                // Paralegal belum ditugaskan ke posbankum manapun
-                $data = collect([]);
+                $data = $query->get();
             }
         } else {
             $data = collect([]);
