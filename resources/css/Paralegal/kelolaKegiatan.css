@@ -971,7 +971,7 @@
     }
 }
 
-/* ===== Hover & Action States ===== */
+
 .kk-wrap button,
 .kk-wrap [role="button"] {
     transition:
@@ -998,7 +998,7 @@
     transform: translateY(0);
 }
 
-/* ===== Revisi: empty state & search hover ===== */
+
 .kk-search {
     transition:
         border-color 0.18s ease,
@@ -1074,7 +1074,7 @@
     font-weight: 700;
 }
 
-/* ===== Pop up kirim ulang kegiatan ditolak ===== */
+
 .kk-resubmit-overlay {
     position: fixed;
     inset: 0;
@@ -1206,7 +1206,7 @@
     }
 }
 
-/* ===== Revisi anggota terlibat & detail lengkap kegiatan ===== */
+
 .kk-memberSelectBox {
     width: 100%;
     padding: 14px;
@@ -1316,10 +1316,7 @@
     }
 }
 
-/* =========================================================
-   Sinkron layout dengan paralegalDashboard.css
-   Judul, padding konten, dan jarak halaman utama diambil dari .pb2Top/.pb2Content.
-========================================================= */
+
 .kk-wrap {
     padding: 0;
     width: 100%;
@@ -1344,7 +1341,7 @@
     }
 }
 
-/* ===== Mobile polish - Kelola Kegiatan ===== */
+
 @media (max-width: 768px) {
     .kk-wrap {
         width: 100%;
@@ -1421,7 +1418,7 @@
     }
 }
 
-/* ===== Revisi modal mobile Kelola Kegiatan: scroll dikunci di modal ===== */
+
 .kk-modal-overlay,
 .kk-detail-overlay,
 .kk-resubmit-overlay,
@@ -1471,10 +1468,7 @@
     }
 }
 
-/* =========================================================
-   Revisi content Kelola Kegiatan Paralegal: tambah, edit, detail
-   Mengikuti template halaman penuh, bukan modal overlay.
-========================================================= */
+
 .kk-pageMode,
 .kk-listPageHeading {
     font-family:
@@ -2078,4 +2072,36 @@
     .kk-documentUpload.has-image {
         min-height: 140px;
     }
+}
+
+.kk-topBtnPrimary,
+.kk-closeDetailBtn,
+.kk-btn-primary {
+    background: var(--kk-blue-2) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(47, 53, 105, 0.18) !important;
+}
+
+.kk-topBtnPrimary:hover:not(:disabled),
+.kk-closeDetailBtn:hover:not(:disabled),
+.kk-btn-primary:hover:not(:disabled) {
+    background: var(--kk-blue-2) !important;
+    color: #ffffff !important;
+    filter: brightness(1.04);
+}
+
+.kk-modal-close,
+.kk-detail-close,
+.kk-detail-closeBtn {
+    background: var(--kk-blue-2) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(47, 53, 105, 0.18) !important;
+}
+
+.kk-modal-close:hover:not(:disabled),
+.kk-detail-close:hover:not(:disabled),
+.kk-detail-closeBtn:hover:not(:disabled) {
+    background: var(--kk-blue-2) !important;
+    color: #ffffff !important;
+    filter: brightness(1.04);
 }
