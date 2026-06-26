@@ -1329,3 +1329,34 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== FIX: pusatkan icon pada empty state Semua Kasus ===== */
+.skEmptyCard {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.skEmptyCard > div {
+    width: 100%;
+    max-width: 520px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.skEmptyCard svg {
+    display: block;
+    margin: 0 auto 12px;
+    align-self: center;
+}
+
+.skEmptyCard h2,
+.skEmptyCard p {
+    width: 100%;
+    text-align: center;
+}
