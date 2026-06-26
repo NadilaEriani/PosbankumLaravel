@@ -673,8 +673,6 @@ export default function PosbankumDashboard({
         );
     }, [posbankum?.alamat, posbankum?.address, auth?.user?.email]);
 
-    // Navbar/topbar harus tetap menampilkan identitas Posbankum seperti halaman Beranda,
-    // meskipun menu konten yang dibuka berbeda.
     const pageTitle = headerTitle;
     const pageSub = headerSub;
 
@@ -687,6 +685,32 @@ export default function PosbankumDashboard({
         }
 
         setActive(label);
+    };
+
+    const openCaseDetailFromDashboard = (item) => {
+        if (!item?.id) return;
+
+        setNotifSelectedId(null);
+        setActive("Semua Kasus");
+        setPageTarget((prev) => ({
+            type: "kasus",
+            id: item.id,
+            tick: prev.tick + 1,
+        }));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const openActivityDetailFromDashboard = (item) => {
+        if (!item?.id) return;
+
+        setNotifSelectedId(null);
+        setActive("Kelola Kegiatan");
+        setPageTarget((prev) => ({
+            type: "kegiatan",
+            id: item.id,
+            tick: prev.tick + 1,
+        }));
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleLogout = () => {
@@ -864,7 +888,15 @@ export default function PosbankumDashboard({
                 <div className="pb2CaseGrid">
                     {caseRows.length ? (
                         caseRows.slice(0, 4).map((item) => (
-                            <div className="pb2CaseCard" key={item.id}>
+                            <button
+                                className="pb2CaseCard"
+                                key={item.id}
+                                type="button"
+                                onClick={() =>
+                                    openCaseDetailFromDashboard(item)
+                                }
+                                aria-label={`Buka detail kasus ${item.judul}`}
+                            >
                                 <div
                                     className={`pb2CaseIcon ${item.selesai ? "green" : "orange"}`}
                                 >
@@ -893,7 +925,7 @@ export default function PosbankumDashboard({
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         ))
                     ) : (
                         <EmptyBox>Belum ada kasus.</EmptyBox>
@@ -930,7 +962,15 @@ export default function PosbankumDashboard({
                 <div className="pb2KegiatanList">
                     {activityRows.length ? (
                         activityRows.slice(0, 4).map((item) => (
-                            <div className="pb2KegiatanItem" key={item.id}>
+                            <button
+                                className="pb2KegiatanItem"
+                                key={item.id}
+                                type="button"
+                                onClick={() =>
+                                    openActivityDetailFromDashboard(item)
+                                }
+                                aria-label={`Buka detail kegiatan ${item.judul}`}
+                            >
                                 <div className="pb2KegiatanIcon">
                                     <FiCheckCircle />
                                 </div>
@@ -967,7 +1007,7 @@ export default function PosbankumDashboard({
                                 >
                                     {item.status}
                                 </span>
-                            </div>
+                            </button>
                         ))
                     ) : (
                         <EmptyBox>Belum ada kegiatan.</EmptyBox>
@@ -1022,7 +1062,7 @@ export default function PosbankumDashboard({
     const renderKelolaKegiatan = () => (
         <section className="pb2Content pb2ContentWithHeading">
             <KelolaKegiatan
-                kegiatanRows={kegiatanRows}
+                kegiatanRows={kegiatanRows?.length ? kegiatanRows : kegiatanTerbaru}
                 paralegalOptions={paralegalOptions}
                 currentPosbankum={currentPosbankum || posbankum}
                 profile={auth?.user || {}}
