@@ -684,3 +684,50 @@
         height: 19px !important;
     }
 }
+
+/* ===== FIX FINAL: tombol kembali dan batal dibuat lebih gelap agar jelas ===== */
+.apf-page .apf-backBtn {
+    background: #3e4480 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    box-shadow: 0 14px 28px rgba(62, 68, 128, 0.26) !important;
+}
+
+.apf-page .apf-backBtn:hover:not(:disabled),
+.apf-page .apf-backBtn:focus-visible:not(:disabled) {
+    background: #34396f !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 16px 30px rgba(62, 68, 128, 0.32) !important;
+}
+
+.apf-page .apf-backBtn svg {
+    color: #ffffff !important;
+    stroke: currentColor !important;
+}
+
+.apf-page .apf-btnGhost {
+    background: #3e4480 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    box-shadow: 0 14px 28px rgba(62, 68, 128, 0.26) !important;
+}
+
+.apf-page .apf-btnGhost:hover:not(:disabled),
+.apf-page .apf-btnGhost:focus-visible:not(:disabled) {
+    background: #34396f !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 16px 30px rgba(62, 68, 128, 0.32) !important;
+}
+
+.apf-page .apf-btnGhost:disabled {
+    background: #3e4480 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}
