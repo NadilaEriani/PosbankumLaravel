@@ -731,3 +731,82 @@
     opacity: 1 !important;
     cursor: not-allowed !important;
 }
+
+/* ===== FINAL REQUEST: tombol Kembali dan Batal warna #898989 ===== */
+.apf-page .apf-backBtn,
+.apf-page .apf-btnGhost {
+    background: #898989 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    border: 0 !important;
+    box-shadow: 0 14px 28px rgba(137, 137, 137, 0.28) !important;
+}
+
+.apf-page .apf-backBtn:hover:not(:disabled),
+.apf-page .apf-backBtn:focus-visible:not(:disabled),
+.apf-page .apf-btnGhost:hover:not(:disabled),
+.apf-page .apf-btnGhost:focus-visible:not(:disabled) {
+    background: #898989 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    filter: brightness(0.96) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 16px 30px rgba(137, 137, 137, 0.34) !important;
+}
+
+.apf-page .apf-backBtn:active:not(:disabled),
+.apf-page .apf-btnGhost:active:not(:disabled) {
+    background: #898989 !important;
+    filter: brightness(0.92) !important;
+    transform: translateY(0) !important;
+}
+
+.apf-page .apf-btnGhost:disabled {
+    background: #898989 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}
+
+.apf-page .apf-backBtn svg,
+.apf-page .apf-btnGhost svg {
+    color: #ffffff !important;
+    stroke: currentColor !important;
+}
+
+/* ===== FINAL REQUEST: tombol Simpan Perubahan warna #16A34A ===== */
+.apf-page .apf-btnPrimary {
+    background: #16A34A !important;
+    color: #ffffff !important;
+    border: 0 !important;
+    opacity: 1 !important;
+    box-shadow: 0 14px 28px rgba(22, 163, 74, 0.24) !important;
+}
+
+.apf-page .apf-btnPrimary:hover:not(:disabled),
+.apf-page .apf-btnPrimary:focus-visible:not(:disabled) {
+    background: #16A34A !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    filter: brightness(0.96) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 16px 30px rgba(22, 163, 74, 0.32) !important;
+}
+
+.apf-page .apf-btnPrimary:active:not(:disabled) {
+    background: #16A34A !important;
+    filter: brightness(0.92) !important;
+    transform: translateY(0) !important;
+}
+
+.apf-page .apf-btnPrimary:disabled {
+    background: #16A34A !important;
+    color: #ffffff !important;
+    opacity: 0.75 !important;
+    cursor: not-allowed !important;
+}
+
+.apf-page .apf-btnPrimary svg {
+    color: #ffffff !important;
+    stroke: currentColor !important;
+}
