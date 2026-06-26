@@ -204,7 +204,14 @@ class UploadController extends Controller
             }
         }
 
-        $filePath = storage_path('app/' . $path);
+        // Coba cari di disk local privat Laravel 11 (app/private)
+        $filePath = Storage::disk('local')->path($path);
+        
+        // Fallback ke folder storage lama (app/) jika tidak ditemukan
+        if (!file_exists($filePath)) {
+            $filePath = storage_path('app/' . $path);
+        }
+
         if (!file_exists($filePath)) {
             return response()->json(['status' => false, 'message' => 'File fisik tidak ditemukan di server'], 404);
         }
