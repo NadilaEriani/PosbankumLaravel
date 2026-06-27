@@ -1207,7 +1207,7 @@
     }
 }
 
-/* ===== Hover & Action States ===== */
+
 .pb2Root button,
 .pb2Root [role="button"] {
     transition:
@@ -1266,10 +1266,7 @@
     }
 }
 
-/* =========================================================
-   Laravel Inertia compatibility additions
-   Tetap memakai warna, font, radius, dan style dari referensi.
-========================================================= */
+
 .pb2InfoGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1403,11 +1400,7 @@
     }
 }
 
-/* =========================================================
-   Judul umum halaman konten paralegal
-   Dipakai oleh menu seperti Kelola Kegiatan dan Laporan Pelayanan.
-   Bukan card, hanya heading standar agar semua menu serasi.
-========================================================= */
+
 .pb2ContentWithHeading {
     gap: 22px;
 }
@@ -1452,7 +1445,7 @@
     }
 }
 
-/* ===== Mobile polish - Paralegal dashboard/layout ===== */
+
 @media (max-width: 860px) {
     .pb2Root {
         display: block;
@@ -1642,10 +1635,7 @@
     }
 }
 
-/* =========================================================
-   Samakan navbar mobile paralegal dengan tampilan mobile admin
-   Hanya mengubah area sidebar/brand/nav pada ukuran mobile.
-========================================================= */
+
 @media (max-width: 860px) {
     html,
     body {
@@ -1769,7 +1759,7 @@
     }
 }
 
-/* ===== Revisi modal mobile paralegal: area scroll tetap di dalam modal ===== */
+
 .pb2NotifOverlay,
 .pb2ConfirmOverlay {
     overscroll-behavior: contain;
@@ -1823,10 +1813,7 @@
     }
 }
 
-/* =========================================================
-   FINAL FIX - Mobile navbar paralegal mengikuti pola admin
-   Logo menjadi pemicu profil paralegal.
-========================================================= */
+
 @media (max-width: 768px) {
     .pb2Root {
         display: block;
@@ -1973,7 +1960,7 @@
     }
 }
 
-/* ===== Revisi notifikasi: kartu langsung membuka halaman terkait, tanpa panel detail ===== */
+
 .pb2Root,
 .pb2Root button,
 .pb2Root input,
@@ -2012,10 +1999,7 @@
     }
 }
 
-/* =========================================================
-   Halaman Notifikasi Posbankum
-   Mengikuti style content referensi; navbar/sidebar tetap tidak diubah.
-========================================================= */
+
 .pb2NotifPageContent {
     padding: 30px 56px 30px;
     display: block;
@@ -2303,10 +2287,7 @@
     }
 }
 
-/* =========================================================
-   Revisi Notifikasi - pagination 10 item dan icon laporan pesan
-   Warna mengikuti palet halaman yang sudah ada.
-========================================================= */
+
 .pb2NotifPagination {
     width: 100%;
     margin-top: 18px;
@@ -2451,5 +2432,122 @@
         width: 40px;
         height: 40px;
         font-size: 15px;
+    }
+}
+
+button.pb2CaseCard,
+button.pb2KegiatanItem {
+    width: 100%;
+    border: 1px solid #e6e9ef;
+    font: inherit;
+    text-align: left;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+button.pb2CaseCard {
+    align-items: flex-start;
+}
+
+button.pb2KegiatanItem {
+    text-align: left;
+}
+
+button.pb2CaseCard:hover,
+button.pb2CaseCard:focus-visible,
+button.pb2KegiatanItem:hover,
+button.pb2KegiatanItem:focus-visible {
+    border-color: #3a4070;
+    box-shadow: 0 10px 22px rgba(43, 48, 86, 0.14);
+    outline: none;
+}
+
+button.pb2CaseCard:active,
+button.pb2KegiatanItem:active {
+    transform: translateY(0);
+}
+
+.pb2DashboardEmpty {
+    grid-column: 1 / -1;
+    min-height: 230px;
+    width: 100%;
+    border-radius: 18px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px 36px;
+    color: #4b5563;
+}
+
+.pb2DashboardEmptyIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #98a2b3;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    margin-bottom: 18px;
+}
+
+.pb2DashboardEmptyIcon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.pb2DashboardEmptyTitle {
+    color: #374151;
+    font-size: 13px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.pb2DashboardEmptyDesc {
+    margin-top: 10px;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 500;
+}
+
+.pb2DashboardEmptyAction {
+    min-height: 40px;
+    margin-top: 22px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 14px;
+    background: #3a4070;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
+}
+
+.pb2DashboardEmptyAction svg {
+    width: 14px;
+    height: 14px;
+}
+
+.pb2DashboardEmptyAction:hover,
+.pb2DashboardEmptyAction:focus-visible {
+    background: #3a4070;
+    color: #ffffff;
+    outline: none;
+}
+
+@media (max-width: 720px) {
+    .pb2DashboardEmpty {
+        min-height: 210px;
+        padding: 34px 18px 30px;
     }
 }

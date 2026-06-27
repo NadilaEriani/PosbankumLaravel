@@ -159,6 +159,52 @@ function pickTone(type) {
     return "blue";
 }
 
+function cleanContactText(value) {
+    const text = String(value ?? "").trim();
+
+    if (!text || text === "-" || text.toLowerCase() === "null") {
+        return "";
+    }
+
+    return text;
+}
+
+function firstContactValue(...values) {
+    for (const value of values) {
+        const text = cleanContactText(value);
+
+        if (text) {
+            return text;
+        }
+    }
+
+    return "";
+}
+
+function normalizePosbankumLookup(value) {
+    return String(value ?? "")
+        .trim()
+        .replace(/^posbankum\s+/i, "")
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+}
+
+function contactDateSortValue(value) {
+    const text = cleanContactText(value);
+
+    if (!text) {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    const date = new Date(text);
+
+    if (Number.isNaN(date.getTime())) {
+        return Number.MAX_SAFE_INTEGER;
+    }
+
+    return date.getTime();
+}
+
 export default function AdminDashboard() {
     const { props, url } = usePage();
 
@@ -429,6 +475,140 @@ export default function AdminDashboard() {
     const activeActivityFilterLabel =
         ACTIVITY_FILTERS.find((item) => item.key === activityRange)?.label ||
         "Hari Ini";
+
+    const selectedModalDetail = useMemo(() => {
+        if (!selectedPosDetail) {
+            return null;
+        }
+
+        const selectedId = firstContactValue(
+            selectedPosDetail.id,
+            selectedPosDetail.id_posbankum,
+            selectedPosDetail.posbankum_id,
+        );
+        const selectedName = normalizePosbankumLookup(
+            firstContactValue(
+                selectedPosDetail.name,
+                selectedPosDetail.nama,
+                selectedPosDetail.posbankum_nama,
+            ),
+        );
+
+        const isSamePosbankum = (row) => {
+            const rowId = firstContactValue(
+                row?.id,
+                row?.id_posbankum,
+                row?.posbankum_id,
+            );
+
+            if (selectedId && rowId && String(rowId) === String(selectedId)) {
+                return true;
+            }
+
+            const rowName = normalizePosbankumLookup(
+                firstContactValue(
+                    row?.name,
+                    row?.nama,
+                    row?.posbankum_nama,
+                    row?.nama_posbankum,
+                    row?.posbankum,
+                ),
+            );
+
+            return Boolean(selectedName && rowName && selectedName === rowName);
+        };
+
+        const detailMatch = detailRows.find(isSamePosbankum) || {};
+        const firstParalegal =
+            [...accountRows]
+                .filter(isSamePosbankum)
+                .sort(
+                    (a, b) =>
+                        contactDateSortValue(
+                            firstContactValue(
+                                a?.assigned_at,
+                                a?.relasi_created_at,
+                                a?.created_at,
+                            ),
+                        ) -
+                        contactDateSortValue(
+                            firstContactValue(
+                                b?.assigned_at,
+                                b?.relasi_created_at,
+                                b?.created_at,
+                            ),
+                        ),
+                )[0] || {};
+
+        const phone = firstContactValue(
+            selectedPosDetail.paralegalPhone,
+            detailMatch.paralegalPhone,
+            firstParalegal.nomor_telepon,
+            firstParalegal.nomor_tlp,
+            firstParalegal.no_hp,
+            firstParalegal.phone,
+            firstParalegal.telepon,
+            selectedPosDetail.phone,
+            detailMatch.phone,
+            selectedPosDetail.nomor_tlp,
+            detailMatch.nomor_tlp,
+            selectedPosDetail.nomor_telepon,
+            detailMatch.nomor_telepon,
+        );
+
+        const email = firstContactValue(
+            selectedPosDetail.paralegalEmail,
+            detailMatch.paralegalEmail,
+            firstParalegal.email,
+            firstParalegal.email_kantor,
+            firstParalegal.email_akun,
+            selectedPosDetail.email,
+            detailMatch.email,
+            selectedPosDetail.email_akun,
+            detailMatch.email_akun,
+            selectedPosDetail.email_posbankum,
+            detailMatch.email_posbankum,
+        );
+
+        return {
+            ...detailMatch,
+            ...selectedPosDetail,
+            name:
+                firstContactValue(
+                    selectedPosDetail.name,
+                    detailMatch.name,
+                    selectedPosDetail.nama,
+                    detailMatch.nama,
+                    selectedPosDetail.posbankum_nama,
+                    detailMatch.posbankum_nama,
+                ) || "-",
+            address:
+                firstContactValue(
+                    selectedPosDetail.address,
+                    detailMatch.address,
+                    selectedPosDetail.alamat,
+                    detailMatch.alamat,
+                    selectedPosDetail.lokasi,
+                    detailMatch.lokasi,
+                ) || "Alamat belum tersedia",
+            phone: phone || "-",
+            email: email || "-",
+            latitude: firstContactValue(
+                selectedPosDetail.latitude,
+                detailMatch.latitude,
+                selectedPosDetail.lat,
+                detailMatch.lat,
+            ),
+            longitude: firstContactValue(
+                selectedPosDetail.longitude,
+                detailMatch.longitude,
+                selectedPosDetail.lng,
+                detailMatch.lng,
+                selectedPosDetail.long,
+                detailMatch.long,
+            ),
+        };
+    }, [accountRows, detailRows, selectedPosDetail]);
 
     const handleExport = () => {
         const rows = filteredDetailRows.map((row) => ({
@@ -1207,7 +1387,7 @@ export default function AdminDashboard() {
                 </footer>
             </main>
 
-            {selectedPosDetail ? (
+            {selectedPosDetail && selectedModalDetail ? (
                 <div className="ad-modalOverlay">
                     <div
                         className="ad-modalBackdrop"
@@ -1221,7 +1401,7 @@ export default function AdminDashboard() {
                         <div className="ad-detailModalHead">
                             <div className="ad-detailModalHeadText">
                                 <div className="ad-detailModalTitle">
-                                    {selectedPosDetail.name}
+                                    {selectedModalDetail.name}
                                 </div>
                                 <div className="ad-detailModalSub">
                                     Detail Posbankum
@@ -1242,7 +1422,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-blue">
                                     <FiUsers className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.paralegalCount || 0}
+                                        {selectedModalDetail.paralegalCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Paralegal
@@ -1252,7 +1432,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-green">
                                     <FiCalendar className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.activityCount || 0}
+                                        {selectedModalDetail.activityCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Kegiatan
@@ -1262,7 +1442,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-orange">
                                     <TbFileCheck className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.caseCount || 0}
+                                        {selectedModalDetail.caseCount || 0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Kasus
@@ -1272,7 +1452,7 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-blueAlt">
                                     <BsCheck2Circle className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedPosDetail.status || "Aktif"}
+                                        {selectedModalDetail.status || "Aktif"}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Status
@@ -1293,7 +1473,7 @@ export default function AdminDashboard() {
                                                 Alamat
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetail.address ||
+                                                {selectedModalDetail.address ||
                                                     "-"}
                                             </div>
                                         </div>
@@ -1306,7 +1486,7 @@ export default function AdminDashboard() {
                                                 Telepon
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetail.phone || "-"}
+                                                {selectedModalDetail.phone || "-"}
                                             </div>
                                         </div>
                                     </div>
@@ -1318,7 +1498,7 @@ export default function AdminDashboard() {
                                                 Email
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedPosDetail.email || "-"}
+                                                {selectedModalDetail.email || "-"}
                                             </div>
                                         </div>
                                     </div>
@@ -1331,7 +1511,7 @@ export default function AdminDashboard() {
                                         onClick={() =>
                                             window.open(
                                                 `https://wa.me/${String(
-                                                    selectedPosDetail.phone ||
+                                                    selectedModalDetail.phone ||
                                                         "",
                                                 ).replace(/\D/g, "")}`,
                                                 "_blank",
@@ -1347,12 +1527,12 @@ export default function AdminDashboard() {
                                         className="ad-detailActionBtn is-navy"
                                         onClick={() =>
                                             window.open(
-                                                selectedPosDetail.latitude &&
-                                                    selectedPosDetail.longitude
-                                                    ? `https://www.google.com/maps/search/?api=1&query=${selectedPosDetail.latitude},${selectedPosDetail.longitude}`
+                                                selectedModalDetail.latitude &&
+                                                    selectedModalDetail.longitude
+                                                    ? `https://www.google.com/maps/search/?api=1&query=${selectedModalDetail.latitude},${selectedModalDetail.longitude}`
                                                     : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                                          selectedPosDetail.address ||
-                                                              selectedPosDetail.name ||
+                                                          selectedModalDetail.address ||
+                                                              selectedModalDetail.name ||
                                                               "",
                                                       )}`,
                                                 "_blank",

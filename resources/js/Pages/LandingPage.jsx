@@ -14,11 +14,7 @@ import { BiRightArrowAlt, BiFile, BiShield } from "react-icons/bi";
 import { MdLanguage } from "react-icons/md";
 import { BsTelephone, BsClock, BsInstagram } from "react-icons/bs";
 import { BsFillPersonCheckFill } from "react-icons/bs";
-import {
-    TbArrowBarRight,
-    TbArrowsDiagonal,
-    TbArrowsDiagonalMinimize,
-} from "react-icons/tb";
+import { TbArrowBarRight } from "react-icons/tb";
 import {
     FiUsers,
     FiSearch,
@@ -442,14 +438,14 @@ function MapInfoPopup({ location, position }) {
     );
 }
 
-function ChatbotPanel({ open, large, onToggleLarge, onClose }) {
+function ChatbotPanel({ open, onClose }) {
     const [message, setMessage] = useState("");
     const hasMessage = message.trim().length > 0;
 
     if (!open) return null;
 
     return (
-        <div className={`lp-chatbot-panel ${large ? "is-large" : ""}`}>
+        <div className="lp-chatbot-panel">
             <div className="lp-chatbot-header">
                 <div className="lp-chatbot-title-wrap">
                     <span className="lp-chatbot-logo">
@@ -466,20 +462,6 @@ function ChatbotPanel({ open, large, onToggleLarge, onClose }) {
                 </div>
 
                 <div className="lp-chatbot-controls">
-                    <button
-                        type="button"
-                        onClick={onToggleLarge}
-                        aria-label={
-                            large ? "Perkecil chatbot" : "Perbesar chatbot"
-                        }
-                    >
-                        {large ? (
-                            <TbArrowsDiagonalMinimize />
-                        ) : (
-                            <TbArrowsDiagonal />
-                        )}
-                    </button>
-
                     <button
                         type="button"
                         onClick={onClose}
@@ -901,7 +883,6 @@ export default function LandingPage({
     const [mapSize, setMapSize] = useState({ width: 760, height: 560 });
     const [userMapMarker, setUserMapMarker] = useState(null);
     const [chatbotOpen, setChatbotOpen] = useState(false);
-    const [chatbotLarge, setChatbotLarge] = useState(false);
     const [showAllLocations, setShowAllLocations] = useState(false);
     const [allSearchTerm, setAllSearchTerm] = useState("");
 
@@ -1980,8 +1961,6 @@ export default function LandingPage({
 
             <ChatbotPanel
                 open={chatbotOpen}
-                large={chatbotLarge}
-                onToggleLarge={() => setChatbotLarge((value) => !value)}
                 onClose={() => setChatbotOpen(false)}
             />
 

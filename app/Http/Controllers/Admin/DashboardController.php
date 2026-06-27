@@ -300,6 +300,99 @@ class DashboardController extends Controller
         return (string) $this->rowValue($row, ['email_akun', 'email', 'email_posbankum'], '-');
     }
 
+    private function cleanContactValue(mixed $value): string
+    {
+        $text = trim((string) ($value ?? ''));
+
+        if ($text === '' || $text === '-' || strtolower($text) === 'null') {
+            return '';
+        }
+
+        return $text;
+    }
+
+    private function firstParalegalContactsByPosbankum(array $ids): array
+    {
+        if (empty($ids) || !$this->hasTable('users') || !$this->hasColumn('posbankum_paralegal', 'id_user') || !$this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            return [];
+        }
+
+        $userKey = $this->hasColumn('users', 'id_user') ? 'id_user' : 'id';
+        $query = DB::table('posbankum_paralegal as pp')
+            ->join('users as u', 'u.' . $userKey, '=', 'pp.id_user')
+            ->whereIn('pp.id_posbankum', $ids);
+
+        if ($this->hasColumn('posbankum_paralegal', 'status')) {
+            $query->where('pp.status', 'aktif');
+        }
+
+        if ($this->hasColumn('users', 'role')) {
+            $query->where('u.role', 'paralegal');
+        }
+
+        if ($this->hasColumn('users', 'status')) {
+            $query->where('u.status', 'aktif');
+        }
+
+        $select = [
+            'pp.id_posbankum',
+            'u.' . $userKey . ' as id_user',
+        ];
+
+        foreach (['nama_lengkap', 'name', 'email', 'email_kantor', 'email_akun', 'nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon'] as $column) {
+            if ($this->hasColumn('users', $column)) {
+                $select[] = 'u.' . $column;
+            }
+        }
+
+        if ($this->hasColumn('posbankum_paralegal', 'assigned_at')) {
+            $select[] = 'pp.assigned_at as relasi_assigned_at';
+            $query->orderBy('pp.assigned_at');
+        }
+
+        if ($this->hasColumn('posbankum_paralegal', 'created_at')) {
+            $select[] = 'pp.created_at as relasi_created_at';
+            $query->orderBy('pp.created_at');
+        }
+
+        if ($this->hasColumn('users', 'created_at')) {
+            $select[] = 'u.created_at as user_created_at';
+            $query->orderBy('u.created_at');
+        }
+
+        if ($this->hasColumn('users', 'nama_lengkap')) {
+            $query->orderBy('u.nama_lengkap');
+        } elseif ($this->hasColumn('users', 'name')) {
+            $query->orderBy('u.name');
+        } elseif ($this->hasColumn('users', 'email')) {
+            $query->orderBy('u.email');
+        }
+
+        $contacts = [];
+
+        foreach ($query->select($select)->get() as $row) {
+            $idPosbankum = (string) $this->rowValue($row, ['id_posbankum'], '');
+
+            if ($idPosbankum === '' || isset($contacts[$idPosbankum])) {
+                continue;
+            }
+
+            $phone = $this->cleanContactValue($this->rowValue($row, ['nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon'], ''));
+            $email = $this->cleanContactValue($this->rowValue($row, ['email', 'email_kantor', 'email_akun'], ''));
+            $name = $this->cleanContactValue($this->rowValue($row, ['nama_lengkap', 'name', 'email'], ''));
+
+            $contacts[$idPosbankum] = [
+                'id_user' => $this->rowValue($row, ['id_user']),
+                'name' => $name,
+                'phone' => $phone,
+                'email' => $email,
+                'assigned_at' => $this->rowValue($row, ['relasi_assigned_at', 'relasi_created_at', 'user_created_at']),
+            ];
+        }
+
+        return $contacts;
+    }
+
     private function buildDetailRows($posRows): array
     {
         $ids = $posRows
@@ -310,7 +403,9 @@ class DashboardController extends Controller
 
         $pengaduanCounts = $this->pengaduanCountsByPosbankum($ids);
         $kegiatanCounts = $this->countByForeignKey('kegiatan', 'id_posbankum', $ids);
+        $firstParalegalContacts = $this->firstParalegalContactsByPosbankum($ids);
         $paralegalCounts = [];
+
         if ($this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
             $query = DB::table('posbankum_paralegal')
                 ->select('id_posbankum', DB::raw('COUNT(*) as total'))
@@ -337,16 +432,30 @@ class DashboardController extends Controller
                 ->toArray();
         }
 
-        return $posRows->values()->map(function ($row, $index) use ($pengaduanCounts, $kegiatanCounts, $paralegalCounts) {
+        return $posRows->values()->map(function ($row, $index) use ($pengaduanCounts, $kegiatanCounts, $paralegalCounts, $firstParalegalContacts) {
             $id = $this->getPosbankumId($row);
+            $idKey = (string) $id;
             $manualParalegal = (int) $this->rowValue($row, ['jml_paralegal', 'jumlah_paralegal'], 0);
+            $firstParalegal = $firstParalegalContacts[$idKey] ?? [];
+
+            $posbankumPhone = $this->cleanContactValue($this->getPosbankumPhone($row));
+            $posbankumEmail = $this->cleanContactValue($this->getPosbankumEmail($row));
+            $paralegalPhone = $this->cleanContactValue($this->rowValue($firstParalegal, ['phone'], ''));
+            $paralegalEmail = $this->cleanContactValue($this->rowValue($firstParalegal, ['email'], ''));
+            $phone = $paralegalPhone !== '' ? $paralegalPhone : $posbankumPhone;
+            $email = $paralegalEmail !== '' ? $paralegalEmail : $posbankumEmail;
 
             return [
                 'id' => $id,
+                'id_posbankum' => $id,
                 'name' => $this->getPosbankumName($row, $index),
                 'address' => $this->getPosbankumAddress($row),
-                'phone' => $this->getPosbankumPhone($row),
-                'email' => $this->getPosbankumEmail($row),
+                'phone' => $phone !== '' ? $phone : '-',
+                'email' => $email !== '' ? $email : '-',
+                'paralegalPhone' => $paralegalPhone !== '' ? $paralegalPhone : '-',
+                'paralegalEmail' => $paralegalEmail !== '' ? $paralegalEmail : '-',
+                'paralegalName' => (string) $this->rowValue($firstParalegal, ['name'], ''),
+                'contactSource' => $paralegalPhone !== '' || $paralegalEmail !== '' ? 'paralegal' : 'posbankum',
                 'paralegalCount' => $manualParalegal > 0 ? $manualParalegal : (int) ($paralegalCounts[$id] ?? 0),
                 'caseCount' => (int) ($pengaduanCounts[$id] ?? 0),
                 'activityCount' => (int) ($kegiatanCounts[$id] ?? 0),
@@ -582,9 +691,9 @@ class DashboardController extends Controller
                 });
         }
 
-        // Aktivitas pengaduan sengaja tidak ditampilkan pada Aktivitas Terbaru admin.
-        // Bagian pengaduan tidak dimasukkan ke daftar $items agar halaman Aktivitas Terbaru
-        // hanya menampilkan kegiatan, paralegal, dokumen, dan berita.
+
+
+
 
         if ($this->hasTable('berita')) {
             $query = DB::table('berita');
@@ -846,13 +955,15 @@ class DashboardController extends Controller
             'u.' . $userKey . ' as id_user',
         ];
 
-        foreach (['nama_lengkap', 'email', 'nomor_telepon', 'status'] as $column) {
+        foreach (['nama_lengkap', 'name', 'email', 'email_kantor', 'email_akun', 'nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon', 'status', 'created_at'] as $column) {
             if ($this->hasColumn('users', $column)) {
                 $select[] = 'u.' . $column;
             }
         }
 
-        if ($this->hasColumn('posbankum_paralegal', 'id_user') && $this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+        $hasParalegalRelation = $this->hasColumn('posbankum_paralegal', 'id_user') && $this->hasColumn('posbankum_paralegal', 'id_posbankum');
+
+        if ($hasParalegalRelation) {
             $query->leftJoin('posbankum_paralegal as pp', function ($join) use ($userKey) {
                 $join->on('pp.id_user', '=', 'u.' . $userKey);
 
@@ -862,12 +973,20 @@ class DashboardController extends Controller
             });
 
             $select[] = 'pp.id_posbankum';
+
+            if ($this->hasColumn('posbankum_paralegal', 'assigned_at')) {
+                $select[] = 'pp.assigned_at';
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'created_at')) {
+                $select[] = 'pp.created_at as relasi_created_at';
+            }
         } elseif ($this->hasColumn('users', 'id_posbankum')) {
             $select[] = 'u.id_posbankum';
         }
 
         if ($this->hasTable('posbankum')) {
-            if ($this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            if ($hasParalegalRelation) {
                 $query->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'pp.id_posbankum');
             } elseif ($this->hasColumn('users', 'id_posbankum')) {
                 $query->leftJoin('posbankum as p', 'p.id_posbankum', '=', 'u.id_posbankum');
@@ -902,15 +1021,21 @@ class DashboardController extends Controller
             $query->where('u.status', 'aktif');
         }
 
-        if ($this->hasColumn('users', 'nama_lengkap')) {
+        if ($hasParalegalRelation && $this->hasColumn('posbankum_paralegal', 'assigned_at')) {
+            $query->orderBy('pp.assigned_at');
+        } elseif ($hasParalegalRelation && $this->hasColumn('posbankum_paralegal', 'created_at')) {
+            $query->orderBy('pp.created_at');
+        } elseif ($this->hasColumn('users', 'created_at')) {
+            $query->orderBy('u.created_at');
+        } elseif ($this->hasColumn('users', 'nama_lengkap')) {
             $query->orderBy('u.nama_lengkap');
         }
 
         return $query->select($select)->get()->map(fn($row) => [
             'id_user' => $this->rowValue($row, ['id_user']),
-            'nama_lengkap' => (string) $this->rowValue($row, ['nama_lengkap'], ''),
-            'email' => (string) $this->rowValue($row, ['email'], ''),
-            'nomor_telepon' => (string) $this->rowValue($row, ['nomor_telepon'], ''),
+            'nama_lengkap' => (string) $this->rowValue($row, ['nama_lengkap', 'name'], ''),
+            'email' => (string) $this->rowValue($row, ['email', 'email_kantor', 'email_akun'], ''),
+            'nomor_telepon' => (string) $this->rowValue($row, ['nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon'], ''),
             'status' => (string) $this->rowValue($row, ['status'], 'aktif'),
             'id_posbankum' => $this->rowValue($row, ['id_posbankum']),
             'posbankum_nama' => (string) $this->rowValue($row, ['posbankum_nama'], ''),
@@ -920,10 +1045,9 @@ class DashboardController extends Controller
             'kelurahan_nama' => (string) $this->rowValue($row, ['kelurahan_nama'], ''),
             'kecamatan_nama' => (string) $this->rowValue($row, ['kecamatan_nama'], ''),
             'kabupaten_nama' => (string) $this->rowValue($row, ['kabupaten_nama'], ''),
+            'assigned_at' => $this->rowValue($row, ['assigned_at', 'relasi_created_at', 'created_at']),
         ])->toArray();
     }
-
-
 
     private function laporanRows(): array
     {

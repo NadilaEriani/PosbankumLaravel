@@ -24,6 +24,7 @@ import {
     FiBellOff,
     FiMail,
     FiPhone,
+    FiPlus,
 } from "react-icons/fi";
 
 import logo from "../../assets/logo.png";
@@ -502,8 +503,24 @@ function ConfirmModal({
     );
 }
 
-function EmptyBox({ children }) {
-    return <div className="pb2Empty">{children}</div>;
+function EmptyDashboardState({ icon, title, description, buttonLabel, onAction }) {
+    return (
+        <div className="pb2DashboardEmpty">
+            <div className="pb2DashboardEmptyIcon">{icon}</div>
+            <div className="pb2DashboardEmptyTitle">{title}</div>
+            <div className="pb2DashboardEmptyDesc">{description}</div>
+            {buttonLabel && onAction ? (
+                <button
+                    className="pb2DashboardEmptyAction"
+                    type="button"
+                    onClick={onAction}
+                >
+                    <FiPlus />
+                    {buttonLabel}
+                </button>
+            ) : null}
+        </div>
+    );
 }
 
 export default function PosbankumDashboard({
@@ -673,8 +690,6 @@ export default function PosbankumDashboard({
         );
     }, [posbankum?.alamat, posbankum?.address, auth?.user?.email]);
 
-    // Navbar/topbar harus tetap menampilkan identitas Posbankum seperti halaman Beranda,
-    // meskipun menu konten yang dibuka berbeda.
     const pageTitle = headerTitle;
     const pageSub = headerSub;
 
@@ -687,6 +702,32 @@ export default function PosbankumDashboard({
         }
 
         setActive(label);
+    };
+
+    const openCaseDetailFromDashboard = (item) => {
+        if (!item?.id) return;
+
+        setNotifSelectedId(null);
+        setActive("Semua Kasus");
+        setPageTarget((prev) => ({
+            type: "kasus",
+            id: item.id,
+            tick: prev.tick + 1,
+        }));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const openActivityDetailFromDashboard = (item) => {
+        if (!item?.id) return;
+
+        setNotifSelectedId(null);
+        setActive("Kelola Kegiatan");
+        setPageTarget((prev) => ({
+            type: "kegiatan",
+            id: item.id,
+            tick: prev.tick + 1,
+        }));
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleLogout = () => {
@@ -864,7 +905,15 @@ export default function PosbankumDashboard({
                 <div className="pb2CaseGrid">
                     {caseRows.length ? (
                         caseRows.slice(0, 4).map((item) => (
-                            <div className="pb2CaseCard" key={item.id}>
+                            <button
+                                className="pb2CaseCard"
+                                key={item.id}
+                                type="button"
+                                onClick={() =>
+                                    openCaseDetailFromDashboard(item)
+                                }
+                                aria-label={`Buka detail kasus ${item.judul}`}
+                            >
                                 <div
                                     className={`pb2CaseIcon ${item.selesai ? "green" : "orange"}`}
                                 >
@@ -893,10 +942,16 @@ export default function PosbankumDashboard({
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         ))
                     ) : (
-                        <EmptyBox>Belum ada kasus.</EmptyBox>
+                        <EmptyDashboardState
+                            icon={<FiFileText />}
+                            title="Belum Ada Kasus"
+                            description="Belum ada kasus terbaru dari seluruh Posbankum Riau"
+                            buttonLabel="Lihat Semua Kasus"
+                            onAction={() => openMenu("Semua Kasus")}
+                        />
                     )}
                 </div>
 
@@ -930,7 +985,15 @@ export default function PosbankumDashboard({
                 <div className="pb2KegiatanList">
                     {activityRows.length ? (
                         activityRows.slice(0, 4).map((item) => (
-                            <div className="pb2KegiatanItem" key={item.id}>
+                            <button
+                                className="pb2KegiatanItem"
+                                key={item.id}
+                                type="button"
+                                onClick={() =>
+                                    openActivityDetailFromDashboard(item)
+                                }
+                                aria-label={`Buka detail kegiatan ${item.judul}`}
+                            >
                                 <div className="pb2KegiatanIcon">
                                     <FiCheckCircle />
                                 </div>
@@ -967,10 +1030,16 @@ export default function PosbankumDashboard({
                                 >
                                     {item.status}
                                 </span>
-                            </div>
+                            </button>
                         ))
                     ) : (
-                        <EmptyBox>Belum ada kegiatan.</EmptyBox>
+                        <EmptyDashboardState
+                            icon={<FiCalendar />}
+                            title="Belum Ada Kegiatan"
+                            description="Belum ada kegiatan yang ditambahkan untuk bulan ini"
+                            buttonLabel="Tambah Kegiatan"
+                            onAction={() => openMenu("Kelola Kegiatan")}
+                        />
                     )}
                 </div>
             </div>
@@ -1022,7 +1091,7 @@ export default function PosbankumDashboard({
     const renderKelolaKegiatan = () => (
         <section className="pb2Content pb2ContentWithHeading">
             <KelolaKegiatan
-                kegiatanRows={kegiatanRows}
+                kegiatanRows={kegiatanRows?.length ? kegiatanRows : kegiatanTerbaru}
                 paralegalOptions={paralegalOptions}
                 currentPosbankum={currentPosbankum || posbankum}
                 profile={auth?.user || {}}
