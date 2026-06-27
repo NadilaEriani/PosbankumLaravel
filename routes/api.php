@@ -55,11 +55,7 @@ Route::post('/auth/google/callback', [AuthController::class, 'googleCallback']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 
-// Auth: lupa password (memanfaatkan tabel password_reset_tokens)
-// Step 1 — kirim email reset  : POST /forgot-password { "email": "..." }
-// Step 2 — submit token + pass: POST /reset-password  { "token": "...", "email": "...", "password": "..." }
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password',  [AuthController::class, 'resetPassword']);
+
 
 // Posbankum — publik agar warga bisa lihat & pilih posbankum sebelum login
 // GET /api/posbankum?search=...&id_kabupaten=...&id_kecamatan=...
@@ -80,9 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Ganti password (untuk user yang login manual / punya password_hash)
-    // Body: { "old_password": "...", "new_password": "..." }
-    Route::put('/profile/password', [AuthController::class, 'changePassword']);
+
 
     // Hubungkan / lepas akun Google ke user yang sedang login
     // - link   : body { "id_token": "..." } -> isi google_id & google_token
