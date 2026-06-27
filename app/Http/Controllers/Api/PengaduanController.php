@@ -147,7 +147,12 @@ class PengaduanController extends Controller
 
     public function show($id)
     {
-        $data = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
+        $data = DB::table('pengaduan as p')
+            ->leftJoin('users as u', 'u.id_user', '=', 'p.id_paralegal')
+            ->where('p.id_pengaduan', $id)
+            ->select('p.*', 'u.nama_lengkap as nama_paralegal')
+            ->first();
+
         if (!$data) {
             return response()->json(['status' => false, 'message' => 'Tidak ditemukan', 'data' => null], 404);
         }
