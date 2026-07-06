@@ -20,16 +20,22 @@ class ChatController extends Controller
     public function store(Request $request, $id_pengaduan)
     {
         $request->validate(['pesan' => 'required|string']);
-        $id = Str::uuid();
+        $id = (string) Str::uuid();
+        
         DB::table('chat_pesan')->insert([
-            'id_chat' => $id,
+            'id_pesan' => $id,
             'id_pengaduan' => $id_pengaduan,
-            'id_user' => $request->user()->id_user,
-            'pesan' => $request->pesan,
+            'pengirim_id' => $request->user()->id_user,
+            'pengirim_nama' => $request->user()->nama_lengkap ?? 'User',
+            'pengirim_role' => $request->user()->role,
+            'isi_pesan' => $request->pesan,
+            'lampiran_url' => null, 
+            'is_read' => 0,
             'created_at' => now(),
-            'updated_at' => now(),
         ]);
-        $data = DB::table('chat_pesan')->where('id_chat', $id)->first();
+        
+        $data = DB::table('chat_pesan')->where('id_pesan', $id)->first();
         return response()->json(['status' => true, 'message' => 'Pesan terkirim', 'data' => $data], 201);
     }
 }
+
