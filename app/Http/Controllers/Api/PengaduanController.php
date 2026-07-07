@@ -22,6 +22,11 @@ class PengaduanController extends Controller
 
         if ($user->role === 'warga') {
             $query = DB::table('pengaduan')
+                ->select([
+                    'pengaduan.*',
+                    DB::raw("(SELECT isi_pesan FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message"),
+                    DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time")
+                ])
                 ->where('user_id', $user->id_user)
                 ->orderBy('created_at', 'desc');
 
@@ -41,6 +46,8 @@ class PengaduanController extends Controller
                     ->where('m.id_kelurahan', $id_kelurahan_posbankum)
                     ->select([
                         'p.*',
+                        DB::raw("(SELECT isi_pesan FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message"),
+                        DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time"),
                         DB::raw("
                             (
                                 CASE p.status
@@ -149,8 +156,20 @@ class PengaduanController extends Controller
     {
         $data = DB::table('pengaduan as p')
             ->leftJoin('users as u', 'u.id_user', '=', 'p.id_paralegal')
+            ->leftJoin('users as uw', 'uw.id_user', '=', 'p.user_id')
+            ->leftJoin('masyarakat as m', 'm.id_user', '=', 'p.user_id')
+            ->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'm.id_kelurahan')
+            ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'm.id_kecamatan')
+            ->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'm.id_kabupaten')
             ->where('p.id_pengaduan', $id)
-            ->select('p.*', 'u.nama_lengkap as nama_paralegal')
+            ->select([
+                'p.*',
+                'u.nama_lengkap as nama_paralegal',
+                'u.nomor_telepon as nomor_telepon_paralegal',
+                'u.foto_profile as foto_profile_paralegal',
+                'uw.foto_profile as foto_profile_pelapor',
+                DB::raw("CONCAT_WS(', ', kel.nama, kec.nama, kab.nama) as alamat_pelapor")
+            ])
             ->first();
 
         if (!$data) {
