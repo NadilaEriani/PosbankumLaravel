@@ -22,13 +22,16 @@ class PengaduanController extends Controller
 
         if ($user->role === 'warga') {
             $query = DB::table('pengaduan')
+                ->leftJoin('users as u', 'u.id_user', '=', 'pengaduan.id_paralegal')
                 ->select([
                     'pengaduan.*',
+                    'u.foto_profile as foto_profile_lawan_bicara',
                     DB::raw("(SELECT isi_pesan FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message"),
-                    DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time")
+                    DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time"),
+                    DB::raw("(SELECT COUNT(*) FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan AND chat_pesan.is_read = 0 AND chat_pesan.pengirim_id != '$user->id_user') as unread_count")
                 ])
-                ->where('user_id', $user->id_user)
-                ->orderBy('created_at', 'desc');
+                ->where('pengaduan.user_id', $user->id_user)
+                ->orderBy('pengaduan.created_at', 'desc');
 
         } elseif ($user->role === 'paralegal') {
             // Ambil id_kelurahan dari posbankum tempat paralegal bertugas
@@ -43,11 +46,14 @@ class PengaduanController extends Controller
                 // Ambil pengaduan dimana warga pengaju tinggal di kelurahan yang sama
                 $query = DB::table('pengaduan as p')
                     ->join('masyarakat as m', 'm.id_user', '=', 'p.user_id')
+                    ->leftJoin('users as uw', 'uw.id_user', '=', 'p.user_id')
                     ->where('m.id_kelurahan', $id_kelurahan_posbankum)
                     ->select([
                         'p.*',
+                        'uw.foto_profile as foto_profile_lawan_bicara',
                         DB::raw("(SELECT isi_pesan FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message"),
                         DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time"),
+                        DB::raw("(SELECT COUNT(*) FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan AND chat_pesan.is_read = 0 AND chat_pesan.pengirim_id != '$user->id_user') as unread_count"),
                         DB::raw("
                             (
                                 CASE p.status
