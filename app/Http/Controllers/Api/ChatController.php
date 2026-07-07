@@ -8,8 +8,17 @@ use Illuminate\Support\Str;
 
 class ChatController extends Controller
 {
-    public function index($id_pengaduan)
+    public function index(Request $request, $id_pengaduan)
     {
+        $user = $request->user();
+        
+        // Tandai semua pesan masuk dari lawan bicara sebagai telah dibaca
+        DB::table('chat_pesan')
+            ->where('id_pengaduan', $id_pengaduan)
+            ->where('pengirim_id', '!=', $user->id_user)
+            ->where('is_read', 0)
+            ->update(['is_read' => 1]);
+
         $data = DB::table('chat_pesan')
             ->where('id_pengaduan', $id_pengaduan)
             ->orderBy('created_at', 'asc')
