@@ -43,7 +43,7 @@ const EXTENDED_PROFILE_COLUMNS = [
 
 const ADMIN_BIRD_PHOTO_STYLE = {
     x: 1,
-    y: 17,
+    y: -16,
     scale: 1.19,
 };
 
