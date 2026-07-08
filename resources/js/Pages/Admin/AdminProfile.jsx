@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import {
     FiBriefcase,
@@ -29,7 +29,6 @@ const INITIAL_FORM = {
     jabatan: "",
     unit_kerja: "",
     alamat_kantor: "",
-    foto_profile: "",
 };
 
 const EXTENDED_PROFILE_COLUMNS = [
@@ -40,8 +39,13 @@ const EXTENDED_PROFILE_COLUMNS = [
     "jabatan",
     "unit_kerja",
     "alamat_kantor",
-    "foto_profile",
 ];
+
+const ADMIN_BIRD_PHOTO_STYLE = {
+    x: 1,
+    y: 17,
+    scale: 1.19,
+};
 
 function sanitizeText(value) {
     if (value === null || value === undefined) return "";
@@ -67,36 +71,6 @@ function isValidEmail(value) {
     return /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(
         email,
     );
-}
-
-function isExternalUrl(value) {
-    return /^https?:\/\//i.test(String(value || ""));
-}
-
-function isDataOrBlob(value) {
-    return /^(data:|blob:)/i.test(String(value || ""));
-}
-
-function getProfilePhotoUrl(value) {
-    const path = safeTrim(value).replace(/\\/g, "/");
-
-    if (!path) return "";
-    if (isDataOrBlob(path)) return path;
-    if (path.startsWith("/file-preview")) return path;
-    if (isExternalUrl(path) && !/\/storage\//i.test(path)) return path;
-
-    const clean = path
-        .replace(/^https?:\/\/[^/]+\/storage\//i, "")
-        .replace(/^https?:\/\/[^/]+\//i, "")
-        .replace(/[?#].*$/, "")
-        .replace(/^public\//i, "")
-        .replace(/^storage\//i, "")
-        .replace(/^app\/public\//i, "")
-        .replace(/^\/+/, "");
-
-    if (!clean || clean.includes("..")) return "";
-
-    return `/file-preview?path=${encodeURIComponent(clean)}`;
 }
 
 function buildFormData(data = {}, fallbackUser = {}) {
@@ -132,9 +106,6 @@ function buildFormData(data = {}, fallbackUser = {}) {
         alamat_kantor: sanitizeText(
             data.alamat_kantor ?? fallbackUser.alamat_kantor,
         ),
-        foto_profile: sanitizeText(
-            data.foto_profile ?? fallbackUser.foto_profile,
-        ),
     };
 }
 
@@ -161,7 +132,11 @@ function hasExtendedSchema(user) {
     );
 }
 
-export default function AdminProfile({ user = {}, onClose, onBack }) {
+export default function AdminProfile({
+    user = {},
+    onClose = null,
+    onBack = null,
+}) {
     const closeProfile = onClose || onBack || (() => {});
     const [saving, setSaving] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -171,10 +146,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
     const [initialForm, setInitialForm] = useState(() => buildFormData(user));
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [photoFile, setPhotoFile] = useState(null);
-    const [photoPreview, setPhotoPreview] = useState("");
-    const [removePhotoRequested, setRemovePhotoRequested] = useState(false);
-    const photoInputRef = useRef(null);
 
     useEffect(() => {
         if (editing) return;
@@ -185,14 +156,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
         setSubmitError("");
         setFieldErrors({});
     }, [user, editing]);
-
-    useEffect(() => {
-        return () => {
-            if (photoPreview && photoPreview.startsWith("blob:")) {
-                URL.revokeObjectURL(photoPreview);
-            }
-        };
-    }, [photoPreview]);
 
     const schemaNotice = useMemo(() => {
         if (hasExtendedSchema(user)) return "";
@@ -206,12 +169,13 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
         [form.email_kantor, user.email],
     );
 
-    const displayPhoto = useMemo(
-        () =>
-            removePhotoRequested
-                ? ""
-                : photoPreview || getProfilePhotoUrl(form.foto_profile),
-        [form.foto_profile, photoPreview, removePhotoRequested],
+    const photoAdjustStyle = useMemo(
+        () => ({
+            "--apf-avatar-x": `${ADMIN_BIRD_PHOTO_STYLE.x}px`,
+            "--apf-avatar-y": `${ADMIN_BIRD_PHOTO_STYLE.y}px`,
+            "--apf-avatar-scale": String(ADMIN_BIRD_PHOTO_STYLE.scale),
+        }),
+        [],
     );
 
     const handleChange = (field, value) => {
@@ -219,75 +183,11 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
         setFieldErrors((prev) => ({ ...prev, [field]: "" }));
     };
 
-    const resetSelectedPhoto = () => {
-        if (photoPreview && photoPreview.startsWith("blob:")) {
-            URL.revokeObjectURL(photoPreview);
-        }
-
-        setPhotoFile(null);
-        setPhotoPreview("");
-        setRemovePhotoRequested(false);
-
-        if (photoInputRef.current) photoInputRef.current.value = "";
-    };
-
     const handleCancel = () => {
         setForm(initialForm);
-        resetSelectedPhoto();
         setEditing(false);
         setSubmitError("");
         setFieldErrors({});
-    };
-
-    const handlePhotoClick = () => {
-        if (!editing || saving) return;
-        photoInputRef.current?.click();
-    };
-
-    const handlePhotoChange = (event) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
-            setSubmitError("Format foto harus PNG, JPG, atau JPEG.");
-            setErrorMessage("Format foto harus PNG, JPG, atau JPEG.");
-            event.target.value = "";
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            setSubmitError("Ukuran foto maksimal 5MB.");
-            setErrorMessage("Ukuran foto maksimal 5MB.");
-            event.target.value = "";
-            return;
-        }
-
-        if (photoPreview && photoPreview.startsWith("blob:")) {
-            URL.revokeObjectURL(photoPreview);
-        }
-
-        setSubmitError("");
-        setFieldErrors((prev) => ({ ...prev, foto_profile: "" }));
-        setPhotoFile(file);
-        setPhotoPreview(URL.createObjectURL(file));
-        setRemovePhotoRequested(false);
-    };
-
-    const handleRemovePhoto = () => {
-        if (!editing || saving) return;
-
-        if (photoPreview && photoPreview.startsWith("blob:")) {
-            URL.revokeObjectURL(photoPreview);
-        }
-
-        setSubmitError("");
-        setFieldErrors((prev) => ({ ...prev, foto_profile: "" }));
-        setPhotoFile(null);
-        setPhotoPreview("");
-        setRemovePhotoRequested(true);
-        setForm((prev) => ({ ...prev, foto_profile: "" }));
-
-        if (photoInputRef.current) photoInputRef.current.value = "";
     };
 
     const handleSave = () => {
@@ -336,11 +236,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
         payload.append("jabatan", safeTrim(form.jabatan));
         payload.append("unit_kerja", safeTrim(form.unit_kerja));
         payload.append("alamat_kantor", safeTrim(form.alamat_kantor));
-        payload.append("remove_photo", removePhotoRequested ? "1" : "0");
-
-        if (photoFile) {
-            payload.append("foto_profile", photoFile);
-        }
 
         setSaving(true);
         setSubmitError("");
@@ -358,7 +253,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                           {
                               ...form,
                               email_kantor: nextEmail,
-                              foto_profile: photoPreview || form.foto_profile,
                           },
                           user,
                       );
@@ -366,18 +260,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                 setForm(next);
                 setInitialForm(next);
                 setEditing(false);
-                setRemovePhotoRequested(false);
-                setPhotoFile(null);
-
-                if (freshUser || removePhotoRequested) {
-                    if (photoPreview && photoPreview.startsWith("blob:")) {
-                        URL.revokeObjectURL(photoPreview);
-                    }
-                    setPhotoPreview("");
-                }
-
-                if (photoInputRef.current) photoInputRef.current.value = "";
-
                 setSuccessMessage("Profil admin berhasil diperbarui!");
             },
             onError: (errors) => {
@@ -522,54 +404,12 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                         >
                             <div className="apf-avatarWrap">
                                 <img
-                                    src={displayPhoto || birdIcon}
+                                    src={birdIcon}
                                     alt="Foto profil admin"
                                     className="apf-avatar"
+                                    style={photoAdjustStyle}
                                 />
                             </div>
-
-                            {editing ? (
-                                <>
-                                    <input
-                                        ref={photoInputRef}
-                                        className="apf-photoInput"
-                                        type="file"
-                                        accept="image/png,image/jpeg,image/jpg"
-                                        onChange={handlePhotoChange}
-                                    />
-                                    <div className="apf-photoActions">
-                                        <button
-                                            className="apf-photoBtn"
-                                            type="button"
-                                            onClick={handlePhotoClick}
-                                            disabled={saving}
-                                        >
-                                            {displayPhoto
-                                                ? "Ganti Foto"
-                                                : "Tambah Foto"}
-                                        </button>
-
-                                        {displayPhoto ? (
-                                            <button
-                                                className="apf-photoBtn apf-photoRemoveBtn"
-                                                type="button"
-                                                onClick={handleRemovePhoto}
-                                                disabled={saving}
-                                            >
-                                                Hapus Foto
-                                            </button>
-                                        ) : null}
-                                    </div>
-                                    <div className="apf-photoHint">
-                                        PNG atau JPG maksimal 5MB
-                                    </div>
-                                    {fieldErrors.foto_profile ? (
-                                        <div className="apf-photoHint">
-                                            {fieldErrors.foto_profile}
-                                        </div>
-                                    ) : null}
-                                </>
-                            ) : null}
                         </div>
 
                         <h3>
@@ -690,14 +530,7 @@ AdminProfile.propTypes = {
         jabatan: PropTypes.string,
         unit_kerja: PropTypes.string,
         alamat_kantor: PropTypes.string,
-        foto_profile: PropTypes.string,
     }),
     onClose: PropTypes.func,
     onBack: PropTypes.func,
-};
-
-AdminProfile.defaultProps = {
-    user: {},
-    onClose: null,
-    onBack: null,
 };
