@@ -5819,7 +5819,6 @@ body,
     }
 }
 
-
 /* Map interaction update */
 .lp-osm-map.is-dragging {
     cursor: grabbing;
@@ -5834,5 +5833,116 @@ body,
 @media (max-width: 768px) {
     .lp-osm-map {
         touch-action: none;
+    }
+}
+
+/* ===== FINAL FIX: chatbot selalu menempel di pojok kanan bawah layar ===== */
+.lp-page .lp-float-chat,
+.lp-float-chat {
+    position: fixed !important;
+    right: 24px !important;
+    bottom: 24px !important;
+    left: auto !important;
+    top: auto !important;
+    z-index: 96 !important;
+}
+
+.lp-page .lp-chatbot-panel,
+.lp-page .lp-chatbot-panel.is-large,
+.lp-chatbot-panel,
+.lp-chatbot-panel.is-large {
+    position: fixed !important;
+    right: 24px !important;
+    left: auto !important;
+    top: auto !important;
+    z-index: 95 !important;
+}
+
+.lp-page .lp-chatbot-panel,
+.lp-chatbot-panel {
+    bottom: 112px !important;
+}
+
+.lp-page .lp-chatbot-panel.is-large,
+.lp-chatbot-panel.is-large {
+    bottom: 92px !important;
+}
+
+@media (max-width: 768px) {
+    .lp-page .lp-float-chat,
+    .lp-float-chat,
+    .lp-page .lp-float-chat.is-open,
+    .lp-float-chat.is-open {
+        right: 16px !important;
+        bottom: 16px !important;
+        left: auto !important;
+        top: auto !important;
+    }
+
+    .lp-page .lp-chatbot-panel,
+    .lp-page .lp-chatbot-panel.is-large,
+    .lp-chatbot-panel,
+    .lp-chatbot-panel.is-large {
+        right: 12px !important;
+        left: auto !important;
+        bottom: 84px !important;
+        width: calc(100vw - 24px) !important;
+        height: min(610px, calc(100vh - 106px)) !important;
+        max-height: calc(100vh - 106px) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .lp-page .lp-float-chat,
+    .lp-float-chat,
+    .lp-page .lp-float-chat.is-open,
+    .lp-float-chat.is-open {
+        right: 14px !important;
+        bottom: 14px !important;
+    }
+
+    .lp-page .lp-chatbot-panel,
+    .lp-page .lp-chatbot-panel.is-large,
+    .lp-chatbot-panel,
+    .lp-chatbot-panel.is-large {
+        right: 10px !important;
+        left: auto !important;
+        bottom: 76px !important;
+        width: calc(100vw - 20px) !important;
+        height: min(590px, calc(100vh - 92px)) !important;
+        max-height: calc(100vh - 92px) !important;
+    }
+}
+
+/* ===== FIX MOBILE: peta landing page bisa digeser di layar sentuh ===== */
+.lp-osm-map {
+    touch-action: none !important;
+    -ms-touch-action: none !important;
+    overscroll-behavior: contain;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.lp-osm-map,
+.lp-osm-map * {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.lp-osm-tile,
+.lp-map-pin-img {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+@media (max-width: 768px) {
+    .lp-osm-map {
+        touch-action: none !important;
+        -ms-touch-action: none !important;
+        overscroll-behavior: contain;
+        cursor: grab;
+    }
+
+    .lp-osm-map.is-dragging {
+        cursor: grabbing;
     }
 }

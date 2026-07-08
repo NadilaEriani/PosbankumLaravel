@@ -558,23 +558,33 @@ class DashboardController extends Controller
                 $select[] = 'p.nama as posbankum_nama';
             }
 
-            $dateColumn = $this->firstExistingColumn('kegiatan', ['tgl_upload', 'created_at', 'updated_at', 'tgl_mulai']);
+            $dateColumns = collect(['updated_at', 'tgl_upload', 'created_at', 'tgl_mulai'])
+                ->filter(fn($column) => $this->hasColumn('kegiatan', $column))
+                ->values()
+                ->all();
 
-            if ($dateColumn) {
+            foreach ($dateColumns as $dateColumn) {
                 $query->orderByDesc('k.' . $dateColumn);
             }
 
             $query->select($select)
                 ->limit(25)
                 ->get()
-                ->each(function ($row) use ($items, $dateColumn) {
+                ->each(function ($row) use ($items) {
                     $posbankumName = trim((string) $this->rowValue($row, ['posbankum_nama'], 'Posbankum'));
                     $judul = trim((string) $this->rowValue($row, ['judul', 'nama_kegiatan', 'tema'], 'kegiatan'));
                     $status = strtolower(trim((string) $this->rowValue($row, ['status'], '')));
-                    $isNewSubmission = in_array($status, ['draft', 'diproses', 'menunggu', 'pending'], true);
-                    $dateValue = $dateColumn
-                        ? $this->rowValue($row, [$dateColumn], now()->toDateTimeString())
-                        : now()->toDateTimeString();
+                    $createdValue = $this->rowValue($row, ['created_at', 'tgl_upload', 'tgl_mulai']);
+                    $updatedValue = $this->rowValue($row, ['updated_at']);
+                    $createdTime = $createdValue ? strtotime((string) $createdValue) : false;
+                    $updatedTime = $updatedValue ? strtotime((string) $updatedValue) : false;
+                    $isUpdatedActivity = $updatedTime !== false
+                        && ($createdTime === false || $updatedTime > ($createdTime + 5));
+                    $isNewSubmission = !$isUpdatedActivity
+                        && in_array($status, ['draft', 'diproses', 'menunggu', 'pending'], true);
+                    $dateValue = $isUpdatedActivity
+                        ? $updatedValue
+                        : $this->rowValue($row, ['tgl_upload', 'created_at', 'tgl_mulai', 'updated_at'], now()->toDateTimeString());
                     $idKegiatan = $this->rowValue($row, ['id_kegiatan', 'id']);
 
                     $items->push([
@@ -584,7 +594,7 @@ class DashboardController extends Controller
                             : $posbankumName . ' memperbarui laporan kegiatan',
                         'description' => $isNewSubmission
                             ? 'Pengajuan kegiatan ' . $judul . ' telah tercatat dan menunggu verifikasi.'
-                            : 'Status kegiatan ' . $judul . ' saat ini ' . ($this->rowValue($row, ['status'], 'diperbarui')) . '.',
+                            : 'Kegiatan ' . $judul . ' telah diperbarui. Status saat ini ' . ($this->rowValue($row, ['status'], 'diperbarui')) . '.',
                         'at' => $dateValue,
                         'posbankum' => $posbankumName,
                         'targetPath' => $idKegiatan ? '/admin/laporan-kegiatan/detail/' . rawurlencode((string) $idKegiatan) : '',

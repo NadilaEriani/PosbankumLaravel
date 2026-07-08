@@ -388,17 +388,15 @@ export default function SemuaKasus({
     );
 
     useEffect(() => {
-        if (flash?.success) {
-            setSuccessToast({
-                title: "Berhasil!",
-                message: String(flash.success),
-            });
-        }
-
+        /*
+         * Halaman Semua Kasus tidak memiliki aksi simpan sendiri.
+         * Flash success dari menu lain tidak ditampilkan ulang agar toast
+         * sukses Kelola Kegiatan tidak muncul lagi saat user berpindah menu.
+         */
         if (flash?.error || flash?.reject) {
             setRejectToast(String(flash.error || flash.reject));
         }
-    }, [flash]);
+    }, [flash?.error, flash?.reject]);
 
     const stats = useMemo(() => {
         const total = rows.length;

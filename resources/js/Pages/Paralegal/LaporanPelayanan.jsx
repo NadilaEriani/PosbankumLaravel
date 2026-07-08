@@ -632,7 +632,7 @@ export default function LaporanPelayanan({
     const [saving, setSaving] = useState(false);
     const [toastSuccess, setToastSuccess] = useState({
         title: "Berhasil",
-        message: flash?.success || "",
+        message: "",
     });
     const [toastReject, setToastReject] = useState("");
     const [formData, setFormData] = useState(EMPTY_FORM_DATA);
@@ -642,13 +642,16 @@ export default function LaporanPelayanan({
     }, [initialReports]);
 
     useEffect(() => {
-        if (flash?.success) {
-            setToastSuccess({ title: "Berhasil!", message: flash.success });
-        }
+        /*
+         * Jangan menampilkan flash success umum saat komponen ini dibuka.
+         * Flash dari menu lain masih bisa tersimpan di props dashboard Inertia,
+         * sehingga toast sukses dapat muncul ulang ketika user hanya pindah menu.
+         * Aksi di Laporan Pelayanan tetap menampilkan toast lewat onSuccess router.
+         */
         if (flash?.error || flash?.reject) {
             setToastReject(String(flash?.error || flash?.reject));
         }
-    }, [flash]);
+    }, [flash?.error, flash?.reject]);
 
     useEffect(() => {
         const handleOutsideClick = (event) => {

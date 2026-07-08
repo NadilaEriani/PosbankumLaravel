@@ -178,16 +178,79 @@ Route::get('/', function () {
 
         $caseCounts = [];
 
-        if (
-            Schema::hasTable('pengaduan') &&
-            Schema::hasColumn('pengaduan', 'id_posbankum')
-        ) {
-            $caseCounts = DB::table('pengaduan')
-                ->select('id_posbankum', DB::raw('COUNT(*) as total'))
-                ->whereIn('id_posbankum', $ids)
-                ->groupBy('id_posbankum')
-                ->pluck('total', 'id_posbankum')
-                ->toArray();
+        if (Schema::hasTable('pengaduan') && $ids->isNotEmpty()) {
+            $applyCompletedCaseFilter = function ($query, string $tableAlias = 'pengaduan') {
+                $statusColumn = $tableAlias . '.status';
+                $tglSelesaiColumn = $tableAlias . '.tgl_selesai';
+                $tanggalSelesaiColumn = $tableAlias . '.tanggal_selesai';
+
+                $query->where(function ($caseQuery) use ($statusColumn, $tglSelesaiColumn, $tanggalSelesaiColumn) {
+                    $hasFilter = false;
+
+                    if (Schema::hasColumn('pengaduan', 'status')) {
+                        $caseQuery->whereRaw('LOWER(TRIM(' . $statusColumn . ')) = ?', ['selesai']);
+                        $hasFilter = true;
+                    }
+
+                    if (Schema::hasColumn('pengaduan', 'tgl_selesai')) {
+                        $hasFilter
+                            ? $caseQuery->orWhereNotNull($tglSelesaiColumn)
+                            : $caseQuery->whereNotNull($tglSelesaiColumn);
+                        $hasFilter = true;
+                    }
+
+                    if (Schema::hasColumn('pengaduan', 'tanggal_selesai')) {
+                        $hasFilter
+                            ? $caseQuery->orWhereNotNull($tanggalSelesaiColumn)
+                            : $caseQuery->whereNotNull($tanggalSelesaiColumn);
+                    }
+                });
+            };
+
+            if (Schema::hasColumn('pengaduan', 'id_posbankum')) {
+                $caseQuery = DB::table('pengaduan')
+                    ->select('id_posbankum', DB::raw('COUNT(DISTINCT id_pengaduan) as total'))
+                    ->whereIn('id_posbankum', $ids);
+
+                $applyCompletedCaseFilter($caseQuery);
+
+                $caseCounts = $caseQuery
+                    ->groupBy('id_posbankum')
+                    ->pluck('total', 'id_posbankum')
+                    ->toArray();
+            } elseif (
+                Schema::hasTable('posbankum_paralegal') &&
+                Schema::hasColumn('posbankum_paralegal', 'id_posbankum') &&
+                Schema::hasColumn('posbankum_paralegal', 'id_user')
+            ) {
+                $pengaduanParalegalColumns = array_values(array_filter(
+                    ['id_paralegal', 'user_id'],
+                    fn($column) => Schema::hasColumn('pengaduan', $column)
+                ));
+
+                if (!empty($pengaduanParalegalColumns)) {
+                    $caseQuery = DB::table('pengaduan as pe')
+                        ->join('posbankum_paralegal as pp', function ($join) use ($pengaduanParalegalColumns) {
+                            foreach ($pengaduanParalegalColumns as $index => $column) {
+                                $method = $index === 0 ? 'on' : 'orOn';
+                                $join->{$method}('pp.id_user', '=', 'pe.' . $column);
+                            }
+                        })
+                        ->select('pp.id_posbankum', DB::raw('COUNT(DISTINCT pe.id_pengaduan) as total'))
+                        ->whereIn('pp.id_posbankum', $ids);
+
+                    if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+                        $caseQuery->where('pp.status', 'aktif');
+                    }
+
+                    $applyCompletedCaseFilter($caseQuery, 'pe');
+
+                    $caseCounts = $caseQuery
+                        ->groupBy('pp.id_posbankum')
+                        ->pluck('total', 'id_posbankum')
+                        ->toArray();
+                }
+            }
         }
 
         $cleanContact = function (...$values): string {

@@ -6,6 +6,13 @@
     gap: 22px;
     font-family: "Outfit", sans-serif;
     color: var(--pb-text, #151c2e);
+    --prf-icon-gradient: linear-gradient(
+        135deg,
+        #2b3056 0%,
+        #3a4070 52%,
+        #4a5080 100%
+    );
+    --prf-icon-stroke: #2b3056;
 }
 
 .prfPage *,
@@ -13,6 +20,53 @@
 .prfPage *::after {
     box-sizing: border-box;
     font-family: inherit;
+}
+
+.prfIconGradientDefs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.prfBackBtn svg,
+.prfBtn svg,
+.prfEditNoticeIcon svg,
+.prfBoxIcon svg,
+.prfPosMeta svg,
+.prfTeamHead h3 svg,
+.prfTeamMeta svg,
+.prfTeamBadge svg {
+    color: var(--prf-icon-stroke);
+}
+
+.prfBackBtn svg [stroke],
+.prfBtn svg [stroke],
+.prfEditNoticeIcon svg [stroke],
+.prfBoxIcon svg [stroke],
+.prfPosMeta svg [stroke],
+.prfTeamHead h3 svg [stroke],
+.prfTeamMeta svg [stroke],
+.prfTeamBadge svg [stroke] {
+    stroke: url(#prfIconStrokeGradient);
+}
+
+.prfBackBtn svg [fill]:not([fill="none"]),
+.prfBtn svg [fill]:not([fill="none"]),
+.prfEditNoticeIcon svg [fill]:not([fill="none"]),
+.prfBoxIcon svg [fill]:not([fill="none"]),
+.prfPosMeta svg [fill]:not([fill="none"]),
+.prfTeamHead h3 svg [fill]:not([fill="none"]),
+.prfTeamMeta svg [fill]:not([fill="none"]),
+.prfTeamBadge svg [fill]:not([fill="none"]) {
+    fill: url(#prfIconStrokeGradient);
+}
+
+.prfTeamAvatar svg,
+.prfTeamAvatar svg [stroke] {
+    color: #ffffff;
+    stroke: currentColor;
 }
 
 .prfHeader {
@@ -36,7 +90,7 @@
     border: 1px solid var(--pb-line, #e6e9ef);
     border-radius: 999px;
     background: var(--pb-card, #ffffff);
-    color: var(--pb-muted, #6b7280);
+    color: var(--prf-icon-stroke);
     display: grid;
     place-items: center;
     font-size: 20px;
@@ -159,7 +213,7 @@
     height: 38px;
     border-radius: 999px;
     background: var(--pb-card, #ffffff);
-    color: var(--pb-nav-blue, #2f3569);
+    color: var(--prf-icon-stroke);
     display: grid;
     place-items: center;
     font-size: 18px;
@@ -242,7 +296,7 @@
     height: 44px;
     border-radius: 16px;
     background: var(--pb-soft-blue, #d1e1fd);
-    color: var(--pb-nav-blue, #2f3569);
+    color: var(--prf-icon-stroke);
     display: grid;
     place-items: center;
     font-size: 21px;
@@ -329,6 +383,21 @@
     display: block;
 }
 
+.prfPosIconMask {
+    width: 28px;
+    height: 28px;
+    display: block;
+    background: var(--prf-icon-gradient);
+    -webkit-mask-image: var(--mask-url);
+    mask-image: var(--mask-url);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
 .prfPosTop h4 {
     margin: 1px 0 0;
     color: var(--pb-text, #151c2e);
@@ -364,7 +433,7 @@
 
 .prfPosMeta svg,
 .prfTeamMeta svg {
-    color: var(--pb-muted, #6b7280);
+    color: var(--prf-icon-stroke);
     width: 15px;
     height: 15px;
     margin-top: 2px;
@@ -654,6 +723,31 @@
     .prfTeamItem {
         grid-template-columns: 1fr;
         gap: 11px;
+    }
+
+    .prfPosBox {
+        padding: 16px;
+        border-radius: 15px;
+    }
+
+    .prfPosIconBox {
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+    }
+
+    .prfPosIconMask {
+        width: 25px;
+        height: 25px;
+    }
+
+    .prfPosMeta {
+        margin-top: 15px;
+        gap: 11px;
+    }
+
+    .prfPosMeta b {
+        font-size: 11px;
     }
 
     .prfTeamBadge {

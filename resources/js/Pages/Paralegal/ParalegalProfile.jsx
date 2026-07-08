@@ -115,12 +115,6 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
     }, [pageErrors, flash.error, flash.reject]);
 
     useEffect(() => {
-        if (flash.success) {
-            setSuccessToast(flash.success);
-        }
-    }, [flash.success]);
-
-    useEffect(() => {
         if (profileError) {
             setErrorToast(profileError);
         }
@@ -197,6 +191,7 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
                 },
                 onSuccess: () => {
                     setEditing(false);
+                    setSuccessToast("Profil paralegal berhasil diperbarui!");
                 },
                 onError: (errors) => {
                     setErrorToast(
@@ -394,16 +389,8 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
 
                         <div className="prfPosBox">
                             <div className="prfPosTop">
-                                <div
-                                    className="prfPosIconBox"
-                                    aria-hidden="true"
-                                >
-                                    <span
-                                        className="prfPosIconMask"
-                                        style={{
-                                            "--mask-url": `url(${posbankumIcon})`,
-                                        }}
-                                    />
+                                <div className="prfPosIconBox">
+                                    <img src={posbankumIcon} alt="" />
                                 </div>
                                 <div>
                                     <h4>

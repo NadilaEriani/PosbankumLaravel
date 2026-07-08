@@ -1061,14 +1061,13 @@ export default function LandingPage({
         );
     };
 
-    const handleMapPointerDown = (event) => {
-        if (event.button !== undefined && event.button !== 0) return;
-        if (
-            event.target?.closest?.("button, a, input, .lp-map-location-popup")
-        ) {
-            return;
-        }
+    const shouldIgnoreMapDragTarget = (target) => {
+        return Boolean(
+            target?.closest?.("button, a, input, .lp-map-location-popup"),
+        );
+    };
 
+    const startMapDrag = (clientX, clientY, pointerId) => {
         const centerPixel = latLngToWorldPixel(
             mapCenter.lat,
             mapCenter.lng,
@@ -1077,23 +1076,22 @@ export default function LandingPage({
 
         mapDragRef.current = {
             active: true,
-            pointerId: event.pointerId,
-            startX: event.clientX,
-            startY: event.clientY,
+            pointerId,
+            startX: clientX,
+            startY: clientY,
             centerPixel,
             moved: false,
         };
 
         setMapDragging(true);
-        event.currentTarget.setPointerCapture?.(event.pointerId);
     };
 
-    const handleMapPointerMove = (event) => {
+    const moveMapDrag = (clientX, clientY, pointerId) => {
         const drag = mapDragRef.current;
-        if (!drag.active || drag.pointerId !== event.pointerId) return;
+        if (!drag.active || drag.pointerId !== pointerId) return;
 
-        const dx = event.clientX - drag.startX;
-        const dy = event.clientY - drag.startY;
+        const dx = clientX - drag.startX;
+        const dy = clientY - drag.startY;
 
         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
             drag.moved = true;
@@ -1109,11 +1107,10 @@ export default function LandingPage({
         setMapCenter(nextCenter);
     };
 
-    const endMapDrag = (event) => {
+    const finishMapDrag = (pointerId) => {
         const drag = mapDragRef.current;
-        if (!drag.active || drag.pointerId !== event.pointerId) return;
+        if (!drag.active || drag.pointerId !== pointerId) return;
 
-        event.currentTarget.releasePointerCapture?.(event.pointerId);
         mapDragRef.current = {
             active: false,
             pointerId: null,
@@ -1124,9 +1121,55 @@ export default function LandingPage({
         };
         setMapDragging(false);
 
-        window.setTimeout(() => {
-            mapDragRef.current.moved = false;
-        }, 0);
+        window.setTimeout(
+            () => {
+                mapDragRef.current.moved = false;
+            },
+            drag.moved ? 280 : 0,
+        );
+    };
+
+    const handleMapPointerDown = (event) => {
+        if (event.button !== undefined && event.button !== 0) return;
+        if (shouldIgnoreMapDragTarget(event.target)) return;
+
+        startMapDrag(event.clientX, event.clientY, event.pointerId);
+        event.currentTarget.setPointerCapture?.(event.pointerId);
+    };
+
+    const handleMapPointerMove = (event) => {
+        moveMapDrag(event.clientX, event.clientY, event.pointerId);
+    };
+
+    const endMapDrag = (event) => {
+        const drag = mapDragRef.current;
+        if (!drag.active || drag.pointerId !== event.pointerId) return;
+
+        event.currentTarget.releasePointerCapture?.(event.pointerId);
+        finishMapDrag(event.pointerId);
+    };
+
+    const handleMapTouchStart = (event) => {
+        if (event.touches.length !== 1) return;
+        if (shouldIgnoreMapDragTarget(event.target)) return;
+
+        const touch = event.touches[0];
+        startMapDrag(touch.clientX, touch.clientY, "touch");
+    };
+
+    const handleMapTouchMove = (event) => {
+        const drag = mapDragRef.current;
+        if (!drag.active || drag.pointerId !== "touch") return;
+        if (!event.touches.length) return;
+
+        event.preventDefault();
+
+        const touch = event.touches[0];
+        moveMapDrag(touch.clientX, touch.clientY, "touch");
+    };
+
+    const endMapTouchDrag = () => {
+        finishMapDrag("touch");
     };
 
     const locateCurrentUser = () => {
@@ -1616,6 +1659,10 @@ export default function LandingPage({
                                         onPointerMove={handleMapPointerMove}
                                         onPointerUp={endMapDrag}
                                         onPointerCancel={endMapDrag}
+                                        onTouchStart={handleMapTouchStart}
+                                        onTouchMove={handleMapTouchMove}
+                                        onTouchEnd={endMapTouchDrag}
+                                        onTouchCancel={endMapTouchDrag}
                                         onClick={() => {
                                             if (mapDragRef.current.moved)
                                                 return;
