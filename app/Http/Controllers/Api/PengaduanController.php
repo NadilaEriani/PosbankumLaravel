@@ -167,6 +167,15 @@ class PengaduanController extends Controller
             ->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'm.id_kelurahan')
             ->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'm.id_kecamatan')
             ->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'm.id_kabupaten')
+            
+            // Join ke posbankum paralegal untuk mendapatkan kelurahan posbankum tempat paralegal bertugas
+            ->leftJoin('posbankum_paralegal as pp', function($join) {
+                $join->on('pp.id_user', '=', 'p.id_paralegal')
+                     ->where('pp.status', '=', 'aktif');
+            })
+            ->leftJoin('posbankum as pos', 'pos.id_posbankum', '=', 'pp.id_posbankum')
+            ->leftJoin('kelurahan as kel_pos', 'kel_pos.id_kelurahan', '=', 'pos.id_kelurahan')
+
             ->where('p.id_pengaduan', $id)
             ->select([
                 'p.*',
@@ -174,6 +183,7 @@ class PengaduanController extends Controller
                 'u.nomor_telepon as nomor_telepon_paralegal',
                 'u.foto_profile as foto_profile_paralegal',
                 'uw.foto_profile as foto_profile_pelapor',
+                'kel_pos.nama as wilayah_posbankum', // Kelurahan Posbankum tempat bertugas
                 DB::raw("CONCAT_WS(', ', kel.nama, kec.nama, kab.nama) as alamat_pelapor")
             ])
             ->first();
