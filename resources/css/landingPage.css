@@ -4247,7 +4247,8 @@ body {
     background: #e8e5de;
     overflow: hidden;
     isolation: isolate;
-    touch-action: pan-x pan-y;
+    touch-action: none;
+    cursor: grab;
 }
 
 .lp-osm-tile-layer {
@@ -5818,86 +5819,19 @@ body,
     }
 }
 
-.lp-chatbot-backdrop {
-    background: rgba(3, 7, 18, 0.25) !important;
-    backdrop-filter: none !important;
-    z-index: 90 !important;
+/* Map interaction update */
+.lp-osm-map.is-dragging {
+    cursor: grabbing;
 }
 
-.lp-chatbot-panel {
-    width: min(360px, calc(100vw - 28px)) !important;
-    height: min(620px, calc(100vh - 130px)) !important;
-    right: max(22px, calc((100vw - 1240px) / 2 + 22px)) !important;
-    bottom: 104px !important;
-    border-radius: 20px !important;
-    z-index: 95 !important;
-}
-
-.lp-chatbot-panel.is-large {
-    width: min(360px, calc(100vw - 28px)) !important;
-    height: min(620px, calc(100vh - 130px)) !important;
-    right: max(22px, calc((100vw - 1240px) / 2 + 22px)) !important;
-    bottom: 104px !important;
-}
-
-.lp-chatbot-controls button:not(:last-child) {
-    display: none !important;
-}
-
-.lp-chatbot-controls button {
-    width: 34px !important;
-    height: 34px !important;
-    border-radius: 12px !important;
-    background: rgba(255, 255, 255, 0.16) !important;
-}
-
-.lp-chatbot-header {
-    min-height: 64px !important;
-    padding: 12px 16px !important;
-}
-
-.lp-chatbot-body {
-    padding: 20px !important;
-}
-
-.lp-chatbot-topics {
-    padding: 14px 20px 16px !important;
-}
-
-.lp-chatbot-input-wrap {
-    padding: 14px 16px 4px !important;
-    grid-template-columns: minmax(0, 1fr) 48px !important;
-}
-
-.lp-chatbot-send {
-    width: 44px !important;
-    height: 44px !important;
-}
-
-.lp-float-chat.is-open {
-    background: #0f3f93 !important;
+.lp-osm-map.is-dragging .lp-osm-tile,
+.lp-osm-map.is-dragging .lp-map-pin,
+.lp-osm-map.is-dragging .lp-user-map-marker {
+    pointer-events: none;
 }
 
 @media (max-width: 768px) {
-    .lp-chatbot-panel,
-    .lp-chatbot-panel.is-large {
-        right: 12px !important;
-        left: 12px !important;
-        bottom: 84px !important;
-        width: auto !important;
-        height: min(610px, calc(100vh - 106px)) !important;
-        max-height: calc(100vh - 106px) !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .lp-chatbot-panel,
-    .lp-chatbot-panel.is-large {
-        right: 10px !important;
-        left: 10px !important;
-        bottom: 76px !important;
-        width: auto !important;
-        height: min(590px, calc(100vh - 92px)) !important;
-        max-height: calc(100vh - 92px) !important;
+    .lp-osm-map {
+        touch-action: none;
     }
 }

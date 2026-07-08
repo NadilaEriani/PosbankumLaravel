@@ -75,7 +75,7 @@ function getMemberPhone(item) {
     );
 }
 
-export default function ParalegalProfile({ profile = {}, onBack }) {
+export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
     const { props } = usePage();
     const pageErrors = props.errors || {};
     const flash = props.flash || {};
@@ -394,8 +394,16 @@ export default function ParalegalProfile({ profile = {}, onBack }) {
 
                         <div className="prfPosBox">
                             <div className="prfPosTop">
-                                <div className="prfPosIconBox">
-                                    <img src={posbankumIcon} alt="" />
+                                <div
+                                    className="prfPosIconBox"
+                                    aria-hidden="true"
+                                >
+                                    <span
+                                        className="prfPosIconMask"
+                                        style={{
+                                            "--mask-url": `url(${posbankumIcon})`,
+                                        }}
+                                    />
                                 </div>
                                 <div>
                                     <h4>
@@ -520,9 +528,4 @@ ParalegalProfile.propTypes = {
         team: PropTypes.array,
     }),
     onBack: PropTypes.func,
-};
-
-ParalegalProfile.defaultProps = {
-    profile: {},
-    onBack: () => {},
 };

@@ -672,7 +672,6 @@ export default function AdminProfile({ user = {}, onClose, onBack }) {
                     </div>
                 </div>
             </div>
-
         </section>
     );
 }

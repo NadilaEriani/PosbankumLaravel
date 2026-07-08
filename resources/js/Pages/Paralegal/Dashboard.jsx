@@ -24,7 +24,6 @@ import {
     FiBellOff,
     FiMail,
     FiPhone,
-    FiPlus,
 } from "react-icons/fi";
 
 import logo from "../../assets/logo.png";
@@ -431,11 +430,24 @@ function getNotificationTarget(item) {
     }
 
     if (
+        text.includes("tagging") ||
+        text.includes("taging") ||
+        refTable === "tagging_area" ||
+        refTable === "taging_area" ||
+        (category === "dokumen" && refTable === "posbankum")
+    ) {
+        return {
+            page: "Kelola Posbankum",
+            type: "tagging_area",
+            id: "__tagging_area__",
+        };
+    }
+
+    if (
         category === "dokumen" ||
         text.includes("dokumen") ||
         text.includes("data_posbankum") ||
         text.includes("data posbankum") ||
-        text.includes("tagging") ||
         text.includes("posbankum")
     ) {
         return { page: "Kelola Posbankum", type: "dokumen", id };
@@ -503,24 +515,8 @@ function ConfirmModal({
     );
 }
 
-function EmptyDashboardState({ icon, title, description, buttonLabel, onAction }) {
-    return (
-        <div className="pb2DashboardEmpty">
-            <div className="pb2DashboardEmptyIcon">{icon}</div>
-            <div className="pb2DashboardEmptyTitle">{title}</div>
-            <div className="pb2DashboardEmptyDesc">{description}</div>
-            {buttonLabel && onAction ? (
-                <button
-                    className="pb2DashboardEmptyAction"
-                    type="button"
-                    onClick={onAction}
-                >
-                    <FiPlus />
-                    {buttonLabel}
-                </button>
-            ) : null}
-        </div>
-    );
+function EmptyBox({ children }) {
+    return <div className="pb2Empty">{children}</div>;
 }
 
 export default function PosbankumDashboard({
@@ -690,6 +686,8 @@ export default function PosbankumDashboard({
         );
     }, [posbankum?.alamat, posbankum?.address, auth?.user?.email]);
 
+    // Navbar/topbar harus tetap menampilkan identitas Posbankum seperti halaman Beranda,
+    // meskipun menu konten yang dibuka berbeda.
     const pageTitle = headerTitle;
     const pageSub = headerSub;
 
@@ -702,32 +700,6 @@ export default function PosbankumDashboard({
         }
 
         setActive(label);
-    };
-
-    const openCaseDetailFromDashboard = (item) => {
-        if (!item?.id) return;
-
-        setNotifSelectedId(null);
-        setActive("Semua Kasus");
-        setPageTarget((prev) => ({
-            type: "kasus",
-            id: item.id,
-            tick: prev.tick + 1,
-        }));
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const openActivityDetailFromDashboard = (item) => {
-        if (!item?.id) return;
-
-        setNotifSelectedId(null);
-        setActive("Kelola Kegiatan");
-        setPageTarget((prev) => ({
-            type: "kegiatan",
-            id: item.id,
-            tick: prev.tick + 1,
-        }));
-        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const handleLogout = () => {
@@ -905,15 +877,7 @@ export default function PosbankumDashboard({
                 <div className="pb2CaseGrid">
                     {caseRows.length ? (
                         caseRows.slice(0, 4).map((item) => (
-                            <button
-                                className="pb2CaseCard"
-                                key={item.id}
-                                type="button"
-                                onClick={() =>
-                                    openCaseDetailFromDashboard(item)
-                                }
-                                aria-label={`Buka detail kasus ${item.judul}`}
-                            >
+                            <div className="pb2CaseCard" key={item.id}>
                                 <div
                                     className={`pb2CaseIcon ${item.selesai ? "green" : "orange"}`}
                                 >
@@ -942,16 +906,10 @@ export default function PosbankumDashboard({
                                         </span>
                                     </div>
                                 </div>
-                            </button>
+                            </div>
                         ))
                     ) : (
-                        <EmptyDashboardState
-                            icon={<FiFileText />}
-                            title="Belum Ada Kasus"
-                            description="Belum ada kasus terbaru dari seluruh Posbankum Riau"
-                            buttonLabel="Lihat Semua Kasus"
-                            onAction={() => openMenu("Semua Kasus")}
-                        />
+                        <EmptyBox>Belum ada kasus.</EmptyBox>
                     )}
                 </div>
 
@@ -985,15 +943,7 @@ export default function PosbankumDashboard({
                 <div className="pb2KegiatanList">
                     {activityRows.length ? (
                         activityRows.slice(0, 4).map((item) => (
-                            <button
-                                className="pb2KegiatanItem"
-                                key={item.id}
-                                type="button"
-                                onClick={() =>
-                                    openActivityDetailFromDashboard(item)
-                                }
-                                aria-label={`Buka detail kegiatan ${item.judul}`}
-                            >
+                            <div className="pb2KegiatanItem" key={item.id}>
                                 <div className="pb2KegiatanIcon">
                                     <FiCheckCircle />
                                 </div>
@@ -1030,16 +980,10 @@ export default function PosbankumDashboard({
                                 >
                                     {item.status}
                                 </span>
-                            </button>
+                            </div>
                         ))
                     ) : (
-                        <EmptyDashboardState
-                            icon={<FiCalendar />}
-                            title="Belum Ada Kegiatan"
-                            description="Belum ada kegiatan yang ditambahkan untuk bulan ini"
-                            buttonLabel="Tambah Kegiatan"
-                            onAction={() => openMenu("Kelola Kegiatan")}
-                        />
+                        <EmptyBox>Belum ada kegiatan.</EmptyBox>
                     )}
                 </div>
             </div>
@@ -1072,10 +1016,14 @@ export default function PosbankumDashboard({
                 location={posbankumLocation}
                 flash={flash}
                 openDetailId={
-                    pageTarget.type === "dokumen" ? pageTarget.id : null
+                    ["dokumen", "tagging_area"].includes(pageTarget.type)
+                        ? pageTarget.id
+                        : null
                 }
                 openDetailTick={
-                    pageTarget.type === "dokumen" ? pageTarget.tick : 0
+                    ["dokumen", "tagging_area"].includes(pageTarget.type)
+                        ? pageTarget.tick
+                        : 0
                 }
             />
         </section>
@@ -1091,7 +1039,7 @@ export default function PosbankumDashboard({
     const renderKelolaKegiatan = () => (
         <section className="pb2Content pb2ContentWithHeading">
             <KelolaKegiatan
-                kegiatanRows={kegiatanRows?.length ? kegiatanRows : kegiatanTerbaru}
+                kegiatanRows={kegiatanRows}
                 paralegalOptions={paralegalOptions}
                 currentPosbankum={currentPosbankum || posbankum}
                 profile={auth?.user || {}}

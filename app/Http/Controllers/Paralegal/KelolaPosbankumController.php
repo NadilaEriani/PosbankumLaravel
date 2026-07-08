@@ -434,11 +434,31 @@ class KelolaPosbankumController extends Controller
             $this->addColumn($payload, 'posbankum', 'address', trim($data['alamat']));
         }
 
-        foreach (['status_lokasi', 'status_tagging', 'status_verifikasi_lokasi', 'status_verifikasi_tagging'] as $column) {
-            if ($this->hasColumn('posbankum', $column)) {
-                $payload[$column] = 'menunggu';
-                break;
-            }
+        foreach ([
+            'status_verifikasi_tagging_area',
+            'status_tagging_area',
+            'status_verifikasi_tagging',
+            'status_tagging',
+            'status_lokasi',
+            'status_verifikasi_lokasi',
+        ] as $column) {
+            $this->addColumn($payload, 'posbankum', $column, 'menunggu');
+        }
+
+        foreach (['tgl_upload_tagging_area', 'tanggal_upload_tagging_area'] as $column) {
+            $this->addColumn($payload, 'posbankum', $column, now());
+        }
+
+        foreach (['tgl_verifikasi_tagging_area', 'tgl_verifikasi_tagging', 'tgl_verifikasi_lokasi'] as $column) {
+            $this->addColumn($payload, 'posbankum', $column, null);
+        }
+
+        foreach (['id_user_verifikator_tagging_area', 'id_user_verifikator_tagging', 'id_user_verifikator_lokasi'] as $column) {
+            $this->addColumn($payload, 'posbankum', $column, null);
+        }
+
+        foreach (['catatan_verifikasi_tagging_area', 'catatan_tagging_area', 'catatan_lokasi'] as $column) {
+            $this->addColumn($payload, 'posbankum', $column, null);
         }
 
         $this->addColumn($payload, 'posbankum', 'updated_at', now());

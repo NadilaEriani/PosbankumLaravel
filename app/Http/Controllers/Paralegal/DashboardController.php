@@ -339,6 +339,27 @@ class DashboardController extends Controller
             return [];
         }
 
+        $statusTaggingArea = (string) $this->rowValue($row, [
+            'status_verifikasi_tagging_area',
+            'status_tagging_area',
+            'status_verifikasi_tagging',
+            'status_tagging',
+            'status_lokasi',
+            'status_verifikasi_lokasi',
+            'verification_status_location',
+        ], '');
+
+        $tanggalTaggingArea = $this->rowValue($row, [
+            'tgl_verifikasi_tagging_area',
+            'tanggal_verifikasi_tagging_area',
+            'tgl_verifikasi_tagging',
+            'tgl_verifikasi_lokasi',
+            'tgl_upload_tagging_area',
+            'tanggal_upload_tagging_area',
+            'updated_at',
+            'created_at',
+        ]);
+
         return [
             'id' => $this->getPosbankumId($row),
             'id_posbankum' => $this->getPosbankumId($row),
@@ -349,7 +370,14 @@ class DashboardController extends Controller
             'jml_paralegal' => (int) $this->rowValue($row, ['jml_paralegal', 'jumlah_paralegal'], 0),
             'latitude' => $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']),
             'longitude' => $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']),
-            'status_lokasi' => (string) $this->rowValue($row, ['status_lokasi', 'status_tagging', 'status_verifikasi_lokasi', 'status_verifikasi_tagging'], ''),
+            'status_verifikasi_tagging_area' => $statusTaggingArea,
+            'status_tagging_area' => $statusTaggingArea,
+            'status_lokasi' => $statusTaggingArea,
+            'tgl_verifikasi_tagging_area' => $this->rowValue($row, ['tgl_verifikasi_tagging_area', 'tanggal_verifikasi_tagging_area', 'tgl_verifikasi_tagging', 'tgl_verifikasi_lokasi']),
+            'tgl_upload_tagging_area' => $this->rowValue($row, ['tgl_upload_tagging_area', 'tanggal_upload_tagging_area'], $tanggalTaggingArea),
+            'tanggal_tagging_area' => $tanggalTaggingArea,
+            'created_at' => $this->rowValue($row, ['created_at']),
+            'updated_at' => $this->rowValue($row, ['updated_at']),
         ];
     }
 
@@ -1033,11 +1061,23 @@ class DashboardController extends Controller
 
     private function posbankumLocation(array $posbankum): array
     {
+        $statusTaggingArea = $posbankum['status_verifikasi_tagging_area']
+            ?? $posbankum['status_tagging_area']
+            ?? $posbankum['status_lokasi']
+            ?? '';
+
         return [
             'lat' => $posbankum['latitude'] ?? '',
             'lng' => $posbankum['longitude'] ?? '',
             'alamat' => $posbankum['alamat'] ?? '',
-            'status' => $posbankum['status_lokasi'] ?? '',
+            'status' => $statusTaggingArea,
+            'status_verifikasi_tagging_area' => $statusTaggingArea,
+            'status_tagging_area' => $statusTaggingArea,
+            'tgl_verifikasi_tagging_area' => $posbankum['tgl_verifikasi_tagging_area'] ?? null,
+            'tgl_upload_tagging_area' => $posbankum['tgl_upload_tagging_area'] ?? null,
+            'tanggal_tagging_area' => $posbankum['tanggal_tagging_area'] ?? null,
+            'created_at' => $posbankum['created_at'] ?? null,
+            'updated_at' => $posbankum['updated_at'] ?? null,
         ];
     }
 
@@ -1103,7 +1143,13 @@ class DashboardController extends Controller
                     'kode_pos' => (string) $this->rowValue($row, ['kode_pos'], ''),
                     'latitude' => $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']),
                     'longitude' => $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']),
-                    'status_tagging_area' => (string) $this->rowValue($row, ['status_verifikasi_tagging_area', 'status_lokasi', 'status_tagging'], ''),
+                    'status_verifikasi_tagging_area' => (string) $this->rowValue($row, ['status_verifikasi_tagging_area', 'status_tagging_area', 'status_verifikasi_tagging', 'status_tagging', 'status_lokasi'], ''),
+                    'status_tagging_area' => (string) $this->rowValue($row, ['status_verifikasi_tagging_area', 'status_tagging_area', 'status_verifikasi_tagging', 'status_tagging', 'status_lokasi'], ''),
+                    'tgl_verifikasi_tagging_area' => $this->rowValue($row, ['tgl_verifikasi_tagging_area', 'tanggal_verifikasi_tagging_area', 'tgl_verifikasi_tagging', 'tgl_verifikasi_lokasi']),
+                    'tgl_upload_tagging_area' => $this->rowValue($row, ['tgl_upload_tagging_area', 'tanggal_upload_tagging_area', 'updated_at', 'created_at']),
+                    'tanggal_tagging_area' => $this->rowValue($row, ['tgl_verifikasi_tagging_area', 'tanggal_verifikasi_tagging_area', 'tgl_upload_tagging_area', 'tanggal_upload_tagging_area', 'updated_at', 'created_at']),
+                    'created_at' => $this->rowValue($row, ['created_at']),
+                    'updated_at' => $this->rowValue($row, ['updated_at']),
                 ]);
             }
         }
@@ -1384,7 +1430,6 @@ class DashboardController extends Controller
         $user = $request->user();
         $idPosbankum = $this->resolveUserPosbankumId($user);
         $posbankum = $this->posbankumById($idPosbankum);
-        $semuaKasusRows = $this->semuaKasusRows();
 
         return Inertia::render('Paralegal/Dashboard', [
             'auth' => [
@@ -1397,10 +1442,10 @@ class DashboardController extends Controller
                 'completedActivities' => $this->completedActivitiesCount($idPosbankum),
                 'activeParalegal' => $this->paralegalCount($idPosbankum, $posbankum),
             ],
-            'kasusTerbaru' => array_slice($semuaKasusRows, 0, 6),
+            'kasusTerbaru' => $this->latestPengaduan($idPosbankum),
             'kegiatanTerbaru' => $this->latestKegiatan($idPosbankum),
             'kegiatanRows' => $this->kegiatanRows($idPosbankum),
-            'semuaKasusRows' => $semuaKasusRows,
+            'semuaKasusRows' => $this->semuaKasusRows(),
             'posbankumDocuments' => $this->posbankumDocumentRows($idPosbankum),
             'posbankumLocation' => $this->posbankumLocation($posbankum),
             'notifications' => $this->notifications($idPosbankum),

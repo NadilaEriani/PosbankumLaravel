@@ -1,7 +1,7 @@
 import { MdLocationSearching } from "react-icons/md";
 import { router } from "@inertiajs/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import SuccessToast from "../../Components/ui/SuccessToast";
+import SuccessToast from "../../components/ui/SuccessToast";
 import {
     FiFileText,
     FiUpload,
@@ -89,6 +89,74 @@ function statusLabelFromKind(k) {
     if (k === "bad") return "Ditolak";
     if (k === "wait") return "Proses";
     return "Belum";
+}
+
+function firstValueFromSources(sources, keys) {
+    const rows = Array.isArray(sources) ? sources : [sources];
+
+    for (const row of rows) {
+        if (!row || typeof row !== "object") continue;
+
+        for (const key of keys) {
+            const value = row?.[key];
+            if (
+                value !== undefined &&
+                value !== null &&
+                String(value).trim() !== ""
+            ) {
+                return value;
+            }
+        }
+    }
+
+    return null;
+}
+
+function isChangedAfterCreate(createdAt, updatedAt) {
+    if (!createdAt || !updatedAt) return false;
+
+    const createdMs = new Date(createdAt).getTime();
+    const updatedMs = new Date(updatedAt).getTime();
+
+    if (!Number.isFinite(createdMs) || !Number.isFinite(updatedMs)) {
+        return false;
+    }
+
+    return updatedMs - createdMs > 1000;
+}
+
+function pickTaggingDate(sources, hasCoords) {
+    const rows = Array.isArray(sources) ? sources : [sources];
+    const savedDate = firstValueFromSources(rows, [
+        "tgl_verifikasi_tagging_area",
+        "tanggal_verifikasi_tagging_area",
+        "tgl_verifikasi_tagging",
+        "tgl_verifikasi_lokasi",
+        "tgl_upload_tagging_area",
+        "tanggal_upload_tagging_area",
+        "tanggal_tagging_area",
+    ]);
+
+    if (savedDate) return savedDate;
+
+    for (const row of rows) {
+        if (!row || typeof row !== "object") continue;
+        if (isChangedAfterCreate(row?.created_at, row?.updated_at)) {
+            return row.updated_at;
+        }
+    }
+
+    if (!hasCoords) return null;
+
+    return firstValueFromSources(rows, ["updated_at", "created_at"]);
+}
+
+function isTaggingAreaTarget(value) {
+    return ["__tagging_area__", "tagging_area", "taging_area"].includes(
+        String(value || "")
+            .trim()
+            .toLowerCase(),
+    );
 }
 
 function getRejectNote(row) {
@@ -670,6 +738,8 @@ export default function KelolaPosbankum({
     const lastAutoDetailRef = useRef(null);
 
     const [successMessage, setSuccessMessage] = useState("");
+    const [taggingTargeted, setTaggingTargeted] = useState(false);
+    const taggingCardRef = useRef(null);
 
     const [editLocOpen, setEditLocOpen] = useState(false);
     const [locQuery, setLocQuery] = useState("");
@@ -796,6 +866,14 @@ export default function KelolaPosbankum({
     }, [location, posRow, currentPosbankum, hasSavedCoords]);
 
     const locationLabel = statusLabelFromKind(locationKind);
+    const taggingDate = useMemo(
+        () =>
+            pickTaggingDate(
+                [location, posRow, currentPosbankum],
+                hasSavedCoords,
+            ),
+        [location, posRow, currentPosbankum, hasSavedCoords],
+    );
 
     const stats = useMemo(() => {
         const total = 4;
@@ -1608,20 +1686,82 @@ export default function KelolaPosbankum({
         }
     };
 
+    const openTaggingDetail = useCallback(() => {
+        setDetailOpen(true);
+        setDetailTitle(`Tagging Area ${posName}`);
+        setDetailLoading(false);
+        setDetailIndex(0);
+
+        if (!hasSavedCoords) {
+            setDetailItems([]);
+            setDetailErr("Lokasi Tagging Area belum diatur.");
+            return;
+        }
+
+        setDetailErr("");
+        setDetailItems([
+            {
+                id: "__tagging_area__",
+                type: "tagging_area",
+                kategori: "tagging_area",
+                nama_berkas: "Tagging Area",
+                mime_type: "tagging_area",
+                signedUrl: buildOsmEmbed(locSaved.lat, locSaved.lng),
+                row: {
+                    id: "__tagging_area__",
+                    kategori: "tagging_area",
+                    lat: locSaved.lat,
+                    lng: locSaved.lng,
+                    alamat: locSaved.alamat || posRow?.alamat || "",
+                    status: locationLabel,
+                    tanggal: taggingDate,
+                },
+            },
+        ]);
+    }, [
+        hasSavedCoords,
+        locSaved.alamat,
+        locSaved.lat,
+        locSaved.lng,
+        locationLabel,
+        posName,
+        posRow?.alamat,
+        taggingDate,
+    ]);
+
     useEffect(() => {
-        if (!openDetailId) return;
+        if (!openDetailId) return undefined;
 
         const key = `${openDetailTick}-${openDetailId}`;
-        if (lastAutoDetailRef.current === key) return;
+        if (lastAutoDetailRef.current === key) return undefined;
+
+        if (isTaggingAreaTarget(openDetailId)) {
+            lastAutoDetailRef.current = key;
+            setTaggingTargeted(true);
+
+            window.setTimeout(() => {
+                taggingCardRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+                openTaggingDetail();
+            }, 80);
+
+            const timer = window.setTimeout(() => {
+                setTaggingTargeted(false);
+            }, 2200);
+
+            return () => window.clearTimeout(timer);
+        }
 
         const rows = Object.values(docsByCategory || {}).flat();
         const found = rows.find((row) =>
-            [row?.id_data, row?.id, row?.id_dokumen, row?.id_posbankum].some(
+            [row?.id_data, row?.id, row?.id_dokumen].some(
                 (value) => String(value || "") === String(openDetailId),
             ),
         );
 
-        if (!found) return;
+        if (!found) return undefined;
 
         const doc = docTypes.find(
             (item) =>
@@ -1633,7 +1773,15 @@ export default function KelolaPosbankum({
 
         lastAutoDetailRef.current = key;
         openDetail(found, doc ? `${doc.title} ${posName}` : "Preview Dokumen");
-    }, [docsByCategory, docTypes, openDetailId, openDetailTick, posName]);
+        return undefined;
+    }, [
+        docsByCategory,
+        docTypes,
+        openDetailId,
+        openDetailTick,
+        openTaggingDetail,
+        posName,
+    ]);
 
     const closeDetail = () => {
         setDetailOpen(false);
@@ -1873,7 +2021,8 @@ export default function KelolaPosbankum({
                 })}
 
                 <div
-                    className={`kpDocCard kpMapCard ${getDocToneClass(locationKind)}`}
+                    ref={taggingCardRef}
+                    className={`kpDocCard kpMapCard ${getDocToneClass(locationKind)} ${taggingTargeted ? "is-targeted" : ""}`}
                 >
                     <div className="kpDocTop">
                         <div className="kpDocTitle">Tagging Area</div>
@@ -1905,10 +2054,7 @@ export default function KelolaPosbankum({
                     </div>
 
                     <div className="kpDocMeta">
-                        Upload:{" "}
-                        {posRow?.updated_at
-                            ? formatDateID(posRow.updated_at)
-                            : "-"}
+                        Upload: {taggingDate ? formatDateID(taggingDate) : "-"}
                     </div>
 
                     <div className="kpPreview">
@@ -1982,6 +2128,16 @@ export default function KelolaPosbankum({
                         >
                             <FiMapPin />
                             Atur Lokasi
+                        </button>
+
+                        <button
+                            className="kpBtnIcon"
+                            type="button"
+                            onClick={openTaggingDetail}
+                            disabled={!hasSavedCoords}
+                            title="Lihat"
+                        >
+                            <FiEye />
                         </button>
                     </div>
                 </div>
@@ -2137,6 +2293,58 @@ export default function KelolaPosbankum({
                                 ) : detailErr ? (
                                     <div className="kpPreviewBigText">
                                         {detailErr}
+                                    </div>
+                                ) : currentDetailItem?.type ===
+                                  "tagging_area" ? (
+                                    <div className="kpTaggingDetail">
+                                        {currentDetailItem.signedUrl ? (
+                                            <iframe
+                                                className="kpTaggingDetailFrame"
+                                                title="Detail Tagging Area"
+                                                src={
+                                                    currentDetailItem.signedUrl
+                                                }
+                                            />
+                                        ) : (
+                                            <div className="kpPreviewBigText">
+                                                Lokasi Tagging Area belum
+                                                tersedia.
+                                            </div>
+                                        )}
+
+                                        <div className="kpTaggingDetailInfo">
+                                            <div className="kpTaggingDetailRow">
+                                                <span>Status</span>
+                                                <b>{locationLabel}</b>
+                                            </div>
+                                            <div className="kpTaggingDetailRow">
+                                                <span>Tanggal Upload</span>
+                                                <b>
+                                                    {taggingDate
+                                                        ? formatDateID(
+                                                              taggingDate,
+                                                          )
+                                                        : "-"}
+                                                </b>
+                                            </div>
+                                            <div className="kpTaggingDetailRow">
+                                                <span>Koordinat</span>
+                                                <b>
+                                                    {locSaved.lat &&
+                                                    locSaved.lng
+                                                        ? `${locSaved.lat}, ${locSaved.lng}`
+                                                        : "-"}
+                                                </b>
+                                            </div>
+                                            <div className="kpTaggingDetailRow is-address">
+                                                <span>Alamat</span>
+                                                <b>
+                                                    {locSaved.alamat ||
+                                                        posRow?.alamat ||
+                                                        "-"}
+                                                </b>
+                                            </div>
+                                        </div>
                                     </div>
                                 ) : currentDetailItem?.signedUrl ? (
                                     isImageMime(

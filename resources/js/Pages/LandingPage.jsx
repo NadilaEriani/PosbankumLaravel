@@ -14,7 +14,11 @@ import { BiRightArrowAlt, BiFile, BiShield } from "react-icons/bi";
 import { MdLanguage } from "react-icons/md";
 import { BsTelephone, BsClock, BsInstagram } from "react-icons/bs";
 import { BsFillPersonCheckFill } from "react-icons/bs";
-import { TbArrowBarRight } from "react-icons/tb";
+import {
+    TbArrowBarRight,
+    TbArrowsDiagonal,
+    TbArrowsDiagonalMinimize,
+} from "react-icons/tb";
 import {
     FiUsers,
     FiSearch,
@@ -26,8 +30,6 @@ import {
     FiMessageCircle,
     FiSend,
     FiLayers,
-    FiZoomIn,
-    FiZoomOut,
 } from "react-icons/fi";
 import { HiArrowTrendingUp } from "react-icons/hi2";
 import { HiOutlineScale } from "react-icons/hi";
@@ -255,6 +257,18 @@ const latLngToWorldPixel = (lat, lng, zoom) => {
     };
 };
 
+const worldPixelToLatLng = (x, y, zoom) => {
+    const scale = OSM_TILE_SIZE * 2 ** zoom;
+    const lng = (x / scale) * 360 - 180;
+    const n = Math.PI - (2 * Math.PI * y) / scale;
+    const lat = (180 / Math.PI) * Math.atan(Math.sinh(n));
+
+    return {
+        lat: clampNumber(lat, -85.05112878, 85.05112878),
+        lng: ((((lng + 180) % 360) + 360) % 360) - 180,
+    };
+};
+
 const getOsmTiles = (center, zoom, size) => {
     const safeWidth = Math.max(Number(size?.width) || 760, 320);
     const safeHeight = Math.max(Number(size?.height) || 560, 320);
@@ -438,14 +452,14 @@ function MapInfoPopup({ location, position }) {
     );
 }
 
-function ChatbotPanel({ open, onClose }) {
+function ChatbotPanel({ open, large, onToggleLarge, onClose }) {
     const [message, setMessage] = useState("");
     const hasMessage = message.trim().length > 0;
 
     if (!open) return null;
 
     return (
-        <div className="lp-chatbot-panel">
+        <div className={`lp-chatbot-panel ${large ? "is-large" : ""}`}>
             <div className="lp-chatbot-header">
                 <div className="lp-chatbot-title-wrap">
                     <span className="lp-chatbot-logo">
@@ -462,6 +476,20 @@ function ChatbotPanel({ open, onClose }) {
                 </div>
 
                 <div className="lp-chatbot-controls">
+                    <button
+                        type="button"
+                        onClick={onToggleLarge}
+                        aria-label={
+                            large ? "Perkecil chatbot" : "Perbesar chatbot"
+                        }
+                    >
+                        {large ? (
+                            <TbArrowsDiagonalMinimize />
+                        ) : (
+                            <TbArrowsDiagonal />
+                        )}
+                    </button>
+
                     <button
                         type="button"
                         onClick={onClose}
@@ -881,8 +909,10 @@ export default function LandingPage({
     const [mapZoom, setMapZoom] = useState(OSM_DEFAULT_ZOOM);
     const [mapCenter, setMapCenter] = useState(OSM_DEFAULT_CENTER);
     const [mapSize, setMapSize] = useState({ width: 760, height: 560 });
+    const [mapDragging, setMapDragging] = useState(false);
     const [userMapMarker, setUserMapMarker] = useState(null);
     const [chatbotOpen, setChatbotOpen] = useState(false);
+    const [chatbotLarge, setChatbotLarge] = useState(false);
     const [showAllLocations, setShowAllLocations] = useState(false);
     const [allSearchTerm, setAllSearchTerm] = useState("");
 
@@ -890,6 +920,14 @@ export default function LandingPage({
     const whyRef = useRef(null);
     const mapRef = useRef(null);
     const osmMapRef = useRef(null);
+    const mapDragRef = useRef({
+        active: false,
+        pointerId: null,
+        startX: 0,
+        startY: 0,
+        centerPixel: null,
+        moved: false,
+    });
 
     useEffect(() => {
         const node = osmMapRef.current;
@@ -1019,6 +1057,74 @@ export default function LandingPage({
         setMapPopup((current) =>
             current?.item?.id === item.id ? null : { item, position },
         );
+    };
+
+    const handleMapPointerDown = (event) => {
+        if (event.button !== undefined && event.button !== 0) return;
+        if (
+            event.target?.closest?.("button, a, input, .lp-map-location-popup")
+        ) {
+            return;
+        }
+
+        const centerPixel = latLngToWorldPixel(
+            mapCenter.lat,
+            mapCenter.lng,
+            mapZoom,
+        );
+
+        mapDragRef.current = {
+            active: true,
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            centerPixel,
+            moved: false,
+        };
+
+        setMapDragging(true);
+        event.currentTarget.setPointerCapture?.(event.pointerId);
+    };
+
+    const handleMapPointerMove = (event) => {
+        const drag = mapDragRef.current;
+        if (!drag.active || drag.pointerId !== event.pointerId) return;
+
+        const dx = event.clientX - drag.startX;
+        const dy = event.clientY - drag.startY;
+
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+            drag.moved = true;
+            setMapPopup(null);
+        }
+
+        const nextCenter = worldPixelToLatLng(
+            drag.centerPixel.x - dx,
+            drag.centerPixel.y - dy,
+            mapZoom,
+        );
+
+        setMapCenter(nextCenter);
+    };
+
+    const endMapDrag = (event) => {
+        const drag = mapDragRef.current;
+        if (!drag.active || drag.pointerId !== event.pointerId) return;
+
+        event.currentTarget.releasePointerCapture?.(event.pointerId);
+        mapDragRef.current = {
+            active: false,
+            pointerId: null,
+            startX: 0,
+            startY: 0,
+            centerPixel: null,
+            moved: drag.moved,
+        };
+        setMapDragging(false);
+
+        window.setTimeout(() => {
+            mapDragRef.current.moved = false;
+        }, 0);
     };
 
     const locateCurrentUser = () => {
@@ -1502,9 +1608,17 @@ export default function LandingPage({
                                     </div>
 
                                     <div
-                                        className="lp-osm-map"
+                                        className={`lp-osm-map ${mapDragging ? "is-dragging" : ""}`}
                                         ref={osmMapRef}
-                                        onClick={() => setMapPopup(null)}
+                                        onPointerDown={handleMapPointerDown}
+                                        onPointerMove={handleMapPointerMove}
+                                        onPointerUp={endMapDrag}
+                                        onPointerCancel={endMapDrag}
+                                        onClick={() => {
+                                            if (mapDragRef.current.moved)
+                                                return;
+                                            setMapPopup(null);
+                                        }}
                                     >
                                         <div
                                             className="lp-osm-tile-layer"
@@ -1587,30 +1701,6 @@ export default function LandingPage({
                                                 event.stopPropagation()
                                             }
                                         >
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setMapZoom((value) =>
-                                                        Math.min(value + 1, 18),
-                                                    )
-                                                }
-                                                aria-label="Perbesar peta"
-                                            >
-                                                <FiZoomIn />
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setMapZoom((value) =>
-                                                        Math.max(value - 1, 10),
-                                                    )
-                                                }
-                                                aria-label="Perkecil peta"
-                                            >
-                                                <FiZoomOut />
-                                            </button>
-
                                             <button
                                                 type="button"
                                                 className="lp-map-current-button"
@@ -1961,6 +2051,8 @@ export default function LandingPage({
 
             <ChatbotPanel
                 open={chatbotOpen}
+                large={chatbotLarge}
+                onToggleLarge={() => setChatbotLarge((value) => !value)}
                 onClose={() => setChatbotOpen(false)}
             />
 
