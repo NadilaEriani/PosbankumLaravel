@@ -5819,6 +5819,7 @@ body,
     }
 }
 
+
 /* Map interaction update */
 .lp-osm-map.is-dragging {
     cursor: grabbing;

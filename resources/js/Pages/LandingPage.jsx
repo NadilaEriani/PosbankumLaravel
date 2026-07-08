@@ -30,6 +30,8 @@ import {
     FiMessageCircle,
     FiSend,
     FiLayers,
+    FiZoomIn,
+    FiZoomOut,
 } from "react-icons/fi";
 import { HiArrowTrendingUp } from "react-icons/hi2";
 import { HiOutlineScale } from "react-icons/hi";
@@ -1701,6 +1703,30 @@ export default function LandingPage({
                                                 event.stopPropagation()
                                             }
                                         >
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setMapZoom((value) =>
+                                                        Math.min(value + 1, 18),
+                                                    )
+                                                }
+                                                aria-label="Perbesar peta"
+                                            >
+                                                <FiZoomIn />
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setMapZoom((value) =>
+                                                        Math.max(value - 1, 10),
+                                                    )
+                                                }
+                                                aria-label="Perkecil peta"
+                                            >
+                                                <FiZoomOut />
+                                            </button>
+
                                             <button
                                                 type="button"
                                                 className="lp-map-current-button"
