@@ -149,6 +149,37 @@ class PengaduanController extends Controller
             'updated_at' => now(),
         ]);
 
+        // Buat notifikasi otomatis untuk Paralegal di wilayah Posbankum kelurahan tersebut
+        try {
+            $warga = DB::table('masyarakat')
+                ->where('id_user', $request->user()->id_user)
+                ->first();
+            
+            if ($warga && $warga->id_kelurahan) {
+                $id_posbankum = DB::table('posbankum')
+                    ->where('id_kelurahan', $warga->id_kelurahan)
+                    ->value('id_posbankum');
+                
+                if ($id_posbankum) {
+                    DB::table('notifikasi')->insert([
+                        'id_notifikasi' => (string) Str::uuid(),
+                        'id_posbankum' => $id_posbankum,
+                        'id_user_penerima' => null,
+                        'judul' => 'Pengaduan Baru',
+                        'pesan' => 'Ada pengaduan baru masuk: "' . $request->judul_pengaduan . '" dari warga di wilayah Anda.',
+                        'kategori' => 'pengaduan',
+                        'prioritas' => 'sedang',
+                        'is_read' => 0,
+                        'ref_table' => 'pengaduan',
+                        'ref_id' => $id,
+                        'created_at' => now(),
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            // Abaikan error notifikasi agar transaksi utama tetap sukses
+        }
+
         $data = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
 
         return response()->json([
@@ -226,7 +257,63 @@ class PengaduanController extends Controller
             $updateData['catatan_internal'] = $request->catatan_internal;
         }
 
+        // Ambil data sebelum update untuk mendapatkan detail pelapor/kasus
+        $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
+
         DB::table('pengaduan')->where('id_pengaduan', $id)->update($updateData);
+
+        // Kirim notifikasi ke warga terkait update status kasus
+        if ($pengaduan) {
+            try {
+                $judul = '';
+                $pesan = '';
+                $prioritas = 'sedang';
+
+                if ($request->status === 'diproses') {
+                    $judul = 'Pengaduan Diproses';
+                    $pesan = 'Pengaduan Anda "' . $pengaduan->judul_pengaduan . '" sekarang sedang diproses oleh Paralegal ' . $user->nama_lengkap . '.';
+                } elseif ($request->status === 'selesai') {
+                    $judul = 'Pengaduan Selesai';
+                    $pesan = 'Pengaduan Anda "' . $pengaduan->judul_pengaduan . '" telah selesai ditangani oleh paralegal.';
+                } elseif ($request->status === 'dibatalkan') {
+                    $judul = 'Pengaduan Dibatalkan';
+                    $pesan = 'Pengaduan Anda "' . $pengaduan->judul_pengaduan . '" dibatalkan. Alasan: ' . ($request->catatan_internal ?? '-');
+                    $prioritas = 'tinggi';
+                }
+
+                if ($judul && $pesan) {
+                    DB::table('notifikasi')->insert([
+                        'id_notifikasi' => (string) Str::uuid(),
+                        'id_posbankum' => null,
+                        'id_user_penerima' => $pengaduan->user_id,
+                        'judul' => $judul,
+                        'pesan' => $pesan,
+                        'kategori' => 'pengaduan',
+                        'prioritas' => $prioritas,
+                        'is_read' => 0,
+                        'ref_table' => 'pengaduan',
+                        'ref_id' => $id,
+                        'created_at' => now(),
+                    ]);
+
+                    // Kirim push notification FCM (Pop-Up) ke warga jika fcm_token tersedia
+                    $recipientUser = DB::table('users')->where('id_user', $pengaduan->user_id)->first();
+                    if ($recipientUser && !empty($recipientUser->fcm_token)) {
+                        \App\Services\FcmService::sendPush(
+                            $recipientUser->fcm_token,
+                            $judul,
+                            $pesan,
+                            [
+                                'ref_table' => 'pengaduan',
+                                'ref_id' => $id,
+                            ]
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                // Abaikan error notifikasi agar transaksi utama tetap sukses
+            }
+        }
 
         return response()->json([
             'status' => true,

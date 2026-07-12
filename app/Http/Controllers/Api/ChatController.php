@@ -42,6 +42,48 @@ class ChatController extends Controller
             'is_read' => 0,
             'created_at' => now(),
         ]);
+
+        // Kirim notifikasi ke lawan bicara perihal chat baru
+        try {
+            $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id_pengaduan)->first();
+            if ($pengaduan) {
+                $recipientId = ($request->user()->role === 'warga') 
+                    ? $pengaduan->id_paralegal 
+                    : $pengaduan->user_id;
+
+                if ($recipientId) {
+                    DB::table('notifikasi')->insert([
+                        'id_notifikasi' => (string) Str::uuid(),
+                        'id_posbankum' => null,
+                        'id_user_penerima' => $recipientId,
+                        'judul' => 'Pesan Baru',
+                        'pesan' => 'Pesan baru dari ' . ($request->user()->nama_lengkap ?? 'Lawan Bicara') . ': "' . Str::limit($request->pesan, 60) . '"',
+                        'kategori' => 'pengaduan',
+                        'prioritas' => 'sedang',
+                        'is_read' => 0,
+                        'ref_table' => 'pengaduan',
+                        'ref_id' => $id_pengaduan,
+                        'created_at' => now(),
+                    ]);
+
+                    // Kirim push notification FCM (Pop-Up) jika fcm_token tersedia
+                    $recipientUser = DB::table('users')->where('id_user', $recipientId)->first();
+                    if ($recipientUser && !empty($recipientUser->fcm_token)) {
+                        \App\Services\FcmService::sendPush(
+                            $recipientUser->fcm_token,
+                            'Pesan Baru',
+                            ($request->user()->nama_lengkap ?? 'Lawan Bicara') . ': ' . $request->pesan,
+                            [
+                                'ref_table' => 'pengaduan',
+                                'ref_id' => $id_pengaduan,
+                            ]
+                        );
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Abaikan error notifikasi agar chat tetap terkirim sukses
+        }
         
         $data = DB::table('chat_pesan')->where('id_pesan', $id)->first();
         return response()->json(['status' => true, 'message' => 'Pesan terkirim', 'data' => $data], 201);

@@ -160,4 +160,42 @@ class ProfileController extends Controller
             return $this->show($request);
         });
     }
+
+    /**
+     * Simpan fcm_token untuk push notifications.
+     */
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $user = $request->user();
+        $hasColumn = false;
+
+        try {
+            $hasColumn = \Illuminate\Support\Facades\Schema::hasColumn('users', 'fcm_token');
+        } catch (\Exception $e) {
+            // Abaikan error pengecekan
+        }
+
+        if ($hasColumn) {
+            try {
+                DB::table('users')
+                    ->where('id_user', $user->id_user)
+                    ->update([
+                        'fcm_token' => $request->fcm_token,
+                        'updated_at' => now(),
+                    ]);
+            } catch (\Exception $e) {
+                // Abaikan error update
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Token FCM berhasil diperbarui',
+            'data' => null
+        ]);
+    }
 }

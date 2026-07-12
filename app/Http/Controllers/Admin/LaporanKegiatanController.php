@@ -112,6 +112,34 @@ class LaporanKegiatanController extends Controller
         if (!empty($payload)) {
             try {
                 DB::table('notifikasi')->insert($payload);
+
+                // Kirim push notification FCM (Pop-Up) ke semua paralegal aktif di Posbankum tersebut
+                $paralegalUserIds = DB::table('posbankum_paralegal')
+                    ->where('id_posbankum', $idPosbankum)
+                    ->where('status', 'aktif')
+                    ->pluck('id_user')
+                    ->all();
+
+                if (!empty($paralegalUserIds)) {
+                    $tokens = DB::table('users')
+                        ->whereIn('id_user', $paralegalUserIds)
+                        ->whereNotNull('fcm_token')
+                        ->where('fcm_token', '!=', '')
+                        ->pluck('fcm_token')
+                        ->all();
+
+                    foreach ($tokens as $token) {
+                        \App\Services\FcmService::sendPush(
+                            $token,
+                            $judulNotif,
+                            $pesan,
+                            [
+                                'ref_table' => 'kegiatan',
+                                'ref_id' => $idKegiatan,
+                            ]
+                        );
+                    }
+                }
             } catch (\Throwable $e) {
                 // Proses verifikasi kegiatan tidak boleh gagal hanya karena notifikasi gagal dibuat.
             }

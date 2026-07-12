@@ -91,6 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // -------------------------------------------------------------------------
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::put('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/fcm-token', [ProfileController::class, 'updateFcmToken']);
 
     // -------------------------------------------------------------------------
     // UPLOAD
