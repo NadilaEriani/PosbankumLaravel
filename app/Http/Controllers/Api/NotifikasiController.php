@@ -10,7 +10,7 @@ class NotifikasiController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = DB::table('notifikasi');
+        $query = DB::table('notifikasi')->where('kategori', '!=', 'dokumen');
 
         if ($user->role === 'paralegal') {
             $idPosbankum = DB::table('posbankum_paralegal')
@@ -57,7 +57,7 @@ class NotifikasiController extends Controller
     public function unreadCount(Request $request)
     {
         $user = $request->user();
-        $query = DB::table('notifikasi')->where('is_read', 0);
+        $query = DB::table('notifikasi')->where('is_read', 0)->where('kategori', '!=', 'dokumen');
 
         if ($user->role === 'paralegal') {
             $idPosbankum = DB::table('posbankum_paralegal')
@@ -90,7 +90,7 @@ class NotifikasiController extends Controller
     public function markAllRead(Request $request)
     {
         $user = $request->user();
-        $query = DB::table('notifikasi')->where('is_read', 0);
+        $query = DB::table('notifikasi')->where('is_read', 0)->where('kategori', '!=', 'dokumen');
 
         if ($user->role === 'paralegal') {
             $idPosbankum = DB::table('posbankum_paralegal')
