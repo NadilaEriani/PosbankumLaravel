@@ -12,8 +12,18 @@ class NotifikasiController extends Controller
         $user = $request->user();
         $query = DB::table('notifikasi');
 
-        if ($user->role === 'paralegal' || !empty($user->id_posbankum)) {
-            $query->where('id_posbankum', $user->id_posbankum);
+        if ($user->role === 'paralegal') {
+            $idPosbankum = DB::table('posbankum_paralegal')
+                ->where('id_user', $user->id_user)
+                ->where('status', 'aktif')
+                ->value('id_posbankum');
+
+            $query->where(function ($q) use ($idPosbankum, $user) {
+                if ($idPosbankum) {
+                    $q->where('id_posbankum', $idPosbankum);
+                }
+                $q->orWhere('id_user_penerima', $user->id_user);
+            });
         } else {
             $userId = $user->id_user ?? $user->id;
             $query->where('id_user_penerima', $userId);
@@ -49,8 +59,18 @@ class NotifikasiController extends Controller
         $user = $request->user();
         $query = DB::table('notifikasi')->where('is_read', 0);
 
-        if ($user->role === 'paralegal' || !empty($user->id_posbankum)) {
-            $query->where('id_posbankum', $user->id_posbankum);
+        if ($user->role === 'paralegal') {
+            $idPosbankum = DB::table('posbankum_paralegal')
+                ->where('id_user', $user->id_user)
+                ->where('status', 'aktif')
+                ->value('id_posbankum');
+
+            $query->where(function ($q) use ($idPosbankum, $user) {
+                if ($idPosbankum) {
+                    $q->where('id_posbankum', $idPosbankum);
+                }
+                $q->orWhere('id_user_penerima', $user->id_user);
+            });
         } else {
             $userId = $user->id_user ?? $user->id;
             $query->where('id_user_penerima', $userId);
@@ -72,8 +92,18 @@ class NotifikasiController extends Controller
         $user = $request->user();
         $query = DB::table('notifikasi')->where('is_read', 0);
 
-        if ($user->role === 'paralegal' || !empty($user->id_posbankum)) {
-            $query->where('id_posbankum', $user->id_posbankum);
+        if ($user->role === 'paralegal') {
+            $idPosbankum = DB::table('posbankum_paralegal')
+                ->where('id_user', $user->id_user)
+                ->where('status', 'aktif')
+                ->value('id_posbankum');
+
+            $query->where(function ($q) use ($idPosbankum, $user) {
+                if ($idPosbankum) {
+                    $q->where('id_posbankum', $idPosbankum);
+                }
+                $q->orWhere('id_user_penerima', $user->id_user);
+            });
         } else {
             $userId = $user->id_user ?? $user->id;
             $query->where('id_user_penerima', $userId);

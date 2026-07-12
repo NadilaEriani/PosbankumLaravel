@@ -161,12 +161,16 @@ class PengaduanController extends Controller
                     ->value('id_posbankum');
                 
                 if ($id_posbankum) {
+                    $notifId = (string) Str::uuid();
+                    $judulNotif = 'Pengaduan Baru';
+                    $pesanNotif = 'Ada pengaduan baru masuk: "' . $request->judul_pengaduan . '" dari warga di wilayah Anda.';
+
                     DB::table('notifikasi')->insert([
-                        'id_notifikasi' => (string) Str::uuid(),
+                        'id_notifikasi' => $notifId,
                         'id_posbankum' => $id_posbankum,
                         'id_user_penerima' => null,
-                        'judul' => 'Pengaduan Baru',
-                        'pesan' => 'Ada pengaduan baru masuk: "' . $request->judul_pengaduan . '" dari warga di wilayah Anda.',
+                        'judul' => $judulNotif,
+                        'pesan' => $pesanNotif,
                         'kategori' => 'pengaduan',
                         'prioritas' => 'sedang',
                         'is_read' => 0,
@@ -174,6 +178,34 @@ class PengaduanController extends Controller
                         'ref_id' => $id,
                         'created_at' => now(),
                     ]);
+
+                    // Pemicu FCM Pop-up ke HP seluruh Paralegal aktif di Posbankum tersebut
+                    $paralegalUserIds = DB::table('posbankum_paralegal')
+                        ->where('id_posbankum', $id_posbankum)
+                        ->where('status', 'aktif')
+                        ->pluck('id_user')
+                        ->all();
+
+                    if (!empty($paralegalUserIds)) {
+                        $tokens = DB::table('users')
+                            ->whereIn('id_user', $paralegalUserIds)
+                            ->whereNotNull('fcm_token')
+                            ->where('fcm_token', '!=', '')
+                            ->pluck('fcm_token')
+                            ->all();
+
+                        foreach ($tokens as $token) {
+                            \App\Services\FcmService::sendPush(
+                                $token,
+                                $judulNotif,
+                                $pesanNotif,
+                                [
+                                    'ref_table' => 'pengaduan',
+                                    'ref_id' => $id,
+                                ]
+                            );
+                        }
+                    }
                 }
             }
         } catch (\Exception $e) {
