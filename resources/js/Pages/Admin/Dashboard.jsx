@@ -235,6 +235,7 @@ export default function AdminDashboard() {
     const [active, setActive] = useState(() =>
         getActiveMenuFromPath(window.location.pathname),
     );
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
     const [rangeOpen, setRangeOpen] = useState(false);
     const [rangeDays, setRangeDays] = useState(30);
@@ -299,6 +300,67 @@ export default function AdminDashboard() {
             window.removeEventListener("popstate", handlePopState);
         };
     }, []);
+
+    useEffect(() => {
+        const handleViewportChange = () => {
+            if (window.innerWidth > 860) {
+                setMobileMenuOpen(false);
+            }
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === "Escape") {
+                setMobileMenuOpen(false);
+            }
+        };
+
+        window.addEventListener("resize", handleViewportChange);
+        window.addEventListener("keydown", handleEscape);
+
+        return () => {
+            window.removeEventListener("resize", handleViewportChange);
+            window.removeEventListener("keydown", handleEscape);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (active !== "Beranda") return undefined;
+
+        let refreshing = false;
+
+        const refreshStats = () => {
+            if (document.visibilityState !== "visible" || refreshing) return;
+
+            refreshing = true;
+            router.reload({
+                only: ["stats"],
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => {
+                    refreshing = false;
+                },
+            });
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                refreshStats();
+            }
+        };
+
+        const intervalId = window.setInterval(refreshStats, 10000);
+        window.addEventListener("focus", refreshStats);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            window.clearInterval(intervalId);
+            window.removeEventListener("focus", refreshStats);
+            document.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange,
+            );
+        };
+    }, [active]);
 
     const menu = useMemo(
         () => [
@@ -655,6 +717,7 @@ export default function AdminDashboard() {
     const handleLogout = () => {
         if (loggingOut) return;
 
+        setMobileMenuOpen(false);
         setLoggingOut(true);
 
         router.post("/logout", undefined, {
@@ -665,6 +728,7 @@ export default function AdminDashboard() {
     const handleChangeMenu = (label) => {
         setSelectedPosDetail(null);
         setRangeOpen(false);
+        setMobileMenuOpen(false);
         setActive(label);
 
         const targetPath = MENU_PATH_MAP[label] || "/admin";
@@ -677,6 +741,7 @@ export default function AdminDashboard() {
     const handleOpenProfile = () => {
         setSelectedPosDetail(null);
         setRangeOpen(false);
+        setMobileMenuOpen(false);
         setActive("Profil Admin");
 
         if (window.location.pathname !== "/admin/profile") {
@@ -687,6 +752,7 @@ export default function AdminDashboard() {
     const handleCloseProfile = () => {
         setSelectedPosDetail(null);
         setRangeOpen(false);
+        setMobileMenuOpen(false);
         setActive("Beranda");
 
         if (window.location.pathname !== "/admin") {
@@ -697,6 +763,7 @@ export default function AdminDashboard() {
     const handleOpenActivityPage = () => {
         setSelectedPosDetail(null);
         setRangeOpen(false);
+        setMobileMenuOpen(false);
         setActive("Aktivitas Terbaru");
 
         if (window.location.pathname !== "/admin/aktivitas-terbaru") {
@@ -1303,7 +1370,11 @@ export default function AdminDashboard() {
                 />
             ) : null}
 
-            <aside className="ad-side">
+            <aside
+                className={`ad-side ${
+                    mobileMenuOpen ? "is-mobile-menu-open" : ""
+                }`}
+            >
                 <button
                     className="ad-brand ad-brandButton"
                     type="button"
@@ -1324,9 +1395,31 @@ export default function AdminDashboard() {
                     </div>
                 </button>
 
+                <button
+                    type="button"
+                    className="ad-mobileMenuButton"
+                    onClick={() => setMobileMenuOpen((open) => !open)}
+                    aria-label={
+                        mobileMenuOpen
+                            ? "Tutup menu navigasi"
+                            : "Buka menu navigasi"
+                    }
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="admin-mobile-navigation"
+                >
+                    <span aria-hidden="true" />
+                    <span aria-hidden="true" />
+                    <span aria-hidden="true" />
+                </button>
+
                 <div className="ad-brandDivider" aria-hidden="true" />
 
-                <nav className="ad-nav">
+                <nav
+                    id="admin-mobile-navigation"
+                    className={`ad-nav ${
+                        mobileMenuOpen ? "is-mobile-open" : ""
+                    }`}
+                >
                     {menu.map((item) => (
                         <button
                             key={item.label}
@@ -1422,7 +1515,8 @@ export default function AdminDashboard() {
                                 <div className="ad-detailStatCard tone-blue">
                                     <FiUsers className="ad-detailStatIcon" />
                                     <div className="ad-detailStatValue">
-                                        {selectedModalDetail.paralegalCount || 0}
+                                        {selectedModalDetail.paralegalCount ||
+                                            0}
                                     </div>
                                     <div className="ad-detailStatLabel">
                                         Paralegal
@@ -1486,7 +1580,8 @@ export default function AdminDashboard() {
                                                 Telepon
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedModalDetail.phone || "-"}
+                                                {selectedModalDetail.phone ||
+                                                    "-"}
                                             </div>
                                         </div>
                                     </div>
@@ -1498,7 +1593,8 @@ export default function AdminDashboard() {
                                                 Email
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedModalDetail.email || "-"}
+                                                {selectedModalDetail.email ||
+                                                    "-"}
                                             </div>
                                         </div>
                                     </div>

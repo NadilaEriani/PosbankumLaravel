@@ -537,6 +537,7 @@ export default function PosbankumDashboard({
     flash = {},
 }) {
     const [active, setActive] = useState("Beranda");
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
     const [pageTarget, setPageTarget] = useState({
         type: null,
@@ -564,6 +565,28 @@ export default function PosbankumDashboard({
         setNotifSelectedId(null);
         setNotifPage(1);
     }, [notifications]);
+
+    useEffect(() => {
+        const handleViewportChange = () => {
+            if (window.innerWidth > 860) {
+                setMobileMenuOpen(false);
+            }
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === "Escape") {
+                setMobileMenuOpen(false);
+            }
+        };
+
+        window.addEventListener("resize", handleViewportChange);
+        window.addEventListener("keydown", handleEscape);
+
+        return () => {
+            window.removeEventListener("resize", handleViewportChange);
+            window.removeEventListener("keydown", handleEscape);
+        };
+    }, []);
 
     const menu = useMemo(
         () => [
@@ -694,6 +717,7 @@ export default function PosbankumDashboard({
     const openMenu = (label) => {
         setPageTarget({ type: null, id: null, tick: 0 });
         setNotifSelectedId(null);
+        setMobileMenuOpen(false);
 
         if (label === "Notifikasi") {
             setNotifPage(1);
@@ -704,6 +728,7 @@ export default function PosbankumDashboard({
 
     const handleLogout = () => {
         if (loggingOut) return;
+        setMobileMenuOpen(false);
         setLoggingOut(true);
         router.post("/logout", {}, { onFinish: () => setLoggingOut(false) });
     };
@@ -1240,7 +1265,11 @@ export default function PosbankumDashboard({
                 }
             />
 
-            <aside className="pb2Side">
+            <aside
+                className={`pb2Side ${
+                    mobileMenuOpen ? "is-mobile-menu-open" : ""
+                }`}
+            >
                 <button
                     className="pb2Brand pb2BrandButton"
                     type="button"
@@ -1262,9 +1291,31 @@ export default function PosbankumDashboard({
                     </div>
                 </button>
 
+                <button
+                    type="button"
+                    className="pb2MobileMenuButton"
+                    onClick={() => setMobileMenuOpen((open) => !open)}
+                    aria-label={
+                        mobileMenuOpen
+                            ? "Tutup menu navigasi"
+                            : "Buka menu navigasi"
+                    }
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="paralegal-mobile-navigation"
+                >
+                    <span aria-hidden="true" />
+                    <span aria-hidden="true" />
+                    <span aria-hidden="true" />
+                </button>
+
                 <div className="pb2BrandDivider" aria-hidden="true" />
 
-                <nav className="pb2Nav">
+                <nav
+                    id="paralegal-mobile-navigation"
+                    className={`pb2Nav ${
+                        mobileMenuOpen ? "is-mobile-open" : ""
+                    }`}
+                >
                     {menu.map((item) => (
                         <button
                             key={item.label}

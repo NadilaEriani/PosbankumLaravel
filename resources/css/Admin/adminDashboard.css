@@ -7089,3 +7089,195 @@ button.ad-linkBtn {
         font-size: 16px;
     }
 }
+
+/* ===== Dashboard admin: menu mobile hamburger dan card statistik ringkas ===== */
+.ad-mobileMenuButton {
+    display: none;
+}
+
+@media (max-width: 860px) {
+    .ad-side {
+        position: sticky;
+        top: 0;
+        z-index: 80;
+        overflow: visible;
+    }
+
+    .ad-brand {
+        min-height: 70px;
+        padding: 10px 76px 10px 12px;
+    }
+
+    .ad-brandLogoWrap {
+        width: 42px;
+        height: 46px;
+    }
+
+    .ad-brandName {
+        font-size: 16px;
+    }
+
+    .ad-brandSub {
+        margin-top: 3px;
+        font-size: 11px;
+    }
+
+    .ad-mobileMenuButton {
+        position: absolute;
+        top: 13px;
+        right: 14px;
+        width: 46px;
+        height: 46px;
+        border: 0;
+        border-radius: 14px;
+        background: var(--ad-surface);
+        color: var(--ad-navy);
+        display: grid;
+        place-content: center;
+        gap: 5px;
+        padding: 0;
+        cursor: pointer;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+    }
+
+    .ad-mobileMenuButton span {
+        width: 22px;
+        height: 3px;
+        border-radius: 999px;
+        background: currentColor;
+        display: block;
+    }
+
+    .ad-nav {
+        display: none;
+        width: 100%;
+        padding: 10px 12px 14px;
+        flex-direction: column;
+        gap: 8px;
+        overflow: visible;
+    }
+
+    .ad-nav.is-mobile-open {
+        display: flex;
+    }
+
+    .ad-navItem {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+        padding: 10px 13px;
+        flex: 0 0 auto;
+    }
+
+    .ad-navLabel {
+        font-size: 13px;
+        white-space: normal;
+    }
+
+    .ad-grid {
+        padding: 16px 14px 24px;
+    }
+
+    .ad-wireTitle {
+        margin-bottom: 22px;
+        font-size: 24px !important;
+    }
+
+    .ad-cards {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .ad-card {
+        min-height: 92px;
+        padding: 15px 16px;
+        gap: 13px;
+        border-radius: 16px;
+        align-items: center;
+    }
+
+    .ad-cardIcon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        margin-top: 0;
+        font-size: 20px;
+    }
+
+    .ad-cardAssetIcon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .ad-cardTitle {
+        font-size: 13px;
+    }
+
+    .ad-cardValue {
+        margin-top: 4px;
+        font-size: 27px;
+    }
+
+    .ad-cardHint {
+        margin-top: 4px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 430px) {
+    .ad-brand {
+        min-height: 64px;
+        padding: 9px 68px 9px 10px;
+    }
+
+    .ad-brandLogoWrap {
+        width: 38px;
+        height: 42px;
+    }
+
+    .ad-mobileMenuButton {
+        top: 11px;
+        right: 11px;
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+    }
+
+    .ad-mobileMenuButton span {
+        width: 20px;
+    }
+
+    .ad-grid {
+        padding: 14px 12px 22px;
+    }
+
+    .ad-card {
+        min-height: 86px;
+        padding: 13px 14px;
+        gap: 11px;
+    }
+
+    .ad-cardIcon {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        font-size: 18px;
+    }
+
+    .ad-cardAssetIcon {
+        width: 23px;
+        height: 23px;
+    }
+
+    .ad-cardTitle {
+        font-size: 12px;
+    }
+
+    .ad-cardValue {
+        font-size: 24px;
+    }
+
+    .ad-cardHint {
+        font-size: 10px;
+    }
+}

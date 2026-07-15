@@ -468,19 +468,30 @@ class DashboardController extends Controller
 
     private function waitingVerificationCount(): int
     {
-        if (!$this->hasTable('posbankum')) {
+        if (!$this->hasTable('data_posbankum')) {
             return 0;
         }
 
-        foreach (['status_verifikasi', 'status'] as $column) {
-            if ($this->hasColumn('posbankum', $column)) {
-                return DB::table('posbankum')
-                    ->whereIn($column, ['menunggu', 'pending', 'Menunggu', 'Pending', 'belum diverifikasi'])
-                    ->count();
-            }
+        $statusColumns = array_values(array_filter(
+            ['status_verifikasi', 'status'],
+            fn(string $column) => $this->hasColumn('data_posbankum', $column)
+        ));
+
+        if (empty($statusColumns)) {
+            return 0;
         }
 
-        return 0;
+        $statusExpression = implode(', ', array_map(
+            fn(string $column) => "NULLIF(TRIM({$column}), '')",
+            $statusColumns
+        ));
+
+        return DB::table('data_posbankum')
+            ->whereRaw(
+                "LOWER(COALESCE({$statusExpression}, '')) IN (?, ?, ?, ?, ?)",
+                ['', 'menunggu', 'pending', 'belum diverifikasi', 'belum_diverifikasi']
+            )
+            ->count();
     }
 
     private function monthKegiatanCount(mixed $idPosbankum = null): int
