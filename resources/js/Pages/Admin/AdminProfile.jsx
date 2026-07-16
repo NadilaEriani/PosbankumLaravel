@@ -56,23 +56,6 @@ function safeTrim(value) {
     return sanitizeText(value).trim();
 }
 
-function normalizeEmail(value) {
-    return safeTrim(value)
-        .replace(/[\u200B-\u200D\uFEFF]/g, "")
-        .replace(/[\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]/g, "")
-        .replace(/＠/g, "@")
-        .replace(/。/g, ".")
-        .toLowerCase();
-}
-
-function isValidEmail(value) {
-    const email = normalizeEmail(value);
-
-    return /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(
-        email,
-    );
-}
-
 function buildFormData(data = {}, fallbackUser = {}) {
     const fullName =
         data.full_name ||
@@ -193,8 +176,6 @@ export default function AdminProfile({
     const handleSave = () => {
         if (saving) return;
 
-        const nextEmail = normalizeEmail(form.email_kantor || user.email);
-
         if (!safeTrim(form.full_name)) {
             setSubmitError("Nama lengkap wajib diisi.");
             setFieldErrors((prev) => ({
@@ -205,32 +186,9 @@ export default function AdminProfile({
             return;
         }
 
-        if (!nextEmail) {
-            setSubmitError("Email wajib diisi.");
-            setFieldErrors((prev) => ({
-                ...prev,
-                email_kantor: "Email wajib diisi.",
-            }));
-            setErrorMessage("Email wajib diisi.");
-            return;
-        }
-
-        if (!isValidEmail(nextEmail)) {
-            setSubmitError(
-                "Format email tidak valid. Periksa kembali penulisan email.",
-            );
-            setFieldErrors((prev) => ({
-                ...prev,
-                email_kantor: "Format email tidak valid.",
-            }));
-            setErrorMessage("Format email tidak valid.");
-            return;
-        }
-
         const payload = new FormData();
         payload.append("full_name", safeTrim(form.full_name));
         payload.append("nip", safeTrim(form.nip));
-        payload.append("email_kantor", nextEmail);
         payload.append("nomor_telepon", safeTrim(form.nomor_telepon));
         payload.append("nomor_kantor", safeTrim(form.nomor_kantor));
         payload.append("jabatan", safeTrim(form.jabatan));
@@ -249,13 +207,7 @@ export default function AdminProfile({
                 const freshUser = page?.props?.auth?.user || null;
                 const next = freshUser
                     ? buildFormData(freshUser, user)
-                    : buildFormData(
-                          {
-                              ...form,
-                              email_kantor: nextEmail,
-                          },
-                          user,
-                      );
+                    : buildFormData(form, user);
 
                 setForm(next);
                 setInitialForm(next);
@@ -285,6 +237,7 @@ export default function AdminProfile({
             type = "text",
             placeholder = "",
             full = false,
+            locked = false,
         } = {},
     ) => {
         const Comp = textarea ? "textarea" : "input";
@@ -307,8 +260,8 @@ export default function AdminProfile({
                         type={textarea ? undefined : type}
                         value={sanitizeText(form[field])}
                         placeholder={placeholder}
-                        readOnly={!editing}
-                        disabled={!editing}
+                        readOnly={!editing || locked}
+                        disabled={!editing || locked}
                         rows={textarea ? 4 : undefined}
                         onChange={(event) =>
                             handleChange(field, event.target.value)
@@ -452,8 +405,10 @@ export default function AdminProfile({
                             required: true,
                             icon: <FiMail />,
                             type: "email",
-                            helper: "Email ini digunakan untuk login admin.",
+                            helper:
+                                "Email digunakan untuk login admin dan tidak dapat diubah dari halaman profil.",
                             placeholder: "Masukkan email",
+                            locked: true,
                         })}
 
                         {renderField("Nomor Telepon", "nomor_telepon", {

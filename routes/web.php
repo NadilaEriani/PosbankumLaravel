@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -562,12 +561,6 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
             [
                 'full_name' => ['required', 'string', 'min:3', 'max:255'],
                 'nip' => ['nullable', 'string', 'max:50'],
-                'email_kantor' => [
-                    'required',
-                    'email',
-                    'max:255',
-                    Rule::unique('users', 'email')->ignore($userKey, $userKeyColumn),
-                ],
                 'nomor_telepon' => ['nullable', 'string', 'max:25'],
                 'nomor_kantor' => ['nullable', 'string', 'max:30'],
                 'jabatan' => ['nullable', 'string', 'max:120'],
@@ -579,9 +572,6 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
             [
                 'full_name.required' => 'Nama lengkap wajib diisi.',
                 'full_name.min' => 'Nama lengkap minimal 3 karakter.',
-                'email_kantor.required' => 'Email wajib diisi.',
-                'email_kantor.email' => 'Format email tidak valid.',
-                'email_kantor.unique' => 'Email ini sudah digunakan akun lain.',
                 'foto_profile.image' => 'File foto harus berupa gambar.',
                 'foto_profile.mimes' => 'Format foto harus PNG, JPG, atau JPEG.',
                 'foto_profile.max' => 'Ukuran foto maksimal 5MB.',
@@ -603,12 +593,9 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
         };
 
         $fullName = trim($data['full_name']);
-        $email = strtolower(trim($data['email_kantor']));
 
         $addColumn('nama_lengkap', $fullName);
         $addColumn('name', $fullName);
-        $addColumn('email', $email);
-        $addColumn('email_kantor', $email);
         $addColumn('nip', $blankToNull($data['nip'] ?? null));
         $addColumn('nomor_telepon', $blankToNull($data['nomor_telepon'] ?? null));
         $addColumn('nomor_kantor', $blankToNull($data['nomor_kantor'] ?? null));
