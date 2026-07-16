@@ -1342,7 +1342,7 @@ export default function VerifikasiDataPosbankum({
 
     const openPreview = async (doc, posId) => {
         setErr("");
-        if (!doc?.path) return;
+        if (!doc?.path && doc?.viewerType !== "tagging_area") return;
 
         const p = posById[posId];
         const posName = p?.nama || "-";

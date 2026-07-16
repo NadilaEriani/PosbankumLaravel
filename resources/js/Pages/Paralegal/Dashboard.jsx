@@ -567,6 +567,29 @@ export default function PosbankumDashboard({
     }, [notifications]);
 
     useEffect(() => {
+        const refreshLatestCases = () => {
+            if (document.visibilityState !== "visible") return;
+
+            router.reload({
+                only: ["kasusTerbaru"],
+                preserveState: true,
+                preserveScroll: true,
+            });
+        };
+
+        const intervalId = window.setInterval(refreshLatestCases, 10000);
+        document.addEventListener("visibilitychange", refreshLatestCases);
+
+        return () => {
+            window.clearInterval(intervalId);
+            document.removeEventListener(
+                "visibilitychange",
+                refreshLatestCases,
+            );
+        };
+    }, []);
+
+    useEffect(() => {
         const handleViewportChange = () => {
             if (window.innerWidth > 860) {
                 setMobileMenuOpen(false);
