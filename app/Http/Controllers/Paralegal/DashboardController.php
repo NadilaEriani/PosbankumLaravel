@@ -454,13 +454,16 @@ class DashboardController extends Controller
 
         $query = DB::table('pengaduan');
 
-        $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
-
-        foreach (['created_at', 'tgl_lapor', 'tanggal_kejadian'] as $orderColumn) {
+        foreach (['created_at', 'tgl_lapor', 'tanggal_kejadian', 'updated_at'] as $orderColumn) {
             if ($this->hasColumn('pengaduan', $orderColumn)) {
                 $query->orderByDesc($orderColumn);
                 break;
             }
+        }
+
+        $pengaduanKey = $this->firstExistingColumn('pengaduan', ['id_pengaduan', 'id']);
+        if ($pengaduanKey) {
+            $query->orderByDesc($pengaduanKey);
         }
 
         return $query->limit(6)->get()->map(function ($row, $index) {
@@ -1442,7 +1445,7 @@ class DashboardController extends Controller
                 'completedActivities' => $this->completedActivitiesCount($idPosbankum),
                 'activeParalegal' => $this->paralegalCount($idPosbankum, $posbankum),
             ],
-            'kasusTerbaru' => $this->latestPengaduan($idPosbankum),
+            'kasusTerbaru' => $this->latestPengaduan(),
             'kegiatanTerbaru' => $this->latestKegiatan($idPosbankum),
             'kegiatanRows' => $this->kegiatanRows($idPosbankum),
             'semuaKasusRows' => $this->semuaKasusRows(),
