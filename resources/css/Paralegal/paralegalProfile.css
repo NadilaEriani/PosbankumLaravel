@@ -178,7 +178,24 @@
     color: #ffffff;
     box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
 }
+.prfBtnPrimary {
+    background: var(--pb-nav-blue, #2f3569);
+    color: #ffffff;
+    box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
+}
 
+.prfEditProfileBtn svg {
+    color: #ffffff;
+    stroke: currentColor;
+}
+
+.prfEditProfileBtn svg [stroke] {
+    stroke: currentColor;
+}
+
+.prfEditProfileBtn svg [fill]:not([fill="none"]) {
+    fill: currentColor;
+}
 .prfBtnLight {
     background: var(--pb-card, #ffffff);
     color: var(--pb-text, #151c2e);

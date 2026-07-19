@@ -252,15 +252,12 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
                                 <span>Batal</span>
                             </button>
                             <button
-                                className="prfBtn prfBtnPrimary"
+                                className="prfBtn prfBtnPrimary prfEditProfileBtn"
                                 type="button"
-                                onClick={handleSave}
-                                disabled={saving}
+                                onClick={handleStartEdit}
                             >
-                                <FiSave />
-                                <span>
-                                    {saving ? "Menyimpan..." : "Simpan Profil"}
-                                </span>
+                                <FiEdit />
+                                <span>Edit Profil</span>
                             </button>
                         </>
                     ) : (
