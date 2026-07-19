@@ -170,13 +170,6 @@ body {
     box-shadow: 0 2px 5px rgba(17, 25, 76, 0.12);
 }
 
-.googleLoginButton:disabled,
-.emailSubmitButton:disabled,
-.passwordToggle:disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
-}
-
 .googleLetter {
     display: inline-flex;
     align-items: center;
@@ -193,101 +186,6 @@ body {
     color: #91a0bf;
     font-size: 12px;
     font-weight: 500;
-}
-
-.emailLoginToggle {
-    margin-top: 12px;
-    border: 0;
-    background: transparent;
-    color: var(--login-blue);
-    cursor: pointer;
-    font-family: "Outfit", sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.emailLoginForm {
-    margin-top: 22px;
-    text-align: left;
-}
-
-.loginField {
-    display: block;
-    margin-bottom: 14px;
-    color: #3a3d46;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.loginField > span {
-    display: block;
-    margin-bottom: 7px;
-}
-
-.loginField input,
-.passwordField input {
-    width: 100%;
-    height: 46px;
-    border: 1px solid var(--login-border);
-    border-radius: 12px;
-    padding: 0 14px;
-    color: var(--login-text);
-    font-family: "Outfit", sans-serif;
-    font-size: 14px;
-    outline: none;
-}
-
-.loginField input:focus,
-.passwordField input:focus {
-    border-color: var(--login-blue);
-}
-
-.passwordField {
-    position: relative;
-}
-
-.passwordField input {
-    padding-right: 104px;
-}
-
-.passwordToggle {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    height: 32px;
-    padding: 0 10px;
-    border: 0;
-    border-radius: 9px;
-    background: rgba(17, 25, 76, 0.08);
-    color: var(--login-blue);
-    cursor: pointer;
-    font-family: "Outfit", sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    transform: translateY(-50%);
-}
-
-.rememberField {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin: 2px 0 16px;
-    color: #4b5160;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.emailSubmitButton {
-    width: 100%;
-    height: 48px;
-    border: 0;
-    border-radius: 12px;
-    background: var(--login-blue);
-    color: var(--login-white);
-    cursor: pointer;
-    font-family: "Outfit", sans-serif;
-    font-size: 15px;
-    font-weight: 800;
 }
 
 .loginAlert {
@@ -412,10 +310,6 @@ body {
 
     .loginCard h1 {
         font-size: 25px;
-    }
-
-    .passwordField input {
-        padding-right: 96px;
     }
 
     .loginDesignImage {
