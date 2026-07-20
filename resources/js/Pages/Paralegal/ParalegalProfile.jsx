@@ -16,7 +16,7 @@ import { AiOutlineArrowLeft } from "react-icons/ai";
 import { TbLocation } from "react-icons/tb";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
-import posbankumIcon from "../../assets/icon.png";
+import buildingIcon from "../../assets/icons/building-icon.svg";
 import "../../../css/Paralegal/paralegalProfile.css";
 
 function safeText(value, fallback = "-") {
@@ -252,12 +252,15 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
                                 <span>Batal</span>
                             </button>
                             <button
-                                className="prfBtn prfBtnPrimary prfEditProfileBtn"
+                                className="prfBtn prfBtnPrimary"
                                 type="button"
-                                onClick={handleStartEdit}
+                                onClick={handleSave}
+                                disabled={saving}
                             >
-                                <FiEdit />
-                                <span>Edit Profil</span>
+                                <FiSave />
+                                <span>
+                                    {saving ? "Menyimpan..." : "Simpan Profil"}
+                                </span>
                             </button>
                         </>
                     ) : (
@@ -387,7 +390,11 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
                         <div className="prfPosBox">
                             <div className="prfPosTop">
                                 <div className="prfPosIconBox">
-                                    <img src={posbankumIcon} alt="" />
+                                    <img
+                                        src={buildingIcon}
+                                        alt=""
+                                        aria-hidden="true"
+                                    />
                                 </div>
                                 <div>
                                     <h4>

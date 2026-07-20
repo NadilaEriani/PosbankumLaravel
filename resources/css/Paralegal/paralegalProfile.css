@@ -178,24 +178,20 @@
     color: #ffffff;
     box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
 }
-.prfBtnPrimary {
-    background: var(--pb-nav-blue, #2f3569);
-    color: #ffffff;
-    box-shadow: 0 10px 18px rgba(47, 53, 105, 0.22);
+
+.prfActions .prfBtnPrimary svg {
+    color: #ffffff !important;
+    stroke: currentColor !important;
 }
 
-.prfEditProfileBtn svg {
-    color: #ffffff;
-    stroke: currentColor;
+.prfActions .prfBtnPrimary svg [stroke] {
+    stroke: currentColor !important;
 }
 
-.prfEditProfileBtn svg [stroke] {
-    stroke: currentColor;
+.prfActions .prfBtnPrimary svg [fill]:not([fill="none"]) {
+    fill: currentColor !important;
 }
 
-.prfEditProfileBtn svg [fill]:not([fill="none"]) {
-    fill: currentColor;
-}
 .prfBtnLight {
     background: var(--pb-card, #ffffff);
     color: var(--pb-text, #151c2e);
@@ -398,6 +394,7 @@
     height: 28px;
     object-fit: contain;
     display: block;
+    filter: brightness(0) saturate(100%);
 }
 
 .prfPosIconMask {
@@ -751,6 +748,11 @@
         width: 44px;
         height: 44px;
         border-radius: 13px;
+    }
+
+    .prfPosIconBox img {
+        width: 25px;
+        height: 25px;
     }
 
     .prfPosIconMask {
