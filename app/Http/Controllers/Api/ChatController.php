@@ -62,6 +62,8 @@ class ChatController extends Controller
                             [
                                 'ref_table' => 'chat',
                                 'ref_id' => $id_pengaduan,
+                                'sender_name' => $request->user()->nama_lengkap ?? 'Lawan Bicara',
+                                'judul_laporan' => $pengaduan->judul_pengaduan ?? 'Konsultasi Hukum',
                             ]
                         );
                     }

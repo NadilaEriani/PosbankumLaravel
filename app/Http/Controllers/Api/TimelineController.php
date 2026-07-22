@@ -24,8 +24,10 @@ class TimelineController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
+        $uuid = (string) Str::uuid();
+
         DB::table('pengaduan_timeline')->insert([
-            'id_timeline'  => Str::uuid(),
+            'id_timeline'  => $uuid,
             'id_pengaduan' => $id,
             'title'        => $request->title,
             'deskripsi'    => $request->deskripsi,
@@ -35,6 +37,8 @@ class TimelineController extends Controller
             'created_at'   => now(),
         ]);
 
-        return response()->json(['status' => true, 'message' => 'Timeline ditambahkan', 'data' => null], 201);
+        $data = DB::table('pengaduan_timeline')->where('id_timeline', $uuid)->first();
+
+        return response()->json(['status' => true, 'message' => 'Timeline ditambahkan', 'data' => $data], 201);
     }
 }
