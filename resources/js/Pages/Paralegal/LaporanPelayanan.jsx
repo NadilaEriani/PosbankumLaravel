@@ -1,6 +1,3 @@
-import { FiUsers } from "react-icons/fi"; 
-import { FiMessageSquare } from "react-icons/fi"; 
-import { FiBookOpen } from "react-icons/fi"; 
 import { router } from "@inertiajs/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
