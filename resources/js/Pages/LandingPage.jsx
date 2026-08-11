@@ -16,6 +16,8 @@ import { BsTelephone, BsClock, BsInstagram } from "react-icons/bs";
 import { TbArrowBarRight } from "react-icons/tb";
 import {
     FiUsers,
+    FiBookOpen,
+    FiMessageSquare,
     FiSearch,
     FiPhone,
     FiMail,
@@ -1488,14 +1490,14 @@ export default function LandingPage({
                                     <div className="lp-service-list">
                                         <div className="lp-service-item">
                                             <div className="lp-service-item-icon is-blue">
-                                                <BiFile />
+                                                <FiBookOpen />
                                             </div>
                                             Informasi Hukum
                                         </div>
 
                                         <div className="lp-service-item">
                                             <div className="lp-service-item-icon is-green">
-                                                <FiMessageCircle />
+                                                <FiMessageSquare />
                                             </div>
                                             Konsultasi Hukum
                                         </div>

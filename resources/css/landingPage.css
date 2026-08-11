@@ -5947,21 +5947,33 @@ body,
     }
 }
 
-/* Revisi layanan masyarakat: warna ikon mengikuti palet yang sudah digunakan landing page. */
+/* Revisi ikon Akses Bantuan Hukum Gratis sesuai desain terbaru. */
 .lp-service-item-icon.is-blue {
-    background: #2447a4;
+    background: linear-gradient(135deg, #2b7fff 0%, #155dfc 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
 }
 
 .lp-service-item-icon.is-green {
-    background: #10b75c;
+    background: linear-gradient(135deg, #00c950 0%, #009966 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
 }
 
 .lp-service-item-icon.is-orange {
-    background: #d7761f;
+    background: linear-gradient(135deg, #fe9a00 0%, #ff6900 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
 }
 
 .lp-service-item-icon.is-purple {
-    background: #4a57c7;
+    background: linear-gradient(135deg, #ad46ff 0%, #7f22fe 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
 }
 
 @media (max-width: 768px) {
@@ -6008,7 +6020,6 @@ body,
         height: 17px;
     }
 }
-
 
 /* ===== FINAL MOBILE REFINEMENT: Landing Page ===== */
 @media (max-width: 768px) {
