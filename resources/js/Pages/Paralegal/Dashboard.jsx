@@ -870,7 +870,12 @@ export default function PosbankumDashboard({
     const renderBeranda = () => (
         <section className="pb2Content">
             <div className="pb2Stats">
-                <div className="pb2StatCard">
+                <button
+                    type="button"
+                    className="pb2StatCard"
+                    onClick={() => openMenu("Semua Kasus")}
+                    aria-label="Buka Semua Kasus"
+                >
                     <div className="pb2StatIcon blue">
                         <FiFileText />
                     </div>
@@ -881,9 +886,14 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Bulan ini</div>
                     </div>
-                </div>
+                </button>
 
-                <div className="pb2StatCard">
+                <button
+                    type="button"
+                    className="pb2StatCard"
+                    onClick={() => openMenu("Kelola Kegiatan")}
+                    aria-label="Buka Kelola Kegiatan"
+                >
                     <div className="pb2StatIcon green">
                         <FiCheckCircle />
                     </div>
@@ -894,9 +904,14 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Total kegiatan</div>
                     </div>
-                </div>
+                </button>
 
-                <div className="pb2StatCard">
+                <button
+                    type="button"
+                    className="pb2StatCard"
+                    onClick={() => openMenu("Kelola Posbankum")}
+                    aria-label="Buka Kelola Posbankum"
+                >
                     <div className="pb2StatIcon orange">
                         <FiUsers />
                     </div>
@@ -907,7 +922,7 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Terdaftar</div>
                     </div>
-                </div>
+                </button>
             </div>
 
             <div className="pb2Panel">

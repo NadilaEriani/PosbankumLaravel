@@ -398,6 +398,7 @@ export default function AdminDashboard() {
                 ),
                 tone: "blue",
                 hint: "Data Posbankum terdaftar",
+                targetMenu: "Data Posbankum",
             },
             {
                 key: "waitingVerification",
@@ -405,6 +406,7 @@ export default function AdminDashboard() {
                 icon: <FiClock />,
                 tone: "orange",
                 hint: "Data perlu diperiksa",
+                targetMenu: "Verifikasi Data Posbankum",
             },
             {
                 key: "monthKegiatan",
@@ -412,6 +414,7 @@ export default function AdminDashboard() {
                 icon: <FiTrendingUp />,
                 tone: "green",
                 hint: "Kegiatan tercatat",
+                targetMenu: "Laporan Kegiatan",
             },
         ],
         [],
@@ -785,7 +788,13 @@ export default function AdminDashboard() {
 
             <div className="ad-cards">
                 {statDefs.map((item) => (
-                    <div className={`ad-card tone-${item.tone}`} key={item.key}>
+                    <button
+                        type="button"
+                        className={`ad-card tone-${item.tone}`}
+                        key={item.key}
+                        onClick={() => handleChangeMenu(item.targetMenu)}
+                        aria-label={`Buka ${item.targetMenu}`}
+                    >
                         <div className="ad-cardIcon">{item.icon}</div>
 
                         <div className="ad-cardBody">
@@ -795,7 +804,7 @@ export default function AdminDashboard() {
                             </div>
                             <div className="ad-cardHint">Update real-time</div>
                         </div>
-                    </div>
+                    </button>
                 ))}
             </div>
 

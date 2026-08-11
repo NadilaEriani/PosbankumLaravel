@@ -5,6 +5,15 @@ import loginDesign from "../../assets/login_design.png";
 import "../../../css/loginPage.css";
 
 export default function LoginPage({ status, googleLoginUrl, errors = {} }) {
+    const rawLoginError =
+        errors.email ||
+        errors.google ||
+        Object.values(errors).flat().filter(Boolean)[0] ||
+        "";
+    const loginError = Array.isArray(rawLoginError)
+        ? rawLoginError[0]
+        : rawLoginError;
+
     const loginWithGoogle = () => {
         window.location.assign(googleLoginUrl || "/auth/google/redirect");
     };
@@ -41,8 +50,11 @@ export default function LoginPage({ status, googleLoginUrl, errors = {} }) {
                         <div className="loginAlert success">{status}</div>
                     ) : null}
 
-                    {errors.email ? (
-                        <div className="loginAlert error">{errors.email}</div>
+                    {loginError ? (
+                        <div className="loginAlert error" role="alert">
+                            <strong>Login gagal.</strong>
+                            <span>{String(loginError)}</span>
+                        </div>
                     ) : null}
 
                     <button

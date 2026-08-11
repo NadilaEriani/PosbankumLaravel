@@ -13,12 +13,7 @@ import {
 import { BiRightArrowAlt, BiFile, BiShield } from "react-icons/bi";
 import { MdLanguage } from "react-icons/md";
 import { BsTelephone, BsClock, BsInstagram } from "react-icons/bs";
-import { BsFillPersonCheckFill } from "react-icons/bs";
-import {
-    TbArrowBarRight,
-    TbArrowsDiagonal,
-    TbArrowsDiagonalMinimize,
-} from "react-icons/tb";
+import { TbArrowBarRight } from "react-icons/tb";
 import {
     FiUsers,
     FiSearch,
@@ -454,14 +449,14 @@ function MapInfoPopup({ location, position }) {
     );
 }
 
-function ChatbotPanel({ open, large, onToggleLarge, onClose }) {
+function ChatbotPanel({ open, onClose }) {
     const [message, setMessage] = useState("");
     const hasMessage = message.trim().length > 0;
 
     if (!open) return null;
 
     return (
-        <div className={`lp-chatbot-panel ${large ? "is-large" : ""}`}>
+        <div className="lp-chatbot-panel">
             <div className="lp-chatbot-header">
                 <div className="lp-chatbot-title-wrap">
                     <span className="lp-chatbot-logo">
@@ -478,20 +473,6 @@ function ChatbotPanel({ open, large, onToggleLarge, onClose }) {
                 </div>
 
                 <div className="lp-chatbot-controls">
-                    <button
-                        type="button"
-                        onClick={onToggleLarge}
-                        aria-label={
-                            large ? "Perkecil chatbot" : "Perbesar chatbot"
-                        }
-                    >
-                        {large ? (
-                            <TbArrowsDiagonalMinimize />
-                        ) : (
-                            <TbArrowsDiagonal />
-                        )}
-                    </button>
-
                     <button
                         type="button"
                         onClick={onClose}
@@ -914,7 +895,6 @@ export default function LandingPage({
     const [mapDragging, setMapDragging] = useState(false);
     const [userMapMarker, setUserMapMarker] = useState(null);
     const [chatbotOpen, setChatbotOpen] = useState(false);
-    const [chatbotLarge, setChatbotLarge] = useState(false);
     const [showAllLocations, setShowAllLocations] = useState(false);
     const [allSearchTerm, setAllSearchTerm] = useState("");
 
@@ -1507,25 +1487,31 @@ export default function LandingPage({
 
                                     <div className="lp-service-list">
                                         <div className="lp-service-item">
-                                            <div className="lp-service-item-icon">
-                                                <BiShield />
+                                            <div className="lp-service-item-icon is-blue">
+                                                <BiFile />
                                             </div>
-                                            Konsultasi hukum gratis dan
-                                            konfidensial
+                                            Informasi Hukum
                                         </div>
 
                                         <div className="lp-service-item">
-                                            <div className="lp-service-item-icon">
-                                                <BsFillPersonCheckFill />
+                                            <div className="lp-service-item-icon is-green">
+                                                <FiMessageCircle />
                                             </div>
-                                            Pendampingan hukum di pengadilan
+                                            Konsultasi Hukum
                                         </div>
 
                                         <div className="lp-service-item">
-                                            <div className="lp-service-item-icon">
-                                                <AiOutlineCheck />
+                                            <div className="lp-service-item-icon is-orange">
+                                                <HiOutlineScale />
                                             </div>
-                                            Mediasi &amp; penyelesaian sengketa
+                                            Mediasi
+                                        </div>
+
+                                        <div className="lp-service-item">
+                                            <div className="lp-service-item-icon is-purple">
+                                                <FiUsers />
+                                            </div>
+                                            Rujukan Advokat
                                         </div>
                                     </div>
                                 </div>
@@ -2124,8 +2110,6 @@ export default function LandingPage({
 
             <ChatbotPanel
                 open={chatbotOpen}
-                large={chatbotLarge}
-                onToggleLarge={() => setChatbotLarge((value) => !value)}
                 onClose={() => setChatbotOpen(false)}
             />
 

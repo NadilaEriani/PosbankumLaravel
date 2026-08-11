@@ -415,7 +415,7 @@ class LaporanPelayananController extends Controller
             'nama_pelapor' => ['required', 'string', 'max:255'],
             'nik' => ['required', 'digits:16'],
             'nomor_telepon' => ['required', 'digits_between:10,15'],
-            'nama_lurah' => ['required', 'string', 'max:255'],
+            'nama_lurah' => ['nullable', 'string', 'max:255'],
             'jenis_masalah' => ['required', 'string', 'max:120'],
             'prioritas' => ['required', 'in:tinggi,sedang,rendah'],
             'judul_pengaduan' => ['required', 'string', 'max:100'],

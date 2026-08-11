@@ -826,8 +826,6 @@ export default function LaporanPelayanan({
             return "NIK harus berisi 16 digit angka.";
         if (digitsOnly(formData.nomor_telepon).length < 10)
             return "Nomor telepon minimal 10 digit.";
-        if (!formData.nama_lurah.trim())
-            return "Nama lurah/kepala desa wajib diisi.";
         if (!formData.jenis_masalah) return "Jenis masalah wajib dipilih.";
         if (!formData.prioritas) return "Prioritas laporan wajib dipilih.";
         if (!formData.judul_pengaduan.trim())
@@ -1335,9 +1333,7 @@ export default function LaporanPelayanan({
                             </div>
                         </label>
                         <label className="lpvCreateField">
-                            <span>
-                                Nama Lurah/Kepala Desa <b>*</b>
-                            </span>
+                            <span>Nama Lurah/Kepala Desa (Opsional)</span>
                             <div className="lpvInputShell">
                                 <FiMapPin />
                                 <input

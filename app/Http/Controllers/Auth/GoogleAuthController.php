@@ -50,7 +50,7 @@ class GoogleAuthController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'email' => 'Login Google dibatalkan atau ditolak oleh Google.',
+                    'email' => 'Login dibatalkan. Silakan pilih akun Google dan coba lagi.',
                 ]);
         }
 
@@ -60,7 +60,7 @@ class GoogleAuthController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'email' => 'Login Google gagal. Periksa Google Client ID, Client Secret, Redirect URI, dan daftar Test Users.',
+                    'email' => 'Login dengan Google gagal. Silakan coba lagi. Jika masalah berlanjut, hubungi admin.',
                 ]);
         }
 
@@ -70,7 +70,7 @@ class GoogleAuthController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'email' => 'Email dari akun Google tidak ditemukan.',
+                    'email' => 'Login gagal karena email akun Google tidak dapat dibaca. Silakan gunakan akun Google lain atau hubungi admin.',
                 ]);
         }
 
@@ -80,7 +80,7 @@ class GoogleAuthController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'email' => 'Email Google ini belum terdaftar di sistem.',
+                    'email' => 'Akun Google ini belum terdaftar di sistem. Silakan hubungi admin untuk mendapatkan akses.',
                 ]);
         }
 
@@ -91,7 +91,7 @@ class GoogleAuthController extends Controller
                 return redirect()
                     ->route('login')
                     ->withErrors([
-                        'email' => 'Akun ini belum aktif.',
+                        'email' => 'Akun Anda sedang tidak aktif. Silakan hubungi admin untuk mengaktifkan kembali akun.',
                     ]);
             }
         }

@@ -208,6 +208,15 @@ body {
     color: #9f1d1d;
 }
 
+.loginAlert.error strong,
+.loginAlert.error span {
+    display: block;
+}
+
+.loginAlert.error span {
+    margin-top: 2px;
+}
+
 .loginDesignImage {
     position: fixed;
     left: 0;
@@ -280,6 +289,11 @@ body {
     .googleLoginButton {
         height: 58px;
         font-size: 15px;
+    }
+
+    .loginAlert {
+        padding: 10px 12px;
+        font-size: 12px;
     }
 
     .loginDesignImage {

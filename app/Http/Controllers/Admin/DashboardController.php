@@ -405,8 +405,10 @@ class DashboardController extends Controller
         $kegiatanCounts = $this->countByForeignKey('kegiatan', 'id_posbankum', $ids);
         $firstParalegalContacts = $this->firstParalegalContactsByPosbankum($ids);
         $paralegalCounts = [];
+        $hasParalegalCountSource = false;
 
         if ($this->hasColumn('posbankum_paralegal', 'id_posbankum')) {
+            $hasParalegalCountSource = true;
             $query = DB::table('posbankum_paralegal')
                 ->select('id_posbankum', DB::raw('COUNT(*) as total'))
                 ->whereIn('id_posbankum', $ids);
@@ -421,6 +423,7 @@ class DashboardController extends Controller
                 ->map(fn($value) => (int) $value)
                 ->toArray();
         } elseif ($this->hasColumn('users', 'id_posbankum')) {
+            $hasParalegalCountSource = true;
             $paralegalCounts = DB::table('users')
                 ->select('id_posbankum', DB::raw('COUNT(*) as total'))
                 ->where('role', 'paralegal')
@@ -432,10 +435,15 @@ class DashboardController extends Controller
                 ->toArray();
         }
 
-        return $posRows->values()->map(function ($row, $index) use ($pengaduanCounts, $kegiatanCounts, $paralegalCounts, $firstParalegalContacts) {
+        return $posRows->values()->map(function ($row, $index) use ($pengaduanCounts, $kegiatanCounts, $paralegalCounts, $hasParalegalCountSource, $firstParalegalContacts) {
             $id = $this->getPosbankumId($row);
             $idKey = (string) $id;
             $manualParalegal = (int) $this->rowValue($row, ['jml_paralegal', 'jumlah_paralegal'], 0);
+            $calculatedParalegalCount = (int) (
+                $paralegalCounts[$id]
+                ?? $paralegalCounts[$idKey]
+                ?? 0
+            );
             $firstParalegal = $firstParalegalContacts[$idKey] ?? [];
 
             $posbankumPhone = $this->cleanContactValue($this->getPosbankumPhone($row));
@@ -456,7 +464,7 @@ class DashboardController extends Controller
                 'paralegalEmail' => $paralegalEmail !== '' ? $paralegalEmail : '-',
                 'paralegalName' => (string) $this->rowValue($firstParalegal, ['name'], ''),
                 'contactSource' => $paralegalPhone !== '' || $paralegalEmail !== '' ? 'paralegal' : 'posbankum',
-                'paralegalCount' => $manualParalegal > 0 ? $manualParalegal : (int) ($paralegalCounts[$id] ?? 0),
+                'paralegalCount' => $hasParalegalCountSource ? $calculatedParalegalCount : $manualParalegal,
                 'caseCount' => (int) ($pengaduanCounts[$id] ?? 0),
                 'activityCount' => (int) ($kegiatanCounts[$id] ?? 0),
                 'status' => (string) $this->rowValue($row, ['status', 'status_verifikasi'], 'Aktif'),

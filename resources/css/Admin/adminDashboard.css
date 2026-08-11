@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
 
 /* =========================================================
    adminDashboard.css
@@ -306,6 +306,17 @@
     align-items: flex-start;
     color: #fff;
     box-shadow: var(--ad-shadow);
+    width: 100%;
+    border: 0;
+    text-align: left;
+    font-family: "Outfit", sans-serif;
+    cursor: pointer;
+    appearance: none;
+}
+
+.ad-card:focus-visible {
+    outline: 3px solid rgba(37, 93, 216, 0.18);
+    outline-offset: 2px;
 }
 
 .ad-card.tone-blue {
@@ -486,7 +497,7 @@
 
 .ad-exportBtn,
 .ad-exportBtn * {
-    font-family: "Arimo", sans-serif;
+    font-family: "Outfit", sans-serif;
 }
 
 .ad-exportBtn {
@@ -561,7 +572,7 @@
 .ad-activeTop,
 .ad-activeName,
 .ad-activeGrowth {
-    font-family: "Arimo", sans-serif;
+    font-family: "Outfit", sans-serif;
 }
 
 .ad-activeTop {
@@ -4494,6 +4505,17 @@ button.ad-linkBtn {
     gap: 16px;
     color: #fff;
     box-shadow: var(--ad-shadow);
+    width: 100%;
+    border: 0;
+    text-align: left;
+    font-family: "Outfit", sans-serif;
+    cursor: pointer;
+    appearance: none;
+}
+
+.ad-card:focus-visible {
+    outline: 3px solid rgba(37, 93, 216, 0.18);
+    outline-offset: 2px;
 }
 
 .ad-card.tone-blue {
@@ -4674,7 +4696,7 @@ button.ad-linkBtn {
 
 .ad-exportBtn,
 .ad-exportBtn * {
-    font-family: "Arimo", sans-serif;
+    font-family: "Outfit", sans-serif;
 }
 
 .ad-exportBtn {
@@ -4749,7 +4771,7 @@ button.ad-linkBtn {
 .ad-activeTop,
 .ad-activeName,
 .ad-activeGrowth {
-    font-family: "Arimo", sans-serif;
+    font-family: "Outfit", sans-serif;
 }
 
 .ad-activeTop {

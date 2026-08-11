@@ -5946,3 +5946,65 @@ body,
         cursor: grabbing;
     }
 }
+
+/* Revisi layanan masyarakat: warna ikon mengikuti palet yang sudah digunakan landing page. */
+.lp-service-item-icon.is-blue {
+    background: #2447a4;
+}
+
+.lp-service-item-icon.is-green {
+    background: #10b75c;
+}
+
+.lp-service-item-icon.is-orange {
+    background: #d7761f;
+}
+
+.lp-service-item-icon.is-purple {
+    background: #4a57c7;
+}
+
+@media (max-width: 768px) {
+    .lp-service-list {
+        margin-top: 24px;
+        gap: 10px;
+    }
+
+    .lp-service-item {
+        min-height: 58px;
+        padding: 9px 12px;
+        gap: 11px;
+        border-radius: 14px;
+        font-size: 14px;
+    }
+
+    .lp-service-item-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
+
+    .lp-service-item-icon svg {
+        width: 19px;
+        height: 19px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lp-service-item {
+        min-height: 54px;
+        padding: 8px 10px;
+        gap: 10px;
+        font-size: 13px;
+    }
+
+    .lp-service-item-icon {
+        width: 34px;
+        height: 34px;
+    }
+
+    .lp-service-item-icon svg {
+        width: 17px;
+        height: 17px;
+    }
+}

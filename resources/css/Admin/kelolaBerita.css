@@ -1989,3 +1989,14 @@
         white-space: normal;
     }
 }
+
+/* Revisi kategori berita "Lainnya". */
+.kb-otherCategoryInput {
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .kb-otherCategoryInput {
+        margin-top: 8px;
+    }
+}

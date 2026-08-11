@@ -15,12 +15,14 @@ import {
 import SuccessToast from "../../Components/ui/SuccessToast";
 import "../../../css/Admin/kelolaBerita.css";
 
+const OTHER_CATEGORY_OPTION = "Lainnya";
 const KATEGORI_OPTIONS = [
     "Kegiatan",
     "Pelatihan",
     "Workshop",
     "Kunjungan",
     "Sosialisasi",
+    OTHER_CATEGORY_OPTION,
 ];
 
 const formatDateID = (value) => {
@@ -174,6 +176,7 @@ export default function KelolaBerita({
         judul: "",
         isi: "",
         kategori: "",
+        kategoriLainnya: "",
         gambarFile: null,
     });
     const [existingImagePath, setExistingImagePath] = useState("");
@@ -249,6 +252,7 @@ export default function KelolaBerita({
             judul: "",
             isi: "",
             kategori: "",
+            kategoriLainnya: "",
             gambarFile: null,
         });
         setExistingImagePath("");
@@ -276,10 +280,17 @@ export default function KelolaBerita({
         setActiveItem(item);
         setExistingImagePath(imagePath || "");
         setImagePreview(imageUrl || "");
+        const savedCategory = String(item?.kategori || "").trim();
+        const usesOtherCategory =
+            savedCategory !== "" && !KATEGORI_OPTIONS.includes(savedCategory);
+
         setForm({
             judul: item?.judul || "",
             isi: item?.isi || "",
-            kategori: item?.kategori || KATEGORI_OPTIONS[0],
+            kategori: usesOtherCategory
+                ? OTHER_CATEGORY_OPTION
+                : savedCategory || KATEGORI_OPTIONS[0],
+            kategoriLainnya: usesOtherCategory ? savedCategory : "",
             gambarFile: null,
         });
         setPageMode("edit");
@@ -359,15 +370,30 @@ export default function KelolaBerita({
     const buildFormData = () => {
         const judul = String(form.judul || "").trim();
         const isi = String(form.isi || "").trim();
-        const kategori = String(form.kategori || KATEGORI_OPTIONS[0]).trim();
+        const selectedCategory = String(
+            form.kategori || KATEGORI_OPTIONS[0],
+        ).trim();
+        const customCategory = String(form.kategoriLainnya || "").trim();
+        const kategori =
+            selectedCategory === OTHER_CATEGORY_OPTION
+                ? customCategory
+                : selectedCategory;
 
         if (!judul) return { error: "Judul berita wajib diisi." };
         if (!isi) return { error: "Isi berita wajib diisi." };
+        if (!kategori) {
+            return {
+                error:
+                    selectedCategory === OTHER_CATEGORY_OPTION
+                        ? "Kategori lainnya wajib diisi."
+                        : "Kategori berita wajib dipilih.",
+            };
+        }
 
         const data = new FormData();
         data.append("judul", judul);
         data.append("isi", isi);
-        data.append("kategori", kategori || KATEGORI_OPTIONS[0]);
+        data.append("kategori", kategori);
 
         if (form.gambarFile) {
             data.append("gambar", form.gambarFile);
@@ -553,12 +579,18 @@ export default function KelolaBerita({
                                         id="kategori-berita"
                                         className="kb-select kb-cleanSelect"
                                         value={form.kategori}
-                                        onChange={(event) =>
+                                        onChange={(event) => {
+                                            const kategori = event.target.value;
                                             setForm((prev) => ({
                                                 ...prev,
-                                                kategori: event.target.value,
-                                            }))
-                                        }
+                                                kategori,
+                                                kategoriLainnya:
+                                                    kategori ===
+                                                    OTHER_CATEGORY_OPTION
+                                                        ? prev.kategoriLainnya
+                                                        : "",
+                                            }));
+                                        }}
                                     >
                                         <option value="" disabled>
                                             Pilih Kategori Berita
@@ -570,6 +602,24 @@ export default function KelolaBerita({
                                         ))}
                                     </select>
                                 </div>
+
+                                {form.kategori === OTHER_CATEGORY_OPTION ? (
+                                    <input
+                                        type="text"
+                                        className="kb-input kb-cleanInput kb-otherCategoryInput"
+                                        value={form.kategoriLainnya}
+                                        onChange={(event) =>
+                                            setForm((prev) => ({
+                                                ...prev,
+                                                kategoriLainnya:
+                                                    event.target.value,
+                                            }))
+                                        }
+                                        maxLength={100}
+                                        placeholder="Tuliskan kategori lainnya"
+                                        aria-label="Kategori lainnya"
+                                    />
+                                ) : null}
                             </div>
 
                             <div className="kb-field kb-thumbnailField">
