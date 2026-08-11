@@ -971,7 +971,6 @@
     }
 }
 
-
 .kk-wrap button,
 .kk-wrap [role="button"] {
     transition:
@@ -997,7 +996,6 @@
 .kk-wrap [role="button"]:active {
     transform: translateY(0);
 }
-
 
 .kk-search {
     transition:
@@ -1073,7 +1071,6 @@
     line-height: 1.45;
     font-weight: 700;
 }
-
 
 .kk-resubmit-overlay {
     position: fixed;
@@ -1206,7 +1203,6 @@
     }
 }
 
-
 .kk-memberSelectBox {
     width: 100%;
     padding: 14px;
@@ -1316,7 +1312,6 @@
     }
 }
 
-
 .kk-wrap {
     padding: 0;
     width: 100%;
@@ -1340,7 +1335,6 @@
         padding: 0;
     }
 }
-
 
 @media (max-width: 768px) {
     .kk-wrap {
@@ -1418,7 +1412,6 @@
     }
 }
 
-
 .kk-modal-overlay,
 .kk-detail-overlay,
 .kk-resubmit-overlay,
@@ -1467,7 +1460,6 @@
         max-height: calc(100dvh - 20px);
     }
 }
-
 
 .kk-pageMode,
 .kk-listPageHeading {
@@ -2123,3 +2115,171 @@
     }
 }
 
+/* ===== FINAL MOBILE REFINEMENT: Kelola Kegiatan ===== */
+@media (max-width: 768px) {
+    .kk-wrap {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .kk-headTop,
+    .kk-pageTop {
+        gap: 12px;
+    }
+
+    .kk-title,
+    .kk-pageTitle {
+        font-size: 22px;
+    }
+
+    .kk-stats {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .kk-statCard {
+        min-height: 80px;
+        padding: 12px 13px;
+        gap: 10px;
+        border-radius: 14px;
+    }
+
+    .kk-statIcon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+    }
+
+    .kk-statLabel {
+        font-size: 11px;
+    }
+
+    .kk-statValue {
+        font-size: 22px;
+    }
+
+    .kk-toolbar,
+    .kk-filterBar,
+    .kk-cardHead,
+    .kk-cardFooter,
+    .kk-modalActions {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 10px;
+    }
+
+    .kk-search,
+    .kk-filterDropdown,
+    .kk-topBtn,
+    .kk-btn-primary,
+    .kk-btn-secondary {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .kk-search,
+    .kk-filterDropdown,
+    .kk-topBtn {
+        min-height: 44px;
+        height: 44px;
+        border-radius: 13px;
+        font-size: 12px;
+    }
+
+    .kk-list,
+    .kk-cardGrid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    .kk-card,
+    .kk-formPageCard,
+    .kk-detailPageCard {
+        border-radius: 14px;
+    }
+
+    .kk-cardBody {
+        padding: 13px;
+    }
+
+    .kk-cardTitle {
+        font-size: 15px;
+    }
+
+    .kk-cardMeta,
+    .kk-cardText {
+        font-size: 11px;
+    }
+
+    .kk-formPageHead,
+    .kk-formPageBody,
+    .kk-detailPageBody {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .kk-formTwoCols,
+    .kk-detailSummaryGrid {
+        gap: 10px;
+    }
+
+    .kk-input,
+    .kk-select,
+    .kk-textarea {
+        font-size: 12px;
+    }
+
+    .kk-detailSummaryCard {
+        min-height: 74px;
+        padding: 12px;
+        border-radius: 13px;
+    }
+
+    .kk-detailPageHero {
+        min-height: 180px;
+    }
+
+    .kk-detailPageTitle {
+        margin: 14px 0 16px;
+        font-size: 18px;
+    }
+
+    .kk-detailTextSection p {
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .kk-modal-overlay,
+    .kk-modalOverlay,
+    .kk-detailOverlay {
+        padding: 8px;
+        align-items: flex-start;
+    }
+
+    .kk-modal,
+    .kk-detailModal {
+        width: 100% !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(100dvh - 16px) !important;
+        border-radius: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kk-title,
+    .kk-pageTitle {
+        font-size: 20px;
+    }
+
+    .kk-statCard,
+    .kk-cardBody,
+    .kk-detailSummaryCard {
+        padding: 11px;
+    }
+
+    .kk-detailPageHero {
+        min-height: 160px;
+    }
+}

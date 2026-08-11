@@ -287,6 +287,16 @@
     align-items: center;
     gap: 16px;
     color: #fff;
+    width: 100%;
+    text-align: left;
+    font-family: "Outfit", sans-serif;
+    cursor: pointer;
+    appearance: none;
+}
+
+.pb2StatCard:focus-visible {
+    outline: 3px solid var(--pb-nav-blue);
+    outline-offset: 2px;
 }
 
 .pb2StatCard:nth-child(1) {
@@ -2731,5 +2741,175 @@ button.pb2KegiatanItem:active {
 
     .pb2StatHint {
         font-size: 10px;
+    }
+}
+
+/* ===== FINAL MOBILE REFINEMENT: Dashboard Paralegal ===== */
+@media (max-width: 768px) {
+    .pb2Root,
+    .pb2Main {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .pb2Top {
+        min-height: 66px;
+        padding: 11px 12px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .pb2TopTitle {
+        font-size: 19px;
+    }
+
+    .pb2TopSub {
+        margin-top: 4px;
+        font-size: 11px;
+    }
+
+    .pb2TopRight {
+        gap: 7px;
+    }
+
+    .pb2Bell {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+    }
+
+    .pb2TopLogoutBtn {
+        min-height: 38px;
+        padding: 0 11px;
+        border-radius: 12px;
+        gap: 6px;
+        font-size: 12px;
+    }
+
+    .pb2Content,
+    .pb2ContentWithHeading {
+        padding: 14px 12px 22px !important;
+        gap: 13px;
+    }
+
+    .pb2PageHeadingTitle {
+        font-size: 21px;
+    }
+
+    .pb2Stats {
+        gap: 10px;
+    }
+
+    .pb2StatCard {
+        min-height: 80px;
+        padding: 12px 13px;
+        gap: 10px;
+        border-radius: 14px;
+    }
+
+    .pb2StatIcon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        font-size: 17px;
+    }
+
+    .pb2StatLabel {
+        font-size: 11px;
+    }
+
+    .pb2StatValue {
+        margin-top: 3px;
+        font-size: 22px;
+    }
+
+    .pb2StatHint {
+        margin-top: 3px;
+        font-size: 10px;
+    }
+
+    .pb2Panels,
+    .pb2MainGrid,
+    .pb2InfoGrid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+
+    .pb2Panel,
+    .pb2InfoItem {
+        border-radius: 14px;
+    }
+
+    .pb2Panel {
+        padding: 13px;
+    }
+
+    .pb2PanelTitle {
+        font-size: 15px;
+    }
+
+    .pb2PanelSub,
+    .pb2InfoLabel,
+    .pb2InfoValue {
+        font-size: 11px;
+    }
+
+    .pb2InfoItem {
+        min-height: 72px;
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .pb2InfoIcon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+    }
+
+    .pb2TableWrap,
+    .pb2ChartWrap,
+    .pb2ListWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .pb2NotifHead,
+    .pb2NotifToolbar,
+    .pb2NotifFooter {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .pb2NotifCard {
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 10px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 430px) {
+    .pb2Top {
+        min-height: 60px;
+        padding: 10px;
+    }
+
+    .pb2TopTitle {
+        font-size: 18px;
+    }
+
+    .pb2Content,
+    .pb2ContentWithHeading {
+        padding: 12px 10px 20px !important;
+    }
+
+    .pb2StatCard {
+        min-height: 76px;
+        padding: 11px 12px;
+    }
+
+    .pb2StatValue {
+        font-size: 20px;
     }
 }

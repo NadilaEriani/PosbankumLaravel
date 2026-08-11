@@ -3013,3 +3013,153 @@
     }
 }
 
+
+
+/* ===== FINAL MOBILE REFINEMENT: Manajemen Akun ===== */
+@media (max-width: 768px) {
+    .kpShell {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .kpListHead,
+    .kpPageTop {
+        gap: 12px !important;
+    }
+
+    .kpAddTop {
+        height: 44px;
+        border-radius: 13px;
+        padding: 0 14px;
+        font-size: 13px;
+    }
+
+    .kpPanel {
+        padding: 13px !important;
+        margin-bottom: 14px !important;
+        border-radius: 14px !important;
+    }
+
+    .kpToolbar,
+    .kpToolbar.kpToolbarInline,
+    .kpFilters,
+    .kpToolbar.kpToolbarInline .kpFiltersInline {
+        gap: 10px !important;
+    }
+
+    .kpSearch,
+    .kpDropdownBtn,
+    .kpInput,
+    .kpSelect {
+        min-height: 44px !important;
+        height: 44px !important;
+        border-radius: 13px !important;
+        font-size: 12px;
+    }
+
+    .kpTableCard {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 14px !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .kpTable {
+        min-width: 780px !important;
+    }
+
+    .kpTable thead th,
+    .kpTable tbody td {
+        padding: 11px 13px !important;
+        font-size: 11px;
+    }
+
+    .kpPageTitle {
+        font-size: 22px;
+    }
+
+    .kpBreadcrumb {
+        margin-bottom: 14px;
+        gap: 7px;
+        font-size: 11px;
+    }
+
+    .kpPageActions {
+        gap: 8px;
+    }
+
+    .kpPageBtnGhost,
+    .kpPageBtnPrimary,
+    .kpPageBtnPrimary.kpDetailBackBtn,
+    .kpSaveBtn {
+        height: 44px !important;
+        border-radius: 13px;
+        font-size: 12px;
+    }
+
+    .kpFormCard,
+    .kpDetailCard {
+        border-radius: 14px !important;
+    }
+
+    .kpFormPageHead,
+    .kpFormPageBody,
+    .kpDetailCardHead,
+    .kpDetailGrid {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
+
+    .kpFormPageTitle,
+    .kpDetailCardHead h2 {
+        font-size: 19px !important;
+    }
+
+    .kpFormGroup {
+        margin-bottom: 14px !important;
+    }
+
+    .kpDetailItem {
+        min-height: 66px;
+        padding: 11px;
+    }
+
+    .kpModalOverlay,
+    .kpDeleteOverlay,
+    .kpDetailOverlay {
+        padding: 8px !important;
+        align-items: flex-start !important;
+    }
+
+    .kpModal,
+    .kpDeleteModal,
+    .kpDetailModal {
+        width: 100% !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(100dvh - 16px) !important;
+        border-radius: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpPanel {
+        padding: 11px !important;
+    }
+
+    .kpTable {
+        min-width: 720px !important;
+    }
+
+    .kpPageTitle {
+        font-size: 20px;
+    }
+
+    .kpFormPageHead,
+    .kpFormPageBody,
+    .kpDetailCardHead,
+    .kpDetailGrid {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}

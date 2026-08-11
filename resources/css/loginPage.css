@@ -330,3 +330,129 @@ body {
         height: 135px;
     }
 }
+
+
+/* ===== FINAL MOBILE REFINEMENT: Login ===== */
+@media (max-width: 768px) {
+    .loginPage {
+        width: 100%;
+        min-height: 100dvh;
+        overflow-x: hidden;
+    }
+
+    .loginStage {
+        min-height: 100dvh;
+        padding: 78px 14px 96px;
+        align-items: center;
+    }
+
+    .loginCard {
+        width: min(100%, 430px);
+        padding: 30px 22px 26px;
+        border-radius: 20px;
+    }
+
+    .loginBirdFrame {
+        width: 76px;
+        height: 76px;
+        margin-bottom: 14px;
+    }
+
+    .loginBirdImage {
+        width: 70px;
+        height: 70px;
+    }
+
+    .loginBrand {
+        margin-bottom: 14px;
+        font-size: 19px;
+    }
+
+    .loginCard h1 {
+        margin-bottom: 12px;
+        font-size: 26px;
+    }
+
+    .loginDescription {
+        margin-bottom: 24px;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .googleLoginButton {
+        height: 54px;
+        border-radius: 13px;
+        gap: 12px;
+        font-size: 14px;
+    }
+
+    .googleLetter {
+        width: 24px;
+        height: 24px;
+        font-size: 22px;
+    }
+
+    .loginSecureText {
+        margin-top: 22px;
+        font-size: 11px;
+    }
+
+    .loginAlert {
+        margin-bottom: 12px;
+        padding: 9px 11px;
+        border-radius: 11px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 420px) {
+    .loginBackBtn {
+        top: 12px;
+        left: 12px;
+        height: 38px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    .loginStage {
+        padding: 62px 10px 78px;
+    }
+
+    .loginCard {
+        padding: 24px 16px 22px;
+        border-radius: 18px;
+    }
+
+    .loginBirdFrame {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 12px;
+    }
+
+    .loginBirdImage {
+        width: 62px;
+        height: 62px;
+    }
+
+    .loginBrand {
+        font-size: 17px;
+    }
+
+    .loginCard h1 {
+        font-size: 23px;
+    }
+
+    .loginDescription {
+        margin-bottom: 20px;
+        font-size: 12px;
+    }
+
+    .googleLoginButton {
+        height: 50px;
+        font-size: 13px;
+    }
+
+    .loginDesignImage {
+        height: 110px;
+    }
+}

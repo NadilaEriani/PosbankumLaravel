@@ -7303,3 +7303,238 @@ button.ad-linkBtn {
         font-size: 10px;
     }
 }
+
+/* ===== FINAL MOBILE REFINEMENT: Dashboard Admin ===== */
+@media (max-width: 768px) {
+    .ad-main,
+    .ad-grid,
+    .ad-pagePad,
+    .ad-pagePadBerita {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ad-top {
+        min-height: 68px;
+        padding: 11px 12px;
+        gap: 10px;
+    }
+
+    .ad-topLeft,
+    .ad-topRight {
+        min-width: 0;
+    }
+
+    .ad-pageIntroTitle {
+        font-size: 21px !important;
+    }
+
+    .ad-pageIntroSub {
+        margin-top: 4px;
+        font-size: 11px;
+    }
+
+    .ad-topLogoutBtn {
+        height: 38px;
+        padding: 0 11px;
+        border-radius: 12px;
+        gap: 6px;
+        font-size: 12px;
+    }
+
+    .ad-pagePad,
+    .ad-grid {
+        padding: 14px 12px 22px !important;
+    }
+
+    .ad-pageHeader {
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
+    .ad-wireTitle,
+    .ad-pageTitle,
+    .ad-activityPageTitle {
+        font-size: 22px !important;
+    }
+
+    .ad-cards {
+        gap: 10px;
+    }
+
+    .ad-card {
+        min-height: 82px;
+        padding: 12px 13px;
+        gap: 11px;
+        border-radius: 14px;
+    }
+
+    .ad-cardIcon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        font-size: 17px;
+    }
+
+    .ad-cardAssetIcon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .ad-cardTitle {
+        font-size: 12px;
+    }
+
+    .ad-cardValue {
+        margin-top: 3px;
+        font-size: 23px;
+    }
+
+    .ad-cardHint {
+        margin-top: 3px;
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .ad-panels {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+        margin-top: 14px;
+    }
+
+    .ad-panelChart,
+    .ad-panelActivity,
+    .ad-detailPanel {
+        padding: 14px;
+    }
+
+    .ad-panelTitle {
+        font-size: 16px;
+    }
+
+    .ad-panelSub {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .ad-activeBars,
+    .ad-tableWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ad-searchWrap,
+    .ad-searchInput,
+    .ad-exportBtn,
+    .ad-linkBtn {
+        max-width: 100%;
+    }
+
+    .ad-activityItem {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .ad-activityTitle {
+        font-size: 13px;
+    }
+
+    .ad-activityDesc,
+    .ad-activityTime {
+        font-size: 11px;
+    }
+
+    .ad-activityPage {
+        padding: 18px 12px 24px !important;
+    }
+
+    .ad-activityTabs {
+        min-height: 52px;
+        padding: 6px;
+    }
+
+    .ad-activityTab {
+        height: 38px;
+        padding: 0 7px;
+        font-size: 12px;
+    }
+
+    .ad-activityPageItem {
+        min-height: 92px;
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 10px;
+        padding: 13px;
+        border-radius: 15px;
+    }
+
+    .ad-activityPageIcon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        font-size: 19px;
+    }
+
+    .ad-activityPageItemTitle {
+        font-size: 14px;
+    }
+
+    .ad-activityPageItemDesc,
+    .ad-activityPageSummary,
+    .ad-activityPageEmpty {
+        font-size: 12px;
+    }
+
+    .ad-activityPageChip {
+        min-height: 22px;
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 430px) {
+    .ad-top {
+        min-height: 62px;
+        padding: 10px;
+    }
+
+    .ad-pageIntroTitle {
+        font-size: 19px !important;
+    }
+
+    .ad-topLogoutBtn {
+        height: 36px;
+        font-size: 11px;
+    }
+
+    .ad-pagePad,
+    .ad-grid {
+        padding: 12px 10px 20px !important;
+    }
+
+    .ad-card {
+        min-height: 78px;
+        padding: 11px 12px;
+    }
+
+    .ad-cardIcon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .ad-cardValue {
+        font-size: 21px;
+    }
+
+    .ad-panelChart,
+    .ad-panelActivity,
+    .ad-detailPanel {
+        padding: 12px;
+    }
+
+    .ad-activityPager {
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 2px;
+    }
+}

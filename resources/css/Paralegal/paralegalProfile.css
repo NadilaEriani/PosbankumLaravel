@@ -773,3 +773,125 @@
         grid-column: auto;
     }
 }
+
+/* ===== FINAL MOBILE REFINEMENT: Profil Paralegal ===== */
+@media (max-width: 768px) {
+    .prfPage {
+        width: 100%;
+        min-width: 0;
+        gap: 14px;
+        overflow-x: hidden;
+    }
+
+    .prfHeader {
+        gap: 12px;
+    }
+
+    .prfHeaderLeft {
+        gap: 10px;
+    }
+
+    .prfBackBtn {
+        width: 38px;
+        height: 38px;
+        font-size: 18px;
+    }
+
+    .prfBreadcrumb {
+        gap: 7px;
+        font-size: 11px;
+    }
+
+    .prfTitleBlock h2 {
+        margin-top: 9px;
+        font-size: 21px;
+    }
+
+    .prfActions {
+        gap: 8px;
+    }
+
+    .prfBtn {
+        min-height: 42px;
+        padding: 0 13px;
+        border-radius: 12px;
+        font-size: 12px;
+    }
+
+    .prfCard {
+        padding: 16px 13px 18px;
+        gap: 16px;
+        border-radius: 16px;
+    }
+
+    .prfEditNotice,
+    .prfAccountBox,
+    .prfPosBox,
+    .prfTeamItem,
+    .prfEmptyBox {
+        padding: 12px;
+        border-radius: 13px;
+    }
+
+    .prfEditNoticeTitle,
+    .prfSectionHead,
+    .prfTeamName {
+        font-size: 13px;
+    }
+
+    .prfBoxIcon,
+    .prfPosIconBox,
+    .prfTeamAvatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        font-size: 17px;
+    }
+
+    .prfAccountGrid,
+    .prfInfoArea,
+    .prfTeamList {
+        gap: 10px;
+    }
+
+    .prfBoxBody,
+    .prfTeamMeta,
+    .prfPosMeta {
+        font-size: 11px;
+    }
+
+    .prfTeamBadge {
+        min-height: 22px;
+        padding: 0 9px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .prfPage {
+        gap: 12px;
+    }
+
+    .prfHeaderLeft {
+        align-items: flex-start;
+    }
+
+    .prfTitleBlock h2 {
+        font-size: 19px;
+    }
+
+    .prfActions {
+        grid-template-columns: 1fr;
+    }
+
+    .prfCard {
+        padding: 14px 11px 16px;
+    }
+
+    .prfEditNotice,
+    .prfAccountBox,
+    .prfPosBox,
+    .prfTeamItem {
+        padding: 11px;
+    }
+}

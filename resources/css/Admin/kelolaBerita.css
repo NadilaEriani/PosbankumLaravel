@@ -2000,3 +2000,182 @@
         margin-top: 8px;
     }
 }
+
+/* ===== FINAL MOBILE REFINEMENT: Kelola Berita ===== */
+@media (max-width: 768px) {
+    .kb-wrap,
+    .kb-pageShell {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .kb-toolbar {
+        padding: 13px;
+        gap: 10px;
+        border-radius: 15px;
+    }
+
+    .kb-search,
+    .kb-addButton {
+        min-height: 44px;
+        height: 44px;
+        border-radius: 13px;
+        font-size: 12px;
+    }
+
+    .kb-grid {
+        gap: 12px;
+    }
+
+    .kb-card {
+        grid-template-rows: 165px 1fr auto;
+        border-radius: 15px;
+    }
+
+    .kb-cardBody {
+        padding: 13px;
+    }
+
+    .kb-cardTitle {
+        font-size: 16px;
+        line-height: 1.35;
+    }
+
+    .kb-cardText {
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .kb-cardMeta {
+        gap: 8px;
+        font-size: 11px;
+    }
+
+    .kb-cardActions {
+        grid-template-columns: minmax(0, 1fr) 42px 42px;
+        gap: 7px;
+        padding: 0 13px 13px;
+    }
+
+    .kb-btnView,
+    .kb-btnIcon {
+        height: 42px;
+        border-radius: 12px;
+        font-size: 12px;
+    }
+
+    .kb-contentHead {
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .kb-contentTitle {
+        font-size: 23px;
+    }
+
+    .kb-contentActions {
+        gap: 8px;
+    }
+
+    .kb-btnCancelPage,
+    .kb-btnSavePage,
+    .kb-btnCloseDetail {
+        height: 44px;
+        border-radius: 13px;
+        font-size: 12px;
+    }
+
+    .kb-formContentHead {
+        min-height: 56px;
+        padding: 0 15px;
+        font-size: 17px;
+    }
+
+    .kb-formContentBody {
+        padding: 18px 14px 20px;
+    }
+
+    .kb-formMiddleGrid,
+    .kb-formContentBody .kb-field + .kb-field,
+    .kb-formContentBody .kb-formMiddleGrid + .kb-field {
+        margin-top: 18px;
+    }
+
+    .kb-cleanInput,
+    .kb-cleanSelect,
+    .kb-input,
+    .kb-select {
+        height: 46px;
+        border-radius: 13px;
+        font-size: 13px;
+    }
+
+    .kb-cleanTextarea,
+    .kb-textarea {
+        min-height: 160px;
+        border-radius: 13px;
+        font-size: 13px;
+    }
+
+    .kb-cleanUploadBox,
+    .kb-cleanUploadEmpty,
+    .kb-uploadBox,
+    .kb-uploadEmpty {
+        min-height: 150px;
+        height: auto;
+    }
+
+    .kb-newsHero {
+        height: 200px;
+    }
+
+    .kb-newsDetailBody {
+        padding: 18px 15px 24px;
+    }
+
+    .kb-newsTitle {
+        font-size: 21px;
+    }
+
+    .kb-newsMeta,
+    .kb-newsContent p {
+        font-size: 13px;
+    }
+
+    .kb-deleteOverlay {
+        padding: 8px;
+    }
+
+    .kb-deleteModal {
+        max-height: calc(100dvh - 16px);
+        padding: 20px 15px 18px;
+        border-radius: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kb-toolbar,
+    .kb-cardBody,
+    .kb-formContentBody {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .kb-card {
+        grid-template-rows: 145px 1fr auto;
+    }
+
+    .kb-cardActions {
+        grid-template-columns: minmax(0, 1fr) 40px 40px;
+        padding: 0 12px 12px;
+    }
+
+    .kb-contentTitle {
+        font-size: 21px;
+    }
+
+    .kb-newsHero {
+        height: 175px;
+    }
+}

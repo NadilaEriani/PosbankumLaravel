@@ -1179,3 +1179,121 @@
         line-height: 1.75;
     }
 }
+
+/* ===== FINAL MOBILE REFINEMENT: Laporan Kegiatan Admin ===== */
+@media (max-width: 768px) {
+    .rk-wrap {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .rk-statGrid,
+    .rk-cardGrid {
+        gap: 10px;
+    }
+
+    .rk-statCard {
+        min-height: 82px;
+        padding: 13px;
+        border-radius: 14px;
+    }
+
+    .rk-statIconBox {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+
+    .rk-statLabel {
+        font-size: 11px;
+    }
+
+    .rk-statValue {
+        font-size: 22px;
+    }
+
+    .rk-filterPanel {
+        padding: 13px;
+        border-radius: 14px;
+    }
+
+    .rk-searchBox {
+        height: 44px;
+        border-radius: 13px;
+    }
+
+    .rk-tab {
+        min-height: 38px;
+        padding: 0 12px;
+        font-size: 12px;
+    }
+
+    .rk-card {
+        border-radius: 14px;
+    }
+
+    .rk-cardBody {
+        padding: 13px;
+    }
+
+    .rk-cardTitle {
+        font-size: 15px;
+        line-height: 1.35;
+    }
+
+    .rk-cardMeta,
+    .rk-cardDesc {
+        font-size: 11px;
+    }
+
+    .rk-detailPad {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .rk-detailTopbar {
+        gap: 12px;
+    }
+
+    .rk-detailBanner {
+        height: 185px;
+        border-radius: 15px;
+    }
+
+    .rk-detailBody {
+        padding: 18px 14px 20px;
+    }
+
+    .rk-detailTitleText {
+        font-size: 18px;
+    }
+
+    .rk-detailFact,
+    .rk-rejectionNoteBox,
+    .rk-rejectInlinePanel,
+    .rk-verificationBox {
+        padding: 13px;
+        border-radius: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rk-statCard,
+    .rk-filterPanel,
+    .rk-cardBody {
+        padding: 12px;
+    }
+
+    .rk-statValue {
+        font-size: 20px;
+    }
+
+    .rk-headingBlock h1 {
+        font-size: 21px;
+    }
+
+    .rk-detailBanner {
+        height: 165px;
+    }
+}

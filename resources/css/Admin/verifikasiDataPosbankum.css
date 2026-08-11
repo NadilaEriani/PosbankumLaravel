@@ -2628,3 +2628,158 @@
         max-height: 340px;
     }
 }
+
+/* ===== FINAL MOBILE REFINEMENT: Verifikasi Data Posbankum ===== */
+@media (max-width: 768px) {
+    .vd {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .vd-topBoxes {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .vd-topBox {
+        border-radius: 14px;
+    }
+
+    .vd-topBoxInner {
+        padding: 13px 14px;
+        gap: 11px;
+    }
+
+    .vd-topIcon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+
+    .vd-topTitle,
+    .vd-topHint {
+        font-size: 11px;
+    }
+
+    .vd-topValue {
+        font-size: 22px;
+    }
+
+    .vd-filterCard {
+        padding: 13px;
+        margin-bottom: 14px;
+        border-radius: 14px;
+    }
+
+    .vd-toolbar,
+    .vd-filterRow,
+    .vd-cardHead,
+    .vd-detailHead,
+    .vd-reviewActions {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 10px;
+    }
+
+    .vd-search,
+    .vd-select,
+    .vd-dd,
+    .vd-ddBtn,
+    .vd-filterBtn,
+    .vd-resetBtn {
+        width: 100%;
+        min-width: 0;
+        min-height: 44px;
+        height: 44px;
+        border-radius: 13px;
+        font-size: 12px;
+    }
+
+    .vd-tabs {
+        width: 100%;
+        overflow-x: auto;
+        gap: 6px;
+        padding-bottom: 3px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .vd-tab {
+        flex: 0 0 auto;
+        min-height: 38px;
+        padding: 0 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .vd-list,
+    .vd-cardGrid {
+        gap: 10px;
+    }
+
+    .vd-card {
+        border-radius: 14px;
+    }
+
+    .vd-cardHead,
+    .vd-cardBody {
+        padding: 13px;
+    }
+
+    .vd-cardTitle,
+    .vd-name {
+        font-size: 15px;
+        line-height: 1.35;
+    }
+
+    .vd-cardMeta,
+    .vd-sub,
+    .vd-status {
+        font-size: 11px;
+    }
+
+    .vd-tableWrap,
+    .vd-docTableWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .vd-modalOverlay,
+    .vd-rejectOverlay,
+    .vd-reviewOverlay {
+        padding: 8px !important;
+        align-items: flex-start !important;
+    }
+
+    .vd-modal,
+    .vd-previewModal,
+    .vd-locationModal,
+    .vd-rejectModal,
+    .vd-reviewModal {
+        width: 100% !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(100dvh - 16px) !important;
+        border-radius: 15px !important;
+    }
+
+    .vd-reviewChoiceGrid,
+    .vd-reviewActions,
+    .vd-detailGrid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .vd-topBoxInner,
+    .vd-filterCard,
+    .vd-cardHead,
+    .vd-cardBody {
+        padding: 11px;
+    }
+
+    .vd-topValue {
+        font-size: 20px;
+    }
+}

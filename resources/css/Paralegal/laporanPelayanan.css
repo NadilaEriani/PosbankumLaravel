@@ -1323,7 +1323,6 @@
     }
 }
 
-
 .lpvCreateCard {
     padding: 22px 24px 24px;
     border-radius: 15px;
@@ -1890,7 +1889,6 @@
     }
 }
 
-
 .lpvParalegalDropdown {
     position: relative;
     width: 100%;
@@ -2040,5 +2038,190 @@
         left: 0;
         right: auto;
         width: 100%;
+    }
+}
+
+/* ===== FINAL MOBILE REFINEMENT: Laporan Pelayanan ===== */
+@media (max-width: 768px) {
+    .lpvWrap,
+    .lpdRoot {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .lpvTitleWrap {
+        margin-bottom: 14px;
+    }
+
+    .lpvPageTitle,
+    .lpdPageTitle {
+        font-size: 21px;
+    }
+
+    .lpvStatsGrid {
+        gap: 9px;
+        margin-bottom: 14px;
+    }
+
+    .lpvStatCard {
+        min-height: 74px;
+        padding: 11px 12px;
+        gap: 10px;
+        border-radius: 13px;
+    }
+
+    .lpvStatIcon {
+        font-size: 25px;
+    }
+
+    .lpvStatIcon svg {
+        width: 25px;
+        height: 25px;
+    }
+
+    .lpvStatLabel {
+        font-size: 10px;
+    }
+
+    .lpvStatValue {
+        font-size: 22px;
+    }
+
+    .lpvTabsRow {
+        gap: 8px;
+    }
+
+    .lpvTopTab {
+        min-height: 42px;
+        padding: 0 10px;
+        border-radius: 12px;
+        font-size: 12px;
+    }
+
+    .lpvToolbarCard,
+    .lpvSearchCard,
+    .lpvCard,
+    .lpvFormCard,
+    .lpvInfoCard,
+    .lpdPanel,
+    .lpdSummaryCard {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .lpvSearch,
+    .lpvSelect,
+    .lpvPriorityDropdown,
+    .lpvPrimaryBtn,
+    .lpvGhostBtn,
+    .lpvDangerBtn {
+        min-height: 44px;
+        border-radius: 13px;
+        font-size: 12px;
+    }
+
+    .lpvCardHeader,
+    .lpvFooterRow,
+    .lpdTopbar,
+    .lpdPartyRow,
+    .lpdTimelineHead,
+    .lpvPreviewHeader,
+    .lpvPreviewFooter {
+        gap: 10px;
+    }
+
+    .lpvCardTitle,
+    .lpvSectionHeading,
+    .lpvFormSectionTitle {
+        font-size: 15px;
+    }
+
+    .lpvMetaRow,
+    .lpvFooterMeta,
+    .lpvDescription,
+    .lpdTimelineCard p {
+        font-size: 11px;
+    }
+
+    .lpvCreateCard {
+        padding: 13px;
+        border-radius: 14px;
+    }
+
+    .lpvGuideBox {
+        min-height: auto;
+        padding: 12px;
+        margin-bottom: 16px;
+        gap: 10px;
+    }
+
+    .lpvCreateGrid.two,
+    .lpvCreateGrid.two.narrow,
+    .lpvStatPanelGrid,
+    .lpvPerformanceGrid {
+        gap: 10px;
+    }
+
+    .lpvCreateField input,
+    .lpvCreateField select,
+    .lpvCreateField textarea,
+    .lpvInputShell,
+    .lpvParalegalTrigger {
+        min-height: 44px;
+        border-radius: 13px;
+        font-size: 12px;
+    }
+
+    .lpvCreateField textarea {
+        min-height: 120px;
+    }
+
+    .lpvDropzone {
+        min-height: 100px;
+        border-radius: 13px;
+    }
+
+    .lpvStatPanel,
+    .lpvPerformancePanel {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .lpvStatPanelTitle,
+    .lpvPerformanceTitle {
+        font-size: 16px;
+    }
+
+    .lpvPreviewOverlay {
+        padding: 8px;
+    }
+
+    .lpvPreviewModal,
+    .lpdModal {
+        width: 100% !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(100dvh - 16px) !important;
+        border-radius: 15px !important;
+    }
+}
+
+@media (max-width: 540px) {
+    .lpvPageTitle,
+    .lpdPageTitle {
+        font-size: 20px;
+    }
+
+    .lpvStatCard,
+    .lpvToolbarCard,
+    .lpvSearchCard,
+    .lpvCard,
+    .lpvFormCard,
+    .lpvCreateCard {
+        padding: 11px;
+    }
+
+    .lpvStatValue {
+        font-size: 20px;
     }
 }
