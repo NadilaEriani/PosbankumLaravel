@@ -2331,12 +2331,6 @@ body {
     }
 }
 
-
-
-
-
-
-
 /* FINAL LOGO POPUP DETAIL LOKASI - DIPISAH DARI LIHAT SEMUA LOKASI */
 .lp-detail-logo-box {
     width: 60px;
@@ -2420,9 +2414,6 @@ body {
     left: -8px;
     top: 17px;
 }
-
-
-
 
 /* === UPDATE FOOTER LIST & CONTACT + DETAIL LOKASI CONTENT === */
 .lp-footer-link-col a {
@@ -2693,9 +2684,6 @@ body {
 .lp-detail-action-purple {
     background: #9333ea;
 }
-
-
-
 
 /* =========================================================
    UPDATE MAP PIN, POPUP PETA, CHATBOT, DAN DETAIL LOKASI
@@ -3018,9 +3006,6 @@ body {
     margin: 0;
     transform: translate(0, 0);
 }
-
-
-
 
 /* =========================================================
    UPDATE FINAL: MAPS PNG PIN + CHATBOT PANEL
@@ -3491,9 +3476,6 @@ body {
     padding: 26px 28px !important;
 }
 
-
-
-
 /* =========================================================
    UPDATE FINAL: MAP COORDINATE PIN, POPUP, CHATBOT SEND,
    BACKDROP, LAYER ICON, ZOOM CONTROLS
@@ -3681,9 +3663,6 @@ body {
 .lp-chatbot-send.has-text:hover {
     transform: translateY(-1px);
 }
-
-
-
 
 /* =========================
    OPENSTREETMAP FINAL UPDATE
@@ -3955,9 +3934,6 @@ body {
     background: #4a57c7;
     border: 2px solid #ffffff;
 }
-
-
-
 
 /* =========================
    FINAL UPDATE: OSM CONTROL, CTA, DAN HOVER AKSI
@@ -4463,8 +4439,6 @@ body {
     box-shadow: 0 18px 34px rgba(44, 50, 111, 0.34);
 }
 
-
-
 /* END ALL POPUP BOTTOM ONLY FIX */
 
 /* REVISI POPUP LIHAT SEMUA POSBANKUM - HANYA BAGIAN BAWAH CARD */
@@ -4602,8 +4576,6 @@ body {
     box-shadow: 0 18px 34px rgba(44, 50, 111, 0.34);
 }
 
-
-
 .lp-map-clear-button {
     border: none !important;
     cursor: pointer;
@@ -4629,11 +4601,6 @@ body {
 }
 
 /* ===== Revisi responsif Landing Page sampai mobile kecil ===== */
-
-
-
-
-
 
 /* =========================================================
    FIX MOBILE LANDING PAGE - CHAT BUTTON & PAGE WIDTH
@@ -4669,12 +4636,6 @@ body,
     right: max(22px, calc((100vw - 1240px) / 2 + 22px)) !important;
 }
 
-
-
-
-
-
-
 /* Map interaction update */
 .lp-osm-map.is-dragging {
     cursor: grabbing;
@@ -4685,9 +4646,6 @@ body,
 .lp-osm-map.is-dragging .lp-user-map-marker {
     pointer-events: none;
 }
-
-
-
 
 /* ===== FINAL FIX: chatbot selalu menempel di pojok kanan bawah layar ===== */
 .lp-page .lp-float-chat,
@@ -4721,12 +4679,6 @@ body,
     bottom: 92px !important;
 }
 
-
-
-
-
-
-
 /* ===== FIX MOBILE: peta landing page bisa digeser di layar sentuh ===== */
 .lp-osm-map {
     touch-action: none !important;
@@ -4746,9 +4698,6 @@ body,
     -webkit-user-drag: none;
     user-select: none;
 }
-
-
-
 
 /* Revisi ikon Akses Bantuan Hukum Gratis sesuai desain terbaru. */
 .lp-service-item-icon.is-blue {
@@ -4778,13 +4727,6 @@ body,
         0px 1px 2px -1px #0000001a,
         0px 1px 3px 0px #0000001a;
 }
-
-
-
-
-
-
-
 
 /* =========================================================
    Responsive mobile — Landing Page
@@ -5363,13 +5305,13 @@ body,
 
     .lp-chatbot-panel,
     .lp-chatbot-panel.is-large {
-        left: 12px;
-        right: 12px;
-        bottom: calc(84px + env(safe-area-inset-bottom));
+        left: 10px;
+        right: 10px;
+        bottom: calc(80px + env(safe-area-inset-bottom));
         width: auto;
         max-width: none;
-        height: min(68dvh, 580px);
-        max-height: calc(100dvh - 108px - env(safe-area-inset-bottom));
+        height: calc(100dvh - 96px - env(safe-area-inset-bottom));
+        max-height: none;
         border-radius: 18px;
     }
 
@@ -5657,10 +5599,11 @@ body,
 
     .lp-chatbot-panel,
     .lp-chatbot-panel.is-large {
-        left: 8px;
-        right: 8px;
+        left: 6px;
+        right: 6px;
         bottom: calc(76px + env(safe-area-inset-bottom));
-        height: min(70dvh, 560px);
+        height: calc(100dvh - 88px - env(safe-area-inset-bottom));
+        max-height: none;
         border-radius: 16px;
     }
 
