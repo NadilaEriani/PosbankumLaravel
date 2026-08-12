@@ -885,6 +885,40 @@ export default function LandingPage({
     const locations = useMemo(() => {
         return Array.isArray(posbankums) ? posbankums : [];
     }, [posbankums]);
+
+    const realtimeStats = useMemo(() => {
+        return locations.reduce(
+            (total, item) => ({
+                paralegals:
+                    total.paralegals +
+                    (Number.isFinite(Number(item?.paralegalCount))
+                        ? Number(item.paralegalCount)
+                        : 0),
+                cases:
+                    total.cases +
+                    (Number.isFinite(Number(item?.caseCount))
+                        ? Number(item.caseCount)
+                        : 0),
+            }),
+            { paralegals: 0, cases: 0 },
+        );
+    }, [locations]);
+
+    const formatRealtimeNumber = (value) =>
+        new Intl.NumberFormat("id-ID").format(value);
+
+    useEffect(() => {
+        const refreshInterval = window.setInterval(() => {
+            router.reload({
+                only: ["posbankums"],
+                preserveScroll: true,
+                preserveState: true,
+            });
+        }, 30000);
+
+        return () => window.clearInterval(refreshInterval);
+    }, []);
+
     const [selectedLocation, setSelectedLocation] = useState(null);
     const loadingPosbankum = false;
     const posbankumError = "";
@@ -1352,7 +1386,10 @@ export default function LandingPage({
                                         </div>
 
                                         <div className="lp-stat-text">
-                                            1K+ Paralegal Terlatih
+                                            {formatRealtimeNumber(
+                                                realtimeStats.paralegals,
+                                            )}{" "}
+                                            Paralegal Terlatih
                                         </div>
                                     </div>
 
@@ -1362,7 +1399,10 @@ export default function LandingPage({
                                         </div>
 
                                         <div className="lp-stat-text">
-                                            100+ Kasus Ditangani
+                                            {formatRealtimeNumber(
+                                                realtimeStats.cases,
+                                            )}{" "}
+                                            Kasus Ditangani
                                         </div>
                                     </div>
                                 </div>

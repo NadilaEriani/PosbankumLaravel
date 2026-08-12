@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     FiAlertTriangle,
     FiCalendar,
@@ -32,6 +32,146 @@ import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import "../../../css/Paralegal/laporanPelayanan.css";
 
+const INCIDENT_LEAFLET_CSS_URLS = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css",
+];
+const INCIDENT_LEAFLET_JS_URLS = [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js",
+];
+const INCIDENT_LEAFLET_ICON_URLS = {
+    iconRetina:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    icon: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    shadow: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+};
+
+function ensureIncidentLeaflet() {
+    if (window.L?.map) return Promise.resolve(window.L);
+
+    const ensureCss = () =>
+        new Promise((resolve, reject) => {
+            const existing = document.getElementById("leaflet-css");
+            if (existing) {
+                resolve();
+                return;
+            }
+
+            let index = 0;
+            const link = document.createElement("link");
+            link.id = "leaflet-css";
+            link.rel = "stylesheet";
+            const loadNext = () => {
+                const href = INCIDENT_LEAFLET_CSS_URLS[index];
+                if (!href) {
+                    reject(new Error("Leaflet CSS gagal dimuat."));
+                    return;
+                }
+                link.href = href;
+            };
+            link.onload = resolve;
+            link.onerror = () => {
+                index += 1;
+                loadNext();
+            };
+            loadNext();
+            document.head.appendChild(link);
+        });
+
+    const ensureJs = () =>
+        new Promise((resolve, reject) => {
+            if (window.L?.map) {
+                resolve(window.L);
+                return;
+            }
+
+            const existing = document.getElementById("leaflet-js");
+            if (existing) {
+                const timer = window.setInterval(() => {
+                    if (window.L?.map) {
+                        window.clearInterval(timer);
+                        resolve(window.L);
+                    }
+                }, 30);
+                window.setTimeout(() => {
+                    window.clearInterval(timer);
+                    if (window.L?.map) resolve(window.L);
+                    else reject(new Error("Leaflet JS gagal dimuat."));
+                }, 5000);
+                return;
+            }
+
+            let index = 0;
+            const script = document.createElement("script");
+            script.id = "leaflet-js";
+            script.async = true;
+            const loadNext = () => {
+                const src = INCIDENT_LEAFLET_JS_URLS[index];
+                if (!src) {
+                    reject(new Error("Leaflet JS gagal dimuat."));
+                    return;
+                }
+                script.src = src;
+            };
+            script.onload = () => resolve(window.L);
+            script.onerror = () => {
+                index += 1;
+                loadNext();
+            };
+            loadNext();
+            document.body.appendChild(script);
+        });
+
+    return ensureCss()
+        .then(ensureJs)
+        .then((L) => {
+            if (!L?.map) throw new Error("Leaflet tidak tersedia.");
+            if (L.Icon?.Default) {
+                delete L.Icon.Default.prototype._getIconUrl;
+                L.Icon.Default.mergeOptions({
+                    iconRetinaUrl: INCIDENT_LEAFLET_ICON_URLS.iconRetina,
+                    iconUrl: INCIDENT_LEAFLET_ICON_URLS.icon,
+                    shadowUrl: INCIDENT_LEAFLET_ICON_URLS.shadow,
+                });
+            }
+            return L;
+        });
+}
+
+function normalizeAreaText(value) {
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(
+            /\b(kelurahan|kel|desa|kecamatan|kec|kabupaten|kab|kota|provinsi)\b/g,
+            " ",
+        )
+        .replace(/[^a-z0-9]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function containsAreaName(haystack, needle) {
+    const cleanHaystack = ` ${normalizeAreaText(haystack)} `;
+    const cleanNeedle = normalizeAreaText(needle);
+    return cleanNeedle !== "" && cleanHaystack.includes(` ${cleanNeedle} `);
+}
+
+function parseCoordinate(value, min, max) {
+    if (value === null || value === undefined || String(value).trim() === "") {
+        return Number.NaN;
+    }
+
+    const number = Number(value);
+    if (!Number.isFinite(number) || number < min || number > max) {
+        return Number.NaN;
+    }
+
+    return number;
+}
+
 const EMPTY_FORM_DATA = {
     nama_pelapor: "",
     nik: "",
@@ -44,6 +184,8 @@ const EMPTY_FORM_DATA = {
     tanggal_kejadian: "",
     waktu_kejadian: "",
     lokasi_kejadian: "",
+    latitude_kejadian: "",
+    longitude_kejadian: "",
     id_paralegal: "",
     paralegal_nama: "",
     paralegal_hp: "",
@@ -694,6 +836,16 @@ export default function LaporanPelayanan({
     });
     const [toastReject, setToastReject] = useState("");
     const [formData, setFormData] = useState(EMPTY_FORM_DATA);
+    const [locationSearchQuery, setLocationSearchQuery] = useState("");
+    const [locationSearchResults, setLocationSearchResults] = useState([]);
+    const [locationSearchError, setLocationSearchError] = useState("");
+    const [locationSearching, setLocationSearching] = useState(false);
+    const [locationResolving, setLocationResolving] = useState(false);
+    const incidentMapBoxRef = useRef(null);
+    const incidentMapRef = useRef(null);
+    const incidentMarkerRef = useRef(null);
+    const incidentMapResizeObserverRef = useRef(null);
+    const incidentPickRef = useRef(null);
 
     useEffect(() => {
         setReports((initialReports || []).map(normalizeReport));
@@ -813,6 +965,64 @@ export default function LaporanPelayanan({
         }));
     }, [currentParalegal]);
 
+    const incidentArea = useMemo(() => {
+        const latitude = parseCoordinate(
+            firstFilled(
+                currentPosbankum?.latitude,
+                currentPosbankum?.lat,
+                currentPosbankum?.latitude_pos,
+            ),
+            -90,
+            90,
+        );
+        const longitude = parseCoordinate(
+            firstFilled(
+                currentPosbankum?.longitude,
+                currentPosbankum?.lng,
+                currentPosbankum?.long,
+                currentPosbankum?.longitude_pos,
+            ),
+            -180,
+            180,
+        );
+
+        return {
+            latitude,
+            longitude,
+            hasTaggingCoordinates:
+                Number.isFinite(latitude) &&
+                latitude >= -90 &&
+                latitude <= 90 &&
+                Number.isFinite(longitude) &&
+                longitude >= -180 &&
+                longitude <= 180,
+            kelurahan: firstFilled(
+                currentPosbankum?.kelurahan_nama,
+                currentPosbankum?.kelurahan,
+            ),
+            kecamatan: firstFilled(
+                currentPosbankum?.kecamatan_nama,
+                currentPosbankum?.kecamatan,
+            ),
+            kabupaten: firstFilled(
+                currentPosbankum?.kabupaten_nama,
+                currentPosbankum?.kabupaten,
+            ),
+        };
+    }, [currentPosbankum]);
+
+    const incidentAreaLabel = useMemo(
+        () =>
+            [
+                incidentArea.kelurahan,
+                incidentArea.kecamatan,
+                incidentArea.kabupaten,
+            ]
+                .filter(Boolean)
+                .join(", ") || "wilayah Posbankum",
+        [incidentArea],
+    );
+
     const stats = useMemo(() => buildStats(reports), [reports]);
 
     const activeReports = useMemo(
@@ -854,6 +1064,506 @@ export default function LaporanPelayanan({
         }));
     };
 
+    const destroyIncidentMap = useCallback(() => {
+        if (incidentMapResizeObserverRef.current) {
+            try {
+                incidentMapResizeObserverRef.current.disconnect();
+            } catch {}
+            incidentMapResizeObserverRef.current = null;
+        }
+
+        if (incidentMapRef.current) {
+            try {
+                incidentMapRef.current.off();
+                incidentMapRef.current.remove();
+            } catch {}
+            incidentMapRef.current = null;
+        }
+
+        incidentMarkerRef.current = null;
+        if (incidentMapBoxRef.current) {
+            incidentMapBoxRef.current.innerHTML = "";
+        }
+    }, []);
+
+    const moveIncidentMarker = useCallback((lat, lng, zoom = 17) => {
+        const map = incidentMapRef.current;
+        const L = window.L;
+        const latitude = Number(lat);
+        const longitude = Number(lng);
+
+        if (
+            !map ||
+            !L?.marker ||
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
+            return;
+        }
+
+        try {
+            map.invalidateSize(true);
+        } catch {}
+        map.setView([latitude, longitude], zoom);
+
+        if (incidentMarkerRef.current) {
+            incidentMarkerRef.current.setLatLng([latitude, longitude]);
+            return;
+        }
+
+        const marker = L.marker([latitude, longitude], {
+            draggable: true,
+        }).addTo(map);
+        marker.on("dragend", (event) => {
+            const next = event?.target?.getLatLng?.();
+            if (next && incidentPickRef.current) {
+                incidentPickRef.current(next.lat, next.lng);
+            }
+        });
+        incidentMarkerRef.current = marker;
+    }, []);
+
+    const locationMatchesIncidentArea = useCallback(
+        (result) => {
+            const expected = [
+                incidentArea.kelurahan,
+                incidentArea.kecamatan,
+                incidentArea.kabupaten,
+            ].filter(Boolean);
+
+            if (!expected.length) return false;
+
+            const address =
+                result?.address && typeof result.address === "object"
+                    ? Object.values(result.address).join(" ")
+                    : "";
+            const haystack = `${result?.display_name || ""} ${address}`;
+
+            return expected.every((name) => containsAreaName(haystack, name));
+        },
+        [incidentArea],
+    );
+
+    const reverseIncidentLocation = useCallback(async (lat, lng) => {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${encodeURIComponent(
+                lat,
+            )}&lon=${encodeURIComponent(lng)}`,
+            {
+                headers: {
+                    "Accept-Language": "id-ID",
+                },
+            },
+        );
+
+        if (!response.ok) {
+            throw new Error("Lokasi tidak dapat diverifikasi.");
+        }
+
+        return response.json();
+    }, []);
+
+    const applyIncidentLocation = useCallback(
+        (result, latValue = null, lngValue = null) => {
+            const latitude = Number(latValue ?? result?.lat);
+            const longitude = Number(lngValue ?? result?.lon);
+
+            if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                setLocationSearchError(
+                    "Koordinat lokasi kejadian tidak valid.",
+                );
+                return false;
+            }
+
+            if (!locationMatchesIncidentArea(result)) {
+                setLocationSearchError(
+                    `Lokasi berada di luar tagging area Posbankum (${incidentAreaLabel}). Pilih lokasi yang masih berada di wilayah tersebut.`,
+                );
+                return false;
+            }
+
+            const address = firstFilled(
+                result?.display_name,
+                "Lokasi terpilih",
+            ).slice(0, 255);
+            const fixedLat = latitude.toFixed(7);
+            const fixedLng = longitude.toFixed(7);
+
+            setFormData((prev) => ({
+                ...prev,
+                lokasi_kejadian: address,
+                latitude_kejadian: fixedLat,
+                longitude_kejadian: fixedLng,
+            }));
+            setLocationSearchQuery(address);
+            setLocationSearchResults([]);
+            setLocationSearchError("");
+            moveIncidentMarker(fixedLat, fixedLng, 17);
+            return true;
+        },
+        [incidentAreaLabel, locationMatchesIncidentArea, moveIncidentMarker],
+    );
+
+    const pickIncidentCoordinates = useCallback(
+        async (lat, lng) => {
+            if (!incidentArea.hasTaggingCoordinates) {
+                setLocationSearchError(
+                    "Tagging Area Posbankum belum diatur. Atur lokasi Posbankum terlebih dahulu sebelum menentukan lokasi kejadian.",
+                );
+                return;
+            }
+
+            setLocationResolving(true);
+            setLocationSearchError("");
+
+            try {
+                const result = await reverseIncidentLocation(lat, lng);
+                if (!result?.display_name) {
+                    throw new Error("Lokasi tidak ditemukan.");
+                }
+                const accepted = applyIncidentLocation(result, lat, lng);
+                if (!accepted) {
+                    const previousLat = parseCoordinate(
+                        formData.latitude_kejadian,
+                        -90,
+                        90,
+                    );
+                    const previousLng = parseCoordinate(
+                        formData.longitude_kejadian,
+                        -180,
+                        180,
+                    );
+                    if (
+                        Number.isFinite(previousLat) &&
+                        Number.isFinite(previousLng)
+                    ) {
+                        moveIncidentMarker(previousLat, previousLng, 17);
+                    }
+                }
+            } catch {
+                setLocationSearchError(
+                    "Lokasi tidak dapat diverifikasi. Periksa koneksi internet lalu coba lagi.",
+                );
+                const previousLat = parseCoordinate(
+                    formData.latitude_kejadian,
+                    -90,
+                    90,
+                );
+                const previousLng = parseCoordinate(
+                    formData.longitude_kejadian,
+                    -180,
+                    180,
+                );
+                if (
+                    Number.isFinite(previousLat) &&
+                    Number.isFinite(previousLng)
+                ) {
+                    moveIncidentMarker(previousLat, previousLng, 17);
+                }
+            } finally {
+                setLocationResolving(false);
+            }
+        },
+        [
+            applyIncidentLocation,
+            formData.latitude_kejadian,
+            formData.longitude_kejadian,
+            incidentArea.hasTaggingCoordinates,
+            moveIncidentMarker,
+            reverseIncidentLocation,
+        ],
+    );
+
+    incidentPickRef.current = pickIncidentCoordinates;
+
+    const searchIncidentLocation = async () => {
+        const keyword = locationSearchQuery.trim();
+        if (!keyword) {
+            setLocationSearchResults([]);
+            setLocationSearchError(
+                "Masukkan nama jalan, daerah, atau lokasi terlebih dahulu.",
+            );
+            return;
+        }
+
+        if (!incidentArea.hasTaggingCoordinates) {
+            setLocationSearchResults([]);
+            setLocationSearchError(
+                "Tagging Area Posbankum belum diatur. Atur lokasi Posbankum terlebih dahulu.",
+            );
+            return;
+        }
+
+        setLocationSearching(true);
+        setLocationSearchResults([]);
+        setLocationSearchError("");
+
+        const areaContext = [
+            incidentArea.kelurahan,
+            incidentArea.kecamatan,
+            incidentArea.kabupaten,
+        ]
+            .filter(Boolean)
+            .join(", ");
+        const query = areaContext ? `${keyword}, ${areaContext}` : keyword;
+
+        try {
+            const fetchSearchResults = async (searchQuery) => {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=id&q=${encodeURIComponent(
+                        searchQuery,
+                    )}&limit=5`,
+                    {
+                        headers: {
+                            "Accept-Language": "id-ID",
+                        },
+                    },
+                );
+
+                if (!response.ok) throw new Error("search failed");
+                const json = await response.json();
+                return Array.isArray(json)
+                    ? json.filter(
+                          (item) =>
+                              Number.isFinite(Number(item?.lat)) &&
+                              Number.isFinite(Number(item?.lon)),
+                      )
+                    : [];
+            };
+
+            let results = await fetchSearchResults(query);
+            if (!results.length && query !== keyword) {
+                // Fallback pencarian umum membuat hasil di luar wilayah tetap
+                // bisa dipilih, lalu ditolak oleh validasi tagging area dengan
+                // pesan yang jelas, bukan dianggap sebagai koordinat valid.
+                results = await fetchSearchResults(keyword);
+            }
+
+            if (!results.length) {
+                setLocationSearchError(
+                    "Lokasi tidak ditemukan. Periksa kembali nama lokasi yang Anda masukkan.",
+                );
+                return;
+            }
+
+            setLocationSearchResults(results);
+            if (results.length === 1) {
+                applyIncidentLocation(results[0]);
+            }
+        } catch {
+            setLocationSearchError(
+                "Pencarian lokasi gagal. Periksa koneksi internet lalu coba lagi.",
+            );
+        } finally {
+            setLocationSearching(false);
+        }
+    };
+
+    const useCurrentIncidentLocation = () => {
+        if (!incidentArea.hasTaggingCoordinates) {
+            setLocationSearchError(
+                "Tagging Area Posbankum belum diatur. Atur lokasi Posbankum terlebih dahulu.",
+            );
+            return;
+        }
+
+        if (!navigator.geolocation) {
+            setLocationSearchError(
+                "Browser/perangkat ini tidak mendukung fitur lokasi terkini.",
+            );
+            return;
+        }
+
+        setLocationSearchError("");
+        setLocationResolving(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                pickIncidentCoordinates(
+                    position.coords.latitude,
+                    position.coords.longitude,
+                );
+            },
+            (error) => {
+                setLocationResolving(false);
+                if (error?.code === 1) {
+                    setLocationSearchError(
+                        "Izin lokasi ditolak. Aktifkan izin lokasi pada browser lalu coba lagi.",
+                    );
+                } else if (error?.code === 2) {
+                    setLocationSearchError(
+                        "Lokasi perangkat tidak dapat diperoleh saat ini. Coba lagi beberapa saat.",
+                    );
+                } else if (error?.code === 3) {
+                    setLocationSearchError(
+                        "Permintaan lokasi terkini melewati batas waktu. Coba lagi.",
+                    );
+                } else {
+                    setLocationSearchError(
+                        "Lokasi perangkat tidak dapat diperoleh.",
+                    );
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 12000,
+                maximumAge: 30000,
+            },
+        );
+    };
+
+    useEffect(() => {
+        if (
+            tab !== "buat" ||
+            !incidentArea.hasTaggingCoordinates ||
+            !incidentMapBoxRef.current
+        ) {
+            destroyIncidentMap();
+            return undefined;
+        }
+
+        let cancelled = false;
+        const initialize = async () => {
+            try {
+                const L = await ensureIncidentLeaflet();
+                if (
+                    cancelled ||
+                    !incidentMapBoxRef.current ||
+                    incidentMapRef.current
+                )
+                    return;
+
+                const map = L.map(incidentMapBoxRef.current, {
+                    zoomControl: true,
+                    attributionControl: true,
+                }).setView([incidentArea.latitude, incidentArea.longitude], 15);
+
+                L.tileLayer(
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    {
+                        maxZoom: 19,
+                        attribution: "&copy; OpenStreetMap contributors",
+                    },
+                ).addTo(map);
+
+                map.on("click", (event) => {
+                    if (event?.latlng && incidentPickRef.current) {
+                        incidentPickRef.current(
+                            event.latlng.lat,
+                            event.latlng.lng,
+                        );
+                    }
+                });
+
+                incidentMapRef.current = map;
+
+                const selectedLat = parseCoordinate(
+                    formData.latitude_kejadian,
+                    -90,
+                    90,
+                );
+                const selectedLng = parseCoordinate(
+                    formData.longitude_kejadian,
+                    -180,
+                    180,
+                );
+
+                if (
+                    Number.isFinite(selectedLat) &&
+                    Number.isFinite(selectedLng)
+                ) {
+                    moveIncidentMarker(selectedLat, selectedLng, 17);
+                } else {
+                    // Saat form pertama kali dibuka, gunakan titik Tagging Area
+                    // Posbankum sebagai lokasi awal. Paralegal tetap dapat
+                    // memindahkan marker, mencari lokasi, atau memakai GPS.
+                    const defaultLat = Number(incidentArea.latitude).toFixed(7);
+                    const defaultLng = Number(incidentArea.longitude).toFixed(
+                        7,
+                    );
+                    const defaultAddress = firstFilled(
+                        currentPosbankum?.alamat,
+                        incidentAreaLabel,
+                        "Tagging Area Posbankum",
+                    ).slice(0, 255);
+
+                    setFormData((prev) => {
+                        const prevLat = parseCoordinate(
+                            prev.latitude_kejadian,
+                            -90,
+                            90,
+                        );
+                        const prevLng = parseCoordinate(
+                            prev.longitude_kejadian,
+                            -180,
+                            180,
+                        );
+
+                        // Jangan menimpa lokasi bila user sudah sempat memilih
+                        // titik lain ketika Leaflet sedang dimuat.
+                        if (
+                            Number.isFinite(prevLat) &&
+                            Number.isFinite(prevLng)
+                        ) {
+                            return prev;
+                        }
+
+                        return {
+                            ...prev,
+                            lokasi_kejadian: defaultAddress,
+                            latitude_kejadian: defaultLat,
+                            longitude_kejadian: defaultLng,
+                        };
+                    });
+                    setLocationSearchQuery((prev) =>
+                        String(prev || "").trim() ? prev : defaultAddress,
+                    );
+                    setLocationSearchResults([]);
+                    setLocationSearchError("");
+                    moveIncidentMarker(defaultLat, defaultLng, 17);
+                }
+
+                window.setTimeout(() => {
+                    try {
+                        map.invalidateSize(true);
+                    } catch {}
+                }, 80);
+
+                if (typeof ResizeObserver !== "undefined") {
+                    incidentMapResizeObserverRef.current = new ResizeObserver(
+                        () => {
+                            try {
+                                map.invalidateSize(false);
+                            } catch {}
+                        },
+                    );
+                    incidentMapResizeObserverRef.current.observe(
+                        incidentMapBoxRef.current,
+                    );
+                }
+            } catch {
+                setLocationSearchError(
+                    "Peta gagal dimuat. Periksa koneksi internet lalu buka kembali menu Laporan Pelayanan.",
+                );
+            }
+        };
+
+        initialize();
+
+        return () => {
+            cancelled = true;
+            destroyIncidentMap();
+        };
+    }, [
+        currentPosbankum?.alamat,
+        destroyIncidentMap,
+        incidentArea.hasTaggingCoordinates,
+        incidentArea.latitude,
+        incidentArea.longitude,
+        incidentAreaLabel,
+        moveIncidentMarker,
+        tab,
+    ]);
+
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files || []);
         if (!files.length) {
@@ -894,20 +1604,61 @@ export default function LaporanPelayanan({
             return "Kronologi kejadian wajib diisi.";
         if (!formData.tanggal_kejadian) return "Tanggal kejadian wajib diisi.";
         if (!formData.waktu_kejadian) return "Waktu kejadian wajib diisi.";
+        if (!incidentArea.hasTaggingCoordinates)
+            return "Tagging Area Posbankum belum diatur. Atur lokasi Posbankum terlebih dahulu.";
         if (!formData.lokasi_kejadian.trim())
-            return "Lokasi kejadian wajib diisi.";
+            return "Lokasi kejadian wajib dipilih melalui maps.";
+        if (
+            !Number.isFinite(
+                parseCoordinate(formData.latitude_kejadian, -90, 90),
+            ) ||
+            !Number.isFinite(
+                parseCoordinate(formData.longitude_kejadian, -180, 180),
+            )
+        )
+            return "Koordinat lokasi kejadian belum dipilih pada maps.";
         if (!formData.paralegal_nama.trim())
             return "Data paralegal login tidak ditemukan. Silakan login ulang.";
         return "";
     };
 
     const resetForm = () => {
+        const hasDefaultLocation = incidentArea.hasTaggingCoordinates;
+        const defaultLat = hasDefaultLocation
+            ? Number(incidentArea.latitude).toFixed(7)
+            : "";
+        const defaultLng = hasDefaultLocation
+            ? Number(incidentArea.longitude).toFixed(7)
+            : "";
+        const defaultAddress = hasDefaultLocation
+            ? firstFilled(
+                  currentPosbankum?.alamat,
+                  incidentAreaLabel,
+                  "Tagging Area Posbankum",
+              ).slice(0, 255)
+            : "";
+
         setFormData({
             ...EMPTY_FORM_DATA,
+            lokasi_kejadian: defaultAddress,
+            latitude_kejadian: defaultLat,
+            longitude_kejadian: defaultLng,
             id_paralegal: currentParalegal.id || "",
             paralegal_nama: currentParalegal.nama || "",
             paralegal_hp: currentParalegal.hp || "",
         });
+        setLocationSearchQuery(defaultAddress);
+        setLocationSearchResults([]);
+        setLocationSearchError("");
+
+        if (hasDefaultLocation && incidentMapRef.current) {
+            moveIncidentMarker(defaultLat, defaultLng, 17);
+        } else if (incidentMarkerRef.current && incidentMapRef.current) {
+            try {
+                incidentMapRef.current.removeLayer(incidentMarkerRef.current);
+            } catch {}
+            incidentMarkerRef.current = null;
+        }
     };
 
     const handleSubmit = (event) => {
@@ -1308,15 +2059,8 @@ export default function LaporanPelayanan({
                     <div className="lpvGuideTitle">Petunjuk Pengisian</div>
                     <p>
                         Lengkapi formulir laporan dengan data yang akurat untuk
-                        wilayah{" "}
-                        <strong>
-                            {firstFilled(
-                                currentPosbankum?.kabupaten_nama,
-                                currentPosbankum?.kecamatan_nama,
-                                "Pekanbaru, Sukajadi",
-                            )}
-                        </strong>
-                        . Field bertanda (*) wajib diisi.
+                        wilayah <strong>{incidentAreaLabel}</strong>. Field
+                        bertanda (*) wajib diisi.
                     </p>
                 </div>
             </div>
@@ -1549,24 +2293,150 @@ export default function LaporanPelayanan({
                             </div>
                         </label>
                     </div>
-                    <label className="lpvCreateField">
+                    <div className="lpvCreateField lpvIncidentPicker">
                         <span>
                             Lokasi Kejadian <b>*</b>
                         </span>
-                        <div className="lpvInputShell">
+
+                        <div
+                            className={`lpvIncidentAreaNote ${incidentArea.hasTaggingCoordinates ? "is-ready" : "is-blocked"}`}
+                        >
                             <FiMapPin />
-                            <input
-                                value={formData.lokasi_kejadian}
-                                onChange={(e) =>
-                                    handleFieldChange(
-                                        "lokasi_kejadian",
-                                        e.target.value,
-                                    )
-                                }
-                                placeholder="Contoh: Jl. Raya Bangkinang KM 15, Kampung Tengah"
-                            />
+                            <div>
+                                <strong>Tagging Area Posbankum</strong>
+                                <span>
+                                    {incidentArea.hasTaggingCoordinates
+                                        ? incidentAreaLabel
+                                        : "Belum Diatur — lokasi kejadian belum dapat dipilih."}
+                                </span>
+                            </div>
                         </div>
-                    </label>
+
+                        <div className="lpvIncidentSearchRow">
+                            <div className="lpvIncidentSearchInput">
+                                <FiSearch />
+                                <input
+                                    value={locationSearchQuery}
+                                    onChange={(e) => {
+                                        setLocationSearchQuery(e.target.value);
+                                        setLocationSearchResults([]);
+                                        if (locationSearchError)
+                                            setLocationSearchError("");
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            searchIncidentLocation();
+                                        }
+                                    }}
+                                    placeholder="Cari jalan, kelurahan, kecamatan, atau lokasi"
+                                    disabled={
+                                        !incidentArea.hasTaggingCoordinates ||
+                                        locationSearching ||
+                                        locationResolving
+                                    }
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                className="lpvIncidentSearchBtn"
+                                onClick={searchIncidentLocation}
+                                disabled={
+                                    !incidentArea.hasTaggingCoordinates ||
+                                    locationSearching ||
+                                    locationResolving
+                                }
+                            >
+                                <FiSearch />
+                                {locationSearching ? "Mencari..." : "Cari"}
+                            </button>
+                            <button
+                                type="button"
+                                className="lpvIncidentGpsBtn"
+                                onClick={useCurrentIncidentLocation}
+                                disabled={
+                                    !incidentArea.hasTaggingCoordinates ||
+                                    locationSearching ||
+                                    locationResolving
+                                }
+                                title="Gunakan lokasi terkini"
+                            >
+                                <TbLocation />
+                                <span>Lokasi Terkini</span>
+                            </button>
+                        </div>
+
+                        {locationSearchResults.length ? (
+                            <div
+                                className="lpvIncidentResults"
+                                role="listbox"
+                                aria-label="Hasil pencarian lokasi kejadian"
+                            >
+                                {locationSearchResults.map((item, index) => (
+                                    <button
+                                        key={`${item.place_id || index}-${item.lat}-${item.lon}`}
+                                        type="button"
+                                        className="lpvIncidentResultItem"
+                                        onClick={() =>
+                                            applyIncidentLocation(item)
+                                        }
+                                    >
+                                        <FiMapPin />
+                                        <span>{item.display_name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        ) : null}
+
+                        {locationSearchError ? (
+                            <div className="lpvIncidentError" role="alert">
+                                <FiAlertTriangle />
+                                <span>{locationSearchError}</span>
+                            </div>
+                        ) : null}
+
+                        {incidentArea.hasTaggingCoordinates ? (
+                            <div className="lpvIncidentMapShell">
+                                <div
+                                    ref={incidentMapBoxRef}
+                                    className="lpvIncidentMap"
+                                />
+                                {locationResolving ? (
+                                    <div className="lpvIncidentMapLoading">
+                                        Memvalidasi lokasi dalam tagging area...
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : (
+                            <div className="lpvIncidentMapBlocked">
+                                <FiMapPin />
+                                <strong>Maps belum dapat digunakan</strong>
+                                <span>
+                                    Koordinat Tagging Area Posbankum harus
+                                    disimpan terlebih dahulu pada menu Data
+                                    Posbankum.
+                                </span>
+                            </div>
+                        )}
+
+                        <div className="lpvIncidentSelected">
+                            <div className="lpvInputShell disabled">
+                                <FiMapPin />
+                                <input
+                                    value={formData.lokasi_kejadian}
+                                    readOnly
+                                    placeholder="Pilih lokasi melalui pencarian, maps, atau Lokasi Terkini"
+                                />
+                            </div>
+                            {formData.latitude_kejadian &&
+                            formData.longitude_kejadian ? (
+                                <small>
+                                    Koordinat: {formData.latitude_kejadian},{" "}
+                                    {formData.longitude_kejadian}
+                                </small>
+                            ) : null}
+                        </div>
+                    </div>
                 </section>
 
                 <section className="lpvFormSection">
