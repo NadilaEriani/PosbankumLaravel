@@ -5,7 +5,6 @@ import { CiCalendar } from "react-icons/ci";
 import { TbMessageReport } from "react-icons/tb";
 import {
     FiHome,
-    FiMenu,
     FiFileText,
     FiLogOut,
     FiBell,
@@ -538,7 +537,6 @@ export default function PosbankumDashboard({
     flash = {},
 }) {
     const [active, setActive] = useState("Beranda");
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
     const [pageTarget, setPageTarget] = useState({
         type: null,
@@ -566,62 +564,6 @@ export default function PosbankumDashboard({
         setNotifSelectedId(null);
         setNotifPage(1);
     }, [notifications]);
-
-    useEffect(() => {
-        const refreshLatestCases = () => {
-            if (document.visibilityState !== "visible") return;
-
-            router.reload({
-                only: ["kasusTerbaru"],
-                preserveState: true,
-                preserveScroll: true,
-            });
-        };
-
-        const intervalId = window.setInterval(refreshLatestCases, 10000);
-        document.addEventListener("visibilitychange", refreshLatestCases);
-
-        return () => {
-            window.clearInterval(intervalId);
-            document.removeEventListener(
-                "visibilitychange",
-                refreshLatestCases,
-            );
-        };
-    }, []);
-
-    useEffect(() => {
-        const handleViewportChange = () => {
-            if (window.innerWidth > 860) {
-                setMobileMenuOpen(false);
-            }
-        };
-
-        const handleEscape = (event) => {
-            if (event.key === "Escape") {
-                setMobileMenuOpen(false);
-            }
-        };
-
-        window.addEventListener("resize", handleViewportChange);
-        window.addEventListener("keydown", handleEscape);
-
-        return () => {
-            window.removeEventListener("resize", handleViewportChange);
-            window.removeEventListener("keydown", handleEscape);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (!mobileMenuOpen || typeof document === "undefined") return undefined;
-
-        const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        return () => {
-            document.body.style.overflow = previousOverflow;
-        };
-    }, [mobileMenuOpen]);
 
     const menu = useMemo(
         () => [
@@ -744,6 +686,18 @@ export default function PosbankumDashboard({
         );
     }, [posbankum?.alamat, posbankum?.address, auth?.user?.email]);
 
+    const accountName = useMemo(
+        () =>
+            String(
+                auth?.user?.nama_lengkap ||
+                    auth?.user?.full_name ||
+                    auth?.user?.name ||
+                    auth?.user?.email ||
+                    "Paralegal",
+            ).trim(),
+        [auth?.user],
+    );
+
     // Navbar/topbar harus tetap menampilkan identitas Posbankum seperti halaman Beranda,
     // meskipun menu konten yang dibuka berbeda.
     const pageTitle = headerTitle;
@@ -752,7 +706,6 @@ export default function PosbankumDashboard({
     const openMenu = (label) => {
         setPageTarget({ type: null, id: null, tick: 0 });
         setNotifSelectedId(null);
-        setMobileMenuOpen(false);
 
         if (label === "Notifikasi") {
             setNotifPage(1);
@@ -763,7 +716,6 @@ export default function PosbankumDashboard({
 
     const handleLogout = () => {
         if (loggingOut) return;
-        setMobileMenuOpen(false);
         setLoggingOut(true);
         router.post("/logout", {}, { onFinish: () => setLoggingOut(false) });
     };
@@ -882,12 +834,7 @@ export default function PosbankumDashboard({
     const renderBeranda = () => (
         <section className="pb2Content">
             <div className="pb2Stats">
-                <button
-                    type="button"
-                    className="pb2StatCard"
-                    onClick={() => openMenu("Semua Kasus")}
-                    aria-label="Buka Semua Kasus"
-                >
+                <div className="pb2StatCard">
                     <div className="pb2StatIcon blue">
                         <FiFileText />
                     </div>
@@ -898,14 +845,9 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Bulan ini</div>
                     </div>
-                </button>
+                </div>
 
-                <button
-                    type="button"
-                    className="pb2StatCard"
-                    onClick={() => openMenu("Kelola Kegiatan")}
-                    aria-label="Buka Kelola Kegiatan"
-                >
+                <div className="pb2StatCard">
                     <div className="pb2StatIcon green">
                         <FiCheckCircle />
                     </div>
@@ -916,14 +858,9 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Total kegiatan</div>
                     </div>
-                </button>
+                </div>
 
-                <button
-                    type="button"
-                    className="pb2StatCard"
-                    onClick={() => openMenu("Kelola Posbankum")}
-                    aria-label="Buka Kelola Posbankum"
-                >
+                <div className="pb2StatCard">
                     <div className="pb2StatIcon orange">
                         <FiUsers />
                     </div>
@@ -934,7 +871,7 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Terdaftar</div>
                     </div>
-                </button>
+                </div>
             </div>
 
             <div className="pb2Panel">
@@ -1315,11 +1252,7 @@ export default function PosbankumDashboard({
                 }
             />
 
-            <aside
-                className={`pb2Side ${
-                    mobileMenuOpen ? "is-mobile-menu-open" : ""
-                }`}
-            >
+            <aside className="pb2Side">
                 <button
                     className="pb2Brand pb2BrandButton"
                     type="button"
@@ -1341,87 +1274,45 @@ export default function PosbankumDashboard({
                     </div>
                 </button>
 
-                <button
-                    type="button"
-                    className="pb2MobileDrawerClose"
-                    onClick={() => setMobileMenuOpen(false)}
-                    aria-label="Tutup menu navigasi"
-                >
-                    <FiX aria-hidden="true" />
-                </button>
-
                 <div className="pb2BrandDivider" aria-hidden="true" />
 
-                <nav
-                    id="paralegal-mobile-navigation"
-                    aria-label="Navigasi Paralegal"
-                    className={`pb2Nav ${
-                        mobileMenuOpen ? "is-mobile-open" : ""
-                    }`}
-                >
+                <nav className="pb2Nav">
                     {menu.map((item) => (
                         <button
                             key={item.label}
                             className={`pb2NavItem ${active === item.label ? "is-active" : ""}`}
                             type="button"
                             onClick={() => openMenu(item.label)}
-                            aria-current={
-                                active === item.label ? "page" : undefined
-                            }
                         >
                             <span className="pb2NavIcon">{item.icon}</span>
                             <span className="pb2NavLabel">{item.label}</span>
                         </button>
                     ))}
                 </nav>
-
-                <div className="pb2MobileDrawerFooter">
-                    <button
-                        className="pb2MobileDrawerLogout"
-                        type="button"
-                        onClick={handleLogout}
-                        disabled={loggingOut}
-                    >
-                        <FiLogOut aria-hidden="true" />
-                        <span>{loggingOut ? "Keluar..." : "Keluar"}</span>
-                    </button>
-                </div>
             </aside>
-
-            <button
-                type="button"
-                className={`pb2MobileDrawerOverlay ${
-                    mobileMenuOpen ? "is-visible" : ""
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-                aria-label="Tutup menu navigasi"
-                tabIndex={mobileMenuOpen ? 0 : -1}
-            />
 
             <main className="pb2Main">
                 <header className="pb2Top">
-                    <button
-                        type="button"
-                        className="pb2MobileMenuButton"
-                        onClick={() => setMobileMenuOpen(true)}
-                        aria-label="Buka menu navigasi"
-                        aria-expanded={mobileMenuOpen}
-                        aria-controls="paralegal-mobile-navigation"
-                    >
-                        <FiMenu aria-hidden="true" />
-                    </button>
-
                     <div className="pb2TopLeft">
                         <div className="pb2TopTitle">{pageTitle}</div>
                         <div className="pb2TopSub">{pageSub}</div>
                     </div>
 
                     <div className="pb2TopRight">
+                        <div
+                            className="pb2TopUser"
+                            title={accountName}
+                            aria-label={`Akun aktif: ${accountName}`}
+                        >
+                            <span className="pb2TopUserName">
+                                {accountName}
+                            </span>
+                        </div>
+
                         <button
                             className="pb2Bell"
                             type="button"
                             title="Notifikasi"
-                            aria-label="Buka notifikasi"
                             onClick={() => openMenu("Notifikasi")}
                         >
                             <FiBell />
