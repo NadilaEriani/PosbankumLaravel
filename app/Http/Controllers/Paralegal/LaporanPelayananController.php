@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -170,6 +171,181 @@ class LaporanPelayananController extends Controller
                 $payload[$column] = (string) Str::uuid();
                 return;
             }
+        }
+    }
+
+    private function normalizeAreaText(mixed $value): string
+    {
+        $text = Str::lower(Str::ascii(trim((string) ($value ?? ''))));
+        $text = preg_replace('/\b(kelurahan|kel|desa|kecamatan|kec|kabupaten|kab|kota|provinsi)\b/u', ' ', $text);
+        $text = preg_replace('/[^a-z0-9]+/u', ' ', (string) $text);
+        return trim(preg_replace('/\s+/u', ' ', (string) $text));
+    }
+
+    private function areaTextContains(mixed $haystack, mixed $needle): bool
+    {
+        $cleanHaystack = $this->normalizeAreaText($haystack);
+        $cleanNeedle = $this->normalizeAreaText($needle);
+
+        if ($cleanNeedle === '') {
+            return true;
+        }
+
+        return str_contains(' ' . $cleanHaystack . ' ', ' ' . $cleanNeedle . ' ');
+    }
+
+    private function resolvePosbankumAreaContext(mixed $idPosbankum): array
+    {
+        if (!$idPosbankum || !$this->hasTable('posbankum')) {
+            return [];
+        }
+
+        $idColumn = $this->hasColumn('posbankum', 'id_posbankum') ? 'id_posbankum' : 'id';
+        $row = DB::table('posbankum')->where($idColumn, $idPosbankum)->first();
+
+        if (!$row) {
+            return [];
+        }
+
+        $idKelurahan = $this->rowValue($row, ['id_kelurahan']);
+        $kelurahan = null;
+        $kecamatan = null;
+        $kabupaten = null;
+
+        if ($idKelurahan && $this->hasTable('kelurahan')) {
+            $kelurahan = DB::table('kelurahan')->where('id_kelurahan', $idKelurahan)->first();
+        }
+
+        $idKecamatan = $this->rowValue($kelurahan, ['id_kecamatan']);
+        if ($idKecamatan && $this->hasTable('kecamatan')) {
+            $kecamatan = DB::table('kecamatan')->where('id_kecamatan', $idKecamatan)->first();
+        }
+
+        $idKabupaten = $this->rowValue($kecamatan, ['id_kabupaten']);
+        if ($idKabupaten && $this->hasTable('kabupaten')) {
+            $kabupaten = DB::table('kabupaten')->where('id_kabupaten', $idKabupaten)->first();
+        }
+
+        return [
+            'latitude' => $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']),
+            'longitude' => $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']),
+            'kelurahan' => (string) $this->rowValue($kelurahan, ['nama'], ''),
+            'kecamatan' => (string) $this->rowValue($kecamatan, ['nama'], ''),
+            'kabupaten' => (string) $this->rowValue($kabupaten, ['nama'], ''),
+        ];
+    }
+
+    private function reverseGeocode(float $latitude, float $longitude): ?array
+    {
+        try {
+            $response = Http::timeout(10)
+                ->retry(1, 250)
+                ->withHeaders([
+                    'Accept' => 'application/json',
+                    'Accept-Language' => 'id-ID,id;q=0.9',
+                    'User-Agent' => (string) config('app.name', 'Posbankum') . ' Location Validation',
+                ])
+                ->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'jsonv2',
+                    'addressdetails' => 1,
+                    'zoom' => 18,
+                    'lat' => $latitude,
+                    'lon' => $longitude,
+                ]);
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $json = $response->json();
+            return is_array($json) ? $json : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function locationMatchesPosbankumArea(array $area, array $selectedGeocode): bool
+    {
+        $selectedAddress = is_array($selectedGeocode['address'] ?? null)
+            ? implode(' ', array_values($selectedGeocode['address']))
+            : '';
+        $selectedText = trim((string) ($selectedGeocode['display_name'] ?? '') . ' ' . $selectedAddress);
+
+        $expected = array_values(array_filter([
+            $area['kelurahan'] ?? '',
+            $area['kecamatan'] ?? '',
+            $area['kabupaten'] ?? '',
+        ], fn($value) => trim((string) $value) !== ''));
+
+        if (!empty($expected)) {
+            foreach ($expected as $name) {
+                if (!$this->areaTextContains($selectedText, $name)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        $baseLatitude = (float) ($area['latitude'] ?? 0);
+        $baseLongitude = (float) ($area['longitude'] ?? 0);
+        $baseGeocode = $this->reverseGeocode($baseLatitude, $baseLongitude);
+
+        if (!$baseGeocode) {
+            return false;
+        }
+
+        $baseAddress = is_array($baseGeocode['address'] ?? null) ? $baseGeocode['address'] : [];
+        $fallbackAreaNames = [
+            $this->rowValue($baseAddress, ['village', 'suburb', 'quarter', 'neighbourhood', 'hamlet']),
+            $this->rowValue($baseAddress, ['city_district', 'district', 'municipality']),
+            $this->rowValue($baseAddress, ['city', 'town', 'county']),
+        ];
+        $fallbackAreaNames = array_values(array_filter($fallbackAreaNames, fn($value) => trim((string) $value) !== ''));
+
+        if (empty($fallbackAreaNames)) {
+            return false;
+        }
+
+        foreach ($fallbackAreaNames as $name) {
+            if (!$this->areaTextContains($selectedText, $name)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function validateIncidentLocationArea(mixed $idPosbankum, float $latitude, float $longitude): void
+    {
+        $area = $this->resolvePosbankumAreaContext($idPosbankum);
+        $taggingLatitude = filter_var($area['latitude'] ?? null, FILTER_VALIDATE_FLOAT);
+        $taggingLongitude = filter_var($area['longitude'] ?? null, FILTER_VALIDATE_FLOAT);
+
+        if (
+            $taggingLatitude === false ||
+            $taggingLongitude === false ||
+            $taggingLatitude < -90 ||
+            $taggingLatitude > 90 ||
+            $taggingLongitude < -180 ||
+            $taggingLongitude > 180
+        ) {
+            throw ValidationException::withMessages([
+                'lokasi_kejadian' => 'Tagging Area Posbankum belum diatur. Atur lokasi Posbankum terlebih dahulu.',
+            ]);
+        }
+
+        $selectedGeocode = $this->reverseGeocode($latitude, $longitude);
+        if (!$selectedGeocode || trim((string) ($selectedGeocode['display_name'] ?? '')) === '') {
+            throw ValidationException::withMessages([
+                'lokasi_kejadian' => 'Lokasi kejadian tidak dapat diverifikasi saat ini. Periksa koneksi layanan peta lalu coba lagi.',
+            ]);
+        }
+
+        if (!$this->locationMatchesPosbankumArea($area, $selectedGeocode)) {
+            throw ValidationException::withMessages([
+                'lokasi_kejadian' => 'Lokasi berada di luar tagging area Posbankum. Pilih lokasi yang masih berada di wilayah Posbankum Anda.',
+            ]);
         }
     }
 
@@ -423,6 +599,8 @@ class LaporanPelayananController extends Controller
             'tanggal_kejadian' => ['required', 'date'],
             'waktu_kejadian' => ['required', 'date_format:H:i'],
             'lokasi_kejadian' => ['required', 'string', 'max:255'],
+            'latitude_kejadian' => ['required', 'numeric', 'between:-90,90'],
+            'longitude_kejadian' => ['required', 'numeric', 'between:-180,180'],
             'id_paralegal' => ['required', 'string', 'max:100'],
             'masyarakat_id' => ['nullable', 'string', 'max:100'],
             'paralegal_nama' => ['nullable', 'string', 'max:255'],
@@ -442,7 +620,11 @@ class LaporanPelayananController extends Controller
             'kronologi.required' => 'Kronologi wajib diisi.',
             'tanggal_kejadian.required' => 'Tanggal kejadian wajib diisi.',
             'waktu_kejadian.required' => 'Waktu kejadian wajib diisi.',
-            'lokasi_kejadian.required' => 'Lokasi kejadian wajib diisi.',
+            'lokasi_kejadian.required' => 'Lokasi kejadian wajib dipilih melalui maps.',
+            'latitude_kejadian.required' => 'Koordinat latitude lokasi kejadian wajib dipilih melalui maps.',
+            'latitude_kejadian.between' => 'Koordinat latitude lokasi kejadian tidak valid.',
+            'longitude_kejadian.required' => 'Koordinat longitude lokasi kejadian wajib dipilih melalui maps.',
+            'longitude_kejadian.between' => 'Koordinat longitude lokasi kejadian tidak valid.',
             'id_paralegal.required' => 'Paralegal wajib dipilih.',
             'lampiran.*.mimes' => 'Lampiran harus PNG, JPG, JPEG, atau PDF.',
             'lampiran.*.max' => 'Ukuran lampiran maksimal 5MB.',
@@ -460,6 +642,32 @@ class LaporanPelayananController extends Controller
         if (!$createdBy) {
             throw ValidationException::withMessages([
                 'created_by' => 'Sesi pengguna tidak valid. Silakan login ulang.',
+            ]);
+        }
+
+        $latitudeKejadian = (float) $validated['latitude_kejadian'];
+        $longitudeKejadian = (float) $validated['longitude_kejadian'];
+        $this->validateIncidentLocationArea($idPosbankum, $latitudeKejadian, $longitudeKejadian);
+
+        $latitudeColumn = $this->firstExistingColumn('pengaduan', [
+            'latitude_kejadian',
+            'lat_kejadian',
+            'lokasi_lat',
+            'latitude',
+            'lat',
+        ]);
+        $longitudeColumn = $this->firstExistingColumn('pengaduan', [
+            'longitude_kejadian',
+            'lng_kejadian',
+            'lokasi_lng',
+            'longitude',
+            'lng',
+            'long',
+        ]);
+
+        if (!$latitudeColumn || !$longitudeColumn) {
+            throw ValidationException::withMessages([
+                'database' => 'Kolom koordinat lokasi kejadian belum tersedia. Jalankan migration terbaru terlebih dahulu.',
             ]);
         }
 
@@ -485,6 +693,8 @@ class LaporanPelayananController extends Controller
         $this->addColumn($payload, 'pengaduan', 'waktu_kejadian', $validated['waktu_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'lokasi_kejadian', $validated['lokasi_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'lokasi', $validated['lokasi_kejadian']);
+        $payload[$latitudeColumn] = $latitudeKejadian;
+        $payload[$longitudeColumn] = $longitudeKejadian;
         $this->addColumn($payload, 'pengaduan', 'status', 'diproses');
         $this->addColumn($payload, 'pengaduan', 'prioritas', $this->normalizePriorityForDatabase($validated['prioritas']));
         $this->addColumn($payload, 'pengaduan', 'catatan_internal', $this->blankToNull($validated['catatan_internal'] ?? null));

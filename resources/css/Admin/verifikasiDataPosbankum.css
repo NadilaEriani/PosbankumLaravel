@@ -2710,3 +2710,162 @@
         max-height: 340px;
     }
 }
+
+/* Hasil pencarian tagging area */
+.vd-locResults {
+    margin-top: 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09);
+}
+
+.vd-locResultItem {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 13px;
+    border: 0;
+    border-bottom: 1px solid #edf1f6;
+    background: #ffffff;
+    color: #334155;
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.vd-locResultItem:last-child {
+    border-bottom: 0;
+}
+
+.vd-locResultItem:hover:not(:disabled) {
+    background: #f8fafc;
+}
+
+.vd-locResultItem > svg {
+    flex: 0 0 auto;
+    margin-top: 2px;
+    color: #315bb5;
+}
+
+.vd-locResultItem span {
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    word-break: normal;
+}
+
+/* Perbaikan keterbacaan card verifikasi pada mobile */
+@media (max-width: 760px) {
+    .vd-grid,
+    .vd-card,
+    .vd-cardHead,
+    .vd-docs,
+    .vd-docPill,
+    .vd-docLeft,
+    .vd-docMeta {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .vd-card {
+        width: 100%;
+    }
+
+    .vd-cardHead {
+        padding: 16px;
+    }
+
+    .vd-cardTitle,
+    .vd-cardSub {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+    .vd-docs {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .vd-docPill {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 44px;
+        align-items: center;
+        gap: 10px;
+        min-height: 66px;
+        padding: 11px 10px 11px 12px;
+        overflow: visible;
+    }
+
+    .vd-docLeft {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .vd-docStatus {
+        flex: 0 0 auto;
+        margin-top: 2px;
+    }
+
+    .vd-docLabel,
+    .vd-docDate {
+        width: 100%;
+        max-width: 100%;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: break-word;
+        word-break: normal;
+        line-height: 1.4;
+    }
+
+    .vd-docLabel {
+        font-size: 13px;
+    }
+
+    .vd-docDate {
+        margin-top: 2px;
+        font-size: 11px;
+    }
+
+    .vd-eyeBtn {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+
+    .vd-locationModal {
+        width: min(100% - 20px, 1100px);
+        max-height: calc(100dvh - 20px);
+        border-radius: 16px;
+    }
+
+    .vd-locationBody {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 420px) {
+    .vd-docPill {
+        grid-template-columns: minmax(0, 1fr) 42px;
+        gap: 8px;
+        border-radius: 14px;
+    }
+
+    .vd-docLeft {
+        gap: 8px;
+    }
+
+    .vd-eyeBtn {
+        width: 42px;
+        height: 42px;
+    }
+}

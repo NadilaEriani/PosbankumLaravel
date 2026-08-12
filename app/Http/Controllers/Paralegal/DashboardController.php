@@ -339,6 +339,25 @@ class DashboardController extends Controller
             return [];
         }
 
+        $idKelurahan = $this->rowValue($row, ['id_kelurahan']);
+        $kelurahan = null;
+        $kecamatan = null;
+        $kabupaten = null;
+
+        if ($idKelurahan && $this->hasTable('kelurahan')) {
+            $kelurahan = DB::table('kelurahan')->where('id_kelurahan', $idKelurahan)->first();
+        }
+
+        $idKecamatan = $this->rowValue($kelurahan, ['id_kecamatan']);
+        if ($idKecamatan && $this->hasTable('kecamatan')) {
+            $kecamatan = DB::table('kecamatan')->where('id_kecamatan', $idKecamatan)->first();
+        }
+
+        $idKabupaten = $this->rowValue($kecamatan, ['id_kabupaten']);
+        if ($idKabupaten && $this->hasTable('kabupaten')) {
+            $kabupaten = DB::table('kabupaten')->where('id_kabupaten', $idKabupaten)->first();
+        }
+
         $statusTaggingArea = (string) $this->rowValue($row, [
             'status_verifikasi_tagging_area',
             'status_tagging_area',
@@ -367,6 +386,12 @@ class DashboardController extends Controller
             'alamat' => $this->getPosbankumAddress($row),
             'email_akun' => $this->getPosbankumEmail($row),
             'nomor_tlp' => $this->getPosbankumPhone($row),
+            'id_kelurahan' => $idKelurahan,
+            'kelurahan_nama' => (string) $this->rowValue($kelurahan, ['nama'], ''),
+            'id_kecamatan' => $idKecamatan,
+            'kecamatan_nama' => (string) $this->rowValue($kecamatan, ['nama'], ''),
+            'id_kabupaten' => $idKabupaten,
+            'kabupaten_nama' => (string) $this->rowValue($kabupaten, ['nama'], ''),
             'jml_paralegal' => (int) $this->rowValue($row, ['jml_paralegal', 'jumlah_paralegal'], 0),
             'latitude' => $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']),
             'longitude' => $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']),

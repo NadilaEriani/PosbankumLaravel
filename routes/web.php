@@ -24,6 +24,10 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     $posbankums = [];
+    $landingStats = [
+        'paralegal' => 0,
+        'cases' => 0,
+    ];
 
     if (Schema::hasTable('posbankum')) {
         $query = DB::table('posbankum as p');
@@ -264,6 +268,49 @@ Route::get('/', function () {
             return '-';
         };
 
+        if (Schema::hasTable('posbankum_paralegal') && Schema::hasColumn('posbankum_paralegal', 'id_user')) {
+            $landingParalegalQuery = DB::table('posbankum_paralegal as pp');
+
+            if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+                $landingParalegalQuery->where('pp.status', 'aktif');
+            }
+
+            if (Schema::hasTable('users')) {
+                $userKeyColumn = Schema::hasColumn('users', 'id_user') ? 'id_user' : (Schema::hasColumn('users', 'id') ? 'id' : null);
+
+                if ($userKeyColumn) {
+                    $landingParalegalQuery->join('users as u', 'u.' . $userKeyColumn, '=', 'pp.id_user');
+
+                    if (Schema::hasColumn('users', 'role')) {
+                        $landingParalegalQuery->whereRaw('LOWER(TRIM(u.role)) = ?', ['paralegal']);
+                    }
+
+                    if (Schema::hasColumn('users', 'status')) {
+                        $landingParalegalQuery->whereRaw('LOWER(TRIM(u.status)) = ?', ['aktif']);
+                    }
+                }
+            }
+
+            $landingStats['paralegal'] = (int) $landingParalegalQuery
+                ->distinct()
+                ->count('pp.id_user');
+        } elseif (Schema::hasTable('users') && Schema::hasColumn('users', 'role')) {
+            $landingParalegalQuery = DB::table('users')
+                ->whereRaw('LOWER(TRIM(role)) = ?', ['paralegal']);
+
+            if (Schema::hasColumn('users', 'status')) {
+                $landingParalegalQuery->whereRaw('LOWER(TRIM(status)) = ?', ['aktif']);
+            }
+
+            $landingStats['paralegal'] = (int) $landingParalegalQuery->count();
+        }
+
+        if (Schema::hasTable('pengaduan')) {
+            $landingStats['cases'] = Schema::hasColumn('pengaduan', 'id_pengaduan')
+                ? (int) DB::table('pengaduan')->distinct()->count('id_pengaduan')
+                : (int) DB::table('pengaduan')->count();
+        }
+
         $posbankums = $rows
             ->map(function ($row) use ($paralegalCounts, $caseCounts, $paralegalContacts, $cleanContact) {
                 $idPosbankum = $row->id_posbankum ?? null;
@@ -324,6 +371,7 @@ Route::get('/', function () {
 
     return Inertia::render('LandingPage', [
         'posbankums' => $posbankums,
+        'landingStats' => $landingStats,
     ]);
 })->name('home');
 
