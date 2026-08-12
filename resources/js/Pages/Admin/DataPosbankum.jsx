@@ -1158,7 +1158,10 @@ export default function DataPosbankum({
                                                                 <tr
                                                                     key={`${id}-${row.kategori}-${index}`}
                                                                 >
-                                                                    <td className="dp-tdStrong">
+                                                                    <td
+                                                                        className="dp-tdStrong"
+                                                                        data-label="Kategori"
+                                                                    >
                                                                         <span>
                                                                             {
                                                                                 row.kategori
@@ -1174,17 +1177,17 @@ export default function DataPosbankum({
                                                                             </span>
                                                                         ) : null}
                                                                     </td>
-                                                                    <td>
+                                                                    <td data-label="Tanggal Unggah">
                                                                         {
                                                                             row.tanggal
                                                                         }
                                                                     </td>
-                                                                    <td>
+                                                                    <td data-label="Status">
                                                                         {renderStatus(
                                                                             row.status,
                                                                         )}
                                                                     </td>
-                                                                    <td>
+                                                                    <td data-label="Aksi">
                                                                         {row.path ? (
                                                                             <button
                                                                                 className="dp-viewBtn"

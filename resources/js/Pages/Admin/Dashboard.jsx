@@ -2,6 +2,7 @@ import { Head, router, usePage } from "@inertiajs/react";
 import { useEffect, useMemo, useState } from "react";
 import {
     FiHome,
+    FiMenu,
     FiFileText,
     FiUsers,
     FiCheckCircle,
@@ -322,6 +323,18 @@ export default function AdminDashboard() {
             window.removeEventListener("keydown", handleEscape);
         };
     }, []);
+
+    useEffect(() => {
+        if (!mobileMenuOpen || typeof document === "undefined")
+            return undefined;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [mobileMenuOpen]);
 
     useEffect(() => {
         if (active !== "Beranda") return undefined;
@@ -1030,24 +1043,43 @@ export default function AdminDashboard() {
                                             setSelectedPosDetail(row)
                                         }
                                     >
-                                        <td>
+                                        <td data-label="Posbankum">
                                             <div className="ad-posCell">
                                                 <span className="ad-posName">
                                                     {row.name}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="is-center">
+                                        <td
+                                            className="is-center"
+                                            data-label="Total Kegiatan"
+                                        >
                                             <span className="ad-totalNum">
                                                 {total}
                                             </span>
                                         </td>
-                                        <td className="is-center">
+                                        <td
+                                            className="is-center"
+                                            data-label="Kegiatan"
+                                        >
                                             {kegiatan}
                                         </td>
-                                        <td className="is-center">{kasus}</td>
-                                        <td className="is-center">{dokumen}</td>
-                                        <td className="is-center">
+                                        <td
+                                            className="is-center"
+                                            data-label="Kasus"
+                                        >
+                                            {kasus}
+                                        </td>
+                                        <td
+                                            className="is-center"
+                                            data-label="Dokumen"
+                                        >
+                                            {dokumen}
+                                        </td>
+                                        <td
+                                            className="is-center"
+                                            data-label="Status"
+                                        >
                                             <span className="ad-pillGreen">
                                                 {row.status || "Aktif"}
                                             </span>
@@ -1406,25 +1438,18 @@ export default function AdminDashboard() {
 
                 <button
                     type="button"
-                    className="ad-mobileMenuButton"
-                    onClick={() => setMobileMenuOpen((open) => !open)}
-                    aria-label={
-                        mobileMenuOpen
-                            ? "Tutup menu navigasi"
-                            : "Buka menu navigasi"
-                    }
-                    aria-expanded={mobileMenuOpen}
-                    aria-controls="admin-mobile-navigation"
+                    className="ad-mobileDrawerClose"
+                    onClick={() => setMobileMenuOpen(false)}
+                    aria-label="Tutup menu navigasi"
                 >
-                    <span aria-hidden="true" />
-                    <span aria-hidden="true" />
-                    <span aria-hidden="true" />
+                    <FiX aria-hidden="true" />
                 </button>
 
                 <div className="ad-brandDivider" aria-hidden="true" />
 
                 <nav
                     id="admin-mobile-navigation"
+                    aria-label="Navigasi Admin"
                     className={`ad-nav ${
                         mobileMenuOpen ? "is-mobile-open" : ""
                     }`}
@@ -1441,16 +1466,56 @@ export default function AdminDashboard() {
                                     : ""
                             }`}
                             onClick={() => handleChangeMenu(item.label)}
+                            aria-current={
+                                active === item.label ||
+                                (active === "Aktivitas Terbaru" &&
+                                    item.label === "Beranda")
+                                    ? "page"
+                                    : undefined
+                            }
                         >
                             <span className="ad-navIcon">{item.icon}</span>
                             <span className="ad-navLabel">{item.label}</span>
                         </button>
                     ))}
                 </nav>
+
+                <div className="ad-mobileDrawerFooter">
+                    <button
+                        type="button"
+                        className="ad-mobileDrawerLogout"
+                        onClick={handleLogout}
+                        disabled={loggingOut}
+                    >
+                        <FiLogOut aria-hidden="true" />
+                        <span>{loggingOut ? "Keluar..." : "Keluar"}</span>
+                    </button>
+                </div>
             </aside>
+
+            <button
+                type="button"
+                className={`ad-mobileDrawerOverlay ${
+                    mobileMenuOpen ? "is-visible" : ""
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Tutup menu navigasi"
+                tabIndex={mobileMenuOpen ? 0 : -1}
+            />
 
             <main className="ad-main">
                 <header className="ad-top ad-topWire is-berita">
+                    <button
+                        type="button"
+                        className="ad-mobileMenuButton"
+                        onClick={() => setMobileMenuOpen(true)}
+                        aria-label="Buka menu navigasi"
+                        aria-expanded={mobileMenuOpen}
+                        aria-controls="admin-mobile-navigation"
+                    >
+                        <FiMenu aria-hidden="true" />
+                    </button>
+
                     <div className="ad-topLeft">
                         <div className="ad-pageIntro">
                             <div className="ad-pageIntroTitle">

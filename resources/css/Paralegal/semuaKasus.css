@@ -1198,137 +1198,11 @@
     }
 }
 
-@media (max-width: 760px) {
-    .skHeaderRow,
-    .skDetailTopbar,
-    .skActiveFilterBar {
-        flex-direction: column;
-        align-items: stretch;
-    }
 
-    .skStatsBtn,
-    .skBackBtn,
-    .skFilterBtn,
-    .skExportBtn {
-        width: 100%;
-    }
 
-    .skStatsGrid,
-    .skCardGrid,
-    .skFilterGrid {
-        grid-template-columns: 1fr;
-    }
 
-    .skToolbarCard {
-        padding: 14px;
-    }
 
-    .skPageTitle {
-        font-size: 24px;
-    }
 
-    .skDetailHeroHead,
-    .skHeroProgressBlock,
-    .skSummaryBox,
-    .skFieldGrid,
-    .skSideList,
-    .skPosStatGrid {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    .skSummaryBox {
-        margin: 18px 16px;
-    }
-
-    .skModalOverlay {
-        padding: 10px;
-        align-items: start;
-    }
-
-    .skFilterCard {
-        width: 100%;
-        max-height: calc(100dvh - 20px);
-        border-radius: 18px;
-    }
-
-    .skModalActions {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
-
-    .skFooterGhost,
-    .skFooterPrimary {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    .skCaseTop,
-    .skCaseBody {
-        padding-left: 15px !important;
-        padding-right: 15px !important;
-    }
-
-    .skStatCard {
-        min-height: 76px;
-    }
-
-    .skStatValue {
-        font-size: 30px;
-    }
-}
-
-/* Revisi modal Filter & Urutkan agar mengikuti desain referensi. */
-@media (max-width: 760px) {
-    .skModalOverlay {
-        padding: 12px;
-        align-items: start;
-        place-items: start center;
-    }
-
-    .skFilterCard {
-        width: 100%;
-        max-height: calc(100dvh - 24px);
-        border-radius: 15px;
-    }
-
-    .skModalHead {
-        min-height: 64px;
-        padding: 0 18px;
-    }
-
-    .skModalTitle {
-        font-size: 19px;
-        gap: 10px;
-    }
-
-    .skModalBody {
-        padding: 20px 18px 22px;
-    }
-
-    .skFilterChoiceGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .skModalActions {
-        padding: 14px 18px;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .skFooterGhost,
-    .skFooterPrimary {
-        width: 100%;
-        min-width: 0;
-    }
-}
-
-@media (max-width: 430px) {
-    .skModalActions {
-        grid-template-columns: 1fr;
-    }
-}
 
 /* ===== FIX: pusatkan icon pada empty state Semua Kasus ===== */
 .skEmptyCard {
@@ -1361,93 +1235,165 @@
     text-align: center;
 }
 
-/* ===== FINAL MOBILE REFINEMENT: Semua Kasus ===== */
-@media (max-width: 760px) {
+
+/* =========================================================
+   Responsive mobile — Semua Kasus
+   ========================================================= */
+@media (max-width: 768px) {
     .skWrap,
     .skDetailPage,
-    .skStatisticPage {
-        width: 100%;
+    .skStatisticPage,
+    .skWrap *,
+    .skDetailPage *,
+    .skStatisticPage * {
         min-width: 0;
-        overflow-x: hidden;
     }
 
     .skHeaderRow,
-    .skDetailTopbar {
+    .skDetailTopbar,
+    .skStatisticTopbar {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
         gap: 12px;
-        margin-bottom: 14px;
     }
 
     .skPageTitle {
-        font-size: 21px;
+        font-size: 22px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
     }
 
     .skStatsBtn,
     .skBackBtn,
     .skFilterBtn,
-    .skExportBtn {
-        height: 44px;
-        border-radius: 13px;
-        padding: 0 13px;
-        font-size: 12px;
+    .skExportBtn,
+    .skDetailBtn,
+    .skPageBtn,
+    .skPageArrow,
+    .skModalClose,
+    .skFooterGhost,
+    .skFooterPrimary {
+        min-height: 44px;
     }
 
     .skStatsGrid,
-    .skCardGrid {
+    .skStatsGridStatistic {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-bottom: 16px;
     }
 
     .skStatCard {
-        min-height: 70px;
-        padding: 11px 12px;
-        border-radius: 12px;
-    }
-
-    .skStatLabel {
-        font-size: 10px;
-    }
-
-    .skStatValue {
-        font-size: 24px;
-    }
-
-    .skToolbarCard {
+        min-height: 78px;
         padding: 12px;
         border-radius: 14px;
     }
 
-    .skToolbarRow {
-        gap: 9px;
+    .skStatLabel {
+        font-size: 10px;
+        line-height: 1.3;
     }
 
-    .skSearchBox,
+    .skStatValue {
+        font-size: 24px;
+        line-height: 1;
+    }
+
+    .skToolbarCard {
+        width: 100%;
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    .skToolbarRow {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .skSearchBox {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-height: 46px;
+        border-radius: 14px;
+    }
+
+    .skSearchBox input,
+    .skModalBody input,
+    .skModalBody select {
+        font-size: 16px;
+    }
+
     .skFilterBtn,
     .skExportBtn {
-        min-height: 44px;
-    }
-
-    .skActiveFilterBar {
-        gap: 9px;
-        padding: 10px 12px;
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        padding: 0 12px;
         border-radius: 13px;
     }
 
-    .skCaseCard {
+    .skActiveFilterBar {
+        width: 100%;
+        padding: 11px 12px;
+        gap: 10px;
         border-radius: 14px;
+        flex-wrap: wrap;
+    }
+
+    .skActiveLeft,
+    .skChipWrap {
+        min-width: 0;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .skActiveChip {
+        min-height: 28px;
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .skCardGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .skCaseCard {
+        width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
     }
 
     .skCaseTop,
     .skCaseBody {
-        padding: 12px !important;
+        padding: 14px;
+    }
+
+    .skCaseTopRow,
+    .skBadgeRow,
+    .skProgressHead {
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
     .skCaseTitle {
-        font-size: 15px;
+        font-size: 16px;
         line-height: 1.35;
+        overflow-wrap: anywhere;
     }
 
-    .skBadgeRow {
-        gap: 6px;
+    .skCaseNumber,
+    .skInfoItem,
+    .skCaseDesc,
+    .skProgressHead,
+    .skResultText {
+        font-size: 11px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
     }
 
     .skStatusBadge,
@@ -1459,59 +1405,141 @@
     }
 
     .skInfoList {
+        display: grid;
         gap: 8px;
     }
 
-    .skInfoItem,
-    .skCaseDesc,
-    .skProgressHead {
-        font-size: 11px;
+    .skInfoItem {
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    .skSmallIconBox {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 11px;
     }
 
     .skDetailBtn {
-        min-height: 42px;
-        border-radius: 12px;
-        font-size: 12px;
+        width: 100%;
+        border-radius: 13px;
     }
 
     .skPagination {
-        width: 100%;
-        overflow-x: auto;
-        justify-content: flex-start;
-        padding-bottom: 3px;
+        max-width: 100%;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
-    .skDetailHeroHead,
-    .skHeroProgressBlock,
-    .skSummaryBox,
-    .skFieldGrid,
-    .skSideList,
-    .skPosStatGrid {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-
-    .skSummaryBox {
-        margin: 14px 12px;
-        padding-top: 12px;
-        padding-bottom: 12px;
-        border-radius: 14px;
-    }
-
-    .skFilterCard {
-        max-height: calc(100dvh - 16px);
-        border-radius: 15px;
+    .skPageArrow,
+    .skPageBtn {
+        min-width: 44px;
+        height: 44px;
     }
 
     .skModalOverlay {
-        padding: 8px;
+        padding: 12px;
+        align-items: center;
     }
 
-    .skModalHead,
-    .skModalBody,
+    .skFilterCard {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .skModalHead {
+        min-height: 64px;
+        padding: 0 16px;
+    }
+
+    .skModalClose {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+    }
+
+    .skModalBody {
+        max-height: calc(100dvh - 150px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 18px 16px;
+    }
+
+    .skFilterChoiceGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
     .skModalActions {
-        padding-left: 12px;
-        padding-right: 12px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    }
+
+    .skModalActions button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .skBreadcrumb {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .skDetailHeroCard {
+        width: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .skDetailHeroHead {
+        padding: 16px;
+    }
+
+    .skDetailHeroInfo,
+    .skHeroProgressBlock {
+        min-width: 0;
+    }
+
+    .skDetailDateBox {
+        max-width: 100%;
+    }
+
+    .skDetailMainGrid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .skSummaryBox,
+    .skDetailSide,
+    .skStatisticSection {
+        width: 100%;
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .skFieldGrid,
+    .skFieldGridThree,
+    .skPosStatGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .skFieldItem,
+    .skSideList,
+    .skPosStatItem,
+    .skBarItem {
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 }
 
@@ -1520,14 +1548,44 @@
         font-size: 20px;
     }
 
-    .skStatCard,
-    .skCaseTop,
-    .skCaseBody,
-    .skToolbarCard {
-        padding: 11px !important;
+    .skStatsGrid,
+    .skStatsGridStatistic,
+    .skToolbarRow,
+    .skModalActions {
+        grid-template-columns: 1fr;
+    }
+
+    .skStatCard {
+        min-height: 74px;
+        padding: 11px 12px;
     }
 
     .skStatValue {
         font-size: 22px;
+    }
+
+    .skFilterBtn,
+    .skExportBtn {
+        grid-column: 1;
+    }
+
+    .skToolbarCard,
+    .skCaseTop,
+    .skCaseBody,
+    .skSummaryBox,
+    .skDetailSide,
+    .skStatisticSection {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .skModalOverlay {
+        padding: 8px;
+    }
+
+    .skFilterCard {
+        max-width: calc(100vw - 16px);
+        max-height: calc(100dvh - 16px);
+        border-radius: 16px;
     }
 }

@@ -920,8 +920,8 @@ export default function LandingPage({
         const updateSize = () => {
             const rect = node.getBoundingClientRect();
             setMapSize({
-                width: Math.max(Math.round(rect.width), 320),
-                height: Math.max(Math.round(rect.height), 320),
+                width: Math.max(Math.round(rect.width), 1),
+                height: Math.max(Math.round(rect.height), 1),
             });
         };
 

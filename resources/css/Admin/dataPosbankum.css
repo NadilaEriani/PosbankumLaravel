@@ -1091,19 +1091,8 @@
 }
 
 /* Responsive mobile */
-@media (max-width: 640px) {
-    .dp-fileCount {
-        margin-left: 0;
-        margin-top: 6px;
-        width: fit-content;
-    }
 
-    .dp-mapInfo {
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-    }
-}
+
 
 /* Revisi status dan card statistik Data Posbankum. */
 .dp-topBox {
@@ -1222,403 +1211,372 @@
 }
 
 /* ===== Revisi responsif Data Posbankum sampai mobile kecil ===== */
+
+
+
+
+
+
+
+
+/* =========================================================
+   Responsive mobile — Data Posbankum
+   ========================================================= */
 @media (max-width: 768px) {
+    .dp,
+    .dp * {
+        min-width: 0;
+    }
+
+    .dp img,
+    .dp iframe {
+        max-width: 100%;
+    }
+
     .dp-topBoxes {
-        grid-template-columns: 1fr;
-        gap: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
     }
 
     .dp-topBox {
-        min-height: 96px;
+        min-height: 94px;
         border-radius: 16px;
     }
 
     .dp-topBoxInner {
-        padding: 18px;
+        height: 100%;
+        padding: 15px;
+        gap: 12px;
     }
 
     .dp-topIcon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        border-radius: 13px;
+    }
+
+    .dp-topTitle,
+    .dp-topHint {
+        font-size: 11px;
+        line-height: 1.35;
     }
 
     .dp-topValue {
-        font-size: 25px;
+        font-size: 24px;
+        line-height: 1;
     }
 
     .dp-filterCard {
-        padding: 16px;
+        padding: 14px;
+        margin-bottom: 16px;
         border-radius: 16px;
     }
 
     .dp-toolbar {
+        display: grid;
         grid-template-columns: 1fr;
-    }
-
-    .dp-search {
-        height: 48px;
-        border-radius: 15px;
+        gap: 10px;
+        align-items: stretch;
     }
 
     .dp-filterRow {
         display: grid;
-        grid-template-columns: 1fr;
-        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
     }
 
+    .dp-search,
     .dp-dd,
-    .dp-ddBtn {
+    .dp-ddBtn,
+    .dp-resetFilterBtn,
+    .dp-clearBtn {
         width: 100%;
-        min-width: 0;
+        max-width: 100%;
     }
 
-    .dp-ddMenu {
-        max-height: 230px;
+    .dp-search,
+    .dp-ddBtn,
+    .dp-resetFilterBtn {
+        min-height: 46px;
+        height: 46px;
+        border-radius: 14px;
+    }
+
+    .dp-searchInput,
+    .dp-ddBtn,
+    .dp-ddMenu input {
+        font-size: 16px;
     }
 
     .dp-tabs {
+        width: 100%;
+        display: flex;
+        gap: 8px;
         overflow-x: auto;
+        overscroll-behavior-x: contain;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
+        scrollbar-width: none;
+        padding-bottom: 3px;
+        margin-bottom: 14px;
+    }
+
+    .dp-tabs::-webkit-scrollbar {
+        display: none;
     }
 
     .dp-tab {
+        min-height: 42px;
         flex: 0 0 auto;
+        padding: 0 14px;
+        font-size: 12px;
         white-space: nowrap;
     }
 
+    .dp-list {
+        display: grid;
+        gap: 12px;
+    }
+
     .dp-card {
+        width: 100%;
         border-radius: 16px;
     }
 
     .dp-cardHead {
-        padding: 16px;
+        padding: 14px;
+        gap: 11px;
         align-items: flex-start;
     }
 
     .dp-iconWrap {
         width: 42px;
         height: 42px;
-        border-radius: 13px;
-    }
-
-    .dp-name {
-        font-size: 17px;
-        white-space: normal;
-    }
-
-    .dp-sub {
-        flex-wrap: wrap;
-        font-size: 12px;
-    }
-
-    .dp-right {
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 8px;
-    }
-
-    .dp-cardExpand {
-        padding: 14px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .dp-expandTable {
-        min-width: 720px;
-    }
-
-    .dp-expandFoot {
-        justify-content: stretch;
-    }
-
-    .dp-closeInlineBtn {
-        width: 100%;
-    }
-
-    .dp-modalOverlay {
-        padding: 10px;
-        align-items: flex-start;
-    }
-
-    .dp-modal,
-    .dp-modalPreview {
-        width: 100%;
-        height: calc(100dvh - 20px);
-        max-height: calc(100dvh - 20px);
-        border-radius: 16px;
-    }
-
-    .dp-previewHead {
-        padding: 14px;
-    }
-
-    .dp-previewTitle {
-        font-size: 16px;
-        white-space: normal;
-    }
-
-    .dp-previewToolbar {
-        flex-direction: column;
-        align-items: stretch;
-        min-height: auto;
-        padding: 12px;
-    }
-
-    .dp-previewToolbarLeft,
-    .dp-previewCounter,
-    .dp-downloadBtn {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .dp-previewBody {
-        padding-top: 10px;
-    }
-
-    .dp-mapInfo {
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .dp-topBoxInner {
-        padding: 16px;
-        gap: 12px;
-    }
-
-    .dp-topTitle,
-    .dp-topHint {
-        font-size: 12px;
-    }
-
-    .dp-topValue {
-        font-size: 23px;
-    }
-
-    .dp-filterCard {
-        padding: 14px;
-    }
-
-    .dp-cardHead {
-        gap: 12px;
-        padding: 14px;
-    }
-
-    .dp-right {
-        align-items: flex-start;
-    }
-
-    .dp-rowBadge {
-        height: 30px;
-        padding: 0 12px;
-        font-size: 12px;
-    }
-
-    .dp-expandTable {
-        min-width: 660px;
-    }
-
-    .dp-previewClose {
-        width: 40px;
-        height: 40px;
-    }
-
-    .dp-modalFoot,
-    .dp-detailFooter {
-        padding: 14px;
-    }
-
-    .dp-backBtn {
-        width: 100%;
-    }
-}
-
-/* ===== Mobile polish - Data Posbankum ===== */
-@media (max-width: 768px) {
-    .dp {
-        width: 100%;
-        min-width: 0;
-        overflow-x: hidden;
-    }
-
-    .dp-topBoxes,
-    .dp-filterRow,
-    .dp-toolbar,
-    .dp-tabs,
-    .dp-detailGrid,
-    .dp-mapGrid,
-    .dp-modalGrid,
-    .dp-previewActions,
-    .dp-detailFooter {
-        grid-template-columns: 1fr !important;
-    }
-
-    .dp-toolbar,
-    .dp-filterRow,
-    .dp-cardHead,
-    .dp-previewHead,
-    .dp-previewToolbar,
-    .dp-detailFooter {
-        flex-direction: column;
-        align-items: stretch !important;
-        gap: 12px;
-    }
-
-    .dp-search,
-    .dp-select,
-    .dp-dd,
-    .dp-resetFilterBtn,
-    .dp-clearBtn,
-    .dp-viewBtn,
-    .dp-downloadBtn,
-    .dp-backBtn {
-        width: 100%;
-    }
-
-    .dp-list,
-    .dp-expandShell,
-    .dp-expandTableWrap {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .dp-modalOverlay {
-        padding: 12px;
-        align-items: flex-start;
-    }
-
-    .dp-modal,
-    .dp-previewModal,
-    .dp-detailModal {
-        width: 100% !important;
-        max-width: calc(100vw - 24px) !important;
-        max-height: calc(100dvh - 24px) !important;
-        border-radius: 18px !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .dp-topBoxes,
-    .dp-list {
-        gap: 12px;
-    }
-
-    .dp-filterCard,
-    .dp-card,
-    .dp-modal,
-    .dp-previewModal {
-        border-radius: 16px !important;
-    }
-}
-
-/* ===== FINAL MOBILE REFINEMENT: Data Posbankum ===== */
-@media (max-width: 768px) {
-    .dp-topBoxes {
-        gap: 10px;
-    }
-
-    .dp-topBox {
-        min-height: 82px;
-        border-radius: 14px;
-    }
-
-    .dp-topBoxInner {
-        padding: 13px 14px;
-        gap: 11px;
-    }
-
-    .dp-topIcon {
-        width: 40px;
-        height: 40px;
+        min-width: 42px;
         border-radius: 12px;
     }
 
-    .dp-topTitle,
-    .dp-topHint {
-        font-size: 11px;
-    }
-
-    .dp-topValue {
-        margin-top: 2px;
-        font-size: 22px;
-    }
-
-    .dp-filterCard {
-        padding: 13px;
-        border-radius: 14px;
-        margin-bottom: 14px;
-    }
-
-    .dp-toolbar,
-    .dp-filterRow {
-        gap: 10px;
-    }
-
-    .dp-search,
-    .dp-ddBtn,
-    .dp-resetFilterBtn {
-        min-height: 44px;
-        height: 44px;
-        border-radius: 13px;
-        font-size: 12px;
-    }
-
-    .dp-tabs {
-        gap: 6px;
-        margin-bottom: 12px;
-    }
-
-    .dp-tab {
-        min-height: 38px;
-        padding: 0 12px;
-        font-size: 12px;
-    }
-
-    .dp-list {
-        gap: 10px;
-    }
-
-    .dp-card {
-        border-radius: 14px;
-    }
-
-    .dp-cardHead {
-        padding: 13px;
-        gap: 10px;
-    }
-
-    .dp-iconWrap {
-        width: 38px;
-        height: 38px;
-        border-radius: 11px;
+    .dp-titleWrap {
+        min-width: 0;
+        flex: 1 1 auto;
     }
 
     .dp-name {
         font-size: 15px;
         line-height: 1.35;
+        overflow-wrap: anywhere;
     }
 
     .dp-sub,
     .dp-status,
     .dp-rowBadge {
         font-size: 11px;
+        line-height: 1.4;
     }
 
     .dp-right {
+        flex: 0 0 auto;
         gap: 6px;
     }
 
+    .dp-chevron,
+    .dp-viewBtn,
+    .dp-closeInlineBtn,
+    .dp-previewClose,
+    .dp-backBtn,
+    .dp-downloadBtn {
+        min-height: 44px;
+    }
+
     .dp-cardExpand {
-        padding: 12px;
+        padding: 12px 14px 14px;
+    }
+
+    .dp-expandShell {
+        width: 100%;
+        overflow: visible;
+    }
+
+    .dp-expandTable,
+    .dp-expandTable tbody,
+    .dp-expandTable tr,
+    .dp-expandTable td {
+        display: block;
+        width: 100%;
+    }
+
+    .dp-expandTable {
+        min-width: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .dp-expandTable thead {
+        display: none;
+    }
+
+    .dp-expandTable tbody {
+        display: grid;
+        gap: 10px;
+    }
+
+    .dp-expandTable tbody tr {
+        padding: 8px 12px;
+        border: 1px solid #e6eaf1;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .dp-expandTable tbody td {
+        min-height: 36px;
+        padding: 8px 0;
+        border: 0;
+        border-bottom: 1px solid #eef0f4;
+        display: grid;
+        grid-template-columns: minmax(105px, 0.9fr) minmax(0, 1.1fr);
+        gap: 10px;
+        align-items: center;
+        text-align: right;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .dp-expandTable tbody td:last-child {
+        border-bottom: 0;
+    }
+
+    .dp-expandTable tbody td::before {
+        content: attr(data-label);
+        color: #73788a;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.3;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .dp-expandTable .dp-viewBtn,
+    .dp-expandTable .dp-muted,
+    .dp-expandTable .dp-status {
+        justify-self: end;
     }
 
     .dp-expandFoot {
         margin-top: 10px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .dp-modalOverlay {
+        padding: 12px;
+        align-items: center;
+    }
+
+    .dp-modal,
+    .dp-modalPreview,
+    .dp-previewModal,
+    .dp-detailModal {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .dp-previewHead,
+    .dp-previewToolbar,
+    .dp-modalFoot,
+    .dp-detailFooter {
+        padding: 14px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .dp-previewBody,
+    .dp-modalBody,
+    .dp-detailBody {
+        max-height: calc(100dvh - 150px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .dp-previewFrame,
+    .dp-mapPreviewWrap,
+    .dp-previewMediaWrap {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .dp-previewImg {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+
+    .dp-detailGrid,
+    .dp-mapGrid,
+    .dp-modalGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .dp-modalFoot,
+    .dp-detailFooter {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dp-modalFoot button,
+    .dp-detailFooter button {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 430px) {
+    .dp-topBoxes,
+    .dp-filterRow {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .dp-topBox {
+        min-height: 84px;
+    }
+
+    .dp-topBoxInner {
+        padding: 13px 14px;
+    }
+
+    .dp-topIcon {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+    .dp-topValue {
+        font-size: 22px;
+    }
+
+    .dp-filterCard,
+    .dp-cardHead,
+    .dp-cardExpand {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .dp-cardHead {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr) auto;
+    }
+
+    .dp-right {
+        align-self: start;
+    }
+
+    .dp-expandTable tbody td {
+        grid-template-columns: minmax(92px, 0.8fr) minmax(0, 1.2fr);
     }
 
     .dp-modalOverlay {
@@ -1629,35 +1587,14 @@
     .dp-modalPreview,
     .dp-previewModal,
     .dp-detailModal {
-        max-width: calc(100vw - 16px) !important;
-        max-height: calc(100dvh - 16px) !important;
-        border-radius: 15px !important;
+        max-width: calc(100vw - 16px);
+        max-height: calc(100dvh - 16px);
+        border-radius: 16px;
     }
 
-    .dp-previewHead,
-    .dp-previewToolbar,
     .dp-modalFoot,
     .dp-detailFooter {
+        grid-template-columns: 1fr;
         padding: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .dp-topBoxInner {
-        padding: 12px;
-    }
-
-    .dp-topValue {
-        font-size: 20px;
-    }
-
-    .dp-filterCard,
-    .dp-cardHead,
-    .dp-cardExpand {
-        padding: 11px;
-    }
-
-    .dp-expandTable {
-        min-width: 620px;
     }
 }

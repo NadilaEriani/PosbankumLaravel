@@ -1340,22 +1340,22 @@ export default function ManajemenAkun({
                         {pageRows.length ? (
                             pageRows.map((r) => (
                                 <tr key={r.id_user}>
-                                    <td>
+                                    <td data-label="Nama Paralegal">
                                         <span className="kpNameCell">
                                             {r.nama_lengkap}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Email">
                                         <span className="kpTextCell">
                                             {r.email ?? "-"}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="No. Telepon">
                                         <span className="kpTextCell">
                                             {r.nomor_telepon ?? "-"}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Posbankum">
                                         <span className="kpTextCell">
                                             {r.posbankum_nama
                                                 ? formatPosbankumName(
@@ -1364,7 +1364,7 @@ export default function ManajemenAkun({
                                                 : "-"}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label="Aksi">
                                         <div className="kpActions">
                                             <button
                                                 className="kpIcoBtn is-view"
