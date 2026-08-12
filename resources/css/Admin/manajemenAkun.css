@@ -2872,40 +2872,61 @@
     .kpTable tbody td {
         width: 100% !important;
         min-width: 0 !important;
-        padding: 11px 16px !important;
+        height: auto !important;
+        min-height: 0 !important;
+        padding: 12px 14px !important;
         border-bottom: 1px solid #eef1f5 !important;
-        display: grid;
-        grid-template-columns: minmax(96px, 0.8fr) minmax(0, 1.45fr);
-        align-items: start;
+        display: grid !important;
+        grid-template-columns: minmax(108px, 0.82fr) minmax(0, 1.45fr);
+        align-items: center !important;
         gap: 12px;
         white-space: normal !important;
         text-align: left;
+        line-height: 1.4;
     }
 
     .kpTable tbody td::before {
         content: attr(data-label);
+        min-width: 0;
         color: #6b7280;
         font-size: 12px;
-        line-height: 1.4;
+        line-height: 1.35;
         font-weight: 700;
+        overflow-wrap: anywhere;
     }
 
     .kpTable tbody td:last-child {
         border-bottom: 0 !important;
-        align-items: center;
+        align-items: center !important;
     }
 
     .kpNameCell,
     .kpTextCell {
-        min-width: 0;
-        white-space: normal;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
+        line-height: 1.45 !important;
+    }
+
+    .kpNameCell {
+        font-size: 14px !important;
+    }
+
+    .kpTextCell {
+        font-size: 13px !important;
     }
 
     .kpActions {
-        justify-content: flex-end;
-        gap: 8px;
+        width: 100%;
+        justify-content: flex-start !important;
+        flex-wrap: wrap;
+        gap: 8px !important;
         min-width: 0;
     }
 
@@ -3022,7 +3043,7 @@
     }
 
     .kpTable tbody td {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 5px;
         padding: 10px 14px !important;
     }
@@ -3032,7 +3053,7 @@
     }
 
     .kpActions {
-        justify-content: flex-start;
+        justify-content: flex-start !important;
     }
 
     .kpPageTitle {
