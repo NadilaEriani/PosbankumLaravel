@@ -986,85 +986,6 @@
     margin-top: 16px;
 }
 
-.lpdLocationField {
-    grid-column: 1 / -1;
-    min-width: 0;
-}
-
-.lpdLocationMap {
-    width: 100%;
-    min-width: 0;
-    margin-top: 12px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    background: #f8fafc;
-}
-
-.lpdLocationMapFrame {
-    display: block;
-    width: 100%;
-    height: 300px;
-    border: 0;
-    background: #f8fafc;
-}
-
-.lpdLocationMapMeta {
-    min-width: 0;
-    padding: 12px 14px;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.lpdLocationMapMeta > div {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #374151;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.lpdLocationMapMeta > div span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
-
-.lpdLocationMapMeta svg {
-    flex: 0 0 auto;
-    color: var(--lp-blue-text);
-}
-
-.lpdLocationMapMeta a {
-    flex: 0 0 auto;
-    min-height: 44px;
-    padding: 0 14px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--lp-blue-text);
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.lpdLocationUnavailable {
-    margin-top: 10px;
-    padding: 12px 14px;
-    border: 1px dashed #d8dde6;
-    border-radius: 12px;
-    background: #f8fafc;
-    color: #6b7280;
-    font-size: 13px;
-    line-height: 1.5;
-}
-
 .lpdNoteBox {
     margin-top: 16px;
     padding: 16px;
@@ -1288,132 +1209,10 @@
     }
 }
 
-@media (max-width: 768px) {
-    .lpvPageTitle,
-    .lpdPageTitle {
-        font-size: 22px;
-    }
 
-    .lpvStatsGrid,
-    .lpvTabsRow,
-    .lpvFormGrid,
-    .lpdMetricGrid,
-    .lpdFieldGrid.three,
-    .lpvStatisticGrid {
-        grid-template-columns: 1fr;
-    }
 
-    .lpvField.span2,
-    .lpvFormActions.span2 {
-        grid-column: auto;
-    }
 
-    .lpvCardHeader,
-    .lpvFooterRow,
-    .lpdTopbar,
-    .lpdPartyRow,
-    .lpdTimelineHead,
-    .lpvPreviewHeader,
-    .lpvPreviewFooter {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 
-    .lpvActionRow,
-    .lpdTopActions,
-    .lpvPreviewFooter {
-        width: 100%;
-    }
-
-    .lpvActionRow > button,
-    .lpdTopActions > button,
-    .lpvPreviewFooter > button,
-    .lpvFormActions > button {
-        width: 100%;
-    }
-
-    .lpvFormActions {
-        flex-direction: column-reverse;
-    }
-
-    .lpdSummaryCard,
-    .lpvCard,
-    .lpvFormCard,
-    .lpvInfoCard,
-    .lpdPanel,
-    .lpvSearchCard,
-    .lpvToolbarCard {
-        padding-inline: 14px;
-    }
-
-    .lpdStoryTitle,
-    .lpdStoryBox,
-    .lpdDetailMeta,
-    .lpdNoteBox,
-    .lpdTimeline,
-    .lpdNoAttachment,
-    .lpdAttachmentList {
-        margin-inline: 14px;
-    }
-
-    .lpdPanelHead,
-    .lpdFieldGrid {
-        padding-inline: 14px;
-    }
-
-    .lpdLocationMapFrame {
-        height: 260px;
-    }
-
-    .lpdLocationMapMeta {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .lpdLocationMapMeta a {
-        width: 100%;
-    }
-
-    .lpvPreviewOverlay {
-        padding: 12px;
-    }
-}
-
-@media (max-width: 540px) {
-    .lpvStatCard {
-        min-height: 78px;
-        padding: 14px;
-    }
-
-    .lpvStatValue {
-        font-size: 26px;
-    }
-
-    .lpvTopTab,
-    .lpvPrimaryBtn,
-    .lpvGhostBtn,
-    .lpvDangerBtn {
-        min-height: 44px;
-        font-size: 13px;
-    }
-
-    .lpvCardTitle,
-    .lpdCaseTitle,
-    .lpvSectionHeading {
-        font-size: 16px;
-    }
-
-    .lpdCaseTitle {
-        font-size: 22px;
-    }
-
-    .lpvMetaRow,
-    .lpvFooterMeta,
-    .lpvDescription,
-    .lpdTimelineCard p {
-        font-size: 12px;
-    }
-}
 
 
 .lpvCreateCard {
@@ -1918,69 +1717,10 @@
     }
 }
 
-@media (max-width: 768px) {
-    .lpvCreateCard {
-        padding: 16px;
-    }
 
-    .lpvGuideBox {
-        align-items: flex-start;
-        padding: 14px;
-    }
 
-    .lpvFormSectionTitle {
-        font-size: 16px;
-    }
 
-    .lpvCreateActions {
-        flex-direction: column-reverse;
-    }
 
-    .lpvResetBtn,
-    .lpvSendBtn {
-        width: 100%;
-    }
-
-    .lpvStatPanel,
-    .lpvPerformancePanel {
-        padding: 18px;
-    }
-
-    .lpvStatPanelTitle,
-    .lpvPerformanceTitle {
-        font-size: 18px;
-    }
-
-    .lpvPerformanceGrid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 520px) {
-    .lpvCreateField input,
-    .lpvCreateField select,
-    .lpvCreateField textarea,
-    .lpvInputShell {
-        min-height: 44px;
-        font-size: 12.5px;
-    }
-
-    .lpvCreateField textarea {
-        min-height: 132px;
-    }
-
-    .lpvDropzone {
-        min-height: 110px;
-    }
-
-    .lpvBarHead {
-        font-size: 13px;
-    }
-
-    .lpvPerformanceCard strong {
-        font-size: 28px;
-    }
-}
 
 
 .lpvParalegalDropdown {
@@ -2097,17 +1837,8 @@
     font-size: 24px;
     flex: 0 0 auto;
 }
-@media (max-width: 768px) {
-    .lpvParalegalTrigger {
-        min-height: 50px;
-        font-size: 13px;
-    }
 
-    .lpvParalegalOption {
-        min-height: 42px;
-        font-size: 13px;
-    }
-}
+
 
 @media (max-width: 992px) {
     .lpvFilterGroup {
@@ -2119,18 +1850,386 @@
     }
 }
 
-@media (max-width: 540px) {
-    .lpvFilterGroup {
-        width: 100%;
+
+
+
+
+/* =========================================================
+   Responsive mobile — Laporan Pelayanan
+   ========================================================= */
+@media (max-width: 768px) {
+    .lpvWrap,
+    .lpdWrap,
+    .lpvWrap *,
+    .lpdWrap * {
+        min-width: 0;
     }
 
-    .lpvPriorityDropdown {
+    .lpvPageTitle,
+    .lpdPageTitle {
+        font-size: 22px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .lpvStatsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .lpvStatCard {
+        min-height: 82px;
+        padding: 12px;
+        gap: 10px;
+        border-radius: 14px;
+    }
+
+    .lpvStatIcon {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 12px;
+    }
+
+    .lpvStatLabel {
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .lpvStatValue {
+        font-size: 22px;
+        line-height: 1;
+    }
+
+    .lpvToolbarCard {
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    .lpvTabsRow {
         width: 100%;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 3px;
+    }
+
+    .lpvTabsRow::-webkit-scrollbar {
+        display: none;
+    }
+
+    .lpvTabsRow button {
+        flex: 0 0 auto;
+        min-height: 42px;
+        white-space: nowrap;
+    }
+
+    .lpvSearchCard {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .lpvSearchBox {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-height: 46px;
+        border-radius: 14px;
+    }
+
+    .lpvSearchBox input,
+    .lpvCreateForm input,
+    .lpvCreateForm select,
+    .lpvCreateForm textarea,
+    .lpvPriorityMenu input {
+        font-size: 16px;
+    }
+
+    .lpvFilterGroup,
+    .lpvPriorityTrigger {
+        min-height: 44px;
     }
 
     .lpvPriorityMenu {
-        left: 0;
-        right: auto;
+        width: min(100%, 320px);
+        max-width: calc(100vw - 32px);
+        max-height: min(360px, 55dvh);
+        overflow-y: auto;
+    }
+
+    .lpvCard {
         width: 100%;
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .lpvCardHeader,
+    .lpvFooterRow,
+    .lpvActionRow {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .lpvCardTitle {
+        font-size: 16px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .lpvCardNumber,
+    .lpvMetaRow,
+    .lpvDescription,
+    .lpvUpdateMeta,
+    .lpvUpdateDesc,
+    .lpvFooterMeta {
+        font-size: 11px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .lpvHeaderChips,
+    .lpvTagLine {
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .lpvTag,
+    .lpvChip {
+        min-height: 24px;
+        padding: 0 8px;
+        font-size: 10px;
+    }
+
+    .lpvDangerBtn,
+    .lpvPrimaryBtn,
+    .lpvGhostBtn,
+    .lpvResetBtn,
+    .lpvSendBtn {
+        min-height: 44px;
+    }
+
+    .lpvActionRow {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lpvActionRow button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .lpvStatPanelGrid,
+    .lpvPerformanceGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .lpvStatPanel,
+    .lpvPerformancePanel,
+    .lpvPerformanceCard {
+        border-radius: 16px;
+        padding: 14px;
+    }
+
+    .lpvBarHead,
+    .lpvPerformanceTitle {
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .lpvFormCard,
+    .lpvCreateCard {
+        width: 100%;
+        border-radius: 18px;
+        overflow: visible;
+    }
+
+    .lpvGuideBox {
+        padding: 13px;
+        border-radius: 14px;
+        gap: 10px;
+    }
+
+    .lpvCreateForm {
+        width: 100%;
+    }
+
+    .lpvFormSection {
+        padding: 16px;
+    }
+
+    .lpvFormSectionTitle {
+        font-size: 17px;
+        line-height: 1.35;
+    }
+
+    .lpvCreateGrid,
+    .lpvCreateGrid.two,
+    .lpvCreateGrid.one {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .lpvCreateField,
+    .lpvInputShell,
+    .lpvInputShell.narrow {
+        width: 100%;
+    }
+
+    .lpvCreateForm input,
+    .lpvCreateForm select {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 14px;
+    }
+
+    .lpvCreateForm textarea {
+        width: 100%;
+        min-height: 130px;
+        border-radius: 14px;
+        resize: vertical;
+    }
+
+    .lpvDropzone {
+        width: 100%;
+        min-height: 150px;
+        border-radius: 14px;
+    }
+
+    .lpvUploadItem {
+        min-height: 48px;
+        padding: 10px 12px;
+        gap: 10px;
+        border-radius: 13px;
+    }
+
+    .lpvCreateActions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .lpvCreateActions button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .lpdTopbar {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .lpvBreadcrumb {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .lpdTopActions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .lpdTopActions button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .lpdSummaryCard {
+        width: 100%;
+        padding: 15px;
+        border-radius: 16px;
+    }
+
+    .lpdSummaryMain,
+    .lpdBadgeRow {
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .lpdCaseTitle {
+        font-size: 20px;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .lpdMetricGrid,
+    .lpdPartyRow,
+    .lpdMainGrid,
+    .lpdFieldGrid,
+    .lpdFieldGrid.three {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .lpdMetricCard,
+    .lpdPanel,
+    .lpdFieldItem,
+    .lpdTimelineCard,
+    .lpdAttachmentItem {
+        min-width: 0;
+        border-radius: 14px;
+    }
+
+    .lpdMetricCard,
+    .lpdFieldItem,
+    .lpdTimelineCard,
+    .lpdAttachmentItem {
+        padding: 12px;
+    }
+
+    .lpdPanel {
+        padding: 14px;
+    }
+
+    .lpdFieldItem,
+    .lpdStoryBox,
+    .lpdDetailMeta,
+    .lpdTimelineCard,
+    .lpdAttachmentInfo {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 430px) {
+    .lpvPageTitle,
+    .lpdPageTitle {
+        font-size: 20px;
+    }
+
+    .lpvToolbarCard,
+    .lpvCard,
+    .lpvFormSection,
+    .lpdSummaryCard,
+    .lpdPanel {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .lpvActionRow,
+    .lpvCreateActions,
+    .lpdTopActions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 360px) {
+    .lpvStatsGrid {
+        grid-template-columns: 1fr;
     }
 }

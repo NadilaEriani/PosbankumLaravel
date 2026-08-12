@@ -920,56 +920,7 @@
     }
 }
 
-@media (max-width: 720px) {
-    .kk-wrap {
-        padding: 18px 14px;
-    }
 
-    .kk-title {
-        font-size: 24px;
-    }
-
-    .kk-stats,
-    .kk-list,
-    .kk-twoCols {
-        grid-template-columns: 1fr;
-    }
-
-    .kk-modal-head,
-    .kk-modal-body,
-    .kk-modal-actions,
-    .kk-detail-body,
-    .kk-detail-actions {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
-
-    .kk-thumb-upload,
-    .kk-thumb-upload.has-image {
-        min-height: 220px;
-    }
-
-    .kk-detail-hero {
-        height: 260px;
-    }
-
-    .kk-detail-title {
-        font-size: 24px;
-    }
-
-    .kk-detail-meta {
-        gap: 12px;
-    }
-
-    .kk-modal-actions {
-        flex-direction: column-reverse;
-        align-items: stretch;
-    }
-
-    .kk-btn {
-        width: 100%;
-    }
-}
 
 
 .kk-wrap button,
@@ -997,7 +948,6 @@
 .kk-wrap [role="button"]:active {
     transform: translateY(0);
 }
-
 
 .kk-search {
     transition:
@@ -1073,7 +1023,6 @@
     line-height: 1.45;
     font-weight: 700;
 }
-
 
 .kk-resubmit-overlay {
     position: fixed;
@@ -1195,16 +1144,7 @@
     transform: translateY(0);
 }
 
-@media (max-width: 520px) {
-    .kk-resubmit-actions {
-        flex-direction: column-reverse;
-        align-items: stretch;
-    }
 
-    .kk-resubmit-btn {
-        width: 100%;
-    }
-}
 
 
 .kk-memberSelectBox {
@@ -1305,16 +1245,7 @@
     font-weight: 700;
 }
 
-@media (max-width: 720px) {
-    .kk-detail-infoGrid {
-        grid-template-columns: 1fr;
-    }
 
-    .kk-memberSelectChip {
-        width: 100%;
-        justify-content: flex-start;
-    }
-}
 
 
 .kk-wrap {
@@ -1335,88 +1266,13 @@
     margin-top: 0;
 }
 
-@media (max-width: 720px) {
-    .kk-wrap {
-        padding: 0;
-    }
-}
 
 
-@media (max-width: 768px) {
-    .kk-wrap {
-        width: 100%;
-        min-width: 0;
-        overflow-x: hidden;
-    }
 
-    .kk-stats,
-    .kk-row,
-    .kk-formGrid,
-    .kk-detailGrid,
-    .kk-detail-infoGrid,
-    .kk-memberGrid,
-    .kk-deleteActions,
-    .kk-modalActions {
-        grid-template-columns: 1fr !important;
-    }
 
-    .kk-headTop,
-    .kk-toolbar,
-    .kk-cardHead,
-    .kk-cardFoot,
-    .kk-modalHead,
-    .kk-modalActions,
-    .kk-detailHead {
-        flex-direction: column;
-        align-items: stretch !important;
-        gap: 12px;
-    }
 
-    .kk-search,
-    .kk-select,
-    .kk-btn,
-    .kk-addBtn,
-    .kk-actionBtn,
-    .kk-modalActions button,
-    .kk-memberSelectChip {
-        width: 100%;
-        justify-content: center;
-    }
 
-    .kk-tableWrap,
-    .kk-listWrap {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
 
-    .kk-modalOverlay,
-    .kk-deleteOverlay,
-    .kk-detailOverlay {
-        padding: 12px;
-        align-items: flex-start;
-    }
-
-    .kk-modal,
-    .kk-deleteModal,
-    .kk-detailModal {
-        width: 100% !important;
-        max-width: calc(100vw - 24px) !important;
-        max-height: calc(100dvh - 24px) !important;
-        border-radius: 18px !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .kk-card,
-    .kk-statCard,
-    .kk-emptyCard,
-    .kk-modal,
-    .kk-detailModal,
-    .kk-deleteModal {
-        border-radius: 16px !important;
-    }
-}
 
 
 .kk-modal-overlay,
@@ -1447,26 +1303,7 @@
     overscroll-behavior: contain;
 }
 
-@media (max-width: 768px) {
-    .kk-modal-overlay,
-    .kk-detail-overlay,
-    .kk-resubmit-overlay,
-    .kk-modalOverlay,
-    .kk-deleteOverlay,
-    .kk-detailOverlay {
-        padding: 10px;
-        overflow: hidden;
-    }
 
-    .kk-modal.kk-modal-modern,
-    .kk-detail-modal.kk-detail-modern,
-    .kk-modal,
-    .kk-deleteModal,
-    .kk-detailModal {
-        width: 100%;
-        max-height: calc(100dvh - 20px);
-    }
-}
 
 
 .kk-pageMode,
@@ -2007,72 +1844,11 @@
     }
 }
 
-@media (max-width: 768px) {
-    .kk-pageTop {
-        flex-direction: column;
-        gap: 16px;
-        margin-bottom: 18px;
-    }
 
-    .kk-pageActions,
-    .kk-closeDetailBtn {
-        width: 100%;
-        padding-top: 0;
-        margin-top: 0;
-    }
 
-    .kk-pageActions {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
 
-    .kk-topBtn {
-        width: 100%;
-    }
 
-    .kk-pageTitle {
-        font-size: 25px;
-    }
 
-    .kk-formTwoCols,
-    .kk-detailSummaryGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .kk-formPageBody,
-    .kk-detailPageBody {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
-
-    .kk-detailPageHero {
-        min-height: 220px;
-    }
-
-    .kk-detailPageTitle {
-        font-size: 20px;
-    }
-
-    .kk-detailRejectNotice {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .kk-breadcrumb {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .kk-formPageHead {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
-
-    .kk-documentUpload.has-image {
-        min-height: 140px;
-    }
-}
 
 .kk-topBtnPrimary,
 .kk-closeDetailBtn,
@@ -2117,9 +1893,361 @@
     width: 100%;
 }
 
-@media (max-width: 720px) {
-    .kk-list > .kk-emptyCard {
-        min-height: 300px;
+
+
+
+
+/* =========================================================
+   Responsive mobile — Kelola Kegiatan
+   ========================================================= */
+@media (max-width: 768px) {
+    .kk-wrap,
+    .kk-pageMode,
+    .kk-wrap *,
+    .kk-pageMode * {
+        min-width: 0;
+    }
+
+    .kk-pageTop,
+    .kk-pageTopDetail,
+    .kk-listPageHeading {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .kk-pageTitle,
+    .kk-detailPageTitle {
+        font-size: 22px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .kk-breadcrumb {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .kk-pageActions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .kk-topBtn,
+    .kk-add,
+    .kk-btnView,
+    .kk-btnIcon,
+    .kk-modal-close,
+    .kk-btn,
+    .kk-detail-close,
+    .kk-closeDetailBtn {
+        min-height: 44px;
+    }
+
+    .kk-pageActions .kk-topBtn,
+    .kk-add {
+        width: 100%;
+        min-width: 0;
+        height: 46px;
+        border-radius: 14px;
+    }
+
+    .kk-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .kk-statCard {
+        min-height: 90px;
+        padding: 14px;
+        gap: 11px;
+        border-radius: 16px;
+    }
+
+    .kk-statIcon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 13px;
+    }
+
+    .kk-statLabel {
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .kk-statValue {
+        font-size: 24px;
+        line-height: 1;
+    }
+
+    .kk-row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .kk-search {
+        grid-column: 1 / -1;
+        width: 100%;
+        height: 46px;
+        border-radius: 14px;
+    }
+
+    .kk-search input,
+    .kk-formInput,
+    .kk-formDateInput,
+    .kk-formTextarea,
+    .kk-input,
+    .kk-input-date,
+    .kk-textarea {
+        font-size: 16px;
+    }
+
+    .kk-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .kk-card {
+        width: 100%;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .kk-media {
+        width: 100%;
+        max-height: 220px;
+    }
+
+    .kk-media img,
+    .kk-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .kk-cardBody {
+        padding: 15px;
+    }
+
+    .kk-judul {
+        font-size: 16px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .kk-desc,
+    .kk-meta,
+    .kk-metaItem,
+    .kk-rejectText {
+        font-size: 12px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .kk-cardFooter {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 44px 44px;
+        gap: 8px;
+        padding: 0 15px 15px;
+    }
+
+    .kk-btnView,
+    .kk-btnIcon {
+        width: 100%;
+        height: 44px;
+        border-radius: 13px;
+    }
+
+    .kk-formPageCard {
+        width: 100%;
+        border-radius: 18px;
+        overflow: visible;
+    }
+
+    .kk-formPageHead {
+        padding: 15px 16px;
+    }
+
+    .kk-formPageBody {
+        padding: 18px 16px 22px;
+    }
+
+    .kk-formTwoCols,
+    .kk-twoCols {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .kk-formGroup,
+    .kk-field {
+        width: 100%;
+    }
+
+    .kk-formInput,
+    .kk-formDateInput,
+    .kk-input,
+    .kk-input-date {
+        width: 100%;
+        min-height: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .kk-formTextarea,
+    .kk-textarea {
+        width: 100%;
+        min-height: 130px;
+        border-radius: 14px;
+        resize: vertical;
+    }
+
+    .kk-documentWrap,
+    .kk-thumbBoxWrap,
+    .kk-memberSelectBox {
+        width: 100%;
+        border-radius: 14px;
+    }
+
+    .kk-formPageError,
+    .kk-form-error,
+    .kk-form-error-modal {
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .kk-modal-overlay,
+    .kk-detail-overlay {
+        padding: 12px;
+        align-items: center;
+    }
+
+    .kk-modal,
+    .kk-modal-modern,
+    .kk-detail-modal,
+    .kk-detail-modern {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .kk-modal-body,
+    .kk-detailPageBody,
+    .kk-detail-body {
+        max-height: calc(100dvh - 130px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 16px;
+    }
+
+    .kk-modal-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    }
+
+    .kk-modal-actions .kk-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .kk-detailPageHero,
+    .kk-detail-hero {
+        width: 100%;
+        min-height: 190px;
+        max-height: 240px;
+        overflow: hidden;
+    }
+
+    .kk-detailPageHero img,
+    .kk-detail-hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .kk-detailSummaryGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .kk-detailSummaryCard,
+    .kk-detailTextSection,
+    .kk-detailRejectNotice {
+        border-radius: 14px;
+        padding: 13px;
     }
 }
 
+@media (max-width: 430px) {
+    .kk-pageTitle,
+    .kk-detailPageTitle {
+        font-size: 20px;
+    }
+
+    .kk-pageActions,
+    .kk-stats,
+    .kk-modal-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .kk-statCard {
+        min-height: 82px;
+        padding: 13px;
+    }
+
+    .kk-statIcon {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+    .kk-statValue {
+        font-size: 22px;
+    }
+
+    .kk-row {
+        grid-template-columns: 1fr;
+    }
+
+    .kk-add {
+        grid-column: 1;
+    }
+
+    .kk-cardBody,
+    .kk-cardFooter,
+    .kk-formPageBody,
+    .kk-modal-body,
+    .kk-detailPageBody,
+    .kk-detail-body {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .kk-modal-overlay,
+    .kk-detail-overlay {
+        padding: 8px;
+    }
+
+    .kk-modal,
+    .kk-modal-modern,
+    .kk-detail-modal,
+    .kk-detail-modern {
+        max-width: calc(100vw - 16px);
+        max-height: calc(100dvh - 16px);
+        border-radius: 16px;
+    }
+}

@@ -1158,10 +1158,7 @@ export default function DataPosbankum({
                                                                 <tr
                                                                     key={`${id}-${row.kategori}-${index}`}
                                                                 >
-                                                                    <td
-                                                                        className="dp-tdStrong"
-                                                                        data-label="Kategori"
-                                                                    >
+                                                                    <td className="dp-tdStrong" data-label="Kategori">
                                                                         <span>
                                                                             {
                                                                                 row.kategori

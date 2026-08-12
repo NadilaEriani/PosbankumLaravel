@@ -2331,327 +2331,11 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    .lp-container {
-        width: min(100% - 28px, 100%);
-    }
 
-    .lp-topbar-inner,
-    .lp-header-inner,
-    .lp-topbar-left,
-    .lp-topbar-right,
-    .lp-hero-actions,
-    .lp-footer-bottom {
-        flex-wrap: wrap;
-    }
 
-    .lp-topbar-inner,
-    .lp-header-inner {
-        padding: 10px 0;
-    }
 
-    .lp-header-inner {
-        min-height: 78px;
-    }
 
-    .lp-brand {
-        gap: 10px;
-    }
 
-    .lp-brand-logo,
-    .lp-brand-logo img,
-    .lp-brand-bird {
-        width: 48px;
-        height: 48px;
-    }
-
-    .lp-brand-bird img {
-        width: 66px;
-        height: 66px;
-    }
-
-    .lp-brand-divider {
-        height: 48px;
-    }
-
-    .lp-brand-title {
-        font-size: 25px;
-    }
-
-    .lp-hero {
-        padding-top: 36px;
-    }
-
-    .lp-hero-grid,
-    .lp-service-grid,
-    .lp-info-grid,
-    .lp-map-grid {
-        gap: 28px;
-    }
-
-    .lp-hero-card {
-        min-height: 420px;
-        padding: 18px 20px 24px;
-    }
-
-    .lp-hero-bird {
-        width: 320px;
-        transform: translateY(-22px);
-    }
-
-    .lp-hero-name {
-        width: calc(100% - 48px);
-    }
-
-    .lp-hero-title,
-    .lp-section-title,
-    .lp-blue-title,
-    .lp-map-title,
-    .lp-faq-title,
-    .lp-cta-title {
-        font-size: clamp(32px, 10vw, 46px);
-    }
-
-    .lp-service-section .lp-blue-title {
-        font-size: clamp(28px, 8vw, 38px);
-    }
-
-    .lp-hero-desc,
-    .lp-section-copy,
-    .lp-faq-copy,
-    .lp-cta-copy,
-    .lp-map-copy {
-        font-size: 16px;
-    }
-
-    .lp-hero-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .lp-btn-primary,
-    .lp-btn-outline {
-        width: 100%;
-    }
-
-    .lp-map-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .lp-fake-map {
-        min-height: 420px;
-    }
-
-    .lp-location-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .lp-location-list {
-        max-height: 520px;
-    }
-
-    .lp-location-item {
-        grid-template-columns: 44px minmax(0, 1fr);
-        padding: 18px 14px;
-    }
-
-    .lp-location-number {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
-    }
-
-    .lp-location-item h4 {
-        font-size: 16px;
-    }
-
-    .lp-modal-overlay {
-        padding: 14px;
-        align-items: flex-start;
-        overflow: auto;
-    }
-
-    .lp-detail-popup-header {
-        padding: 22px;
-        align-items: flex-start;
-    }
-
-    .lp-detail-title-wrap {
-        align-items: flex-start;
-    }
-
-    .lp-detail-title-wrap img {
-        width: 58px;
-        height: 58px;
-        border-radius: 18px;
-    }
-
-    .lp-detail-title-wrap h2 {
-        font-size: 22px;
-    }
-
-    .lp-detail-subline {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .lp-modal-close {
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
-    }
-
-    .lp-detail-popup-body {
-        padding: 22px;
-    }
-
-    .lp-all-popup-header {
-        padding: 24px 20px;
-    }
-
-    .lp-all-popup-header h2 {
-        font-size: 23px;
-    }
-
-    .lp-all-search-wrap {
-        padding: 18px 20px;
-    }
-
-    .lp-all-popup-body {
-        padding: 20px;
-    }
-
-    .lp-faq-button {
-        padding: 18px;
-    }
-
-    .lp-faq-answer {
-        padding: 0 18px 18px 18px;
-    }
-
-    .lp-cta-box {
-        padding: 34px 22px;
-    }
-
-    .lp-footer-grid {
-        gap: 22px;
-    }
-
-    .lp-footer-logo {
-        font-size: 20px;
-    }
-
-    .lp-footer-logo-box {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-    }
-
-    .lp-footer-logo-box img {
-        border-radius: 14px;
-    }
-
-    .lp-footer-socials {
-        gap: 7px;
-        margin-top: 8px;
-    }
-
-    .lp-footer-socials a {
-        width: 30px;
-        height: 30px;
-        border-radius: 9px;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1.5px solid rgba(255, 255, 255, 0.12);
-        color: #ffffff;
-        display: grid;
-        place-items: center;
-        text-decoration: none;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        transition:
-            transform 0.22s ease,
-            background 0.22s ease;
-    }
-
-    .lp-footer-socials a:hover {
-        transform: translateY(-2px);
-        background: rgba(255, 255, 255, 0.16);
-    }
-
-    .lp-footer-socials svg {
-        width: 13px;
-        height: 13px;
-    }
-
-    .lp-float-chat {
-        width: 58px;
-        height: 58px;
-        right: 16px;
-        bottom: 18px;
-    }
-}
-
-@media (max-width: 480px) {
-    .lp-topbar-left {
-        gap: 10px;
-    }
-
-    .lp-topbar-link span {
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .lp-brand-title {
-        display: none;
-    }
-
-    .lp-btn-login {
-        min-width: 96px;
-    }
-
-    .lp-hero-card {
-        min-height: 390px;
-    }
-
-    .lp-hero-bird {
-        width: 300px;
-    }
-
-    .lp-service-circle {
-        width: 220px;
-        height: 220px;
-    }
-
-    .lp-service-circle img {
-        width: 226px;
-        transform: translateY(0);
-    }
-
-    .lp-location-meta {
-        gap: 6px;
-    }
-
-    .lp-detail-info-row {
-        grid-template-columns: 44px minmax(0, 1fr);
-    }
-
-    .lp-detail-info-icon {
-        width: 40px;
-        height: 40px;
-    }
-
-    .lp-all-card-header {
-        align-items: flex-start;
-    }
-
-    .lp-all-card-header img {
-        width: 50px;
-        height: 50px;
-    }
-}
 
 /* FINAL LOGO POPUP DETAIL LOKASI - DIPISAH DARI LIHAT SEMUA LOKASI */
 .lp-detail-logo-box {
@@ -2737,31 +2421,8 @@ body {
     top: 17px;
 }
 
-@media (max-width: 768px) {
-    .lp-detail-logo-box {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-    }
 
-    .lp-detail-title-wrap .lp-detail-logo-img {
-        width: 115%;
-        height: 140%;
-        border-radius: 14px;
-    }
 
-    .lp-all-logo-box {
-        width: 42px;
-        height: 38px;
-        border-radius: 12px;
-    }
-
-    .lp-all-card-header .lp-all-logo-img {
-        width: 112%;
-        height: 145%;
-        border-radius: 12px;
-    }
-}
 
 /* === UPDATE FOOTER LIST & CONTACT + DETAIL LOKASI CONTENT === */
 .lp-footer-link-col a {
@@ -3033,46 +2694,8 @@ body {
     background: #9333ea;
 }
 
-@media (max-width: 768px) {
-    .lp-footer-contact-item {
-        grid-template-columns: 36px minmax(0, 1fr);
-    }
 
-    .lp-footer-contact-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 11px;
-    }
 
-    .lp-footer-contact-icon svg {
-        width: 15px;
-        height: 15px;
-    }
-
-    .lp-detail-popup-body {
-        padding: 22px;
-    }
-
-    .lp-detail-summary-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .lp-detail-contact-card {
-        padding: 18px;
-    }
-
-    .lp-detail-contact-row,
-    .lp-detail-contact-row:first-child,
-    .lp-detail-contact-row:last-child {
-        grid-template-columns: 44px minmax(0, 1fr);
-    }
-
-    .lp-detail-contact-action {
-        grid-column: 2;
-        width: max-content;
-        margin-top: -4px;
-    }
-}
 
 /* =========================================================
    UPDATE MAP PIN, POPUP PETA, CHATBOT, DAN DETAIL LOKASI
@@ -3396,89 +3019,8 @@ body {
     transform: translate(0, 0);
 }
 
-@media (max-width: 768px) {
-    .lp-map-location-popup {
-        width: min(300px, calc(100% - 28px));
-        transform: translate(-50%, 26px);
-    }
 
-    .lp-map-popup-header {
-        min-height: 52px;
-        padding: 14px 16px;
-    }
 
-    .lp-map-popup-header h3 {
-        font-size: 15px;
-    }
-
-    .lp-map-popup-body {
-        padding: 12px 16px 14px;
-    }
-
-    .lp-float-chat {
-        width: 82px;
-        height: 82px;
-        right: 14px;
-        bottom: 16px;
-    }
-
-    .lp-float-chat::before {
-        inset: 19px;
-    }
-
-    .lp-float-chat svg {
-        width: 26px;
-        height: 26px;
-    }
-
-    .lp-modal-overlay {
-        padding: 18px 14px;
-        align-items: flex-start;
-    }
-
-    .lp-detail-popup {
-        width: 100%;
-        max-height: calc(100vh - 36px);
-    }
-
-    .lp-detail-popup-header {
-        min-height: auto;
-        padding: 18px;
-    }
-
-    .lp-detail-popup-body {
-        padding: 18px;
-    }
-
-    .lp-detail-summary-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-        margin-bottom: 14px;
-    }
-
-    .lp-detail-summary-card {
-        min-height: 96px;
-        padding: 14px;
-    }
-
-    .lp-detail-contact-card {
-        padding: 14px;
-    }
-
-    .lp-detail-contact-row,
-    .lp-detail-contact-row:first-child,
-    .lp-detail-contact-row:last-child {
-        grid-template-columns: 44px minmax(0, 1fr);
-        min-height: 62px;
-        padding: 11px 12px;
-    }
-
-    .lp-detail-contact-action {
-        grid-column: 2;
-        width: max-content;
-        margin-top: -2px;
-    }
-}
 
 /* =========================================================
    UPDATE FINAL: MAPS PNG PIN + CHATBOT PANEL
@@ -3949,77 +3491,8 @@ body {
     padding: 26px 28px !important;
 }
 
-@media (max-width: 768px) {
-    .lp-map-pin {
-        width: 36px !important;
-        height: 52px !important;
-        margin-left: -18px !important;
-        margin-top: -52px !important;
-    }
 
-    .lp-map-pin-mark {
-        width: 30px !important;
-        height: 41px !important;
-    }
 
-    .lp-map-pin-icon {
-        width: 20px !important;
-        height: 20px !important;
-    }
-
-    .lp-map-pin-icon img {
-        width: 14px;
-        height: 14px;
-    }
-
-    .lp-chatbot-panel,
-    .lp-chatbot-panel.is-large {
-        right: 14px;
-        bottom: 82px;
-        width: calc(100vw - 28px);
-        height: min(620px, calc(100vh - 104px));
-        border-radius: 18px;
-    }
-
-    .lp-chatbot-panel.is-large .lp-chatbot-title-wrap h3 {
-        font-size: 17px;
-    }
-
-    .lp-chatbot-panel.is-large .lp-chatbot-logo {
-        width: 44px;
-        height: 44px;
-    }
-
-    .lp-chatbot-panel.is-large .lp-chatbot-body,
-    .lp-chatbot-body {
-        padding: 18px;
-    }
-
-    .lp-chatbot-panel.is-large .lp-chatbot-message {
-        width: min(100%, 280px);
-        font-size: 12px;
-    }
-
-    .lp-chatbot-topic-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .lp-float-chat,
-    .lp-float-chat.is-open {
-        width: 58px !important;
-        height: 58px !important;
-        right: 14px !important;
-        bottom: 16px !important;
-    }
-
-    .lp-float-chat::before {
-        inset: 13px !important;
-    }
-
-    .lp-float-chat.is-open::before {
-        display: none;
-    }
-}
 
 /* =========================================================
    UPDATE FINAL: MAP COORDINATE PIN, POPUP, CHATBOT SEND,
@@ -4209,33 +3682,8 @@ body {
     transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-    .lp-map-pin {
-        width: 40px !important;
-        height: 52px !important;
-        margin-left: -20px !important;
-        margin-top: -52px !important;
-    }
 
-    .lp-map-pin-img {
-        width: 40px !important;
-    }
 
-    .lp-map-location-popup {
-        transform: translate(-50%, 2px) !important;
-        width: min(300px, calc(100% - 24px));
-    }
-
-    .lp-map-zoom button {
-        width: 42px;
-        height: 42px;
-    }
-
-    .lp-map-layer {
-        min-height: 38px;
-        font-size: 13px;
-    }
-}
 
 /* =========================
    OPENSTREETMAP FINAL UPDATE
@@ -4508,52 +3956,8 @@ body {
     border: 2px solid #ffffff;
 }
 
-@media (max-width: 768px) {
-    .lp-osm-map {
-        height: 420px;
-        min-height: 420px;
-    }
 
-    .lp-map-pin {
-        width: 40px !important;
-        height: 56px !important;
-        margin-left: -20px !important;
-        margin-top: -56px !important;
-    }
 
-    .lp-map-pin-img {
-        width: 40px !important;
-    }
-
-    .lp-map-location-popup {
-        width: min(310px, calc(100% - 20px));
-    }
-
-    .lp-map-popup-header {
-        min-height: 58px;
-        padding: 16px 18px;
-    }
-
-    .lp-map-popup-header h3 {
-        font-size: 16px;
-    }
-
-    .lp-map-popup-body {
-        padding: 14px 16px 16px;
-    }
-
-    .lp-map-zoom button {
-        width: 42px !important;
-        height: 42px !important;
-    }
-
-    .lp-map-layer {
-        min-height: 44px !important;
-        padding: 0 14px !important;
-        border-radius: 15px !important;
-        font-size: 13px;
-    }
-}
 
 /* =========================
    FINAL UPDATE: OSM CONTROL, CTA, DAN HOVER AKSI
@@ -5059,11 +4463,8 @@ body {
     box-shadow: 0 18px 34px rgba(44, 50, 111, 0.34);
 }
 
-@media (max-width: 480px) {
-    .lp-all-mini-stats {
-        grid-template-columns: 1fr;
-    }
-}
+
+
 /* END ALL POPUP BOTTOM ONLY FIX */
 
 /* REVISI POPUP LIHAT SEMUA POSBANKUM - HANYA BAGIAN BAWAH CARD */
@@ -5201,11 +4602,8 @@ body {
     box-shadow: 0 18px 34px rgba(44, 50, 111, 0.34);
 }
 
-@media (max-width: 480px) {
-    .lp-all-mini-stats {
-        grid-template-columns: 1fr;
-    }
-}
+
+
 .lp-map-clear-button {
     border: none !important;
     cursor: pointer;
@@ -5231,84 +4629,11 @@ body {
 }
 
 /* ===== Revisi responsif Landing Page sampai mobile kecil ===== */
-@media (max-width: 768px) {
-    .landingPage,
-    .landingShell,
-    .landingMain {
-        min-width: 0;
-    }
 
-    .landingHeader,
-    .landingHero,
-    .landingSection,
-    .landingFooter {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
 
-    .landingNav,
-    .landingHeaderActions {
-        flex-wrap: wrap;
-        gap: 10px;
-    }
 
-    .landingHero,
-    .landingHeroGrid,
-    .landingAboutGrid,
-    .landingFeatureGrid,
-    .landingStatsGrid,
-    .landingContactGrid {
-        grid-template-columns: 1fr;
-    }
 
-    .landingHeroTitle,
-    .landingTitle {
-        font-size: 32px;
-        line-height: 1.15;
-    }
 
-    .landingHeroText,
-    .landingLead {
-        font-size: 15px;
-    }
-
-    .landingHeroActions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .landingHeroActions a,
-    .landingHeroActions button {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .landingCard,
-    .landingPanel,
-    .landingFeatureCard {
-        border-radius: 18px;
-    }
-}
-
-@media (max-width: 480px) {
-    .landingHeader,
-    .landingHero,
-    .landingSection,
-    .landingFooter {
-        padding-left: 14px;
-        padding-right: 14px;
-    }
-
-    .landingHeroTitle,
-    .landingTitle {
-        font-size: 28px;
-    }
-
-    .landingHeroText,
-    .landingLead {
-        font-size: 14px;
-    }
-}
 
 /* =========================================================
    FIX MOBILE LANDING PAGE - CHAT BUTTON & PAGE WIDTH
@@ -5344,480 +4669,11 @@ body,
     right: max(22px, calc((100vw - 1240px) / 2 + 22px)) !important;
 }
 
-@media (max-width: 768px) {
-    .lp-topbar,
-    .lp-header,
-    .lp-hero,
-    .lp-section,
-    .lp-footer {
-        width: 100%;
-        max-width: 100%;
-    }
 
-    .lp-container {
-        width: calc(100% - 32px);
-        max-width: none;
-        margin-left: auto;
-        margin-right: auto;
-    }
 
-    .lp-topbar-inner {
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-        gap: 8px;
-        min-height: auto;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
 
-    .lp-topbar-left,
-    .lp-topbar-right {
-        width: 100%;
-        flex-wrap: wrap;
-        gap: 10px 14px;
-    }
 
-    .lp-header-inner {
-        min-height: 74px;
-        gap: 10px;
-    }
 
-    .lp-brand {
-        min-width: 0;
-        gap: 9px;
-    }
-
-    .lp-brand-logo,
-    .lp-brand-bird {
-        width: 42px;
-        height: 42px;
-    }
-
-    .lp-brand-logo img {
-        width: 42px;
-        height: 42px;
-    }
-
-    .lp-brand-bird img {
-        width: 56px;
-        height: 56px;
-    }
-
-    .lp-brand-divider {
-        height: 38px;
-    }
-
-    .lp-btn-login {
-        min-width: 104px;
-        height: 44px;
-        border-radius: 14px;
-        padding: 0 14px;
-        flex-shrink: 0;
-    }
-
-    .lp-hero {
-        padding-top: 34px;
-        padding-bottom: 52px;
-    }
-
-    .lp-hero-grid,
-    .lp-service-grid,
-    .lp-info-grid,
-    .lp-map-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
-    }
-
-    .lp-hero-left {
-        justify-content: center;
-    }
-
-    .lp-hero-card {
-        width: 100%;
-        min-height: 400px;
-        border-radius: 24px;
-        padding: 12px 22px 24px;
-    }
-
-    .lp-hero-bird {
-        width: min(330px, 96vw);
-        transform: translateX(-16px) translateY(-62px) scaleX(1.08) scaleY(1.08);
-    }
-
-    .lp-hero-name {
-        width: calc(100% - 48px);
-        bottom: 24px;
-        border-radius: 18px;
-        padding: 20px 16px 18px;
-    }
-
-    .lp-hero-name strong {
-        font-size: 20px;
-    }
-
-    .lp-hero-name span {
-        font-size: 14px;
-    }
-
-    .lp-badge {
-        width: 100%;
-        justify-content: center;
-        min-height: 42px;
-        padding: 0 14px;
-        font-size: 13px;
-    }
-
-    .lp-hero-title {
-        margin-top: 24px;
-        font-size: 31px;
-        line-height: 1.17;
-    }
-
-    .lp-hero-desc,
-    .lp-section-copy,
-    .lp-map-copy,
-    .lp-footer-copy,
-    .lp-location-desc,
-    .lp-faq-copy,
-    .lp-cta-copy {
-        font-size: 15px;
-        line-height: 1.65;
-    }
-
-    .lp-hero-stats {
-        grid-template-columns: 1fr;
-        gap: 14px;
-    }
-
-    .lp-hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-
-    .lp-btn-primary,
-    .lp-btn-outline {
-        width: 100%;
-        min-height: 54px;
-        border-radius: 16px;
-    }
-
-    .lp-float-chat {
-        width: 58px !important;
-        height: 58px !important;
-        right: 18px !important;
-        bottom: 18px !important;
-        background: rgba(118, 145, 245, 0.72) !important;
-        border-radius: 999px !important;
-        z-index: 96 !important;
-    }
-
-    .lp-float-chat::before {
-        inset: 13px !important;
-        background: #0f3f93 !important;
-        border-radius: 999px !important;
-    }
-
-    .lp-float-chat svg {
-        width: 22px !important;
-        height: 22px !important;
-    }
-
-    .lp-chatbot-panel,
-    .lp-chatbot-panel.is-large {
-        right: 12px !important;
-        left: 12px !important;
-        bottom: 84px !important;
-        width: auto !important;
-        height: min(610px, calc(100vh - 106px)) !important;
-        max-height: calc(100vh - 106px) !important;
-        border-radius: 18px !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .lp-container {
-        width: calc(100% - 28px);
-    }
-
-    .lp-topbar-left,
-    .lp-topbar-right {
-        gap: 8px 12px;
-    }
-
-    .lp-topbar-link,
-    .lp-topbar-right span {
-        font-size: 11px;
-    }
-
-    .lp-topbar-link span {
-        max-width: none;
-        white-space: normal;
-    }
-
-    .lp-header-inner {
-        min-height: 70px;
-    }
-
-    .lp-hero-card {
-        min-height: 372px;
-    }
-
-    .lp-hero-bird {
-        width: min(292px, 92vw);
-        transform: translateX(-12px) translateY(-54px) scaleX(1.06) scaleY(1.06);
-    }
-
-    .lp-hero-name {
-        width: calc(100% - 42px);
-    }
-
-    .lp-hero-title {
-        font-size: 30px;
-    }
-
-    .lp-float-chat {
-        right: 14px !important;
-        bottom: 14px !important;
-        width: 54px !important;
-        height: 54px !important;
-    }
-
-    .lp-chatbot-panel,
-    .lp-chatbot-panel.is-large {
-        right: 10px !important;
-        left: 10px !important;
-        bottom: 76px !important;
-        width: auto !important;
-        height: min(590px, calc(100vh - 92px)) !important;
-        max-height: calc(100vh - 92px) !important;
-    }
-}
-
-/* ===== Mobile polish - Landing page ===== */
-@media (max-width: 768px) {
-    .lp-page {
-        overflow-x: hidden;
-    }
-
-    .lp-container {
-        width: calc(100% - 28px);
-    }
-
-    .lp-topbar-inner,
-    .lp-header-inner {
-        align-items: flex-start;
-    }
-
-    .lp-header-inner {
-        gap: 12px;
-    }
-
-    .lp-brand {
-        min-width: 0;
-    }
-
-    .lp-brand-title {
-        font-size: clamp(22px, 7vw, 26px);
-    }
-
-    .lp-btn-login,
-    .lp-btn-primary,
-    .lp-btn-outline,
-    .lp-btn-danger,
-    .lp-red-button,
-    .lp-contact-button {
-        min-width: 0;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .lp-hero-actions,
-    .lp-cta-actions,
-    .lp-contact-actions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .lp-hero-grid,
-    .lp-service-grid,
-    .lp-info-grid,
-    .lp-map-grid,
-    .lp-footer-grid,
-    .lp-detail-stats-grid,
-    .lp-card-grid,
-    .lp-form-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .lp-hero-card,
-    .lp-service-visual,
-    .lp-info-card,
-    .lp-location-panel,
-    .lp-chatbot-panel {
-        border-radius: 18px !important;
-    }
-
-    .lp-hero-title,
-    .lp-section-title,
-    .lp-blue-title,
-    .lp-map-title,
-    .lp-faq-title,
-    .lp-cta-title {
-        line-height: 1.12;
-        overflow-wrap: anywhere;
-    }
-
-    .lp-location-list,
-    .lp-table-wrap,
-    .lp-all-popup-body {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-
-@media (max-width: 480px) {
-    .lp-container {
-        width: calc(100% - 24px);
-    }
-
-    .lp-header-inner {
-        min-height: auto;
-    }
-
-    .lp-brand-logo,
-    .lp-brand-logo img,
-    .lp-brand-bird {
-        width: 42px;
-        height: 42px;
-    }
-
-    .lp-brand-divider {
-        height: 42px;
-    }
-
-    .lp-brand-title {
-        font-size: 22px;
-    }
-
-    .lp-hero,
-    .lp-section,
-    .lp-service-section,
-    .lp-info-section,
-    .lp-map-section,
-    .lp-faq-section,
-    .lp-cta-section {
-        padding-left: 0;
-        padding-right: 0;
-    }
-    /* Tambahkan di paling bawah resources/css/landingPage.css */
-
-    .lp-osm-map {
-        position: relative !important;
-        min-height: 560px;
-        height: 560px;
-        background: #e8e5de !important;
-        overflow: hidden !important;
-        isolation: isolate;
-    }
-
-    .lp-osm-map::before,
-    .lp-osm-map::after {
-        display: none !important;
-        content: none !important;
-    }
-
-    .lp-osm-tile-layer {
-        position: absolute !important;
-        inset: 0 !important;
-        z-index: 1 !important;
-        overflow: hidden !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        pointer-events: none !important;
-    }
-
-    .lp-osm-tile {
-        position: absolute !important;
-        width: 256px !important;
-        height: 256px !important;
-        max-width: none !important;
-        display: block !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        filter: none !important;
-        mix-blend-mode: normal !important;
-        transform: none !important;
-    }
-
-    .lp-map-pin {
-        position: absolute !important;
-        z-index: 15 !important;
-        width: 46px !important;
-        height: 64px !important;
-        margin-left: -23px !important;
-        margin-top: -64px !important;
-        padding: 0 !important;
-        border: 0 !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        display: block !important;
-        cursor: pointer;
-    }
-
-    .lp-map-pin::before,
-    .lp-map-pin::after,
-    .lp-map-pin span,
-    .lp-map-pin-mark,
-    .lp-map-pin-icon {
-        display: none !important;
-        content: none !important;
-    }
-
-    .lp-map-pin-img {
-        width: 46px !important;
-        height: auto !important;
-        max-width: none !important;
-        display: block !important;
-        object-fit: contain !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        filter: none !important;
-    }
-
-    .lp-map-compass,
-    .lp-map-zoom,
-    .lp-map-scale,
-    .lp-map-layer,
-    .lp-user-map-marker,
-    .lp-map-location-popup {
-        z-index: 20 !important;
-    }
-
-    @media (max-width: 768px) {
-        .lp-osm-map {
-            min-height: 420px;
-            height: 420px;
-        }
-
-        .lp-map-pin {
-            width: 38px !important;
-            height: 54px !important;
-            margin-left: -19px !important;
-            margin-top: -54px !important;
-        }
-
-        .lp-map-pin-img {
-            width: 38px !important;
-        }
-    }
-}
 
 /* Map interaction update */
 .lp-osm-map.is-dragging {
@@ -5830,11 +4686,8 @@ body,
     pointer-events: none;
 }
 
-@media (max-width: 768px) {
-    .lp-osm-map {
-        touch-action: none;
-    }
-}
+
+
 
 /* ===== FINAL FIX: chatbot selalu menempel di pojok kanan bawah layar ===== */
 .lp-page .lp-float-chat,
@@ -5868,51 +4721,11 @@ body,
     bottom: 92px !important;
 }
 
-@media (max-width: 768px) {
-    .lp-page .lp-float-chat,
-    .lp-float-chat,
-    .lp-page .lp-float-chat.is-open,
-    .lp-float-chat.is-open {
-        right: 16px !important;
-        bottom: 16px !important;
-        left: auto !important;
-        top: auto !important;
-    }
 
-    .lp-page .lp-chatbot-panel,
-    .lp-page .lp-chatbot-panel.is-large,
-    .lp-chatbot-panel,
-    .lp-chatbot-panel.is-large {
-        right: 12px !important;
-        left: auto !important;
-        bottom: 84px !important;
-        width: calc(100vw - 24px) !important;
-        height: min(610px, calc(100vh - 106px)) !important;
-        max-height: calc(100vh - 106px) !important;
-    }
-}
 
-@media (max-width: 480px) {
-    .lp-page .lp-float-chat,
-    .lp-float-chat,
-    .lp-page .lp-float-chat.is-open,
-    .lp-float-chat.is-open {
-        right: 14px !important;
-        bottom: 14px !important;
-    }
 
-    .lp-page .lp-chatbot-panel,
-    .lp-page .lp-chatbot-panel.is-large,
-    .lp-chatbot-panel,
-    .lp-chatbot-panel.is-large {
-        right: 10px !important;
-        left: auto !important;
-        bottom: 76px !important;
-        width: calc(100vw - 20px) !important;
-        height: min(590px, calc(100vh - 92px)) !important;
-        max-height: calc(100vh - 92px) !important;
-    }
-}
+
+
 
 /* ===== FIX MOBILE: peta landing page bisa digeser di layar sentuh ===== */
 .lp-osm-map {
@@ -5934,15 +4747,968 @@ body,
     user-select: none;
 }
 
+
+
+
+/* Revisi ikon Akses Bantuan Hukum Gratis sesuai desain terbaru. */
+.lp-service-item-icon.is-blue {
+    background: linear-gradient(135deg, #2b7fff 0%, #155dfc 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
+}
+
+.lp-service-item-icon.is-green {
+    background: linear-gradient(135deg, #00c950 0%, #009966 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
+}
+
+.lp-service-item-icon.is-orange {
+    background: linear-gradient(135deg, #fe9a00 0%, #ff6900 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
+}
+
+.lp-service-item-icon.is-purple {
+    background: linear-gradient(135deg, #ad46ff 0%, #7f22fe 100%);
+    box-shadow:
+        0px 1px 2px -1px #0000001a,
+        0px 1px 3px 0px #0000001a;
+}
+
+
+
+
+
+
+
+
+/* =========================================================
+   Responsive mobile — Landing Page
+   Desktop rules above remain unchanged.
+   ========================================================= */
 @media (max-width: 768px) {
-    .lp-osm-map {
-        touch-action: none !important;
-        -ms-touch-action: none !important;
-        overscroll-behavior: contain;
-        cursor: grab;
+    .lp-page,
+    .lp-page * {
+        min-width: 0;
     }
 
-    .lp-osm-map.is-dragging {
-        cursor: grabbing;
+    .lp-container {
+        width: calc(100% - 32px);
+        max-width: 100%;
+    }
+
+    .lp-page img,
+    .lp-page video,
+    .lp-page iframe {
+        max-width: 100%;
+    }
+
+    .lp-topbar-inner {
+        min-height: 34px;
+        gap: 10px;
+    }
+
+    .lp-topbar-left,
+    .lp-topbar-right {
+        gap: 10px;
+    }
+
+    .lp-topbar-link,
+    .lp-topbar-right span {
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .lp-header {
+        top: 0;
+    }
+
+    .lp-header-inner {
+        min-height: 66px;
+        gap: 10px;
+        padding-top: 7px;
+        padding-bottom: 7px;
+    }
+
+    .lp-brand {
+        min-width: 0;
+        gap: 7px;
+    }
+
+    .lp-brand-logo {
+        width: 32px;
+        height: 40px;
+        flex: 0 0 32px;
+    }
+
+    .lp-brand-logo img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .lp-brand-divider {
+        width: 1px;
+        height: 34px;
+    }
+
+    .lp-brand-bird {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        border-radius: 12px;
+    }
+
+    .lp-brand-bird img {
+        width: 50px;
+        height: 50px;
+        transform: translateY(4px);
+    }
+
+    .lp-brand-title {
+        margin-left: 0;
+        font-size: 21px;
+        white-space: nowrap;
+    }
+
+    .lp-header-actions {
+        min-width: 0;
+        gap: 7px;
+    }
+
+    .lp-btn-login,
+    .lp-btn-danger {
+        min-width: 0;
+        min-height: 44px;
+        height: 44px;
+        padding: 0 12px;
+        border-radius: 13px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .lp-section {
+        padding: 44px 0;
+    }
+
+    .lp-hero {
+        padding: 36px 0 52px;
+    }
+
+    .lp-hero-grid,
+    .lp-service-grid,
+    .lp-info-grid,
+    .lp-map-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .lp-hero-grid > *:nth-child(2) {
+        order: 1;
+    }
+
+    .lp-hero-left {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .lp-badge,
+    .lp-green-badge,
+    .lp-red-badge,
+    .lp-map-badge,
+    .lp-faq-badge,
+    .lp-label-pill {
+        max-width: 100%;
+        min-height: 38px;
+        padding: 0 14px;
+        font-size: 11px;
+        line-height: 1.3;
+        white-space: normal;
+    }
+
+    .lp-hero-title {
+        margin: 20px 0 16px;
+        font-size: clamp(31px, 9vw, 40px);
+        line-height: 1.12;
+        letter-spacing: -0.035em;
+    }
+
+    .lp-hero-title br {
+        display: none;
+    }
+
+    .lp-hero-desc,
+    .lp-section-copy,
+    .lp-map-copy,
+    .lp-footer-copy,
+    .lp-location-desc,
+    .lp-faq-copy,
+    .lp-cta-copy,
+    .lp-section-subtitle {
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .lp-hero-stats {
+        margin-top: 22px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .lp-stat {
+        min-height: 54px;
+        gap: 10px;
+    }
+
+    .lp-stat-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 13px;
+    }
+
+    .lp-stat-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .lp-stat-text {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .lp-hero-actions {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .lp-btn-primary,
+    .lp-btn-outline,
+    .lp-red-button,
+    .lp-contact-button {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        padding: 0 14px;
+        border-radius: 14px;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .lp-hero-card {
+        width: min(100%, 350px);
+        min-height: 390px;
+        padding: 8px 20px 20px;
+        border-radius: 24px;
+    }
+
+    .lp-hero-bird {
+        width: 360px;
+        transform: translateX(-16px) translateY(-66px) scale(1.08);
+    }
+
+    .lp-hero-name {
+        bottom: 20px;
+        width: calc(100% - 44px);
+        padding: 18px 14px 16px;
+        border-radius: 16px;
+    }
+
+    .lp-hero-name strong {
+        margin-bottom: 5px;
+        font-size: 18px;
+    }
+
+    .lp-hero-name span {
+        font-size: 13px;
+    }
+
+    .lp-center-head {
+        max-width: 100%;
+    }
+
+    .lp-section-title,
+    .lp-blue-title,
+    .lp-map-title,
+    .lp-faq-title,
+    .lp-cta-title {
+        font-size: clamp(24px, 7vw, 31px);
+        line-height: 1.2;
+    }
+
+    .lp-section-subtitle,
+    .lp-faq-copy {
+        max-width: 100%;
+        margin-bottom: 22px;
+    }
+
+    .lp-why-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .lp-why-card {
+        min-height: 0;
+        padding: 20px 18px;
+        border-radius: 18px;
+    }
+
+    .lp-why-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+
+    .lp-why-card h3 {
+        font-size: 17px;
+        line-height: 1.35;
+    }
+
+    .lp-why-card p {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .lp-service-grid,
+    .lp-info-grid {
+        align-items: stretch;
+    }
+
+    .lp-service-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .lp-service-item {
+        min-height: 72px;
+        padding: 12px;
+        gap: 10px;
+        border-radius: 15px;
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    .lp-service-item-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 13px;
+    }
+
+    .lp-service-item-icon svg {
+        width: 21px;
+        height: 21px;
+    }
+
+    .lp-service-visual,
+    .lp-info-card {
+        width: min(100%, 390px);
+        margin: 0 auto;
+        min-height: 330px;
+        border-radius: 22px;
+    }
+
+    .lp-service-circle {
+        width: min(76vw, 270px);
+        height: min(76vw, 270px);
+    }
+
+    .lp-service-circle img,
+    .lp-info-visual img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .lp-service-footer,
+    .lp-info-footer {
+        padding: 16px;
+    }
+
+    .lp-service-footer strong,
+    .lp-info-footer strong {
+        font-size: 17px;
+    }
+
+    .lp-service-footer span,
+    .lp-info-footer span {
+        font-size: 12px;
+    }
+
+    .lp-map-grid {
+        gap: 18px;
+    }
+
+    .lp-map-shell,
+    .lp-location-panel {
+        width: 100%;
+        border-radius: 18px;
+    }
+
+    .lp-map-toolbar {
+        min-height: 0;
+        padding: 12px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+    }
+
+    .lp-map-search {
+        grid-column: 1 / -1;
+        width: 100%;
+        min-height: 48px;
+        padding: 0 14px;
+        border-radius: 14px;
+    }
+
+    .lp-map-search input,
+    .lp-all-search input,
+    .lp-chatbot-input input {
+        font-size: 16px;
+    }
+
+    .lp-map-count {
+        min-height: 40px;
+        padding: 0 12px;
+        border-radius: 13px;
+        font-size: 11px;
+    }
+
+    .lp-osm-map,
+    .lp-fake-map {
+        width: 100%;
+        min-height: 360px;
+        height: 360px;
+    }
+
+    .lp-map-zoom,
+    .lp-map-current-button,
+    .lp-map-clear-button,
+    .lp-see-all-button,
+    .lp-all-map-button,
+    .lp-modal-close {
+        min-height: 44px;
+    }
+
+    .lp-map-zoom button,
+    .lp-map-current-button,
+    .lp-map-clear-button,
+    .lp-modal-close {
+        min-width: 44px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .lp-location-panel {
+        max-height: none;
+        overflow: visible;
+    }
+
+    .lp-location-header {
+        padding: 14px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .lp-location-list {
+        max-height: 360px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .lp-location-item,
+    .lp-location-card {
+        min-width: 0;
+    }
+
+    .lp-location-content,
+    .lp-location-meta,
+    .lp-meta-text {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .lp-map-location-popup {
+        width: min(310px, calc(100vw - 40px));
+        max-width: calc(100vw - 40px);
+        border-radius: 15px;
+    }
+
+    .lp-map-popup-header,
+    .lp-map-popup-body {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .lp-faq-wrap {
+        max-width: 100%;
+    }
+
+    .lp-faq-list {
+        gap: 10px;
+    }
+
+    .lp-faq-item {
+        border-radius: 16px;
+    }
+
+    .lp-faq-button {
+        min-height: 64px;
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .lp-faq-button-left {
+        gap: 10px;
+    }
+
+    .lp-faq-icon-wrap {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 12px;
+    }
+
+    .lp-faq-question {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .lp-faq-arrow {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+    }
+
+    .lp-faq-answer {
+        padding: 0 14px 16px 62px;
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .lp-cta-box {
+        width: 100%;
+        padding: 30px 18px;
+        border-radius: 20px;
+    }
+
+    .lp-cta-copy {
+        margin-bottom: 20px;
+    }
+
+    .lp-footer-inner {
+        padding: 38px 0 calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .lp-footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 18px;
+    }
+
+    .lp-footer-brand {
+        grid-column: 1 / -1;
+    }
+
+    .lp-footer-copy {
+        max-width: 100%;
+        font-size: 13px;
+    }
+
+    .lp-footer-col h4 {
+        font-size: 14px;
+    }
+
+    .lp-footer-col a,
+    .lp-footer-col span,
+    .lp-footer-contact-text {
+        font-size: 12px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .lp-footer-socials a {
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+    }
+
+    .lp-footer-bottom {
+        gap: 8px;
+        flex-wrap: wrap;
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .lp-float-chat,
+    .lp-float-chat.is-open {
+        right: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom));
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        border-radius: 50%;
+    }
+
+    .lp-chatbot-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+    }
+
+    .lp-chatbot-panel,
+    .lp-chatbot-panel.is-large {
+        left: 12px;
+        right: 12px;
+        bottom: calc(84px + env(safe-area-inset-bottom));
+        width: auto;
+        max-width: none;
+        height: min(68dvh, 580px);
+        max-height: calc(100dvh - 108px - env(safe-area-inset-bottom));
+        border-radius: 18px;
+    }
+
+    .lp-chatbot-header {
+        min-height: 60px;
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .lp-chatbot-logo {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+
+    .lp-chatbot-title-wrap h3 {
+        font-size: 14px;
+    }
+
+    .lp-chatbot-title-wrap p {
+        font-size: 10px;
+    }
+
+    .lp-chatbot-controls button,
+    .lp-chatbot-send {
+        min-width: 44px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .lp-chatbot-body {
+        min-height: 0;
+        padding: 12px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .lp-chatbot-message {
+        max-width: 88%;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .lp-chatbot-topic-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .lp-chatbot-topic-grid button {
+        min-height: 44px;
+        text-align: left;
+    }
+
+    .lp-chatbot-input-wrap {
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        gap: 8px;
+    }
+
+    .lp-chatbot-input {
+        min-height: 46px;
+        border-radius: 14px;
+    }
+
+    .lp-modal-overlay {
+        padding: 12px;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .lp-detail-popup,
+    .lp-all-popup {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .lp-detail-popup-header,
+    .lp-all-popup-header {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .lp-detail-title-wrap,
+    .lp-all-popup-header > div {
+        min-width: 0;
+    }
+
+    .lp-detail-popup-header h2,
+    .lp-all-popup-header h2 {
+        font-size: 18px;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .lp-detail-popup-body,
+    .lp-all-popup-body {
+        max-height: calc(100dvh - 100px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 14px;
+    }
+
+    .lp-detail-summary-grid,
+    .lp-all-mini-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .lp-detail-summary-card,
+    .lp-detail-contact-card,
+    .lp-all-card {
+        border-radius: 14px;
+    }
+
+    .lp-detail-contact-row,
+    .lp-detail-info-row {
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .lp-detail-contact-row > div,
+    .lp-detail-info-row > div {
+        min-width: 0;
+    }
+
+    .lp-detail-contact-row strong,
+    .lp-detail-info-row strong {
+        overflow-wrap: anywhere;
+    }
+
+    .lp-detail-contact-action,
+    .lp-all-map-button {
+        min-height: 44px;
+    }
+
+    .lp-all-search-wrap {
+        padding: 12px 14px;
+    }
+
+    .lp-all-search {
+        width: 100%;
+        min-height: 46px;
+        border-radius: 14px;
+    }
+
+    .lp-all-card-header,
+    .lp-all-card-body,
+    .lp-all-card-bottom {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lp-container {
+        width: calc(100% - 24px);
+    }
+
+    .lp-topbar-right {
+        display: none;
+    }
+
+    .lp-topbar-left {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .lp-topbar-info:first-child {
+        display: none;
+    }
+
+    .lp-header-inner {
+        min-height: 62px;
+    }
+
+    .lp-brand-title {
+        display: none;
+    }
+
+    .lp-brand-logo {
+        width: 30px;
+        height: 38px;
+        flex-basis: 30px;
+    }
+
+    .lp-brand-bird {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    .lp-header-actions {
+        gap: 6px;
+    }
+
+    .lp-btn-login,
+    .lp-btn-danger {
+        min-height: 42px;
+        height: 42px;
+        padding: 0 10px;
+        font-size: 11px;
+    }
+
+    .lp-section {
+        padding: 38px 0;
+    }
+
+    .lp-hero {
+        padding-top: 30px;
+        padding-bottom: 44px;
+    }
+
+    .lp-hero-title {
+        font-size: clamp(28px, 9.2vw, 35px);
+    }
+
+    .lp-hero-stats,
+    .lp-hero-actions,
+    .lp-detail-summary-grid,
+    .lp-all-mini-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .lp-stat {
+        min-height: 50px;
+    }
+
+    .lp-btn-primary,
+    .lp-btn-outline {
+        min-height: 46px;
+    }
+
+    .lp-hero-card {
+        width: min(100%, 320px);
+        min-height: 350px;
+    }
+
+    .lp-hero-bird {
+        width: 325px;
+        transform: translateX(-14px) translateY(-58px) scale(1.05);
+    }
+
+    .lp-service-list {
+        grid-template-columns: 1fr;
+    }
+
+    .lp-service-item {
+        min-height: 64px;
+    }
+
+    .lp-service-visual,
+    .lp-info-card {
+        min-height: 300px;
+    }
+
+    .lp-osm-map,
+    .lp-fake-map {
+        min-height: 320px;
+        height: 320px;
+    }
+
+    .lp-map-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .lp-map-count {
+        width: fit-content;
+    }
+
+    .lp-faq-answer {
+        padding-left: 14px;
+    }
+
+    .lp-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+
+    .lp-footer-brand {
+        grid-column: 1;
+    }
+
+    .lp-chatbot-panel,
+    .lp-chatbot-panel.is-large {
+        left: 8px;
+        right: 8px;
+        bottom: calc(76px + env(safe-area-inset-bottom));
+        height: min(70dvh, 560px);
+        border-radius: 16px;
+    }
+
+    .lp-modal-overlay {
+        padding: 8px;
+    }
+
+    .lp-detail-popup,
+    .lp-all-popup {
+        max-width: calc(100vw - 16px);
+        max-height: calc(100dvh - 16px);
+        border-radius: 16px;
+    }
+
+    .lp-detail-popup-header,
+    .lp-all-popup-header,
+    .lp-detail-popup-body,
+    .lp-all-popup-body {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    .lp-header-inner {
+        gap: 6px;
+    }
+
+    .lp-brand-divider {
+        display: none;
+    }
+
+    .lp-btn-login,
+    .lp-btn-danger {
+        padding-inline: 8px;
+        font-size: 10px;
+    }
+
+    .lp-hero-title {
+        font-size: 28px;
+    }
+
+    .lp-badge,
+    .lp-green-badge,
+    .lp-red-badge,
+    .lp-map-badge,
+    .lp-faq-badge,
+    .lp-label-pill {
+        font-size: 10px;
     }
 }
