@@ -1580,8 +1580,62 @@
 }
 
 /* Responsive mobile */
+@media (max-width: 760px) {
+    .vd-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
+    .vd-filterRow {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
+    .vd-ddBtn,
+    .vd-dd {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .vd-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-previewToolbar {
+        height: auto;
+        min-height: 58px;
+        grid-template-columns: 1fr;
+        justify-items: stretch;
+        padding: 12px 16px;
+    }
+
+    .vd-previewToolbarLeft,
+    .vd-zoomMock,
+    .vd-downloadBtn {
+        justify-self: stretch;
+    }
+
+    .vd-downloadBtn {
+        justify-content: center;
+    }
+
+    .vd-previewBody {
+        padding: 14px;
+    }
+
+    .vd-locSearchRow,
+    .vd-locFormGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-locGpsBtn {
+        width: 100%;
+    }
+
+    .vd-rejectActions {
+        grid-template-columns: 1fr;
+    }
+}
 
 /* Revisi visual verifikasi data posbankum. */
 .vd-topBox {
@@ -1770,15 +1824,371 @@
     margin: 0;
 }
 
+@media (max-width: 760px) {
+    .ad-pagePad .vd .vd-filterCard .vd-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
+    .ad-pagePad .vd .vd-filterCard .vd-filterRow {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
+    .ad-pagePad .vd .vd-filterCard .vd-search,
+    .ad-pagePad .vd .vd-filterCard .vd-dd,
+    .ad-pagePad .vd .vd-filterCard .vd-ddBtn {
+        width: 100%;
+        min-width: 0;
+    }
+}
 
 /* ===== Revisi responsif Verifikasi Data Posbankum sampai mobile kecil ===== */
+@media (max-width: 768px) {
+    .vd-topBoxes {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
 
+    .vd-topBox {
+        min-height: 96px;
+        border-radius: 16px;
+    }
 
+    .vd-topBoxInner {
+        padding: 18px;
+    }
 
+    .vd-topIcon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
 
+    .vd-filterCard {
+        padding: 16px;
+        border-radius: 16px;
+    }
 
+    .vd-toolbar {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .vd-search {
+        height: 48px;
+        border-radius: 15px;
+    }
+
+    .vd-filterRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .vd-dd,
+    .vd-ddBtn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .vd-ddMenu {
+        max-height: 240px;
+    }
+
+    .vd-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .vd-card {
+        border-radius: 16px;
+    }
+
+    .vd-cardHead {
+        padding: 16px;
+    }
+
+    .vd-cardTitle {
+        font-size: 17px;
+    }
+
+    .vd-cardDocs {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .vd-docRow {
+        min-height: 58px;
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .vd-overlay,
+    .vd-rejectOverlay {
+        padding: 10px;
+        align-items: flex-start;
+    }
+
+    .vd-previewModal,
+    .vd-locationModal,
+    .vd-rejectModal {
+        width: 100%;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100dvh - 20px);
+        border-radius: 16px;
+    }
+
+    .vd-previewModal {
+        height: calc(100dvh - 20px);
+    }
+
+    .vd-previewHead,
+    .vd-locationHead,
+    .vd-rejectHead {
+        padding: 14px;
+    }
+
+    .vd-previewTitle,
+    .vd-locationTitle,
+    .vd-rejectTitle {
+        font-size: 16px;
+    }
+
+    .vd-previewToolbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px;
+    }
+
+    .vd-previewToolbarLeft,
+    .vd-previewCounter,
+    .vd-downloadBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vd-locationBody,
+    .vd-rejectBody {
+        padding: 16px;
+    }
+
+    .vd-locSearchRow,
+    .vd-locFormGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .vd-locSearch,
+    .vd-locCariBtn,
+    .vd-locGpsBtn,
+    .vd-fieldInput,
+    .vd-fieldTextarea {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .vd-locSearchInput,
+    .vd-fieldInput,
+    .vd-fieldTextarea {
+        font-size: 16px;
+    }
+
+    .vd-locCariBtn,
+    .vd-locGpsBtn {
+        min-height: 48px;
+        justify-content: center;
+    }
+
+    .vd-mapWrap {
+        width: 100%;
+        min-width: 0;
+        overflow: visible;
+    }
+
+    .vd-mapShell {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 0;
+    }
+
+    .vd-mapInfoCard {
+        position: static;
+        inset: auto;
+        width: 100%;
+        margin: 0;
+        box-shadow: none;
+    }
+
+    .vd-mapInfoAddr {
+        overflow-wrap: anywhere;
+    }
+
+    .vd-locationGrid,
+    .vd-rejectActions {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-locationActions,
+    .vd-locationActions .vd-previewActions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .vd-locationActions button {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        justify-content: center;
+    }
+
+    .vd-mapBox,
+    .vd .leaflet-container {
+        width: 100%;
+        height: 300px;
+        min-height: 300px;
+        border-radius: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vd-topBoxInner {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .vd-topTitle,
+    .vd-topHint {
+        font-size: 12px;
+    }
+
+    .vd-topValue {
+        font-size: 23px;
+    }
+
+    .vd-filterCard,
+    .vd-cardHead,
+    .vd-cardDocs {
+        padding: 14px;
+    }
+
+    .vd-docRow {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .vd-docTitle {
+        font-size: 13px;
+    }
+
+    .vd-docDate {
+        font-size: 12px;
+    }
+
+    .vd-previewClose,
+    .vd-locationClose,
+    .vd-rejectClose {
+        width: 40px;
+        height: 40px;
+    }
+
+    .vd-mapBox,
+    .vd .leaflet-container {
+        height: 260px;
+        min-height: 260px;
+    }
+
+    .vd-locationBody {
+        padding: 14px;
+    }
+
+    .vd-locationMeta,
+    .vd-mapInfoCard,
+    .vd-tip {
+        overflow-wrap: anywhere;
+    }
+}
+
+/* ===== Mobile polish - Verifikasi Data Posbankum ===== */
+@media (max-width: 768px) {
+    .vd {
+        width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .vd-topBoxes,
+    .vd-filterRow,
+    .vd-cardGrid,
+    .vd-docGrid,
+    .vd-locationGrid,
+    .vd-locationActions,
+    .vd-rejectActions,
+    .vd-locFormGrid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .vd-toolbar,
+    .vd-filterRow,
+    .vd-cardHead,
+    .vd-previewHead,
+    .vd-previewToolbar,
+    .vd-locationHead,
+    .vd-rejectHead {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .vd-search,
+    .vd-select,
+    .vd-dd,
+    .vd-downloadBtn,
+    .vd-locationActions button,
+    .vd-rejectActions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vd-cardDocs,
+    .vd-tableWrap,
+    .vd-listWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .vd-modalOverlay,
+    .vd-previewOverlay,
+    .vd-locationOverlay,
+    .vd-rejectOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .vd-previewModal,
+    .vd-locationModal,
+    .vd-rejectModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .vd-filterCard,
+    .vd-card,
+    .vd-previewModal,
+    .vd-locationModal,
+    .vd-rejectModal {
+        border-radius: 16px !important;
+    }
+}
 
 /* ===== Review Dokumen Posbankum - detail verifikasi ===== */
 .vd-reviewPage {
@@ -2222,380 +2632,81 @@
     }
 }
 
-
-
-
-
-
-
-
-/* =========================================================
-   Responsive mobile — Verifikasi Data Posbankum
-   ========================================================= */
 @media (max-width: 768px) {
-    .vd,
-    .vd-reviewPage,
-    .vd *,
-    .vd-reviewPage * {
-        min-width: 0;
-    }
-
-    .vd-topBoxes {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-
-    .vd-topBox {
-        min-height: 92px;
-        border-radius: 16px;
-    }
-
-    .vd-topBoxInner {
-        height: 100%;
-        padding: 15px;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .vd-topIcon {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        margin-top: 0;
-        border-radius: 13px;
-    }
-
-    .vd-topTitle,
-    .vd-topHint {
-        font-size: 11px;
-        line-height: 1.35;
-    }
-
-    .vd-topValue {
-        font-size: 24px;
-        line-height: 1;
-    }
-
-    .vd-filterCard {
-        padding: 14px;
-        margin-bottom: 16px;
-        border-radius: 16px;
-    }
-
-    .vd-toolbar {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .vd-filterRow {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .vd-search,
-    .vd-dd,
-    .vd-ddBtn,
-    .vd-resetBtn {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .vd-search,
-    .vd-ddBtn,
-    .vd-resetBtn,
-    .vd-eyeBtn,
-    .vd-pageNav,
-    .vd-previewClose,
-    .vd-downloadBtn,
-    .vd-locCariBtn,
-    .vd-locGpsBtn,
-    .vd-previewBtn,
-    .vd-previewApproveBtn,
-    .vd-previewSaveBtn,
-    .vd-previewRejectBtn,
-    .vd-reviewBackBtn {
-        min-height: 44px;
-    }
-
-    .vd-search,
-    .vd-ddBtn,
-    .vd-resetBtn {
-        height: 46px;
-        border-radius: 14px;
-    }
-
-    .vd-searchInput,
-    .vd-ddSearchInput,
-    .vd-locSearchInput,
-    .vd-fieldInput,
-    .vd-fieldTextarea,
-    .vd-reviewTextarea {
-        font-size: 16px;
-    }
-
-    .vd-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-    }
-
-    .vd-card {
-        width: 100%;
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    .vd-cardHead,
-    .vd-docs {
-        padding-left: 14px;
-        padding-right: 14px;
-    }
-
-    .vd-cardHead {
-        gap: 10px;
-    }
-
-    .vd-cardTitle {
-        font-size: 16px;
-        line-height: 1.35;
-        overflow-wrap: anywhere;
-    }
-
-    .vd-cardSub,
-    .vd-docMeta,
-    .vd-docDate {
-        font-size: 11px;
-        line-height: 1.45;
-    }
-
-    .vd-docs {
-        display: grid;
-        gap: 10px;
-    }
-
-    .vd-docLeft {
-        min-width: 0;
-    }
-
-    .vd-eyeBtn {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        border-radius: 13px;
-    }
-
-    .vd-pagination {
-        max-width: 100%;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .vd-pageNav {
-        min-width: 44px;
-    }
-
-    .vd-overlay {
-        padding: 12px;
-        align-items: center;
-    }
-
-    .vd-previewModal,
-    .vd-locationModal {
-        width: 100%;
-        max-width: calc(100vw - 24px);
-        max-height: calc(100dvh - 24px);
-        border-radius: 18px;
-        overflow: hidden;
-    }
-
-    .vd-previewHead,
-    .vd-locationHead,
-    .vd-previewToolbar,
-    .vd-previewFoot {
-        padding: 14px;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .vd-previewBody,
-    .vd-locationBody {
-        max-height: calc(100dvh - 130px);
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding: 14px;
-    }
-
-    .vd-previewImg,
-    .vd-previewFrame,
-    .vd-mapWrap,
-    .vd-mapShell,
-    .vd-mapBox {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .vd-previewImg {
-        height: auto;
-        object-fit: contain;
-    }
-
-    .vd-previewActions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .vd-previewActions button {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .vd-locSearchRow {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 8px;
-    }
-
-    .vd-locSearch {
-        grid-column: 1 / -1;
-        width: 100%;
-        min-height: 46px;
-    }
-
-    .vd-locCariBtn,
-    .vd-locGpsBtn {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .vd-locFormGrid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .vd-fieldInput,
-    .vd-fieldTextarea {
-        width: 100%;
-        min-height: 48px;
-        border-radius: 14px;
-    }
-
-    .vd-fieldTextarea {
-        min-height: 110px;
-        resize: vertical;
-    }
-
     .vd-reviewTop {
-        display: flex;
         flex-direction: column;
         align-items: stretch;
-        gap: 12px;
+        gap: 18px;
     }
 
-    .vd-reviewBreadcrumb {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        font-size: 11px;
-        line-height: 1.4;
-    }
-
-    .vd-reviewGrid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-    }
-
-    .vd-reviewDocCard,
-    .vd-reviewDecisionCard,
-    .vd-reviewFinalBox,
-    .vd-reviewReasonBox,
-    .vd-reviewInfoBox,
-    .vd-reviewRejectForm {
-        width: 100%;
-        border-radius: 16px;
-    }
-
-    .vd-reviewDocHead,
-    .vd-reviewDocBody,
-    .vd-reviewDecisionCard,
-    .vd-reviewRejectForm {
-        padding-left: 14px;
-        padding-right: 14px;
-    }
-
-    .vd-reviewChoiceRow {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .vd-reviewTextarea {
-        width: 100%;
-        min-height: 130px;
-        border-radius: 14px;
-        resize: vertical;
-    }
-}
-
-@media (max-width: 430px) {
-    .vd-topBoxes,
-    .vd-filterRow,
-    .vd-previewActions,
-    .vd-reviewChoiceRow {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .vd-topBox {
-        min-height: 84px;
-    }
-
-    .vd-topBoxInner {
-        padding: 13px 14px;
-    }
-
-    .vd-topIcon {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-    }
-
-    .vd-topValue {
+    .vd-reviewTop h2 {
         font-size: 22px;
     }
 
-    .vd-filterCard,
-    .vd-cardHead,
-    .vd-docs,
-    .vd-reviewDocHead,
-    .vd-reviewDocBody,
-    .vd-reviewDecisionCard,
-    .vd-reviewRejectForm {
-        padding-left: 12px;
-        padding-right: 12px;
+    .vd-reviewBackBtn {
+        width: 100%;
     }
 
-    .vd-overlay {
-        padding: 8px;
+    .vd-reviewDocHead {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px;
     }
 
-    .vd-previewModal,
-    .vd-locationModal {
-        max-width: calc(100vw - 16px);
-        max-height: calc(100dvh - 16px);
-        border-radius: 16px;
+    .vd-reviewStatus {
+        min-width: 0;
     }
 
-    .vd-previewHead,
-    .vd-locationHead,
-    .vd-previewToolbar,
-    .vd-previewFoot,
-    .vd-previewBody,
-    .vd-locationBody {
-        padding-left: 12px;
-        padding-right: 12px;
+    .vd-reviewDocBody {
+        padding: 18px;
+    }
+
+    .vd-reviewPaper {
+        min-height: 420px;
+        border-radius: 14px;
+    }
+
+    .vd-reviewPaper.is-gallery {
+        padding: 28px 20px 34px;
+        gap: 24px;
+    }
+
+    .vd-reviewFrame {
+        min-height: 620px;
+    }
+
+    .vd-reviewDecisionCard {
+        padding: 22px 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vd-reviewBreadcrumb {
+        font-size: 12px;
+        gap: 6px;
+    }
+
+    .vd-reviewTop h2 {
+        font-size: 20px;
+    }
+
+    .vd-reviewChoiceRow {
+        grid-template-columns: 1fr;
+    }
+
+    .vd-reviewDocBody {
+        padding: 14px;
+    }
+
+    .vd-reviewPaper.is-gallery {
+        padding: 22px 14px 28px;
+    }
+
+    .vd-reviewFrame {
+        min-height: 540px;
+    }
+
+    .vd-reviewImg {
+        max-height: 340px;
     }
 }

@@ -2,18 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global responsive safety. Horizontal overflow is fixed at component level. */
+/* ===== Mobile global safety ===== */
 html,
 body,
 #app {
     width: 100%;
-    min-width: 0;
     min-height: 100%;
 }
 
-html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+body {
+    overflow-x: hidden;
 }
 
 img,
@@ -24,8 +22,3 @@ iframe {
     max-width: 100%;
 }
 
-img,
-video,
-canvas {
-    height: auto;
-}

@@ -159,8 +159,18 @@ class ManajemenAkunController extends Controller
             'nama' => $kelurahan->nama,
         ];
 
-        if ($this->hasColumn('posbankum', 'status_verifikasi_tagging_area')) {
-            $payload['status_verifikasi_tagging_area'] = 'disetujui';
+        // Posbankum baru belum melalui proses verifikasi tagging area.
+        // Isi semua kolom status lokasi yang memang tersedia agar fallback lama
+        // tidak dapat membaca kolom lain sebagai "disetujui".
+        foreach ([
+            'status_verifikasi_tagging_area',
+            'status_tagging_area',
+            'status_verifikasi_tagging',
+            'status_tagging',
+            'status_lokasi',
+            'status_verifikasi_lokasi',
+        ] as $column) {
+            $this->addColumn($payload, 'posbankum', $column, 'menunggu');
         }
 
         if ($this->hasColumn('posbankum', 'created_at')) {

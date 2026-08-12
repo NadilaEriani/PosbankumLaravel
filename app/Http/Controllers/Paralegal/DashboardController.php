@@ -454,16 +454,13 @@ class DashboardController extends Controller
 
         $query = DB::table('pengaduan');
 
-        foreach (['created_at', 'tgl_lapor', 'tanggal_kejadian', 'updated_at'] as $orderColumn) {
+        $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
+
+        foreach (['created_at', 'tgl_lapor', 'tanggal_kejadian'] as $orderColumn) {
             if ($this->hasColumn('pengaduan', $orderColumn)) {
                 $query->orderByDesc($orderColumn);
                 break;
             }
-        }
-
-        $pengaduanKey = $this->firstExistingColumn('pengaduan', ['id_pengaduan', 'id']);
-        if ($pengaduanKey) {
-            $query->orderByDesc($pengaduanKey);
         }
 
         return $query->limit(6)->get()->map(function ($row, $index) {
@@ -724,6 +721,8 @@ class DashboardController extends Controller
                 'tanggal_kejadian' => $this->rowValue($row, ['tanggal_kejadian', 'tgl_kejadian', 'tgl_lapor', 'created_at']),
                 'waktu_kejadian' => (string) $this->rowValue($row, ['waktu_kejadian'], ''),
                 'lokasi_kejadian' => (string) $this->rowValue($row, ['lokasi_kejadian', 'lokasi', 'alamat'], '-'),
+                'latitude_kejadian' => $this->rowValue($row, ['latitude_kejadian', 'lat_kejadian', 'latitude', 'lat', 'lokasi_lat']),
+                'longitude_kejadian' => $this->rowValue($row, ['longitude_kejadian', 'lng_kejadian', 'longitude', 'lng', 'long', 'lokasi_lng']),
                 'status' => (string) $this->rowValue($row, ['status'], 'diproses'),
                 'prioritas' => (string) ($extra['prioritas'] ?? $this->rowValue($row, ['prioritas'], 'sedang')),
                 'created_at' => $this->rowValue($row, ['created_at', 'tgl_lapor']),
@@ -1445,7 +1444,7 @@ class DashboardController extends Controller
                 'completedActivities' => $this->completedActivitiesCount($idPosbankum),
                 'activeParalegal' => $this->paralegalCount($idPosbankum, $posbankum),
             ],
-            'kasusTerbaru' => $this->latestPengaduan(),
+            'kasusTerbaru' => $this->latestPengaduan($idPosbankum),
             'kegiatanTerbaru' => $this->latestKegiatan($idPosbankum),
             'kegiatanRows' => $this->kegiatanRows($idPosbankum),
             'semuaKasusRows' => $this->semuaKasusRows(),

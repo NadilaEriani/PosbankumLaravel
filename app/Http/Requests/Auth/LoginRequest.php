@@ -27,6 +27,15 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Password wajib diisi.',
+        ];
+    }
+
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
@@ -36,11 +45,19 @@ class LoginRequest extends FormRequest
 
         $user = User::where('email', $email)->first();
 
-        if (!$user || !Hash::check($password, (string) $user->password_hash)) {
+        if (!$user) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => 'Email atau kata sandi tidak sesuai.',
+                'email' => 'Email tidak terdaftar.',
+            ]);
+        }
+
+        if (!Hash::check($password, (string) $user->password_hash)) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'password' => 'Password yang Anda masukkan salah.',
             ]);
         }
 

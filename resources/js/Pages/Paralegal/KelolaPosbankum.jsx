@@ -866,6 +866,11 @@ export default function KelolaPosbankum({
     }, [location, posRow, currentPosbankum, hasSavedCoords]);
 
     const locationLabel = statusLabelFromKind(locationKind);
+    // Status database "menunggu" pada Posbankum baru belum berarti lokasi sudah
+    // diajukan. Selama koordinat belum diisi, tampilkan kartu netral seperti SK/Sarpras.
+    const locationVisualKind =
+        !hasSavedCoords && locationKind === "wait" ? "none" : locationKind;
+
     const taggingDate = useMemo(
         () =>
             pickTaggingDate(
@@ -2022,27 +2027,27 @@ export default function KelolaPosbankum({
 
                 <div
                     ref={taggingCardRef}
-                    className={`kpDocCard kpMapCard ${getDocToneClass(locationKind)} ${taggingTargeted ? "is-targeted" : ""}`}
+                    className={`kpDocCard kpMapCard ${getDocToneClass(locationVisualKind)} ${taggingTargeted ? "is-targeted" : ""}`}
                 >
                     <div className="kpDocTop">
                         <div className="kpDocTitle">Tagging Area</div>
                         <div
                             className={[
                                 "kpStatusPill",
-                                locationKind === "ok"
+                                locationVisualKind === "ok"
                                     ? "is-ok"
-                                    : locationKind === "wait"
+                                    : locationVisualKind === "wait"
                                       ? "is-wait"
-                                      : locationKind === "bad"
+                                      : locationVisualKind === "bad"
                                         ? "is-bad"
                                         : "is-none",
                             ].join(" ")}
                         >
-                            {locationKind === "ok" ? (
+                            {locationVisualKind === "ok" ? (
                                 <FiCheckCircle />
-                            ) : locationKind === "wait" ? (
+                            ) : locationVisualKind === "wait" ? (
                                 <FiClock />
-                            ) : locationKind === "bad" ? (
+                            ) : locationVisualKind === "bad" ? (
                                 <FiXCircle />
                             ) : (
                                 <FiUpload />

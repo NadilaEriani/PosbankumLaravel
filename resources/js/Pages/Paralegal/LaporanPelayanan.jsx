@@ -74,6 +74,56 @@ function firstFilled(...values) {
     return "";
 }
 
+function getReportLocationMap(report) {
+    const latRaw = firstFilled(
+        report?.latitude_kejadian,
+        report?.latitude,
+        report?.lat,
+    );
+    const lngRaw = firstFilled(
+        report?.longitude_kejadian,
+        report?.longitude,
+        report?.lng,
+        report?.long,
+    );
+    const lat = latRaw === "" ? Number.NaN : Number(latRaw);
+    const lng = lngRaw === "" ? Number.NaN : Number(lngRaw);
+
+    const hasCoordinates =
+        Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        lat >= -90 &&
+        lat <= 90 &&
+        lng >= -180 &&
+        lng <= 180;
+
+    if (hasCoordinates) {
+        const delta = 0.008;
+        const bbox = `${lng - delta},${lat - delta},${lng + delta},${lat + delta}`;
+
+        return {
+            src: `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(
+                bbox,
+            )}&layer=mapnik&marker=${encodeURIComponent(`${lat},${lng}`)}`,
+            externalUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                `${lat},${lng}`,
+            )}`,
+            coordinateText: `${lat}, ${lng}`,
+        };
+    }
+
+    const address = firstFilled(report?.lokasi_kejadian, report?.location);
+    if (!address) return null;
+
+    return {
+        src: `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`,
+        externalUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            address,
+        )}`,
+        coordinateText: "",
+    };
+}
+
 function digitsOnly(value, max = 100) {
     return String(value || "")
         .replace(/\D/g, "")
@@ -258,6 +308,14 @@ function normalizeReport(row, index = 0) {
             row?.tanggal_kejadian || row?.created_at || row?.date || null,
         waktu_kejadian: row?.waktu_kejadian || "",
         lokasi_kejadian: row?.lokasi_kejadian || row?.location || "-",
+        latitude_kejadian:
+            row?.latitude_kejadian ?? row?.latitude ?? row?.lat ?? "",
+        longitude_kejadian:
+            row?.longitude_kejadian ??
+            row?.longitude ??
+            row?.lng ??
+            row?.long ??
+            "",
         posbankum_info:
             row?.posbankum_info || row?.posbankum_nama || row?.posbankum || "-",
         status,
@@ -826,6 +884,8 @@ export default function LaporanPelayanan({
             return "NIK harus berisi 16 digit angka.";
         if (digitsOnly(formData.nomor_telepon).length < 10)
             return "Nomor telepon minimal 10 digit.";
+        if (!formData.nama_lurah.trim())
+            return "Nama lurah/kepala desa wajib diisi.";
         if (!formData.jenis_masalah) return "Jenis masalah wajib dipilih.";
         if (!formData.prioritas) return "Prioritas laporan wajib dipilih.";
         if (!formData.judul_pengaduan.trim())
@@ -1333,7 +1393,9 @@ export default function LaporanPelayanan({
                             </div>
                         </label>
                         <label className="lpvCreateField">
-                            <span>Nama Lurah/Kepala Desa (Opsional)</span>
+                            <span>
+                                Nama Lurah/Kepala Desa <b>*</b>
+                            </span>
                             <div className="lpvInputShell">
                                 <FiMapPin />
                                 <input
@@ -1619,6 +1681,7 @@ export default function LaporanPelayanan({
         const report = selectedReport;
         const topMetrics = getDetailTopMetrics(report);
         const wilayahLabel = getFullWilayah(report);
+        const reportLocationMap = getReportLocationMap(report);
 
         return (
             <div className="lpdWrap">
@@ -1773,9 +1836,44 @@ export default function LaporanPelayanan({
                                         WIB
                                     </strong>
                                 </div>
-                                <div className="lpdFieldItem">
+                                <div className="lpdFieldItem lpdLocationField">
                                     <span>Lokasi Kejadian</span>
                                     <strong>{report.lokasi_kejadian}</strong>
+
+                                    {reportLocationMap ? (
+                                        <div className="lpdLocationMap">
+                                            <iframe
+                                                className="lpdLocationMapFrame"
+                                                title={`Lokasi kejadian ${report.nomor_pengaduan}`}
+                                                src={reportLocationMap.src}
+                                                loading="lazy"
+                                                referrerPolicy="no-referrer-when-downgrade"
+                                            />
+                                            <div className="lpdLocationMapMeta">
+                                                <div>
+                                                    <FiMapPin />
+                                                    <span>
+                                                        {reportLocationMap.coordinateText ||
+                                                            report.lokasi_kejadian}
+                                                    </span>
+                                                </div>
+                                                <a
+                                                    href={
+                                                        reportLocationMap.externalUrl
+                                                    }
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                >
+                                                    Buka Maps
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="lpdLocationUnavailable">
+                                            Lokasi peta belum tersedia pada
+                                            laporan ini.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div

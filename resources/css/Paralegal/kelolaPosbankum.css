@@ -1363,11 +1363,85 @@
     }
 }
 
+@media (max-width: 640px) {
+    .kdpRoot {
+        padding: 14px;
+    }
 
+    .kdpRoot .kpTitle {
+        font-size: 24px;
+    }
 
+    .kdpRoot .kpStats {
+        grid-template-columns: 1fr !important;
+    }
 
+    .kdpRoot .kpModalActions {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
+    .kdpRoot .kpBtnGhost,
+    .kdpRoot .kpBtnSave,
+    .kdpRoot .kpLocCariBtn {
+        width: 100%;
+        justify-content: center;
+    }
 
+    .kdpRoot .kpPreviewBig {
+        height: 62vh;
+    }
+
+    .kdpRoot .kpUploadPdfFrame {
+        height: 220px;
+    }
+
+    .kdpRoot .kpSaprasGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .kdpRoot .kpDocCard.is-targeted {
+        transform: none;
+    }
+
+    .kdpRoot .kpDetailToolbar {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .kdpRoot .kpDetailCountPill,
+    .kdpRoot .kpDetailNavGroup {
+        justify-self: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .kdpRoot .kpTaggingDetail {
+        grid-template-rows: minmax(260px, 1fr) auto;
+    }
+
+    .kdpRoot .kpTaggingDetailFrame {
+        min-height: 260px;
+    }
+
+    .kdpRoot .kpTaggingDetailInfo {
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .kdpRoot .kpTaggingDetailRow {
+        padding: 9px 10px;
+    }
+
+    .kdpRoot .kpTaggingDetailRow span {
+        font-size: 10px;
+    }
+
+    .kdpRoot .kpTaggingDetailRow b {
+        font-size: 12px;
+    }
+}
 
 /* ===== Hover & Action States ===== */
 .kpRoot button,
@@ -1501,6 +1575,82 @@
     background: transparent !important;
 }
 
+/* ===== Mobile polish - Kelola Posbankum ===== */
+@media (max-width: 768px) {
+    .kdpRoot {
+        width: 100%;
+        min-width: 0;
+        padding: 0;
+        overflow-x: hidden;
+    }
+
+    .kdpRoot .kpPageHead,
+    .kdpRoot .kpToolbar,
+    .kdpRoot .kpCardHead,
+    .kdpRoot .kpDocRow,
+    .kdpRoot .kpModalHead,
+    .kdpRoot .kpModalActions,
+    .kdpRoot .kpLocationActions {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+
+    .kdpRoot .kpStats,
+    .kdpRoot .kpGrid,
+    .kdpRoot .kpInfoGrid,
+    .kdpRoot .kpFormGrid,
+    .kdpRoot .kpLocationGrid,
+    .kdpRoot .kpModalActions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kdpRoot .kpSearch,
+    .kdpRoot .kpSelect,
+    .kdpRoot .kpBtn,
+    .kdpRoot .kpActionBtn,
+    .kdpRoot .kpUploadBtn,
+    .kdpRoot .kpLocationActions button,
+    .kdpRoot .kpModalActions button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .kdpRoot .kpTableWrap,
+    .kdpRoot .kpDocList,
+    .kdpRoot .kpMapWrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .kdpRoot .kpModalOverlay,
+    .kdpRoot .kpDetailOverlay,
+    .kdpRoot .kpDeleteOverlay {
+        padding: 12px;
+        align-items: flex-start;
+    }
+
+    .kdpRoot .kpModal,
+    .kdpRoot .kpDetailModal,
+    .kdpRoot .kpDeleteModal {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        max-height: calc(100dvh - 24px) !important;
+        border-radius: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kdpRoot .kpCard,
+    .kdpRoot .kpStatCard,
+    .kdpRoot .kpModal,
+    .kdpRoot .kpDetailModal,
+    .kdpRoot .kpDeleteModal {
+        border-radius: 16px !important;
+    }
+}
+
 /* ===== Revisi modal mobile Kelola Posbankum: konten panjang bisa discroll di modal ===== */
 .kdpRoot .kpModalOverlay {
     overscroll-behavior: contain;
@@ -1521,331 +1671,14 @@
     overscroll-behavior: contain;
 }
 
-
-
-
-
-/* =========================================================
-   Responsive mobile — Kelola Posbankum
-   ========================================================= */
 @media (max-width: 768px) {
-    .kpRoot,
-    .kdpRoot,
-    .kpRoot *,
-    .kdpRoot * {
-        min-width: 0;
-    }
-
-    .kpPageHead {
-        width: 100%;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .kpTitle {
-        font-size: 22px;
-        line-height: 1.25;
-        overflow-wrap: anywhere;
-    }
-
-    .kdpRoot .kpStats,
-    .kpStats {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        margin: 14px 0 18px;
-    }
-
-    .kdpRoot .kpStatCard,
-    .kpStatCard {
-        min-height: 90px;
-        padding: 14px;
-        gap: 11px;
-        border-radius: 16px;
-    }
-
-    .kpStatIcon {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
-        border-radius: 13px;
-    }
-
-    .kpStatLabel {
-        font-size: 11px;
-        line-height: 1.35;
-    }
-
-    .kpStatValue {
-        font-size: 24px;
-        line-height: 1;
-    }
-
-    .kpHint,
-    .kpBox,
-    .kpDocs,
-    .kpLocMap {
-        width: 100%;
-        border-radius: 16px;
-    }
-
-    .kpHint {
-        padding: 13px;
-        gap: 10px;
-    }
-
-    .kpDocs {
-        display: grid;
-        gap: 12px;
-    }
-
-    .kpDocTop {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: flex-start;
-    }
-
-    .kpDocTitleWrap,
-    .kpDocMeta {
-        min-width: 0;
-        flex: 1 1 auto;
-    }
-
-    .kpDocTitle {
-        font-size: 15px;
-        line-height: 1.35;
-        overflow-wrap: anywhere;
-    }
-
-    .kpDocMeta,
-    .kpAdminNoteText,
-    .kpHintText,
-    .kpLocMiniCoords {
-        font-size: 11px;
-        line-height: 1.5;
-        overflow-wrap: anywhere;
-    }
-
-    .kpDocActions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .kpBtnIcon,
-    .kpBtnPrimary,
-    .kpBtnGhost,
-    .kpBtnSave,
-    .kpModalClose,
-    .kpDetailNavBtn,
-    .kpSaprasResetBtn,
-    .kpUploadRemove,
-    .kpLocCariBtn,
-    .kpLocGpsBtn {
-        min-height: 44px;
-    }
-
-    .kpBtnIcon,
-    .kpModalClose,
-    .kpDetailNavBtn,
-    .kpUploadRemove {
-        width: 44px;
-        min-width: 44px;
-        height: 44px;
-    }
-
-    .kpPreview,
-    .kpPreviewBig,
-    .kpPreviewBigMedia,
-    .kpLocMapPreview,
-    .kpLocFrame {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .kpPreview img,
-    .kpPreviewBigImg,
-    .kpUploadPreviewImg,
-    .kpSaprasTileImg {
-        max-width: 100%;
-        height: auto;
-        object-fit: contain;
-    }
-
-    .kpLocMapPreview,
-    .kpLocFrame {
-        min-height: 240px;
-        border-radius: 14px;
+    .kdpRoot .kpModalOverlay {
+        padding: 10px;
         overflow: hidden;
     }
 
-    .kpModalOverlay {
-        padding: 12px;
-        align-items: center;
-    }
-
-    .kpModalCard,
-    .kpModalUpload,
-    .kpModalMedium,
-    .kpModalLoc {
+    .kdpRoot .kpModalCard {
         width: 100%;
-        max-width: calc(100vw - 24px);
-        max-height: calc(100dvh - 24px);
-        border-radius: 18px;
-        overflow: hidden;
-    }
-
-    .kpModalHead {
-        padding: 14px 16px;
-        gap: 10px;
-    }
-
-    .kpModalBody,
-    .kpModalBodyScroll,
-    .kpModalBodyPreview {
-        max-height: calc(100dvh - 140px);
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding: 16px;
-    }
-
-    .kpModalActions,
-    .kpModalActionsPreview {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-        padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
-    }
-
-    .kpModalActions button,
-    .kpModalActionsPreview button {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .kpSaprasGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .kpSaprasTile {
-        min-width: 0;
-        border-radius: 14px;
-        overflow: hidden;
-    }
-
-    .kpDetailToolbar {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-
-    .kpDetailToolbarSpacer {
-        display: none;
-    }
-
-    .kpDetailNavGroup {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .kpTaggingDetailInfo,
-    .kpTaggingDetailRow {
-        width: 100%;
-        overflow-wrap: anywhere;
-    }
-
-    .kpLocSearchRow {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 8px;
-    }
-
-    .kpLocSearch {
-        grid-column: 1 / -1;
-        width: 100%;
-        min-height: 46px;
-    }
-
-    .kpLocSearchInput,
-    .kpLocFormGrid input,
-    .kpLocFormGrid textarea,
-    .kpDropMain input,
-    .kpModalBody input,
-    .kpModalBody textarea,
-    .kpModalBody select {
-        font-size: 16px;
-    }
-
-    .kpLocCariBtn,
-    .kpLocGpsBtn {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .kpMapWrap,
-    .kpMapShell {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .kpLocFormGrid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-}
-
-@media (max-width: 430px) {
-    .kpTitle {
-        font-size: 20px;
-    }
-
-    .kdpRoot .kpStats,
-    .kpStats,
-    .kpModalActions,
-    .kpModalActionsPreview,
-    .kpSaprasGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .kdpRoot .kpStatCard,
-    .kpStatCard {
-        min-height: 82px;
-        padding: 13px;
-    }
-
-    .kpStatIcon {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-    }
-
-    .kpStatValue {
-        font-size: 22px;
-    }
-
-    .kpModalOverlay {
-        padding: 8px;
-    }
-
-    .kpModalCard,
-    .kpModalUpload,
-    .kpModalMedium,
-    .kpModalLoc {
-        max-width: calc(100vw - 16px);
-        max-height: calc(100dvh - 16px);
-        border-radius: 16px;
-    }
-
-    .kpModalHead,
-    .kpModalBody,
-    .kpModalBodyScroll,
-    .kpModalBodyPreview,
-    .kpModalActions,
-    .kpModalActionsPreview {
-        padding-left: 12px;
-        padding-right: 12px;
+        max-height: calc(100dvh - 20px);
     }
 }

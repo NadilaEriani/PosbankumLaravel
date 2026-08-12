@@ -528,8 +528,36 @@
     }
 }
 
+@media (max-width: 430px) {
+    .apf-page {
+        padding: 16px 12px 22px !important;
+    }
 
+    .apf-backBtn {
+        width: 42px;
+        height: 42px;
+        font-size: 20px;
+    }
 
+    .apf-headCopy h2 {
+        font-size: 22px;
+    }
+
+    .apf-headCopy p {
+        font-size: 13px;
+    }
+
+    .apf-badge {
+        min-height: 34px;
+        padding: 0 14px;
+        font-size: 11px;
+    }
+
+    .apf-avatarWrap {
+        width: 96px;
+        height: 96px;
+    }
+}
 
 /* ===== FIX FINAL: tombol kembali profil admin harus solid dan icon tepat di tengah ===== */
 .apf-page .apf-backBtn {
@@ -591,8 +619,20 @@
     margin: 0 !important;
 }
 
+@media (max-width: 430px) {
+    .apf-page .apf-backBtn {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        border-radius: 13px !important;
+    }
 
-
+    .apf-page .apf-backBtn svg {
+        width: 19px !important;
+        height: 19px !important;
+    }
+}
 
 /* ===== FIX FINAL: tombol kembali dan batal dibuat lebih gelap agar jelas ===== */
 .apf-page .apf-backBtn {
@@ -718,177 +758,4 @@
 .apf-page .apf-btnPrimary svg {
     color: #ffffff !important;
     stroke: currentColor !important;
-}
-
-
-/* =========================================================
-   Responsive mobile — Profil Admin
-   ========================================================= */
-@media (max-width: 768px) {
-    .apf-page,
-    .apf-page * {
-        min-width: 0;
-    }
-
-    .apf-page {
-        width: 100%;
-        padding: 18px 16px 28px;
-        gap: 16px;
-    }
-
-    .apf-headRow {
-        grid-template-columns: 44px minmax(0, 1fr);
-        gap: 10px;
-        align-items: start;
-    }
-
-    .apf-backBtn {
-        width: 44px;
-        height: 44px;
-    }
-
-    .apf-headCopy {
-        min-width: 0;
-    }
-
-    .apf-headCopy h1,
-    .apf-title,
-    .apf-headTitle {
-        font-size: 22px;
-        line-height: 1.25;
-        overflow-wrap: anywhere;
-    }
-
-    .apf-headActions {
-        grid-column: 1 / -1;
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
-    .apf-btn,
-    .apf-headEditBtn {
-        width: 100%;
-        min-width: 0;
-        min-height: 44px;
-        height: 44px;
-        padding: 0 13px;
-        border-radius: 13px;
-        font-size: 12px;
-    }
-
-    .apf-cardShell {
-        width: 100%;
-        border-radius: 18px;
-        overflow: hidden;
-    }
-
-    .apf-hero {
-        min-height: 190px;
-        padding: 22px 16px;
-    }
-
-    .apf-heroInner {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 10px;
-    }
-
-    .apf-avatarWrap,
-    .apf-avatar {
-        max-width: 100%;
-    }
-
-    .apf-roleText,
-    .apf-unitText,
-    .apf-mailText {
-        max-width: 100%;
-        overflow-wrap: anywhere;
-    }
-
-    .apf-body {
-        padding: 18px 16px 22px;
-    }
-
-    .apf-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .apf-infoCard {
-        min-height: 76px;
-        padding: 13px;
-        gap: 10px;
-        border-radius: 14px;
-    }
-
-    .apf-infoIcon,
-    .apf-inputIcon {
-        flex: 0 0 auto;
-    }
-
-    .apf-infoTextWrap,
-    .apf-infoHead {
-        min-width: 0;
-    }
-
-    .apf-infoTextWrap,
-    .apf-infoTextWrap strong,
-    .apf-infoTextWrap span {
-        overflow-wrap: anywhere;
-    }
-
-    .apf-input,
-    .apf-page input,
-    .apf-page select,
-    .apf-page textarea {
-        width: 100%;
-        min-height: 48px;
-        font-size: 16px;
-        border-radius: 14px;
-    }
-
-    .apf-page textarea {
-        min-height: 110px;
-        resize: vertical;
-    }
-
-    .apf-alert {
-        padding: 12px 13px;
-        border-radius: 13px;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-}
-
-@media (max-width: 430px) {
-    .apf-page {
-        padding-left: 12px;
-        padding-right: 12px;
-        gap: 14px;
-    }
-
-    .apf-headCopy h1,
-    .apf-title,
-    .apf-headTitle {
-        font-size: 20px;
-    }
-
-    .apf-headActions {
-        grid-template-columns: 1fr;
-    }
-
-    .apf-hero {
-        min-height: 170px;
-        padding: 20px 12px;
-    }
-
-    .apf-body {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
 }

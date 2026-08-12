@@ -1031,277 +1031,151 @@
     }
 }
 
+@media (max-width: 760px) {
+    .rk-detailPad {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+    }
 
-
-
-
-
-
-
-/* =========================================================
-   Responsive mobile — Laporan Kegiatan
-   ========================================================= */
-@media (max-width: 768px) {
-    .rk-wrap,
-    .rk-detailPage,
-    .rk-wrap *,
-    .rk-detailPage * {
-        min-width: 0;
+    .rk-statGrid,
+    .rk-cardGrid,
+    .rk-detailFactGrid,
+    .rk-verificationGrid {
+        grid-template-columns: 1fr;
     }
 
     .rk-statGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 18px;
+        gap: 16px;
     }
 
     .rk-statCard {
-        min-height: 92px;
-        padding: 15px;
-        gap: 12px;
+        min-height: 96px;
         border-radius: 16px;
-        align-items: center;
+        padding: 18px;
     }
 
     .rk-statIconBox {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        border-radius: 13px;
-    }
-
-    .rk-statLabel {
-        margin-bottom: 5px;
-        font-size: 11px;
-        line-height: 1.3;
-    }
-
-    .rk-statValue {
-        font-size: 25px;
-        line-height: 1;
-    }
-
-    .rk-filterPanel {
-        padding: 14px;
-        border-radius: 16px;
-    }
-
-    .rk-searchBox {
-        width: 100%;
-        height: 46px;
+        width: 48px;
+        height: 48px;
         border-radius: 14px;
     }
 
-    .rk-searchBox input {
-        min-width: 0;
-        font-size: 16px;
+    .rk-filterPanel {
+        padding: 16px;
+    }
+
+    .rk-searchBox {
+        height: 48px;
+        border-radius: 15px;
     }
 
     .rk-tabs {
-        width: 100%;
-        display: flex;
-        gap: 8px;
         overflow-x: auto;
-        overscroll-behavior-x: contain;
+        flex-wrap: nowrap;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 3px;
-    }
-
-    .rk-tabs::-webkit-scrollbar {
-        display: none;
+        padding-bottom: 4px;
     }
 
     .rk-tab {
         flex: 0 0 auto;
-        min-height: 42px;
-        padding: 0 14px;
         white-space: nowrap;
-        font-size: 12px;
-    }
-
-    .rk-cardGrid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-    }
-
-    .rk-activityCard {
-        width: 100%;
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    .rk-cardImage {
-        width: 100%;
-        max-height: 220px;
-        object-fit: cover;
-    }
-
-    .rk-cardBody {
-        padding: 15px;
-    }
-
-    .rk-cardTitle {
-        font-size: 16px;
-        line-height: 1.35;
-        overflow-wrap: anywhere;
-    }
-
-    .rk-cardMeta,
-    .rk-reasonBox {
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    .rk-detailBtn,
-    .rk-emptyBtn,
-    .rk-pageNav,
-    .rk-backBtn,
-    .rk-outlineDangerBtn,
-    .rk-solidApproveBtn,
-    .rk-cancelInlineBtn,
-    .rk-submitRejectBtn {
-        min-height: 44px;
-    }
-
-    .rk-pagination {
-        max-width: 100%;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .rk-pageNav {
-        min-width: 44px;
     }
 
     .rk-detailTopbar {
-        display: flex;
         flex-direction: column;
         align-items: stretch;
-        gap: 12px;
-    }
-
-    .rk-breadcrumb {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        font-size: 11px;
-        line-height: 1.4;
+        gap: 16px;
     }
 
     .rk-backBtn {
         width: 100%;
+        min-width: 0;
     }
 
     .rk-detailBanner {
-        width: 100%;
         height: 220px;
-        border-radius: 16px 16px 0 0;
-        overflow: hidden;
-    }
-
-    .rk-detailBanner img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
     }
 
     .rk-detailBody {
-        padding: 20px 16px 22px;
+        padding: 23px 18px 24px;
     }
 
     .rk-detailTitleText {
-        font-size: 21px;
-        line-height: 1.3;
-        overflow-wrap: anywhere;
-    }
-
-    .rk-detailFactGrid,
-    .rk-verificationGrid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .rk-detailFact,
-    .rk-verificationBox,
-    .rk-rejectionNoteBox {
-        border-radius: 14px;
-        padding: 13px;
-    }
-
-    .rk-textSection,
-    .rk-detailMetaLine,
-    .rk-detailSubtitle,
-    .rk-rejectionNoteText {
-        font-size: 13px;
-        line-height: 1.6;
-        overflow-wrap: anywhere;
+        font-size: 20px;
     }
 
     .rk-detailActionsInline,
     .rk-rejectInlineActions {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr;
         gap: 10px;
     }
 
-    .rk-detailActionsInline button,
-    .rk-rejectInlineActions button {
+    .rk-outlineDangerBtn,
+    .rk-solidApproveBtn,
+    .rk-cancelInlineBtn,
+    .rk-submitRejectBtn {
         width: 100%;
         min-width: 0;
     }
 
-    .rk-rejectInlinePanel {
-        padding: 14px;
-        border-radius: 16px;
-    }
-
-    .rk-rejectInlineTextarea {
-        width: 100%;
-        min-height: 130px;
-        font-size: 16px;
-        resize: vertical;
+    .rk-rejectionNoteBox,
+    .rk-rejectInlinePanel,
+    .rk-verificationBox {
+        padding: 16px;
     }
 }
 
-@media (max-width: 430px) {
-    .rk-statGrid {
-        grid-template-columns: 1fr;
-        gap: 10px;
+@media (max-width: 480px) {
+    .rk-detailPad {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
     }
 
     .rk-statCard {
-        min-height: 84px;
-        padding: 13px 14px;
-    }
-
-    .rk-statIconBox {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
+        padding: 16px;
     }
 
     .rk-statValue {
-        font-size: 23px;
+        font-size: 24px;
     }
 
-    .rk-filterPanel,
     .rk-cardBody,
-    .rk-detailBody {
-        padding-left: 12px;
-        padding-right: 12px;
+    .rk-filterPanel {
+        padding: 14px;
+    }
+
+    .rk-cardTitle {
+        font-size: 16px;
+    }
+
+    .rk-emptyCard {
+        min-height: 280px;
+        padding: 28px 16px;
+    }
+
+    .rk-emptyIcon {
+        width: 72px;
+        height: 72px;
+    }
+
+    .rk-headingBlock h1 {
+        font-size: 24px;
     }
 
     .rk-detailBanner {
-        height: 185px;
+        height: 195px;
+    }
+    .rk-detailMetaLine {
+        gap: 8px;
     }
 
-    .rk-detailTitleText {
-        font-size: 19px;
+    .rk-detailFact {
+        padding: 13px;
     }
 
-    .rk-detailActionsInline,
-    .rk-rejectInlineActions {
-        grid-template-columns: 1fr;
+    .rk-textSection p {
+        font-size: 14px;
+        line-height: 1.75;
     }
 }

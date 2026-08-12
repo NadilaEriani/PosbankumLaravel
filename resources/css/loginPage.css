@@ -170,6 +170,13 @@ body {
     box-shadow: 0 2px 5px rgba(17, 25, 76, 0.12);
 }
 
+.googleLoginButton:disabled,
+.emailSubmitButton:disabled,
+.passwordToggle:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
 .googleLetter {
     display: inline-flex;
     align-items: center;
@@ -186,6 +193,101 @@ body {
     color: #91a0bf;
     font-size: 12px;
     font-weight: 500;
+}
+
+.emailLoginToggle {
+    margin-top: 12px;
+    border: 0;
+    background: transparent;
+    color: var(--login-blue);
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.emailLoginForm {
+    margin-top: 22px;
+    text-align: left;
+}
+
+.loginField {
+    display: block;
+    margin-bottom: 14px;
+    color: #3a3d46;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.loginField > span {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.loginField input,
+.passwordField input {
+    width: 100%;
+    height: 46px;
+    border: 1px solid var(--login-border);
+    border-radius: 12px;
+    padding: 0 14px;
+    color: var(--login-text);
+    font-family: "Outfit", sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+.loginField input:focus,
+.passwordField input:focus {
+    border-color: var(--login-blue);
+}
+
+.passwordField {
+    position: relative;
+}
+
+.passwordField input {
+    padding-right: 104px;
+}
+
+.passwordToggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    height: 32px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 9px;
+    background: rgba(17, 25, 76, 0.08);
+    color: var(--login-blue);
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    transform: translateY(-50%);
+}
+
+.rememberField {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px 0 16px;
+    color: #4b5160;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.emailSubmitButton {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--login-blue);
+    color: var(--login-white);
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    font-size: 15px;
+    font-weight: 800;
 }
 
 .loginAlert {
@@ -208,15 +310,6 @@ body {
     color: #9f1d1d;
 }
 
-.loginAlert.error strong,
-.loginAlert.error span {
-    display: block;
-}
-
-.loginAlert.error span {
-    margin-top: 2px;
-}
-
 .loginDesignImage {
     position: fixed;
     left: 0;
@@ -232,174 +325,100 @@ body {
     pointer-events: none;
 }
 
-/* =========================================================
-   MOBILE / SMALL TABLET
-   Desktop rules above are intentionally preserved.
-   ========================================================= */
 @media (max-width: 768px) {
-    .loginPage {
-        min-height: 100dvh;
-        overflow: clip;
-    }
-
     .loginBackBtn {
-        position: absolute;
-        top: calc(12px + env(safe-area-inset-top));
-        left: 16px;
-        min-width: 44px;
-        height: 44px;
-        padding: 0 15px;
-        gap: 8px;
+        top: 18px;
+        left: 18px;
+        height: 42px;
+        padding: 0 16px;
         font-size: 13px;
     }
 
-    .loginBackIcon {
-        font-size: 18px;
-    }
-
     .loginStage {
-        min-height: 100dvh;
-        width: 100%;
-        padding: calc(76px + env(safe-area-inset-top)) 16px
-            calc(28px + env(safe-area-inset-bottom));
-        align-items: center;
+        align-items: flex-start;
+        padding: 88px 18px 110px;
     }
 
     .loginStage::before {
-        width: min(520px, 130vw);
-        height: min(520px, 130vw);
-        border-width: 4px;
+        width: 430px;
+        height: 430px;
     }
 
     .loginStage::after {
-        width: min(430px, 108vw);
-        height: min(430px, 108vw);
+        width: 360px;
+        height: 360px;
     }
 
     .loginCard {
-        width: min(100%, 430px);
-        min-width: 0;
-        min-height: 0;
-        padding: 32px 24px 28px;
-        border-radius: 20px;
+        min-height: auto;
+        padding: 36px 24px 30px;
+        border-radius: 22px;
     }
 
     .loginBirdFrame {
-        width: 78px;
-        height: 78px;
-        margin-bottom: 16px;
-        border-radius: 16px;
+        width: 88px;
+        height: 88px;
+        margin-bottom: 18px;
     }
 
     .loginBirdImage {
-        width: 72px;
-        height: 72px;
+        width: 80px;
+        height: 80px;
     }
 
     .loginBrand {
-        margin-bottom: 14px;
+        font-size: 20px;
+    }
+
+    .loginCard h1 {
+        font-size: 28px;
+    }
+
+    .loginDescription {
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .googleLoginButton {
+        height: 58px;
+        font-size: 15px;
+    }
+
+    .loginDesignImage {
+        height: 160px;
+        width: 100vw;
+        object-fit: cover;
+    }
+}
+
+@media (max-width: 420px) {
+    .loginBackBtn {
+        left: 14px;
+        top: 14px;
+    }
+
+    .loginStage {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .loginCard {
+        padding: 30px 18px 26px;
+    }
+
+    .loginBrand {
         font-size: 18px;
     }
 
     .loginCard h1 {
-        margin-bottom: 12px;
-        font-size: clamp(24px, 7vw, 28px);
-        line-height: 1.2;
+        font-size: 25px;
     }
 
-    .loginDescription {
-        max-width: 330px;
-        margin-bottom: 28px;
-        font-size: 14px;
-        line-height: 1.55;
-    }
-
-    .loginAlert {
-        padding: 12px 13px;
-        border-radius: 11px;
-        font-size: 13px;
-    }
-
-    .googleLoginButton {
-        min-height: 52px;
-        height: 52px;
-        padding: 0 14px;
-        gap: 11px;
-        border-radius: 12px;
-        font-size: 16px;
-    }
-
-    .googleLetter {
-        width: 24px;
-        height: 24px;
-        font-size: 22px;
-    }
-
-    .loginSecureText {
-        margin-top: 22px;
-        font-size: 11px;
-        line-height: 1.45;
+    .passwordField input {
+        padding-right: 96px;
     }
 
     .loginDesignImage {
-        height: clamp(110px, 23vh, 180px);
-        object-position: bottom center;
-    }
-}
-
-@media (max-width: 430px) {
-    .loginBackBtn {
-        left: 12px;
-        max-width: calc(100vw - 24px);
-    }
-
-    .loginStage {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-
-    .loginCard {
-        padding: 28px 18px 24px;
-        border-radius: 18px;
-    }
-
-    .loginBirdFrame {
-        width: 70px;
-        height: 70px;
-    }
-
-    .loginBirdImage {
-        width: 66px;
-        height: 66px;
-    }
-
-    .loginBrand {
-        font-size: 17px;
-    }
-
-    .loginDescription {
-        margin-bottom: 24px;
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 360px) {
-    .loginBackBtn span:last-child {
-        display: none;
-    }
-
-    .loginBackBtn {
-        width: 44px;
-        padding: 0;
-        justify-content: center;
-    }
-
-    .loginCard {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    .loginCard h1 {
-        font-size: 23px;
+        height: 135px;
     }
 }
