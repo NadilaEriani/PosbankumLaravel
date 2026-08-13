@@ -1,11 +1,17 @@
 import { router } from "@inertiajs/react";
 import { CgImage } from "react-icons/cg";
+import { AiOutlineMinusCircle } from "react-icons/ai";
+import { HiOutlineCheckCircle } from "react-icons/hi";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiFileText,
     FiCalendar,
+    FiChevronDown,
+    FiChevronLeft,
+    FiChevronRight,
     FiEdit,
     FiEye,
+    FiFilter,
     FiPlus,
     FiSearch,
     FiTrash2,
@@ -13,6 +19,8 @@ import {
     FiX,
 } from "react-icons/fi";
 import SuccessToast from "../../Components/ui/SuccessToast";
+import ReminderModal from "../../Components/ui/ReminderModal";
+import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import "../../../css/Admin/kelolaBerita.css";
 
 const OTHER_CATEGORY_OPTION = "Lainnya";
@@ -24,6 +32,66 @@ const KATEGORI_OPTIONS = [
     "Sosialisasi",
     OTHER_CATEGORY_OPTION,
 ];
+
+const BERITA_PAGE_SIZE = 6;
+const STATUS_FILTERS = [
+    { value: "semua", label: "Semua" },
+    { value: "aktif", label: "Aktif" },
+    { value: "nonaktif", label: "Nonaktif" },
+];
+const TIME_FILTER_OPTIONS = [
+    { value: "all", label: "Semua Waktu" },
+    { value: "7d", label: "7 Hari Terakhir" },
+    { value: "30d", label: "30 Hari Terakhir" },
+    { value: "year", label: "Tahun Ini" },
+];
+
+const normalizeBeritaStatus = (value) => {
+    if (typeof value === "boolean") return value ? "aktif" : "nonaktif";
+    if (typeof value === "number") return value === 0 ? "nonaktif" : "aktif";
+
+    const normalized = String(value ?? "")
+        .trim()
+        .toLowerCase();
+
+    if (!normalized) return "aktif";
+
+    if (
+        [
+            "0",
+            "false",
+            "nonaktif",
+            "non-aktif",
+            "inactive",
+            "disabled",
+            "draft",
+        ].includes(normalized)
+    ) {
+        return "nonaktif";
+    }
+
+    return "aktif";
+};
+
+const isDateInsideTimeFilter = (value, filter) => {
+    if (filter === "all") return true;
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return false;
+
+    const now = new Date();
+
+    if (filter === "year") {
+        return date.getFullYear() === now.getFullYear();
+    }
+
+    const days = filter === "7d" ? 7 : 30;
+    const threshold = new Date(now);
+    threshold.setHours(0, 0, 0, 0);
+    threshold.setDate(threshold.getDate() - days);
+
+    return date >= threshold && date <= now;
+};
 
 const formatDateID = (value) => {
     if (!value) return "-";
@@ -134,6 +202,15 @@ function normalizeItem(
             item?.isi ?? item?.content ?? item?.konten ?? item?.deskripsi ?? "",
         gambar,
         kategori: item?.kategori ?? item?.category ?? inferCategory(item),
+        status: normalizeBeritaStatus(
+            item?.status ??
+                item?.is_active ??
+                item?.isActive ??
+                item?.active ??
+                item?.published ??
+                item?.status_berita ??
+                "aktif",
+        ),
         tgl_publish:
             item?.tgl_publish ??
             item?.date ??
@@ -164,8 +241,14 @@ export default function KelolaBerita({
     currentUserRole = "",
 }) {
     const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("semua");
+    const [timeFilter, setTimeFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [statusUpdating, setStatusUpdating] = useState(false);
+    const [statusConfirm, setStatusConfirm] = useState(null);
+    const [statusError, setStatusError] = useState("");
     const [formError, setFormError] = useState("");
     const [pageMode, setPageMode] = useState("list");
     const [modalMode, setModalMode] = useState("create");
@@ -199,16 +282,50 @@ export default function KelolaBerita({
 
     const filteredItems = useMemo(() => {
         const keyword = search.trim().toLowerCase();
-        if (!keyword) return normalizedItems;
 
         return normalizedItems.filter((item) => {
+            if (statusFilter !== "semua" && item.status !== statusFilter) {
+                return false;
+            }
+
+            if (!isDateInsideTimeFilter(item.tgl_publish, timeFilter)) {
+                return false;
+            }
+
+            if (!keyword) return true;
+
             const haystack = `${item?.judul || ""} ${item?.isi || ""} ${
                 item?.kategori || ""
-            } ${item?.authorName || ""}`.toLowerCase();
+            } ${item?.authorName || ""} ${item?.status || ""}`.toLowerCase();
 
             return haystack.includes(keyword);
         });
-    }, [normalizedItems, search]);
+    }, [normalizedItems, search, statusFilter, timeFilter]);
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(filteredItems.length / BERITA_PAGE_SIZE),
+    );
+
+    const paginatedItems = useMemo(() => {
+        const startIndex = (currentPage - 1) * BERITA_PAGE_SIZE;
+        return filteredItems.slice(startIndex, startIndex + BERITA_PAGE_SIZE);
+    }, [filteredItems, currentPage]);
+
+    const paginationPages = useMemo(
+        () => Array.from({ length: totalPages }, (_, index) => index + 1),
+        [totalPages],
+    );
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, statusFilter, timeFilter]);
+
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
 
     useEffect(() => {
         if (!toast) return undefined;
@@ -234,6 +351,27 @@ export default function KelolaBerita({
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [deleteOpen, deleting]);
+
+    useEffect(() => {
+        if (!statusConfirm) return undefined;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        const onKeyDown = (event) => {
+            if (event.key === "Escape" && !statusUpdating) {
+                setStatusConfirm(null);
+                setStatusError("");
+            }
+        };
+
+        document.addEventListener("keydown", onKeyDown);
+
+        return () => {
+            document.body.style.overflow = previousOverflow || "";
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [statusConfirm, statusUpdating]);
 
     useEffect(() => {
         return () => {
@@ -324,6 +462,64 @@ export default function KelolaBerita({
         if (deleting) return;
         setDeleteOpen(false);
         setActiveItem(null);
+    };
+
+    const openStatusConfirm = (item) => {
+        if (!item?.id_berita || statusUpdating) return;
+
+        const nextStatus = item.status === "aktif" ? "nonaktif" : "aktif";
+        setStatusError("");
+        setStatusConfirm({ item, nextStatus });
+    };
+
+    const closeStatusConfirm = () => {
+        if (statusUpdating) return;
+        setStatusConfirm(null);
+        setStatusError("");
+    };
+
+    const handleStatusConfirm = () => {
+        const item = statusConfirm?.item;
+        const nextStatus = statusConfirm?.nextStatus;
+
+        if (!item?.id_berita || !["aktif", "nonaktif"].includes(nextStatus)) {
+            return;
+        }
+
+        setStatusUpdating(true);
+        setStatusError("");
+
+        router.patch(
+            `${beritaUrl(item.id_berita)}/status`,
+            { status: nextStatus },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    setStatusConfirm(null);
+                    setStatusError("");
+                    setToast({
+                        type: "success",
+                        variant: "news-status",
+                        message:
+                            nextStatus === "aktif"
+                                ? "Berita berhasil diaktifkan!"
+                                : "Berita berhasil dinonaktifkan!",
+                    });
+                },
+                onError: (errors) => {
+                    setStatusError(
+                        errorMessageFromPayload(
+                            errors,
+                            nextStatus === "aktif"
+                                ? "Gagal mengaktifkan berita."
+                                : "Gagal menonaktifkan berita.",
+                        ),
+                    );
+                },
+                onFinish: () => setStatusUpdating(false),
+            },
+        );
     };
 
     const handlePickImage = (event) => {
@@ -789,34 +985,82 @@ export default function KelolaBerita({
     const renderListPage = () => (
         <>
             <div className="kb-toolbar">
-                <label className="kb-search" aria-label="Cari berita">
-                    <FiSearch className="kb-searchIcon" />
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Cari berita..."
-                    />
-                    {search ? (
-                        <button
-                            className="kb-searchClear"
-                            type="button"
-                            onClick={() => setSearch("")}
-                            aria-label="Hapus pencarian"
-                        >
-                            <FiX />
-                        </button>
-                    ) : null}
-                </label>
+                <div className="kb-toolbarMain">
+                    <label className="kb-search" aria-label="Cari berita">
+                        <FiSearch className="kb-searchIcon" />
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Cari berita..."
+                        />
+                        {search ? (
+                            <button
+                                className="kb-searchClear"
+                                type="button"
+                                onClick={() => setSearch("")}
+                                aria-label="Hapus pencarian"
+                            >
+                                <FiX />
+                            </button>
+                        ) : null}
+                    </label>
 
-                <button
-                    className="kb-addButton"
-                    type="button"
-                    onClick={openCreate}
-                >
-                    <FiPlus />
-                    Tambah Berita
-                </button>
+                    <button
+                        className="kb-addButton"
+                        type="button"
+                        onClick={openCreate}
+                    >
+                        <FiPlus />
+                        Tambah Berita
+                    </button>
+                </div>
+
+                <div className="kb-toolbarDivider" />
+
+                <div className="kb-filterRow">
+                    <div
+                        className="kb-statusFilters"
+                        role="group"
+                        aria-label="Filter status berita"
+                    >
+                        {STATUS_FILTERS.map((filter) => (
+                            <button
+                                key={filter.value}
+                                className={`kb-filterChip ${
+                                    statusFilter === filter.value
+                                        ? "is-active"
+                                        : ""
+                                }`}
+                                type="button"
+                                onClick={() => setStatusFilter(filter.value)}
+                                aria-pressed={statusFilter === filter.value}
+                            >
+                                {filter.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <label
+                        className="kb-timeFilter"
+                        aria-label="Filter waktu berita"
+                    >
+                        <FiFilter className="kb-timeFilterIcon" />
+                        <select
+                            value={timeFilter}
+                            onChange={(event) =>
+                                setTimeFilter(event.target.value)
+                            }
+                        >
+                            {TIME_FILTER_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                        <FiChevronDown className="kb-timeFilterChevron" />
+                    </label>
+                </div>
             </div>
 
             {formError && !deleteOpen ? (
@@ -830,85 +1074,180 @@ export default function KelolaBerita({
                     </div>
                     <h2>Tidak Ada Berita Ditemukan</h2>
                     <p>
-                        Tidak ada berita yang sesuai dengan kata kunci
-                        pencarian.
+                        Tidak ada berita yang sesuai dengan pencarian atau
+                        filter yang dipilih.
                     </p>
                 </div>
             ) : (
-                <div className="kb-grid">
-                    {filteredItems.map((item) => {
-                        const imagePath = pickBeritaImagePath(item);
-                        const imageUrl = item.imageUrl || assetUrl(imagePath);
+                <>
+                    <div className="kb-grid">
+                        {paginatedItems.map((item) => {
+                            const imagePath = pickBeritaImagePath(item);
+                            const imageUrl =
+                                item.imageUrl || assetUrl(imagePath);
+                            const isActive = item.status === "aktif";
 
-                        return (
-                            <article key={item.id_berita} className="kb-card">
-                                <div
-                                    className={`kb-cardMedia ${
-                                        !imageUrl ? "is-placeholder" : ""
+                            return (
+                                <article
+                                    key={item.id_berita}
+                                    className={`kb-card ${
+                                        isActive ? "is-active" : "is-inactive"
                                     }`}
-                                    style={
-                                        imageUrl
-                                            ? {
-                                                  backgroundImage: `url("${imageUrl}")`,
-                                              }
-                                            : undefined
-                                    }
                                 >
-                                    <span className="kb-badge">
-                                        {item.kategori || "Kegiatan"}
-                                    </span>
-                                </div>
-
-                                <div className="kb-cardBody">
-                                    <h3 className="kb-cardTitle">
-                                        {item.judul || "Tanpa Judul"}
-                                    </h3>
-                                    <p className="kb-cardText">
-                                        {excerptText(item.isi, 140)}
-                                    </p>
-
-                                    <div className="kb-cardMeta">
-                                        <span className="kb-metaItem">
-                                            <FiCalendar />
-                                            {formatDateID(item.tgl_publish)}
+                                    <div
+                                        className={`kb-cardMedia ${
+                                            !imageUrl ? "is-placeholder" : ""
+                                        }`}
+                                        style={
+                                            imageUrl
+                                                ? {
+                                                      backgroundImage: `url("${imageUrl}")`,
+                                                  }
+                                                : undefined
+                                        }
+                                    >
+                                        <span
+                                            className={`kb-statusBadge ${
+                                                isActive
+                                                    ? "is-active"
+                                                    : "is-inactive"
+                                            }`}
+                                        >
+                                            {isActive ? "Aktif" : "Nonaktif"}
                                         </span>
-                                        <span className="kb-metaAuthor">
-                                            <FiUser />
-                                            {item.authorName || "Admin"}
+
+                                        <span className="kb-badge">
+                                            {item.kategori || "Kegiatan"}
                                         </span>
                                     </div>
-                                </div>
 
-                                <div className="kb-cardActions">
+                                    <div className="kb-cardBody">
+                                        <h3 className="kb-cardTitle">
+                                            {item.judul || "Tanpa Judul"}
+                                        </h3>
+                                        <p className="kb-cardText">
+                                            {excerptText(item.isi, 140)}
+                                        </p>
+
+                                        <div className="kb-cardMeta">
+                                            <span className="kb-metaItem">
+                                                <FiCalendar />
+                                                {formatDateID(item.tgl_publish)}
+                                            </span>
+                                            <span className="kb-metaAuthor">
+                                                <FiUser />
+                                                {item.authorName || "Admin"}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="kb-cardActions">
+                                        <button
+                                            className="kb-btnView"
+                                            type="button"
+                                            onClick={() => openDetail(item)}
+                                        >
+                                            <FiEye />
+                                            Lihat
+                                        </button>
+                                        <button
+                                            className="kb-btnIcon is-edit"
+                                            type="button"
+                                            onClick={() => openEdit(item)}
+                                            aria-label="Edit berita"
+                                        >
+                                            <FiEdit />
+                                        </button>
+                                        <button
+                                            className={`kb-btnIcon is-status ${
+                                                isActive
+                                                    ? "is-disable"
+                                                    : "is-enable"
+                                            }`}
+                                            type="button"
+                                            onClick={() =>
+                                                openStatusConfirm(item)
+                                            }
+                                            aria-label={
+                                                isActive
+                                                    ? "Nonaktifkan berita"
+                                                    : "Aktifkan kembali berita"
+                                            }
+                                            title={
+                                                isActive
+                                                    ? "Nonaktifkan berita"
+                                                    : "Aktifkan kembali berita"
+                                            }
+                                        >
+                                            {isActive ? (
+                                                <AiOutlineMinusCircle />
+                                            ) : (
+                                                <HiOutlineCheckCircle />
+                                            )}
+                                        </button>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+
+                    {totalPages > 1 ? (
+                        <nav
+                            className="kb-pagination"
+                            aria-label="Pagination berita"
+                        >
+                            <button
+                                className="kb-pageButton is-arrow"
+                                type="button"
+                                onClick={() =>
+                                    setCurrentPage((page) =>
+                                        Math.max(1, page - 1),
+                                    )
+                                }
+                                disabled={currentPage === 1}
+                                aria-label="Halaman sebelumnya"
+                            >
+                                <FiChevronLeft />
+                            </button>
+
+                            <div className="kb-paginationNumbers">
+                                {paginationPages.map((page) => (
                                     <button
-                                        className="kb-btnView"
+                                        key={page}
+                                        className={`kb-pageButton ${
+                                            currentPage === page
+                                                ? "is-active"
+                                                : ""
+                                        }`}
                                         type="button"
-                                        onClick={() => openDetail(item)}
+                                        onClick={() => setCurrentPage(page)}
+                                        aria-current={
+                                            currentPage === page
+                                                ? "page"
+                                                : undefined
+                                        }
                                     >
-                                        <FiEye />
-                                        Lihat
+                                        {page}
                                     </button>
-                                    <button
-                                        className="kb-btnIcon is-green"
-                                        type="button"
-                                        onClick={() => openEdit(item)}
-                                        aria-label="Edit berita"
-                                    >
-                                        <FiEdit />
-                                    </button>
-                                    <button
-                                        className="kb-btnIcon is-red"
-                                        type="button"
-                                        onClick={() => openDelete(item)}
-                                        aria-label="Hapus berita"
-                                    >
-                                        <FiTrash2 />
-                                    </button>
-                                </div>
-                            </article>
-                        );
-                    })}
-                </div>
+                                ))}
+                            </div>
+
+                            <button
+                                className="kb-pageButton is-arrow"
+                                type="button"
+                                onClick={() =>
+                                    setCurrentPage((page) =>
+                                        Math.min(totalPages, page + 1),
+                                    )
+                                }
+                                disabled={currentPage === totalPages}
+                                aria-label="Halaman berikutnya"
+                            >
+                                <FiChevronRight />
+                            </button>
+                        </nav>
+                    ) : null}
+                </>
             )}
         </>
     );
@@ -932,7 +1271,59 @@ export default function KelolaBerita({
 
                 <SuccessToast
                     message={toast?.message || ""}
+                    variant={toast?.variant || "default"}
                     onClose={() => setToast(null)}
+                />
+
+                <ReminderModal
+                    open={statusConfirm?.nextStatus === "aktif"}
+                    variant="news-status"
+                    title="Aktifkan Kembali Berita?"
+                    subtitle=""
+                    description={
+                        <>
+                            <span>
+                                Berita akan kembali aktif dan ditampilkan kepada
+                                masyarakat.
+                            </span>
+                            {statusError ? (
+                                <span className="kb-statusModalError">
+                                    {statusError}
+                                </span>
+                            ) : null}
+                        </>
+                    }
+                    cancelLabel="Batal"
+                    confirmLabel="Aktifkan"
+                    loading={statusUpdating}
+                    onClose={closeStatusConfirm}
+                    onConfirm={handleStatusConfirm}
+                />
+
+                <DeleteConfirmModal
+                    open={statusConfirm?.nextStatus === "nonaktif"}
+                    variant="news-status"
+                    title="Nonaktifkan Berita?"
+                    subtitle=""
+                    description={
+                        <>
+                            <span>
+                                Berita tidak akan ditampilkan kepada masyarakat,
+                                tetapi data berita tetap tersimpan dan dapat
+                                diaktifkan kembali.
+                            </span>
+                            {statusError ? (
+                                <span className="kb-statusModalError">
+                                    {statusError}
+                                </span>
+                            ) : null}
+                        </>
+                    }
+                    cancelLabel="Batal"
+                    confirmLabel="Nonaktifkan"
+                    loading={statusUpdating}
+                    onCancel={closeStatusConfirm}
+                    onConfirm={handleStatusConfirm}
                 />
 
                 {deleteOpen && activeItem ? (
