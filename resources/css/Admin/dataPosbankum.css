@@ -1345,7 +1345,11 @@
     .dp-modal,
     .dp-modalPreview {
         width: 100%;
+        height: calc(100vh - 20px);
+        height: calc(100svh - 20px);
         height: calc(100dvh - 20px);
+        max-height: calc(100vh - 20px);
+        max-height: calc(100svh - 20px);
         max-height: calc(100dvh - 20px);
         border-radius: 16px;
     }
@@ -1497,6 +1501,8 @@
     .dp-detailModal {
         width: 100% !important;
         max-width: calc(100vw - 24px) !important;
+        max-height: calc(100vh - 24px) !important;
+        max-height: calc(100svh - 24px) !important;
         max-height: calc(100dvh - 24px) !important;
         border-radius: 18px !important;
     }

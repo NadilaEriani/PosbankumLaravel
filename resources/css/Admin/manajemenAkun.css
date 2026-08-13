@@ -1604,6 +1604,8 @@
     }
 
     .kpDropdownMenu {
+        max-height: min(280px, 55vh);
+        max-height: min(280px, 55svh);
         max-height: min(280px, 55dvh);
     }
 
@@ -1790,6 +1792,8 @@
     .kpDeleteModal {
         width: 100%;
         max-width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        max-height: calc(100svh - 20px);
         max-height: calc(100dvh - 20px);
         border-radius: 16px;
     }
@@ -1841,6 +1845,8 @@
     .kpModal,
     .kpDeleteModal {
         max-width: calc(100vw - 16px);
+        max-height: calc(100vh - 16px);
+        max-height: calc(100svh - 16px);
         max-height: calc(100dvh - 16px);
     }
 }
@@ -1902,6 +1908,8 @@
     .kpDeleteModal {
         width: 100% !important;
         max-width: calc(100vw - 24px) !important;
+        max-height: calc(100vh - 24px) !important;
+        max-height: calc(100svh - 24px) !important;
         max-height: calc(100dvh - 24px) !important;
         border-radius: 18px !important;
     }

@@ -97,3 +97,14 @@
         max-width: none !important;
     }
 }
+
+/* iPhone safe-area: toast tidak masuk ke notch / Dynamic Island. */
+@media (max-width: 640px) {
+    .rt-toast {
+        top: calc(12px + env(safe-area-inset-top));
+        left: max(12px, env(safe-area-inset-left));
+        right: max(12px, env(safe-area-inset-right));
+        width: auto;
+        max-width: none;
+    }
+}

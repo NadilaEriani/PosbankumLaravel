@@ -238,6 +238,8 @@ body {
    ========================================================= */
 @media (max-width: 768px) {
     .loginPage {
+        min-height: 100vh;
+        min-height: 100svh;
         min-height: 100dvh;
         overflow: clip;
     }
@@ -258,6 +260,8 @@ body {
     }
 
     .loginStage {
+        min-height: 100vh;
+        min-height: 100svh;
         min-height: 100dvh;
         width: 100%;
         padding: calc(76px + env(safe-area-inset-top)) 16px

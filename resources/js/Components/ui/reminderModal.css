@@ -143,13 +143,19 @@
 /* ===== Revisi responsif reminder modal ===== */
 @media (max-width: 768px) {
     .rmOverlay {
-        padding: 12px;
+        padding: max(12px, env(safe-area-inset-top))
+            max(12px, env(safe-area-inset-right))
+            max(12px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left));
         align-items: flex-start;
     }
 
+    .rmCard,
     .rmModal {
         width: 100%;
         max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);
         overflow-y: auto;
         border-radius: 16px;
@@ -169,13 +175,19 @@
 /* ===== Mobile polish - Reminder modal ===== */
 @media (max-width: 520px) {
     .reminderModalOverlay {
-        padding: 12px;
+        padding: max(12px, env(safe-area-inset-top))
+            max(12px, env(safe-area-inset-right))
+            max(12px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left));
         align-items: flex-start;
     }
 
+    .rmCard,
     .reminderModal {
         width: 100%;
         max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);
         border-radius: 18px;
     }

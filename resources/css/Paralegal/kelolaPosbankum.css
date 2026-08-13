@@ -1501,6 +1501,8 @@
 }
 
 .kdpRoot .kpModalCard {
+    max-height: calc(100vh - 28px);
+    max-height: calc(100svh - 28px);
     max-height: calc(100dvh - 28px);
     display: flex;
     flex-direction: column;
@@ -1680,6 +1682,8 @@
     .kpModalLoc {
         width: 100%;
         max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);
         border-radius: 18px;
         overflow: hidden;
@@ -1693,6 +1697,8 @@
     .kpModalBody,
     .kpModalBodyScroll,
     .kpModalBodyPreview {
+        max-height: calc(100vh - 140px);
+        max-height: calc(100svh - 140px);
         max-height: calc(100dvh - 140px);
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -1825,6 +1831,8 @@
     .kpModalMedium,
     .kpModalLoc {
         max-width: calc(100vw - 16px);
+        max-height: calc(100vh - 16px);
+        max-height: calc(100svh - 16px);
         max-height: calc(100dvh - 16px);
         border-radius: 16px;
     }
@@ -1893,6 +1901,8 @@
     .kpModalLoc {
         width: calc(100vw - 20px) !important;
         max-width: calc(100vw - 20px) !important;
+        max-height: calc(100vh - 20px) !important;
+        max-height: calc(100svh - 20px) !important;
         max-height: calc(100dvh - 20px) !important;
     }
 

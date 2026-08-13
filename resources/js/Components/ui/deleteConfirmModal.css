@@ -129,13 +129,19 @@
 /* ===== Revisi responsif modal hapus ===== */
 @media (max-width: 768px) {
     .dcmOverlay {
-        padding: 12px;
+        padding: max(12px, env(safe-area-inset-top))
+            max(12px, env(safe-area-inset-right))
+            max(12px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left));
         align-items: flex-start;
     }
 
+    .dcmCard,
     .dcmModal {
         width: 100%;
         max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);
         overflow-y: auto;
         border-radius: 16px;
@@ -155,13 +161,19 @@
 /* ===== Mobile polish - Delete confirmation modal ===== */
 @media (max-width: 520px) {
     .deleteConfirmOverlay {
-        padding: 12px;
+        padding: max(12px, env(safe-area-inset-top))
+            max(12px, env(safe-area-inset-right))
+            max(12px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left));
         align-items: flex-start;
     }
 
+    .dcmCard,
     .deleteConfirmModal {
         width: 100%;
         max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);
         border-radius: 18px;
     }

@@ -647,6 +647,8 @@
 
 .skFilterCard {
     width: min(648px, calc(100vw - 36px));
+    max-height: calc(100vh - 36px);
+    max-height: calc(100svh - 36px);
     max-height: calc(100dvh - 36px);
     overflow: hidden;
     background: #ffffff;
@@ -1254,6 +1256,8 @@
 
     .skFilterCard {
         width: 100%;
+        max-height: calc(100vh - 20px);
+        max-height: calc(100svh - 20px);
         max-height: calc(100dvh - 20px);
         border-radius: 18px;
     }
@@ -1295,6 +1299,8 @@
 
     .skFilterCard {
         width: 100%;
+        max-height: calc(100vh - 24px);
+        max-height: calc(100svh - 24px);
         max-height: calc(100dvh - 24px);
         border-radius: 15px;
     }

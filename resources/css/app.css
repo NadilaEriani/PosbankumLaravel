@@ -29,3 +29,71 @@ video,
 canvas {
     height: auto;
 }
+
+/* =========================================================
+   iPhone / iOS Safari compatibility foundation
+   - Tidak mengubah breakpoint/layout halaman.
+   - Menjaga viewport, safe-area, dan mencegah auto-zoom form.
+   - Kelola Kegiatan dan Beranda Paralegal tidak diberi override
+     layout khusus di sini.
+   ========================================================= */
+html {
+    min-height: 100%;
+}
+
+body,
+#app {
+    min-height: 100vh;
+}
+
+@supports (height: 100svh) {
+    body,
+    #app {
+        min-height: 100svh;
+    }
+}
+
+@supports (height: 100dvh) {
+    body,
+    #app {
+        min-height: 100dvh;
+    }
+}
+
+/* Legacy iOS Safari fallback saat dynamic viewport unit belum tersedia. */
+@supports (-webkit-touch-callout: none) {
+    html {
+        min-height: -webkit-fill-available;
+    }
+
+    body,
+    #app {
+        min-height: -webkit-fill-available;
+    }
+}
+
+/*
+ * Safari iPhone melakukan auto-zoom ketika input fokus dan ukuran font
+ * lebih kecil dari 16px. Selector sengaja dibatasi ke halaman yang
+ * termasuk audit iPhone kali ini. Kelola Kegiatan (.kk*) dan Beranda
+ * Paralegal (.pb2Content dashboard) tidak ditargetkan.
+ */
+@supports (-webkit-touch-callout: none) {
+    @media (max-width: 860px) {
+        :where(.lp-page, .loginPage, .ad, .kdpRoot, .lpvWrap, .prfPage, .skWrap)
+            :is(
+                input:not([type="checkbox"]):not([type="radio"]):not(
+                        [type="range"]
+                    ):not([type="color"]),
+                select,
+                textarea
+            ) {
+            font-size: 16px !important;
+        }
+
+        :where(.lp-page, .loginPage, .ad, .kdpRoot, .lpvWrap, .prfPage, .skWrap)
+            :is(input, select, textarea, button) {
+            max-width: 100%;
+        }
+    }
+}
