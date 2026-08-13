@@ -34,6 +34,40 @@ class DashboardController extends Controller
 
         return $default;
     }
+    private function beritaStatusColumn(): ?string
+    {
+        foreach (['status', 'is_active', 'isActive', 'active', 'published', 'status_berita'] as $column) {
+            if ($this->hasColumn('berita', $column)) {
+                return $column;
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeBeritaStatus(mixed $value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'aktif' : 'nonaktif';
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return ((int) $value) === 0 ? 'nonaktif' : 'aktif';
+        }
+
+        $normalized = strtolower(trim((string) $value));
+
+        if ($normalized === '') {
+            return 'aktif';
+        }
+
+        if (in_array($normalized, ['0', 'false', 'nonaktif', 'non-aktif', 'inactive', 'disabled', 'draft'], true)) {
+            return 'nonaktif';
+        }
+
+        return 'aktif';
+    }
+
     private function publicPreviewUrl(mixed $path, ?string $name = null): string
     {
         $raw = trim(str_replace('\\', '/', (string) $path));
@@ -1334,6 +1368,8 @@ class DashboardController extends Controller
             return [];
         }
 
+        $statusColumn = $this->beritaStatusColumn();
+
         $select = collect([
             'id_berita',
             'id',
@@ -1350,7 +1386,8 @@ class DashboardController extends Controller
             'updated_at',
             'kategori',
             'category',
-        ])->filter(fn($column) => $this->hasColumn('berita', $column))->values()->all();
+            $statusColumn,
+        ])->filter(fn($column) => is_string($column) && $column !== '' && $this->hasColumn('berita', $column))->values()->all();
 
         $query = DB::table('berita');
 
@@ -1399,7 +1436,7 @@ class DashboardController extends Controller
                 });
         }
 
-        return $rows->values()->map(function ($row, $index) use ($authors, $authorRoles) {
+        return $rows->values()->map(function ($row, $index) use ($authors, $authorRoles, $statusColumn) {
             $id = $this->rowValue($row, ['id_berita', 'id'], $index + 1);
             $userId = $this->rowValue($row, ['id_user']);
             $image = (string) $this->rowValue($row, ['gambar', 'image_path', 'image'], '');
@@ -1407,6 +1444,9 @@ class DashboardController extends Controller
             $category = (string) $this->rowValue($row, ['kategori', 'category'], 'Kegiatan');
             $title = (string) $this->rowValue($row, ['judul', 'title'], 'Tanpa Judul');
             $content = (string) $this->rowValue($row, ['isi', 'content'], '');
+            $status = $statusColumn
+                ? $this->normalizeBeritaStatus($this->rowValue($row, [$statusColumn], 'aktif'))
+                : 'aktif';
 
             return [
                 'id' => $id,
@@ -1423,6 +1463,8 @@ class DashboardController extends Controller
                 'date' => $publishedAt,
                 'kategori' => $category,
                 'category' => $category,
+                'status' => $status,
+                'is_active' => $status === 'aktif',
                 'authorName' => $authors[$userId] ?? 'Admin',
                 'author' => $authors[$userId] ?? 'Admin',
                 'authorRole' => $authorRoles[$userId] ?? '',

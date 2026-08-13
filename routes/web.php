@@ -490,6 +490,9 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
     Route::put('/admin/kelola-berita/{id}', [KelolaBeritaController::class, 'update'])
         ->name('admin.kelola-berita.update');
 
+    Route::patch('/admin/kelola-berita/{id}/status', [KelolaBeritaController::class, 'updateStatus'])
+        ->name('admin.kelola-berita.status');
+
     Route::delete('/admin/kelola-berita/{id}', [KelolaBeritaController::class, 'destroy'])
         ->name('admin.kelola-berita.destroy');
 

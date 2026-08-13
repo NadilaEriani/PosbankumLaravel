@@ -109,6 +109,54 @@ class KelolaBeritaController extends Controller
         return $this->redirectToKelolaBerita('Berita berhasil diperbarui.');
     }
 
+    public function updateStatus(Request $request, string $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:aktif,nonaktif'],
+        ]);
+
+        $keyColumn = $this->keyColumn();
+        $statusColumn = $this->statusColumn();
+
+        if (!$statusColumn) {
+            throw ValidationException::withMessages([
+                'status' => 'Kolom status berita belum tersedia. Jalankan migrasi database terlebih dahulu.',
+            ]);
+        }
+
+        $rowExists = DB::table('berita')
+            ->where($keyColumn, $id)
+            ->exists();
+
+        if (!$rowExists) {
+            throw ValidationException::withMessages([
+                'id' => 'Berita tidak ditemukan.',
+            ]);
+        }
+
+        try {
+            DB::transaction(function () use ($id, $keyColumn, $statusColumn, $validated) {
+                $payload = [
+                    $statusColumn => $this->databaseStatusValue($statusColumn, $validated['status']),
+                ];
+
+                if (Schema::hasColumn('berita', 'updated_at')) {
+                    $payload['updated_at'] = now();
+                }
+
+                DB::table('berita')
+                    ->where($keyColumn, $id)
+                    ->update($payload);
+            });
+        } catch (\Throwable $e) {
+            throw ValidationException::withMessages([
+                'database' => $e->getMessage() ?: 'Gagal mengubah status berita.',
+            ]);
+        }
+
+        return redirect()->to('/admin/kelola-berita');
+    }
+
     public function destroy(string $id): RedirectResponse
     {
         $keyColumn = $this->keyColumn();
@@ -154,6 +202,10 @@ class KelolaBeritaController extends Controller
 
         if (!$isUpdate && Schema::hasColumn('berita', 'id_user')) {
             $payload['id_user'] = $this->currentUserId($request);
+        }
+
+        if (!$isUpdate && ($statusColumn = $this->statusColumn())) {
+            $payload[$statusColumn] = $this->databaseStatusValue($statusColumn, 'aktif');
         }
 
         if (Schema::hasColumn('berita', 'judul')) {
@@ -254,6 +306,45 @@ class KelolaBeritaController extends Controller
         }
 
         return 'id';
+    }
+
+    private function statusColumn(): ?string
+    {
+        $candidates = [
+            'status',
+            'is_active',
+            'isActive',
+            'active',
+            'published',
+            'status_berita',
+        ];
+
+        foreach ($candidates as $column) {
+            if (Schema::hasColumn('berita', $column)) {
+                return $column;
+            }
+        }
+
+        return null;
+    }
+
+    private function databaseStatusValue(string $column, string $status): string|int|bool
+    {
+        try {
+            $type = strtolower((string) Schema::getColumnType('berita', $column));
+
+            if (in_array($type, ['boolean', 'bool', 'tinyint', 'smallint', 'integer', 'int', 'bigint'], true)) {
+                return $status === 'aktif' ? 1 : 0;
+            }
+        } catch (\Throwable) {
+            // Fallback berdasarkan nama kolom untuk kompatibilitas schema lama.
+        }
+
+        if (in_array($column, ['is_active', 'isActive', 'active', 'published'], true)) {
+            return $status === 'aktif' ? 1 : 0;
+        }
+
+        return $status;
     }
 
     private function imageColumn(): ?string

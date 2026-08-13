@@ -810,9 +810,6 @@
     }
 }
 
-
-
-
 /* ===== Hover & Action States ===== */
 .kb-wrap button,
 .kb-wrap [role="button"] {
@@ -1114,12 +1111,6 @@
         grid-template-columns: minmax(0, 1fr) 260px;
     }
 }
-
-
-
-
-
-
 
 /* ===== Revisi Tampilan Halaman Tambah/Edit/Detail Kelola Berita ===== */
 .kb-contentOnlyPage {
@@ -1452,12 +1443,6 @@
     }
 }
 
-
-
-
-
-
-
 /* Revisi tombol Simpan Perubahan agar teks tidak padat */
 .kb-contentActions {
     flex-wrap: wrap;
@@ -1469,17 +1454,10 @@
     white-space: nowrap;
 }
 
-
-
-
 /* Revisi kategori berita "Lainnya". */
 .kb-otherCategoryInput {
     margin-top: 10px;
 }
-
-
-
-
 
 /* =========================================================
    Responsive mobile — Kelola Berita
@@ -1807,5 +1785,427 @@
 
     .kb-newsTitle {
         font-size: 20px;
+    }
+}
+
+/* =========================================================
+   Fitur Aktif / Nonaktif Berita — sesuai prototype
+   ========================================================= */
+.kb-toolbar {
+    display: block;
+    padding: 20px;
+    border-radius: 18px;
+    margin-bottom: 22px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 10px 22px rgba(15, 23, 42, 0.1);
+}
+
+.kb-toolbarMain {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.kb-toolbarMain .kb-search {
+    min-width: 0;
+    height: 44px;
+    border-radius: 14px;
+    padding: 0 14px;
+}
+
+.kb-toolbarMain .kb-addButton {
+    min-width: 184px;
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 14px;
+}
+
+.kb-toolbarDivider {
+    width: 100%;
+    height: 1px;
+    margin: 15px 0 13px;
+    background: #edf0f4;
+}
+
+.kb-filterRow {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.kb-statusFilters {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.kb-filterChip {
+    min-width: 68px;
+    height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.kb-filterChip.is-active {
+    background: linear-gradient(180deg, #454c89 0%, #343a73 100%);
+    color: #ffffff;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.kb-timeFilter {
+    position: relative;
+    min-width: 154px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 34px 0 13px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    cursor: pointer;
+}
+
+.kb-timeFilterIcon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+}
+
+.kb-timeFilter select {
+    width: 100%;
+    min-width: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #475569;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+}
+
+.kb-timeFilter select:focus,
+.kb-timeFilter select:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.kb-timeFilterChevron {
+    position: absolute;
+    right: 12px;
+    width: 15px;
+    height: 15px;
+    pointer-events: none;
+}
+
+.kb-card {
+    border-radius: 16px;
+    grid-template-rows: 190px 1fr auto;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.08),
+        0 10px 20px rgba(15, 23, 42, 0.1);
+}
+
+.kb-statusBadge {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    z-index: 2;
+    min-height: 25px;
+    padding: 0 11px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 11px;
+    line-height: 1;
+    font-weight: 700;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.kb-statusBadge.is-active {
+    background: #22c55e;
+}
+
+.kb-statusBadge.is-inactive {
+    background: #6b7280;
+}
+
+.kb-cardMedia .kb-badge {
+    top: 12px;
+    right: 14px;
+    height: 25px;
+    padding: 0 11px;
+    font-size: 11px;
+}
+
+.kb-cardBody {
+    padding: 17px 18px 12px;
+}
+
+.kb-cardTitle {
+    font-size: 18px;
+    line-height: 1.35;
+    color: #161616;
+}
+
+.kb-cardText {
+    margin: 10px 0 14px;
+    min-height: 70px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6b7280;
+    -webkit-line-clamp: 3;
+}
+
+.kb-cardMeta {
+    gap: 12px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.kb-cardActions {
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    gap: 8px;
+    padding: 0 18px 16px;
+}
+
+.kb-btnView,
+.kb-btnIcon {
+    height: 42px;
+    border-radius: 12px;
+}
+
+.kb-btnView {
+    font-size: 14px;
+}
+
+.kb-btnIcon {
+    font-size: 19px;
+}
+
+.kb-btnIcon.is-edit {
+    background: #ff9700;
+    color: #ffffff;
+    box-shadow:
+        0px 2px 4px -2px #0000001a,
+        0px 4px 6px -1px #0000001a;
+}
+
+.kb-btnIcon.is-status {
+    color: #ffffff;
+    box-shadow:
+        0px 2px 4px -2px #0000001a,
+        0px 4px 6px -1px #0000001a;
+}
+
+.kb-btnIcon.is-status.is-disable {
+    background: #9ca3af;
+}
+
+.kb-btnIcon.is-status.is-enable {
+    background: #22c55e;
+}
+
+.kb-btnIcon.is-status svg,
+.kb-btnIcon.is-edit svg {
+    width: 21px;
+    height: 21px;
+}
+
+.kb-btnIcon.is-status:not(:disabled):hover,
+.kb-btnIcon.is-status:not(:disabled):focus-visible,
+.kb-btnIcon.is-edit:not(:disabled):hover,
+.kb-btnIcon.is-edit:not(:disabled):focus-visible {
+    box-shadow:
+        0px 2px 4px -2px #0000001a,
+        0px 4px 6px -1px #0000001a;
+}
+
+.kb-pagination {
+    margin: 20px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.kb-paginationNumbers {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.kb-pageButton {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.kb-pageButton.is-active {
+    background: #343a73;
+    color: #ffffff;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.kb-pageButton.is-arrow svg {
+    width: 18px;
+    height: 18px;
+}
+
+.kb-pageButton:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+}
+
+.kb-statusModalError {
+    display: block;
+    margin-top: 10px;
+    color: #b42318;
+    font-size: 13px;
+    line-height: 1.45;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .kb-toolbar {
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .kb-toolbarMain {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .kb-toolbarMain .kb-search {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .kb-toolbarMain .kb-addButton {
+        grid-column: 2;
+        min-width: 0;
+        width: auto;
+        padding: 0 14px;
+    }
+
+    .kb-filterRow {
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .kb-statusFilters {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .kb-statusFilters::-webkit-scrollbar {
+        display: none;
+    }
+
+    .kb-filterChip {
+        flex: 0 0 auto;
+        min-width: 66px;
+    }
+
+    .kb-timeFilter {
+        min-width: 150px;
+    }
+
+    .kb-card {
+        grid-template-rows: 190px 1fr auto;
+    }
+
+    .kb-cardActions {
+        grid-template-columns: minmax(0, 1fr) 44px 44px;
+    }
+
+    .kb-pagination {
+        max-width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0 2px 4px;
+        scrollbar-width: none;
+    }
+
+    .kb-pagination::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@media (max-width: 430px) {
+    .kb-toolbarMain {
+        grid-template-columns: 1fr;
+    }
+
+    .kb-toolbarMain .kb-search,
+    .kb-toolbarMain .kb-addButton {
+        grid-column: 1;
+        width: 100%;
+    }
+
+    .kb-filterRow {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .kb-statusFilters {
+        width: 100%;
+    }
+
+    .kb-timeFilter {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .kb-cardBody {
+        padding: 15px 12px 10px;
+    }
+
+    .kb-cardText {
+        min-height: 0;
+    }
+
+    .kb-cardActions {
+        padding: 0 12px 14px;
+        grid-template-columns: minmax(0, 1fr) 44px 44px;
     }
 }

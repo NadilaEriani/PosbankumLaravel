@@ -1,9 +1,15 @@
 import { useEffect } from "react";
 import PropTypes from "prop-types";
 import { FiX } from "react-icons/fi";
+import { HiOutlineCheckCircle } from "react-icons/hi";
 import "./successToast.css";
 
-export default function SuccessToast({ title = "Berhasil", message, onClose }) {
+export default function SuccessToast({
+    title = "Berhasil",
+    message,
+    onClose,
+    variant = "default",
+}) {
     useEffect(() => {
         if (!message) return undefined;
 
@@ -16,12 +22,24 @@ export default function SuccessToast({ title = "Berhasil", message, onClose }) {
 
     if (!message) return null;
 
+    const isNewsStatus = variant === "news-status";
+
     return (
-        <div className="st-toast" role="status" aria-live="polite">
-            <div className="st-toastIcon">✓</div>
+        <div
+            className={`st-toast ${isNewsStatus ? "st-toast--news-status" : ""}`}
+            role="status"
+            aria-live="polite"
+        >
+            {isNewsStatus ? (
+                <HiOutlineCheckCircle className="st-toastStatusIcon" />
+            ) : (
+                <div className="st-toastIcon">✓</div>
+            )}
 
             <div className="st-toastBody">
-                <div className="st-toastTitle">{title}</div>
+                {!isNewsStatus ? (
+                    <div className="st-toastTitle">{title}</div>
+                ) : null}
                 <div className="st-toastText">{message}</div>
             </div>
 
@@ -41,4 +59,5 @@ SuccessToast.propTypes = {
     title: PropTypes.string,
     message: PropTypes.string,
     onClose: PropTypes.func,
+    variant: PropTypes.oneOf(["default", "news-status"]),
 };

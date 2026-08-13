@@ -12,27 +12,34 @@ export default function ReminderModal({
     loading = false,
     onClose,
     onConfirm,
+    variant = "default",
 }) {
     if (!open) return null;
 
     const primaryLabel = confirmLabel || buttonLabel;
     const handlePrimary = onConfirm || onClose;
+    const isNewsStatus = variant === "news-status";
 
     return (
         <div
-            className="rmOverlay"
-            onMouseDown={onClose}
+            className={`rmOverlay ${isNewsStatus ? "rmOverlay--news-status" : ""}`}
+            onMouseDown={loading ? undefined : onClose}
             role="dialog"
             aria-modal="true"
         >
-            <div className="rmCard" onMouseDown={(e) => e.stopPropagation()}>
+            <div
+                className={`rmCard ${isNewsStatus ? "rmCard--news-status" : ""}`}
+                onMouseDown={(e) => e.stopPropagation()}
+            >
                 <div className="rmHead">
                     <div className="rmIconWrap" aria-hidden="true">
                         <FiInfo />
                     </div>
                     <div className="rmHeadText">
                         <div className="rmTitle">{title}</div>
-                        <div className="rmSubtitle">{subtitle}</div>
+                        {subtitle ? (
+                            <div className="rmSubtitle">{subtitle}</div>
+                        ) : null}
                     </div>
                 </div>
 
@@ -56,7 +63,7 @@ export default function ReminderModal({
                         onClick={handlePrimary}
                         disabled={loading}
                     >
-                        {primaryLabel}
+                        {loading ? "Memproses..." : primaryLabel}
                     </button>
                 </div>
             </div>

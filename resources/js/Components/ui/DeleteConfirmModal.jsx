@@ -11,24 +11,32 @@ export default function DeleteConfirmModal({
     loading = false,
     onCancel,
     onConfirm,
+    variant = "default",
 }) {
     if (!open) return null;
 
+    const isNewsStatus = variant === "news-status";
+
     return (
         <div
-            className="dcmOverlay"
-            onMouseDown={onCancel}
+            className={`dcmOverlay ${isNewsStatus ? "dcmOverlay--news-status" : ""}`}
+            onMouseDown={loading ? undefined : onCancel}
             role="dialog"
             aria-modal="true"
         >
-            <div className="dcmCard" onMouseDown={(e) => e.stopPropagation()}>
+            <div
+                className={`dcmCard ${isNewsStatus ? "dcmCard--news-status" : ""}`}
+                onMouseDown={(e) => e.stopPropagation()}
+            >
                 <div className="dcmHead">
                     <div className="dcmIconWrap" aria-hidden="true">
                         <FiAlertTriangle />
                     </div>
                     <div className="dcmHeadText">
                         <div className="dcmTitle">{title}</div>
-                        <div className="dcmSubtitle">{subtitle}</div>
+                        {subtitle ? (
+                            <div className="dcmSubtitle">{subtitle}</div>
+                        ) : null}
                     </div>
                 </div>
 
