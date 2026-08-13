@@ -898,7 +898,7 @@ export default function AdminDashboard() {
                                         <div
                                             className="ad-pillBar"
                                             style={{
-                                                height: `${
+                                                "--bar-percent": `${
                                                     item.percent || 18
                                                 }%`,
                                             }}

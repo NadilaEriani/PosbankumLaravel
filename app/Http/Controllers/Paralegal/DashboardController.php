@@ -326,6 +326,44 @@ class DashboardController extends Controller
         return (string) $this->rowValue($row, ['email_akun', 'email', 'email_posbankum'], '-');
     }
 
+    private function hasTaggingCoordinates(array|object|null $row): bool
+    {
+        if (!$row) {
+            return false;
+        }
+
+        $lat = $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']);
+        $lng = $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']);
+
+        if (!is_numeric($lat) || !is_numeric($lng)) {
+            return false;
+        }
+
+        $latValue = (float) $lat;
+        $lngValue = (float) $lng;
+
+        return $latValue >= -90 && $latValue <= 90 && $lngValue >= -180 && $lngValue <= 180;
+    }
+
+    private function taggingAreaStatus(array|object|null $row): string
+    {
+        if (!$this->hasTaggingCoordinates($row)) {
+            return '';
+        }
+
+        $status = trim((string) $this->rowValue($row, [
+            'status_verifikasi_tagging_area',
+            'status_tagging_area',
+            'status_verifikasi_tagging',
+            'status_tagging',
+            'status_lokasi',
+            'status_verifikasi_lokasi',
+            'verification_status_location',
+        ], ''));
+
+        return $status !== '' ? $status : 'menunggu';
+    }
+
     private function posbankumById(mixed $id): array
     {
         if (!$id || !$this->hasTable('posbankum')) {
@@ -358,15 +396,7 @@ class DashboardController extends Controller
             $kabupaten = DB::table('kabupaten')->where('id_kabupaten', $idKabupaten)->first();
         }
 
-        $statusTaggingArea = (string) $this->rowValue($row, [
-            'status_verifikasi_tagging_area',
-            'status_tagging_area',
-            'status_verifikasi_tagging',
-            'status_tagging',
-            'status_lokasi',
-            'status_verifikasi_lokasi',
-            'verification_status_location',
-        ], '');
+        $statusTaggingArea = $this->taggingAreaStatus($row);
 
         $tanggalTaggingArea = $this->rowValue($row, [
             'tgl_verifikasi_tagging_area',
@@ -1170,8 +1200,8 @@ class DashboardController extends Controller
                     'kode_pos' => (string) $this->rowValue($row, ['kode_pos'], ''),
                     'latitude' => $this->rowValue($row, ['latitude', 'lat', 'latitude_pos', 'lat_pos', 'lattitude']),
                     'longitude' => $this->rowValue($row, ['longitude', 'lng', 'long', 'longitude_pos', 'lng_pos', 'long_pos']),
-                    'status_verifikasi_tagging_area' => (string) $this->rowValue($row, ['status_verifikasi_tagging_area', 'status_tagging_area', 'status_verifikasi_tagging', 'status_tagging', 'status_lokasi'], ''),
-                    'status_tagging_area' => (string) $this->rowValue($row, ['status_verifikasi_tagging_area', 'status_tagging_area', 'status_verifikasi_tagging', 'status_tagging', 'status_lokasi'], ''),
+                    'status_verifikasi_tagging_area' => $this->taggingAreaStatus($row),
+                    'status_tagging_area' => $this->taggingAreaStatus($row),
                     'tgl_verifikasi_tagging_area' => $this->rowValue($row, ['tgl_verifikasi_tagging_area', 'tanggal_verifikasi_tagging_area', 'tgl_verifikasi_tagging', 'tgl_verifikasi_lokasi']),
                     'tgl_upload_tagging_area' => $this->rowValue($row, ['tgl_upload_tagging_area', 'tanggal_upload_tagging_area', 'updated_at', 'created_at']),
                     'tanggal_tagging_area' => $this->rowValue($row, ['tgl_verifikasi_tagging_area', 'tanggal_verifikasi_tagging_area', 'tgl_upload_tagging_area', 'tanggal_upload_tagging_area', 'updated_at', 'created_at']),
@@ -1207,7 +1237,10 @@ class DashboardController extends Controller
         $info['kelurahan'] = (string) $this->rowValue($kelurahan, ['nama'], $info['kelurahan'] ?? '');
         $info['kecamatan'] = (string) $this->rowValue($kecamatan, ['nama'], $info['kecamatan'] ?? '');
         $info['kabupaten'] = (string) $this->rowValue($kabupaten, ['nama'], $info['kabupaten'] ?? '');
-        $info['status_tagging_area'] = (string) ($info['status_tagging_area'] ?? $info['status_lokasi'] ?? 'menunggu');
+        $info['status_tagging_area'] = $this->hasTaggingCoordinates($info)
+            ? (trim((string) ($info['status_tagging_area'] ?? $info['status_lokasi'] ?? '')) ?: 'menunggu')
+            : '';
+        $info['status_verifikasi_tagging_area'] = $info['status_tagging_area'];
 
         return $info;
     }

@@ -461,11 +461,15 @@ export default function VerifikasiDataPosbankum({
     };
 
     const hasTaggingArea = (pos) => {
-        const lat = Number(pos?.latitude ?? pos?.lat ?? pos?.latitude_pos);
-        const lng = Number(
-            pos?.longitude ?? pos?.lng ?? pos?.long ?? pos?.longitude_pos,
-        );
-        return Number.isFinite(lat) && Number.isFinite(lng);
+        const lat = pos?.latitude ?? pos?.lat ?? pos?.latitude_pos ?? "";
+        const lng =
+            pos?.longitude ?? pos?.lng ?? pos?.long ?? pos?.longitude_pos ?? "";
+
+        if (String(lat).trim() === "" || String(lng).trim() === "") {
+            return false;
+        }
+
+        return Number.isFinite(Number(lat)) && Number.isFinite(Number(lng));
     };
 
     const isChangedAfterCreate = (createdAt, updatedAt) => {

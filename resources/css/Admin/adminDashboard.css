@@ -594,6 +594,7 @@
 /* Bentuk bar hijau pada statistik posbankum */
 .ad-pillBar {
     width: min(100%, 72px);
+    height: var(--bar-percent, 18%);
     border-radius: 24px;
     background: linear-gradient(180deg, #08c45a 0%, #06bc54 100%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
@@ -1368,9 +1369,6 @@
     }
 }
 
-
-
-
 /* ===== Hover & Action States ===== */
 .ad button,
 .ad [role="button"],
@@ -1465,8 +1463,6 @@ button.ad-linkBtn {
     line-height: 1.4;
     color: #6c6c6c;
 }
-
-
 
 /* Hover button pagination tabel */
 .ad-pagerBtn:not(:disabled):hover,
@@ -2984,8 +2980,6 @@ button.ad-linkBtn {
 
 /* Responsive mobile */
 
-
-
 /* Revisi visual verifikasi data posbankum. */
 .vd-topBox {
     box-shadow:
@@ -3558,17 +3552,7 @@ button.ad-linkBtn {
    RESPONSIVE MOBILE FIX - adminDashboard.css
    ========================================================= */
 
-
-
-
-
-
 /* ===== Revisi responsif umum admin sampai mobile kecil ===== */
-
-
-
-
-
 
 /* =========================================================
    DASHBOARD EXACT REFERENCE OVERRIDE - copied from provided design
@@ -4136,6 +4120,7 @@ button.ad-linkBtn {
 /* Bentuk bar hijau pada statistik posbankum */
 .ad-pillBar {
     width: min(100%, 72px);
+    height: var(--bar-percent, 18%);
     border-radius: 24px;
     background: linear-gradient(180deg, #08c45a 0%, #06bc54 100%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
@@ -4910,9 +4895,6 @@ button.ad-linkBtn {
     }
 }
 
-
-
-
 /* ===== Hover & Action States ===== */
 .ad button,
 .ad [role="button"],
@@ -5008,8 +4990,6 @@ button.ad-linkBtn {
     color: #6c6c6c;
 }
 
-
-
 /* Hover button pagination tabel */
 .ad-pagerBtn:not(:disabled):hover,
 .ad-pagerBtn:not(:disabled):focus-visible {
@@ -5049,8 +5029,6 @@ button.ad-linkBtn {
     line-height: 1.4;
     color: #6c6c6c;
 }
-
-
 
 /* =========================================================
    FINAL FIX - SIDEBAR LEBIH RAPI, TEKS MENU 1 BARIS
@@ -5168,12 +5146,6 @@ button.ad-linkBtn {
 }
 
 /* ===== Revisi Mobile Profil Admin: override agar tidak terpotong pada dashboard admin ===== */
-
-
-
-
-
-
 
 /* ===== Revisi modal admin untuk tampilan setengah layar laptop/tablet landscape ===== */
 @media (min-width: 761px) and (max-width: 1180px) {
@@ -5331,12 +5303,6 @@ button.ad-linkBtn {
     }
 }
 
-
-
-
-
-
-
 /* ===== Final fix: ukuran modal laptop dan toolbar Manajemen Akun ===== */
 @media (min-width: 769px) and (max-width: 1366px) {
     .ad-detailModalCard,
@@ -5413,9 +5379,6 @@ button.ad-linkBtn {
         min-width: 174px !important;
     }
 }
-
-
-
 
 /* ===== Halaman Aktivitas Terbaru Admin ===== */
 .ad-activityPage {
@@ -5853,9 +5816,6 @@ button.ad-linkBtn {
     }
 }
 
-
-
-
 /* Revisi pagination aktivitas terbaru: icon < > dan kotak angka halaman */
 .ad-activityPager {
     justify-content: center;
@@ -5937,22 +5897,9 @@ button.ad-linkBtn {
     box-shadow: none;
 }
 
-
-
-
-
-
-
 .ad-mobileMenuButton {
     display: none;
 }
-
-
-
-
-
-
-
 
 /* =========================================================
    Responsive mobile shell — Admin
@@ -6136,7 +6083,9 @@ button.ad-linkBtn {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-        transition: opacity 0.2s ease, visibility 0.2s ease;
+        transition:
+            opacity 0.2s ease,
+            visibility 0.2s ease;
     }
 
     .ad-mobileDrawerOverlay.is-visible {
@@ -6679,6 +6628,140 @@ button.ad-linkBtn {
     .ad-table tbody td,
     .ad-table .is-center {
         grid-template-columns: minmax(94px, 0.8fr) minmax(0, 1.2fr);
+        font-size: 12px;
+    }
+}
+
+/* ===== Final mobile chart fix: Posbankum Paling Aktif tanpa overflow ===== */
+@media (max-width: 860px) {
+    .ad-panelChart {
+        overflow: hidden;
+    }
+
+    .ad-panelChart .ad-panelHead {
+        align-items: stretch;
+    }
+
+    .ad-panelChart .ad-headActions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .ad-panelChart .ad-dd,
+    .ad-panelChart .ad-filterBtn,
+    .ad-panelChart .ad-exportBtn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ad-panelChart .ad-filterBtn,
+    .ad-panelChart .ad-exportBtn {
+        justify-content: center;
+    }
+
+    .ad-activeBars {
+        width: 100%;
+        min-width: 0;
+        min-height: 0;
+        padding: 8px 0 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        overflow: visible;
+    }
+
+    .ad-activeItem {
+        width: 100%;
+        min-width: 0;
+        min-height: 72px;
+        padding: 10px 12px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            "name total"
+            "bar growth";
+        align-items: center;
+        justify-items: stretch;
+        column-gap: 12px;
+        row-gap: 8px;
+        border: 1px solid #edf0f5;
+        border-radius: 14px;
+        background: #ffffff;
+    }
+
+    .ad-activeTop {
+        grid-area: total;
+        align-self: center;
+        justify-self: end;
+        font-size: 15px;
+    }
+
+    .ad-barArea {
+        grid-area: bar;
+        width: 100%;
+        height: 16px;
+        min-width: 0;
+        border-radius: 999px;
+        background: #edf2f7;
+        overflow: hidden;
+        display: flex;
+        align-items: stretch;
+        justify-content: flex-start;
+    }
+
+    .ad-pillBar {
+        width: var(--bar-percent, 18%);
+        max-width: 100%;
+        height: 100% !important;
+        min-height: 100%;
+        border-radius: 999px;
+    }
+
+    .ad-activeName {
+        grid-area: name;
+        align-self: center;
+        margin: 0;
+        min-height: 0;
+        max-width: 100%;
+        padding: 0;
+        font-size: 13px;
+        line-height: 1.35;
+        text-align: left;
+        display: block;
+        overflow: visible;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: normal;
+        -webkit-line-clamp: unset;
+    }
+
+    .ad-activeGrowth {
+        grid-area: growth;
+        align-self: center;
+        justify-self: end;
+        margin: 0;
+        min-height: 0;
+        font-size: 12px;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 430px) {
+    .ad-panelChart .ad-headActions {
+        grid-template-columns: 1fr;
+    }
+
+    .ad-activeItem {
+        min-height: 70px;
+        padding: 10px;
+        column-gap: 10px;
+    }
+
+    .ad-activeName {
         font-size: 12px;
     }
 }

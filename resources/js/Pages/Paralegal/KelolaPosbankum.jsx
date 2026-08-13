@@ -64,6 +64,12 @@ function normStatus(s) {
         .toLowerCase();
 }
 
+function isCoordinateValue(value) {
+    if (value === null || value === undefined) return false;
+    if (String(value).trim() === "") return false;
+    return Number.isFinite(Number(value));
+}
+
 function statusKind(s) {
     const v = normStatus(s);
     if (!v) return "none";
@@ -323,8 +329,6 @@ const LOCATION_STATUS_KEYS = [
     "location_status",
     "lokasi_status",
     "status_area",
-    "status_verifikasi",
-    "status",
 ];
 
 function isKnownVerificationStatus(value) {
@@ -348,6 +352,8 @@ function isKnownVerificationStatus(value) {
 }
 
 function getLocationStatusRaw(sources, hasCoords) {
+    if (!hasCoords) return "";
+
     const rows = Array.isArray(sources) ? sources : [sources];
 
     for (const row of rows) {
@@ -663,14 +669,14 @@ function pickCoordsFromRow(row) {
         row.long_pos ??
         null;
 
-    if (Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+    if (isCoordinateValue(lat) && isCoordinateValue(lng)) {
         return { lat: String(lat), lng: String(lng) };
     }
 
     const koordinat = row.koordinat ?? row.coordinate ?? row.coords ?? "";
     if (typeof koordinat === "string" && koordinat.includes(",")) {
         const [a, b] = koordinat.split(",").map((v) => v.trim());
-        if (Number.isFinite(Number(a)) && Number.isFinite(Number(b))) {
+        if (isCoordinateValue(a) && isCoordinateValue(b)) {
             return { lat: a, lng: b };
         }
     }
@@ -853,8 +859,7 @@ export default function KelolaPosbankum({
     }, [flash?.success]);
 
     const hasSavedCoords =
-        Number.isFinite(Number(locSaved.lat)) &&
-        Number.isFinite(Number(locSaved.lng));
+        isCoordinateValue(locSaved.lat) && isCoordinateValue(locSaved.lng);
 
     const locationKind = useMemo(() => {
         return statusKind(
@@ -865,7 +870,9 @@ export default function KelolaPosbankum({
         );
     }, [location, posRow, currentPosbankum, hasSavedCoords]);
 
-    const locationLabel = statusLabelFromKind(locationKind);
+    const locationLabel = hasSavedCoords
+        ? statusLabelFromKind(locationKind)
+        : "Belum Ditentukan";
     // Status database "menunggu" pada Posbankum baru belum berarti lokasi sudah
     // diajukan. Selama koordinat belum diisi, tampilkan kartu netral seperti SK/Sarpras.
     const locationVisualKind =
@@ -2052,9 +2059,7 @@ export default function KelolaPosbankum({
                             ) : (
                                 <FiUpload />
                             )}
-                            <span>
-                                {hasSavedCoords ? locationLabel : "Belum"}
-                            </span>
+                            <span>{locationLabel}</span>
                         </div>
                     </div>
 

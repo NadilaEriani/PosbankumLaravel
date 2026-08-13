@@ -137,14 +137,18 @@ function assetUrl(path) {
 }
 
 function hasTaggingArea(pos) {
-    const lat = Number(
-        firstValue(pos, ["latitude", "lat", "latitude_pos"], ""),
-    );
-    const lng = Number(
-        firstValue(pos, ["longitude", "lng", "long", "longitude_pos"], ""),
+    const lat = firstValue(pos, ["latitude", "lat", "latitude_pos"], "");
+    const lng = firstValue(
+        pos,
+        ["longitude", "lng", "long", "longitude_pos"],
+        "",
     );
 
-    return Number.isFinite(lat) && Number.isFinite(lng);
+    if (String(lat ?? "").trim() === "" || String(lng ?? "").trim() === "") {
+        return false;
+    }
+
+    return Number.isFinite(Number(lat)) && Number.isFinite(Number(lng));
 }
 
 function isChangedAfterCreate(createdAt, updatedAt) {
@@ -1158,7 +1162,10 @@ export default function DataPosbankum({
                                                                 <tr
                                                                     key={`${id}-${row.kategori}-${index}`}
                                                                 >
-                                                                    <td className="dp-tdStrong" data-label="Kategori">
+                                                                    <td
+                                                                        className="dp-tdStrong"
+                                                                        data-label="Kategori"
+                                                                    >
                                                                         <span>
                                                                             {
                                                                                 row.kategori

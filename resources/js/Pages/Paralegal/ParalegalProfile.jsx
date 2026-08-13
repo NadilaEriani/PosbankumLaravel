@@ -42,6 +42,28 @@ function statusLabel(value) {
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+function taggingStatusLabel(value, latitude, longitude) {
+    const hasCoords =
+        latitude !== null &&
+        latitude !== undefined &&
+        longitude !== null &&
+        longitude !== undefined &&
+        String(latitude).trim() !== "" &&
+        String(longitude).trim() !== "" &&
+        Number.isFinite(Number(latitude)) &&
+        Number.isFinite(Number(longitude));
+
+    if (!hasCoords) return "Belum Ditentukan";
+
+    const text = cleanText(value).toLowerCase();
+    if (["disetujui", "diterima", "approved", "valid"].includes(text)) {
+        return "Disetujui";
+    }
+    if (["ditolak", "rejected", "tolak"].includes(text)) return "Ditolak";
+
+    return "Menunggu Verifikasi";
+}
+
 function joinLocation(...items) {
     return items.map(cleanText).filter(Boolean).join(", ");
 }
@@ -428,8 +450,10 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
                                     <TbLocation />
                                     <b>
                                         Tagging Area:{" "}
-                                        {statusLabel(
+                                        {taggingStatusLabel(
                                             posbankum.status_tagging_area,
+                                            posbankum.latitude,
+                                            posbankum.longitude,
                                         )}
                                     </b>
                                 </span>

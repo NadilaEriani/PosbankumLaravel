@@ -159,19 +159,9 @@ class ManajemenAkunController extends Controller
             'nama' => $kelurahan->nama,
         ];
 
-        // Posbankum baru belum melalui proses verifikasi tagging area.
-        // Isi semua kolom status lokasi yang memang tersedia agar fallback lama
-        // tidak dapat membaca kolom lain sebagai "disetujui".
-        foreach ([
-            'status_verifikasi_tagging_area',
-            'status_tagging_area',
-            'status_verifikasi_tagging',
-            'status_tagging',
-            'status_lokasi',
-            'status_verifikasi_lokasi',
-        ] as $column) {
-            $this->addColumn($payload, 'posbankum', $column, 'menunggu');
-        }
+        // Status Tagging Area sengaja tidak diinisialisasi di sini.
+        // Posbankum baru belum pernah mengajukan koordinat, sehingga status
+        // verifikasi baru menjadi "menunggu" saat Paralegal menyimpan lokasi.
 
         if ($this->hasColumn('posbankum', 'created_at')) {
             $payload['created_at'] = now();
