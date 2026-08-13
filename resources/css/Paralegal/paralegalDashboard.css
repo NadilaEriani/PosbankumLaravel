@@ -1184,9 +1184,6 @@
     }
 }
 
-
-
-
 .pb2Root button,
 .pb2Root [role="button"] {
     transition:
@@ -1230,9 +1227,6 @@
     line-height: 1.4;
     color: #6c6c6c;
 }
-
-
-
 
 .pb2InfoGrid {
     display: grid;
@@ -1357,9 +1351,6 @@
     cursor: not-allowed;
 }
 
-
-
-
 .pb2ContentWithHeading {
     gap: 22px;
 }
@@ -1394,21 +1385,6 @@
         0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .pb2NotifOverlay,
 .pb2ConfirmOverlay {
     overscroll-behavior: contain;
@@ -1423,18 +1399,6 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 .pb2Root,
 .pb2Root button,
@@ -1467,9 +1431,6 @@
 .pb2NotifBody {
     grid-template-columns: minmax(0, 1fr) !important;
 }
-
-
-
 
 .pb2NotifPageContent {
     padding: 30px 56px 30px;
@@ -1692,12 +1653,6 @@
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
 }
 
-
-
-
-
-
-
 .pb2NotifPagination {
     width: 100%;
     margin-top: 18px;
@@ -1782,12 +1737,6 @@
     cursor: not-allowed;
     box-shadow: none;
 }
-
-
-
-
-
-
 
 button.pb2CaseCard,
 button.pb2KegiatanItem {
@@ -1899,19 +1848,9 @@ button.pb2KegiatanItem:active {
     outline: none;
 }
 
-
-
-
 .pb2MobileMenuButton {
     display: none;
 }
-
-
-
-
-
-
-
 
 /* =========================================================
    Responsive mobile shell — Paralegal
@@ -2097,7 +2036,9 @@ button.pb2KegiatanItem:active {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-        transition: opacity 0.2s ease, visibility 0.2s ease;
+        transition:
+            opacity 0.2s ease,
+            visibility 0.2s ease;
     }
 
     .pb2MobileDrawerOverlay.is-visible {
@@ -2164,8 +2105,24 @@ button.pb2KegiatanItem:active {
 
     .pb2TopRight {
         width: auto;
-        flex: 0 0 auto;
+        max-width: 46%;
+        min-width: 0;
+        flex: 0 1 auto;
         gap: 8px;
+    }
+
+    .pb2TopUser {
+        min-width: 0;
+        max-width: min(30vw, 150px);
+        overflow: hidden;
+    }
+
+    .pb2TopUserName {
+        display: block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .pb2Bell {
@@ -2257,7 +2214,10 @@ button.pb2KegiatanItem:active {
     .pb2MainGrid,
     .pb2InfoGrid,
     .pb2CaseGrid {
-        grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr);
         gap: 12px;
     }
 
@@ -2265,6 +2225,8 @@ button.pb2KegiatanItem:active {
     .pb2InfoItem,
     .pb2CaseCard,
     .pb2KegiatanItem {
+        width: 100%;
+        max-width: 100%;
         min-width: 0;
         border-radius: 16px;
     }
@@ -2277,6 +2239,48 @@ button.pb2KegiatanItem:active {
     .pb2CaseCard,
     .pb2KegiatanItem {
         gap: 10px;
+    }
+
+    .pb2CaseCard {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .pb2CaseBody,
+    .pb2CasePills {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .pb2CaseTitle,
+    .pb2CaseDesc {
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: normal;
+    }
+
+    .pb2CasePills {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .pb2Pill {
+        width: auto;
+        max-width: 100%;
+        min-width: 0;
+        height: auto;
+        min-height: 22px;
+        padding: 4px 10px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
+        line-height: 1.25;
+        text-align: left;
+        justify-content: flex-start;
     }
 
     .pb2PanelTitle,
@@ -2462,6 +2466,23 @@ button.pb2KegiatanItem:active {
     .pb2KegiatanItem {
         padding-left: 12px;
         padding-right: 12px;
+    }
+
+    .pb2CaseCard {
+        grid-template-columns: 38px minmax(0, 1fr);
+        column-gap: 9px;
+    }
+
+    .pb2CaseIcon {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 12px;
+    }
+
+    .pb2Pill {
+        font-size: 10px;
+        padding: 4px 8px;
     }
 
     .pb2NotifPageItem,
