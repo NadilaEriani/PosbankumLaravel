@@ -322,6 +322,32 @@ class LaporanPelayananController extends Controller
         return is_array($decoded) ? $decoded : [];
     }
 
+    /**
+     * Simpan nama lurah tanpa memaksa perubahan struktur database.
+     *
+     * Pada database lama, tabel pengaduan belum memiliki kolom `nama_lurah`
+     * maupun `catatan_admin`. Dalam kondisi tersebut nama lurah disimpan dengan
+     * format kompatibel aplikasi mobile di kolom kronologi. Dashboard akan
+     * memisahkan format ini kembali saat membaca sehingga tampilan kronologi
+     * tetap bersih. Jika database sudah memiliki kolom khusus/metadata JSON,
+     * kronologi disimpan murni seperti biasa.
+     */
+    private function kronologiForStorage(string $kronologi, mixed $namaLurah): string
+    {
+        $namaLurah = trim((string) ($namaLurah ?? ''));
+        $kronologi = trim($kronologi);
+
+        if (
+            $namaLurah === ''
+            || $this->hasColumn('pengaduan', 'nama_lurah')
+            || $this->hasColumn('pengaduan', 'catatan_admin')
+        ) {
+            return $kronologi;
+        }
+
+        return "Nama Lurah: {$namaLurah}\n\nKronologi:\n{$kronologi}";
+    }
+
     private function lampiranTable(): ?string
     {
         foreach (['pengaduan_lampiran', 'lampiran_pengaduan', 'lampiran_pengaduans', 'lampiran'] as $table) {
@@ -475,11 +501,17 @@ class LaporanPelayananController extends Controller
         $this->addColumn($payload, 'pengaduan', 'nama_pelapor', $validated['nama_pelapor']);
         $this->addColumn($payload, 'pengaduan', 'nik', $this->digitsOnly($validated['nik']));
         $this->addColumn($payload, 'pengaduan', 'nomor_telepon', $this->digitsOnly($validated['nomor_telepon']));
+        $this->addColumn($payload, 'pengaduan', 'nama_lurah', $this->blankToNull($validated['nama_lurah'] ?? null));
         $this->addColumn($payload, 'pengaduan', 'jenis_masalah', $validated['jenis_masalah']);
         $this->addColumn($payload, 'pengaduan', 'kategori_masalah', $validated['jenis_masalah']);
         $this->addColumn($payload, 'pengaduan', 'judul_pengaduan', $validated['judul_pengaduan']);
         $this->addColumn($payload, 'pengaduan', 'judul_laporan', $validated['judul_pengaduan']);
-        $this->addColumn($payload, 'pengaduan', 'kronologi', $validated['kronologi']);
+        $this->addColumn(
+            $payload,
+            'pengaduan',
+            'kronologi',
+            $this->kronologiForStorage($validated['kronologi'], $validated['nama_lurah'] ?? null)
+        );
         $this->addColumn($payload, 'pengaduan', 'tanggal_kejadian', $validated['tanggal_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'tgl_kejadian', $validated['tanggal_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'waktu_kejadian', $validated['waktu_kejadian']);

@@ -760,6 +760,14 @@ class DashboardController extends Controller
             $context = $userId ? $contextMap->get((string) $userId) : null;
             $idParalegal = $this->rowValue($row, ['id_paralegal'], $extra['id_paralegal'] ?? $userId);
             $paralegalRow = $idParalegal ? $userMap->get((string) $idParalegal) : null;
+            $kronologiData = $this->splitPengaduanKronologi(
+                $this->rowValue($row, ['kronologi', 'deskripsi', 'uraian'], '')
+            );
+            $namaLurah = trim((string) ($extra['nama_lurah'] ?? $this->rowValue($row, ['nama_lurah'], '')));
+
+            if ($namaLurah === '' || $namaLurah === '-') {
+                $namaLurah = $kronologiData['nama_lurah'] ?: '-';
+            }
 
             return [
                 'id_pengaduan' => $id,
@@ -769,10 +777,12 @@ class DashboardController extends Controller
                 'nama_pelapor' => (string) $this->rowValue($row, ['nama_pelapor'], '-'),
                 'nik' => (string) ($extra['nik'] ?? $this->rowValue($row, ['nik'], '')),
                 'nomor_telepon' => (string) $this->rowValue($row, ['nomor_telepon', 'no_hp_pelapor', 'telepon'], '-'),
-                'nama_lurah' => (string) ($extra['nama_lurah'] ?? $this->rowValue($row, ['nama_lurah'], '-')),
+                'nama_lurah' => $namaLurah,
                 'jenis_masalah' => (string) $this->rowValue($row, ['jenis_masalah', 'kategori_masalah'], 'Lainnya'),
                 'judul_pengaduan' => (string) $this->rowValue($row, ['judul_pengaduan', 'judul_laporan', 'judul'], 'Laporan Pelayanan'),
-                'kronologi' => (string) $this->rowValue($row, ['kronologi', 'deskripsi', 'uraian'], 'Belum ada kronologi.'),
+                'kronologi' => $kronologiData['kronologi'] !== ''
+                    ? $kronologiData['kronologi']
+                    : 'Belum ada kronologi.',
                 'tanggal_kejadian' => $this->rowValue($row, ['tanggal_kejadian', 'tgl_kejadian', 'tgl_lapor', 'created_at']),
                 'waktu_kejadian' => (string) $this->rowValue($row, ['waktu_kejadian'], ''),
                 'lokasi_kejadian' => (string) $this->rowValue($row, ['lokasi_kejadian', 'lokasi', 'alamat'], '-'),
@@ -899,6 +909,57 @@ class DashboardController extends Controller
     private function parseCatatanForCase(mixed $value): array
     {
         return $this->parseJson($value);
+    }
+
+    /**
+     * Normalisasi format kronologi lama dari aplikasi mobile.
+     *
+     * Sebagian data mobile lama menyimpan nama lurah dan kronologi dalam satu
+     * kolom `kronologi`, misalnya:
+     *
+     * Nama Lurah: Rumbai
+     *
+     * Kronologi:
+     * saat kejadian...
+     *
+     * Website membutuhkan keduanya sebagai dua nilai terpisah agar Ringkasan
+     * Kasus hanya menampilkan kronologi, sedangkan nama lurah dapat ditampilkan
+     * pada bagian detail data pelapor. Data website yang sejak awal hanya berisi
+     * kronologi tetap dikembalikan apa adanya.
+     */
+    private function splitPengaduanKronologi(mixed $value): array
+    {
+        $raw = trim((string) ($value ?? ''));
+
+        if ($raw === '') {
+            return [
+                'nama_lurah' => '',
+                'kronologi' => '',
+            ];
+        }
+
+        $normalized = str_replace(["\r\n", "\r"], "\n", $raw);
+        $patterns = [
+            '/^\s*(?:Nama\s+Lurah|Lurah\s*\/\s*Kelurahan)\s*:\s*(.*?)\s*\n+\s*Kronologi\s*:\s*(.*)\s*$/isu',
+            '/^\s*(?:Nama\s+Lurah|Lurah\s*\/\s*Kelurahan)\s*:\s*(.+?)\s+Kronologi\s*:\s*(.+)\s*$/isu',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $normalized, $matches) === 1) {
+                $namaLurah = trim((string) ($matches[1] ?? ''));
+                $kronologi = trim((string) ($matches[2] ?? ''));
+
+                return [
+                    'nama_lurah' => $namaLurah,
+                    'kronologi' => $kronologi !== '' ? $kronologi : $normalized,
+                ];
+            }
+        }
+
+        return [
+            'nama_lurah' => '',
+            'kronologi' => $normalized,
+        ];
     }
 
     private function normalizeCaseStatus(mixed $value): string
@@ -1041,6 +1102,14 @@ class DashboardController extends Controller
                 ['nama_pelapor'],
                 $this->rowValue($createdByRow, ['nama_lengkap', 'name'], 'Pelapor Belum Diisi')
             );
+            $kronologiData = $this->splitPengaduanKronologi(
+                $this->rowValue($row, ['kronologi', 'deskripsi', 'uraian', 'isi_pengaduan'], '')
+            );
+            $namaLurah = trim((string) ($extra['nama_lurah'] ?? $this->rowValue($row, ['nama_lurah'], '')));
+
+            if ($namaLurah === '' || $namaLurah === '-') {
+                $namaLurah = $kronologiData['nama_lurah'] ?: '-';
+            }
 
             return [
                 'id' => (string) $this->rowValue($row, ['nomor_pengaduan', 'id_pengaduan', 'id'], 'KASUS-' . ($index + 1)),
@@ -1061,6 +1130,7 @@ class DashboardController extends Controller
                 'provinsi' => (string) $this->rowValue($row, ['provinsi'], 'Riau'),
                 'pelapor' => $pelaporName,
                 'nama_pelapor' => $pelaporName,
+                'nama_lurah' => $namaLurah,
                 'paralegal' => $paralegalName,
                 'paralegal_nama' => $paralegalName,
                 'paralegalPhone' => $paralegalPhone,
@@ -1071,7 +1141,9 @@ class DashboardController extends Controller
                 'kabupaten_nama' => $kabupatenKota,
                 'tanggalLapor' => $this->rowValue($row, ['created_at', 'tgl_lapor', 'tanggal_kejadian'], now()->toISOString()),
                 'updateTerakhir' => $this->rowValue($row, ['updated_at', 'tgl_selesai', 'created_at', 'tgl_lapor'], now()->toISOString()),
-                'deskripsi' => (string) $this->rowValue($row, ['kronologi', 'deskripsi', 'uraian', 'isi_pengaduan'], $extra['catatan_internal'] ?? 'Belum ada deskripsi kasus.'),
+                'deskripsi' => $kronologiData['kronologi'] !== ''
+                    ? $kronologiData['kronologi']
+                    : (string) ($extra['catatan_internal'] ?? 'Belum ada deskripsi kasus.'),
                 'sumberData' => 'Website',
             ];
         })->toArray();

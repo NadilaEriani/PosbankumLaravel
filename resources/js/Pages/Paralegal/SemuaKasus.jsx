@@ -218,6 +218,12 @@ function normalizeCase(row, index = 0) {
         wilayah,
         provinsi: firstFilled(row?.provinsi, "Riau"),
         pelapor: firstFilled(row?.pelapor, row?.nama_pelapor),
+        namaLurah: firstFilled(
+            row?.nama_lurah,
+            row?.namaLurah,
+            row?.lurah_kades,
+            row?.lurah,
+        ),
         paralegal: firstFilled(
             row?.paralegal,
             row?.paralegal_nama,
@@ -1098,6 +1104,10 @@ function CaseDetail({ item, onBack }) {
                     >
                         <div className="skFieldGrid skFieldGridThree">
                             <FieldItem label="Pelapor" value={item.pelapor} />
+                            <FieldItem
+                                label="Lurah / Kades"
+                                value={item.namaLurah}
+                            />
                             <FieldItem
                                 label="Paralegal"
                                 value={item.paralegal}
