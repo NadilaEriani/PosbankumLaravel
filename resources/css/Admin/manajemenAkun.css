@@ -3216,3 +3216,152 @@
         flex-wrap: wrap !important;
     }
 }
+
+/* =========================================================
+   FINAL RESPONSIVE SAFETY FIX — Manajemen Akun
+   Samakan breakpoint isi halaman dengan mobile shell Admin (<= 860px).
+   Rule ini sengaja diletakkan paling akhir untuk menetralkan width/min-width
+   desktop yang memakai !important pada setiap kolom tabel.
+   ========================================================= */
+@media (max-width: 860px) {
+    .kpShell,
+    .kpShell .kpPanel,
+    .kpShell .kpTableCard,
+    .kpShell .kpTable,
+    .kpShell .kpTable tbody,
+    .kpShell .kpTable tbody tr,
+    .kpShell .kpTable tbody td {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .kpShell .kpTableCard {
+        overflow: visible !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .kpShell .kpTable {
+        display: block !important;
+        table-layout: auto !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+
+    .kpShell .kpTable thead {
+        display: none !important;
+    }
+
+    .kpShell .kpTable tbody {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .kpShell .kpTable tbody tr {
+        display: block !important;
+        overflow: hidden !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 16px !important;
+        background: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .kpShell .kpTable tbody td,
+    .kpShell .kpTable tbody td:first-child,
+    .kpShell .kpTable tbody td:nth-child(2),
+    .kpShell .kpTable tbody td:nth-child(3),
+    .kpShell .kpTable tbody td:nth-child(4),
+    .kpShell .kpTable tbody td:nth-child(5) {
+        display: grid !important;
+        grid-template-columns: minmax(108px, 0.8fr) minmax(0, 1.45fr) !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        padding: 12px 14px !important;
+        border-bottom: 1px solid #eef1f5 !important;
+        background: #ffffff !important;
+        text-align: left !important;
+        white-space: normal !important;
+        overflow: visible !important;
+    }
+
+    .kpShell .kpTable tbody td:last-child {
+        border-bottom: 0 !important;
+    }
+
+    .kpShell .kpTable tbody td::before {
+        content: attr(data-label) !important;
+        display: block !important;
+        width: auto !important;
+        min-width: 0 !important;
+        color: #6b7280 !important;
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+        font-weight: 700 !important;
+        white-space: normal !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+        hyphens: none !important;
+    }
+
+    .kpShell .kpNameCell,
+    .kpShell .kpTextCell,
+    .kpShell .kpInfoCell,
+    .kpShell .kpInfoCell span,
+    .kpShell .kpInfoCell small {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        hyphens: none !important;
+        line-height: 1.45 !important;
+    }
+
+    .kpShell .kpActions {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+}
+
+@media (max-width: 560px) {
+    .kpShell .kpPanel {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .kpShell .kpTable tbody td,
+    .kpShell .kpTable tbody td:first-child,
+    .kpShell .kpTable tbody td:nth-child(2),
+    .kpShell .kpTable tbody td:nth-child(3),
+    .kpShell .kpTable tbody td:nth-child(4),
+    .kpShell .kpTable tbody td:nth-child(5) {
+        grid-template-columns: 1fr !important;
+        align-items: start !important;
+        gap: 5px !important;
+        padding: 11px 13px !important;
+    }
+
+    .kpShell .kpTable tbody td::before {
+        width: 100% !important;
+        font-size: 11px !important;
+    }
+}

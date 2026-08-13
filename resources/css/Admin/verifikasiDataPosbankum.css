@@ -2869,3 +2869,134 @@
         height: 42px;
     }
 }
+
+/* =========================================================
+   FINAL RESPONSIVE SAFETY FIX — Verifikasi Data Posbankum
+   Mobile shell Admin aktif sampai 860px, sehingga daftar card juga harus
+   menjadi satu kolom pada rentang yang sama agar isi dokumen tidak terjepit.
+   ========================================================= */
+@media (max-width: 860px) {
+    .vd,
+    .vd-grid,
+    .vd-card,
+    .vd-cardHead,
+    .vd-docs,
+    .vd-docPill,
+    .vd-docLeft,
+    .vd-docMeta {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .vd-grid {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px !important;
+    }
+
+    .vd-card {
+        width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .vd-cardHead {
+        width: 100% !important;
+        padding: 16px !important;
+    }
+
+    .vd-cardTitle,
+    .vd-cardSub {
+        max-width: 100% !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+        hyphens: none !important;
+    }
+
+    .vd-docs {
+        width: 100% !important;
+        padding: 12px !important;
+        gap: 10px !important;
+    }
+
+    .vd-docPill {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) 44px !important;
+        align-items: center !important;
+        gap: 10px !important;
+        min-height: 66px !important;
+        padding: 11px 10px 11px 12px !important;
+        overflow: hidden !important;
+    }
+
+    .vd-docLeft {
+        width: 100% !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        overflow: hidden !important;
+    }
+
+    .vd-docStatus {
+        flex: 0 0 auto !important;
+        margin-top: 2px !important;
+    }
+
+    .vd-docMeta {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        overflow: hidden !important;
+    }
+
+    .vd-docLabel,
+    .vd-docDate {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+        hyphens: none !important;
+        line-height: 1.4 !important;
+    }
+
+    .vd-docLabel {
+        font-size: 13px !important;
+    }
+
+    .vd-docDate {
+        margin-top: 2px !important;
+        font-size: 11px !important;
+    }
+
+    .vd-eyeBtn {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+        flex: 0 0 44px !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .vd-docPill {
+        grid-template-columns: minmax(0, 1fr) 42px !important;
+        gap: 8px !important;
+    }
+
+    .vd-eyeBtn {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        flex-basis: 42px !important;
+    }
+}
