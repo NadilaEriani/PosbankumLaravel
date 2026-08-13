@@ -120,7 +120,7 @@ class KelolaBeritaController extends Controller
 
         if (!$statusColumn) {
             throw ValidationException::withMessages([
-                'status' => 'Kolom status berita belum tersedia. Jalankan migrasi database terlebih dahulu.',
+                'status' => 'Kolom status berita belum tersedia di database.',
             ]);
         }
 

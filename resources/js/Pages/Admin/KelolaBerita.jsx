@@ -1168,6 +1168,7 @@ export default function KelolaBerita({
                                             onClick={() =>
                                                 openStatusConfirm(item)
                                             }
+                                            disabled={statusUpdating}
                                             aria-label={
                                                 isActive
                                                     ? "Nonaktifkan berita"
