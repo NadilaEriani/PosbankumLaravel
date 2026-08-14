@@ -243,6 +243,7 @@ export default function KelolaBerita({
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("semua");
     const [timeFilter, setTimeFilter] = useState("all");
+    const [timeFilterOpen, setTimeFilterOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -266,6 +267,14 @@ export default function KelolaBerita({
     const [imagePreview, setImagePreview] = useState("");
 
     const fileInputRef = useRef(null);
+    const timeFilterRef = useRef(null);
+
+    const selectedTimeFilter = useMemo(
+        () =>
+            TIME_FILTER_OPTIONS.find((option) => option.value === timeFilter) ??
+            TIME_FILTER_OPTIONS[0],
+        [timeFilter],
+    );
 
     const normalizedItems = useMemo(
         () =>
@@ -326,6 +335,35 @@ export default function KelolaBerita({
             setCurrentPage(totalPages);
         }
     }, [currentPage, totalPages]);
+
+    useEffect(() => {
+        if (!timeFilterOpen) return undefined;
+
+        const closeWhenClickOutside = (event) => {
+            if (
+                timeFilterRef.current &&
+                !timeFilterRef.current.contains(event.target)
+            ) {
+                setTimeFilterOpen(false);
+            }
+        };
+
+        const closeOnEscape = (event) => {
+            if (event.key === "Escape") {
+                setTimeFilterOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", closeWhenClickOutside);
+        document.addEventListener("touchstart", closeWhenClickOutside);
+        document.addEventListener("keydown", closeOnEscape);
+
+        return () => {
+            document.removeEventListener("mousedown", closeWhenClickOutside);
+            document.removeEventListener("touchstart", closeWhenClickOutside);
+            document.removeEventListener("keydown", closeOnEscape);
+        };
+    }, [timeFilterOpen]);
 
     useEffect(() => {
         if (!toast) return undefined;
@@ -1041,25 +1079,60 @@ export default function KelolaBerita({
                         ))}
                     </div>
 
-                    <label
-                        className="kb-timeFilter"
-                        aria-label="Filter waktu berita"
+                    <div
+                        ref={timeFilterRef}
+                        className={`kb-timeFilter ${
+                            timeFilterOpen ? "is-open" : ""
+                        }`}
                     >
-                        <FiFilter className="kb-timeFilterIcon" />
-                        <select
-                            value={timeFilter}
-                            onChange={(event) =>
-                                setTimeFilter(event.target.value)
+                        <button
+                            className="kb-timeFilterTrigger"
+                            type="button"
+                            onClick={() =>
+                                setTimeFilterOpen((current) => !current)
                             }
+                            aria-label="Filter waktu berita"
+                            aria-haspopup="listbox"
+                            aria-expanded={timeFilterOpen}
                         >
-                            {TIME_FILTER_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                        <FiChevronDown className="kb-timeFilterChevron" />
-                    </label>
+                            <FiFilter className="kb-timeFilterIcon" />
+                            <span className="kb-timeFilterLabel">
+                                {selectedTimeFilter.label}
+                            </span>
+                            <FiChevronDown className="kb-timeFilterChevron" />
+                        </button>
+
+                        {timeFilterOpen ? (
+                            <div
+                                className="kb-timeFilterMenu"
+                                role="listbox"
+                                aria-label="Pilihan waktu berita"
+                            >
+                                {TIME_FILTER_OPTIONS.map((option) => {
+                                    const isSelected =
+                                        timeFilter === option.value;
+
+                                    return (
+                                        <button
+                                            key={option.value}
+                                            className={`kb-timeFilterOption ${
+                                                isSelected ? "is-selected" : ""
+                                            }`}
+                                            type="button"
+                                            role="option"
+                                            aria-selected={isSelected}
+                                            onClick={() => {
+                                                setTimeFilter(option.value);
+                                                setTimeFilterOpen(false);
+                                            }}
+                                        >
+                                            {option.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
             </div>
 
@@ -1168,7 +1241,6 @@ export default function KelolaBerita({
                                             onClick={() =>
                                                 openStatusConfirm(item)
                                             }
-                                            disabled={statusUpdating}
                                             aria-label={
                                                 isActive
                                                     ? "Nonaktifkan berita"
