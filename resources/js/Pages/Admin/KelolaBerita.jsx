@@ -7,6 +7,7 @@ import {
     FiFileText,
     FiCalendar,
     FiChevronDown,
+    FiChevronUp,
     FiChevronLeft,
     FiChevronRight,
     FiEdit,
@@ -1099,7 +1100,11 @@ export default function KelolaBerita({
                             <span className="kb-timeFilterLabel">
                                 {selectedTimeFilter.label}
                             </span>
-                            <FiChevronDown className="kb-timeFilterChevron" />
+                            {timeFilterOpen ? (
+                                <FiChevronUp className="kb-timeFilterChevron" />
+                            ) : (
+                                <FiChevronDown className="kb-timeFilterChevron" />
+                            )}
                         </button>
 
                         {timeFilterOpen ? (
