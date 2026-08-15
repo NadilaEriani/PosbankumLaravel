@@ -340,7 +340,7 @@ export default function KelolaBerita({
     useEffect(() => {
         if (!timeFilterOpen) return undefined;
 
-        const closeWhenClickOutside = (event) => {
+        const handlePointerDown = (event) => {
             if (
                 timeFilterRef.current &&
                 !timeFilterRef.current.contains(event.target)
@@ -349,20 +349,18 @@ export default function KelolaBerita({
             }
         };
 
-        const closeOnEscape = (event) => {
+        const handleKeyDown = (event) => {
             if (event.key === "Escape") {
                 setTimeFilterOpen(false);
             }
         };
 
-        document.addEventListener("mousedown", closeWhenClickOutside);
-        document.addEventListener("touchstart", closeWhenClickOutside);
-        document.addEventListener("keydown", closeOnEscape);
+        document.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
 
         return () => {
-            document.removeEventListener("mousedown", closeWhenClickOutside);
-            document.removeEventListener("touchstart", closeWhenClickOutside);
-            document.removeEventListener("keydown", closeOnEscape);
+            document.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
         };
     }, [timeFilterOpen]);
 
@@ -1092,12 +1090,12 @@ export default function KelolaBerita({
                             onClick={() =>
                                 setTimeFilterOpen((current) => !current)
                             }
-                            aria-label="Filter waktu berita"
                             aria-haspopup="listbox"
                             aria-expanded={timeFilterOpen}
+                            aria-label="Filter waktu berita"
                         >
                             <FiFilter className="kb-timeFilterIcon" />
-                            <span className="kb-timeFilterLabel">
+                            <span className="kb-timeFilterText">
                                 {selectedTimeFilter.label}
                             </span>
                             {timeFilterOpen ? (
@@ -1115,12 +1113,12 @@ export default function KelolaBerita({
                             >
                                 {TIME_FILTER_OPTIONS.map((option) => {
                                     const isSelected =
-                                        timeFilter === option.value;
+                                        option.value === timeFilter;
 
                                     return (
                                         <button
                                             key={option.value}
-                                            className={`kb-timeFilterOption ${
+                                            className={`kb-timeFilterItem ${
                                                 isSelected ? "is-selected" : ""
                                             }`}
                                             type="button"
@@ -1246,6 +1244,7 @@ export default function KelolaBerita({
                                             onClick={() =>
                                                 openStatusConfirm(item)
                                             }
+                                            disabled={statusUpdating}
                                             aria-label={
                                                 isActive
                                                     ? "Nonaktifkan berita"
