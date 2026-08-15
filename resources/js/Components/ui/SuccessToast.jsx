@@ -23,21 +23,25 @@ export default function SuccessToast({
     if (!message) return null;
 
     const isNewsStatus = variant === "news-status";
+    const isAccountStatus = variant === "account-status";
+    const isCompactStatus = isNewsStatus || isAccountStatus;
 
     return (
         <div
-            className={`st-toast ${isNewsStatus ? "st-toast--news-status" : ""}`}
+            className={`st-toast ${isNewsStatus ? "st-toast--news-status" : ""} ${
+                isAccountStatus ? "st-toast--account-status" : ""
+            }`}
             role="status"
             aria-live="polite"
         >
-            {isNewsStatus ? (
+            {isCompactStatus ? (
                 <HiOutlineCheckCircle className="st-toastStatusIcon" />
             ) : (
                 <div className="st-toastIcon">✓</div>
             )}
 
             <div className="st-toastBody">
-                {!isNewsStatus ? (
+                {!isCompactStatus ? (
                     <div className="st-toastTitle">{title}</div>
                 ) : null}
                 <div className="st-toastText">{message}</div>
@@ -59,5 +63,5 @@ SuccessToast.propTypes = {
     title: PropTypes.string,
     message: PropTypes.string,
     onClose: PropTypes.func,
-    variant: PropTypes.oneOf(["default", "news-status"]),
+    variant: PropTypes.oneOf(["default", "news-status", "account-status"]),
 };

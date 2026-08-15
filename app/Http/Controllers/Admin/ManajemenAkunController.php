@@ -224,9 +224,10 @@ class ManajemenAkunController extends Controller
 
         $this->addColumn($payload, 'users', 'role', 'paralegal');
         $this->addColumn($payload, 'users', 'id_posbankum', $data['id_posbankum']);
-        $this->addColumn($payload, 'users', 'status', 'aktif');
 
         if ($isCreate) {
+            $this->addColumn($payload, 'users', 'status', 'aktif');
+
             $randomPassword = Str::random(64);
 
             $this->addColumn($payload, 'users', 'password_hash', Hash::make($randomPassword));
@@ -407,6 +408,53 @@ class ManajemenAkunController extends Controller
         }
 
         return back()->with('success', 'Data paralegal berhasil diperbarui.');
+    }
+
+    public function updateStatus(Request $request, string $idUser): RedirectResponse
+    {
+        if (!$this->hasColumn('users', 'status')) {
+            throw ValidationException::withMessages([
+                'status' => 'Kolom status belum tersedia pada tabel users.',
+            ]);
+        }
+
+        $data = Validator::make(
+            $request->all(),
+            [
+                'status' => ['required', 'string', Rule::in(['aktif', 'nonaktif'])],
+            ],
+            [
+                'status.required' => 'Status akun wajib dipilih.',
+                'status.in' => 'Status akun tidak valid.',
+            ],
+        )->validate();
+
+        $user = $this->findParalegal($idUser);
+
+        if (!$user) {
+            throw ValidationException::withMessages([
+                'id_user' => 'Akun paralegal tidak ditemukan.',
+            ]);
+        }
+
+        try {
+            $payload = [
+                'status' => $data['status'],
+            ];
+
+            $this->addColumn($payload, 'users', 'updated_at', now());
+
+            DB::table('users')
+                ->where($this->userKeyColumn(), $idUser)
+                ->where('role', 'paralegal')
+                ->update($payload);
+        } catch (\Throwable $e) {
+            throw ValidationException::withMessages([
+                'database' => $e->getMessage() ?: 'Gagal memperbarui status akun paralegal.',
+            ]);
+        }
+
+        return back();
     }
 
     public function destroy(string $idUser): RedirectResponse

@@ -3471,3 +3471,400 @@
         border-radius: 11px !important;
     }
 }
+
+/* =========================================================
+   FITUR STATUS AKUN PARALEGAL — mengikuti desain Manajemen Akun
+   ========================================================= */
+.kpShell,
+.kpShell button,
+.kpShell input,
+.kpShell select,
+.kpShell textarea {
+    font-family: "Outfit", sans-serif !important;
+}
+
+.kpAccountStats {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin: 0 0 18px;
+}
+
+.kpAccountStatCard {
+    min-width: 0;
+    height: 134px;
+    border-radius: 16px;
+    padding: 22px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    color: #ffffff;
+    overflow: hidden;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.kpAccountStatCard.is-total {
+    background: linear-gradient(180deg, #2e335b 0%, #464c7c 100%);
+}
+
+.kpAccountStatCard.is-inactive {
+    background: linear-gradient(180deg, #ffd131 0%, #ff9f31 100%);
+}
+
+.kpAccountStatCard.is-active {
+    background: linear-gradient(180deg, #056e51 0%, #298d69 100%);
+}
+
+.kpAccountStatIcon {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.kpAccountStatIcon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+
+.kpAccountStatContent {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.kpAccountStatContent > span {
+    margin-top: 2px;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 500;
+}
+
+.kpAccountStatContent > strong {
+    margin-top: 3px;
+    color: #ffffff;
+    font-size: 32px;
+    line-height: 36px;
+    font-weight: 700;
+}
+
+.kpAccountStatContent > small {
+    margin-top: 7px;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+    white-space: normal;
+}
+
+.kpToolbar.kpToolbarInline {
+    grid-template-columns: minmax(300px, 1fr) auto !important;
+    gap: 16px !important;
+}
+
+.kpToolbar.kpToolbarInline .kpFiltersInline {
+    grid-template-columns: repeat(3, 170px) !important;
+    gap: 12px !important;
+    min-width: 534px !important;
+}
+
+.kpStatusFilterDropdown .kpDropdownBtn {
+    width: 100% !important;
+}
+
+.kpTable {
+    min-width: 1080px !important;
+}
+
+.kpTable thead th:first-child,
+.kpTable tbody td:first-child {
+    width: 17% !important;
+}
+
+.kpTable thead th:nth-child(2),
+.kpTable tbody td:nth-child(2) {
+    width: 19% !important;
+}
+
+.kpTable thead th:nth-child(3),
+.kpTable tbody td:nth-child(3) {
+    width: 14% !important;
+}
+
+.kpTable thead th:nth-child(4),
+.kpTable tbody td:nth-child(4) {
+    width: 23% !important;
+    min-width: 220px !important;
+    text-align: left !important;
+}
+
+.kpTable thead th:nth-child(5),
+.kpTable tbody td:nth-child(5) {
+    width: 12% !important;
+    min-width: 112px !important;
+    text-align: center !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+.kpTable thead th:nth-child(6),
+.kpTable tbody td:nth-child(6) {
+    width: 15% !important;
+    min-width: 154px !important;
+    text-align: center !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+}
+
+.kpStatusBadge {
+    width: fit-content;
+    min-width: 70.33334350585938px;
+    min-height: 29.33333969116211px;
+    border: 2.67px solid transparent;
+    border-radius: 89478496px;
+    padding: 2px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: "Outfit", sans-serif;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    letter-spacing: 0;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.kpStatusBadge.is-active {
+    background: #ecfdf5;
+    border-color: #a4f4cf;
+    color: #007a55;
+}
+
+.kpStatusBadge.is-inactive {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #4b5563;
+}
+
+.kpStatusDot {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 6px;
+    border-radius: 89478496px;
+}
+
+.kpStatusBadge.is-active .kpStatusDot {
+    background: #00bc7d;
+}
+
+.kpStatusBadge.is-inactive .kpStatusDot {
+    background: #9ca3af;
+}
+
+.kpIcoBtn {
+    border: 1.33px solid transparent !important;
+}
+
+.kpIcoBtn.is-view {
+    background: #e8f0fe !important;
+    border-color: #0f3f93 !important;
+    color: #0f3f93 !important;
+}
+
+.kpIcoBtn.is-edit {
+    background: #fffbeb !important;
+    border-color: #e17100 !important;
+    color: #e17100 !important;
+}
+
+.kpIcoBtn.is-status.is-disable {
+    background: #fff1f2 !important;
+    border-color: #ec003f !important;
+    color: #ec003f !important;
+}
+
+.kpIcoBtn.is-status.is-enable {
+    background: #ecfdf5 !important;
+    border-color: #00bc7d !important;
+    color: #007a55 !important;
+}
+
+.kpIcoBtn.is-status svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.kpIcoBtn:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+
+@media (max-width: 1180px) and (min-width: 861px) {
+    .kpAccountStats {
+        gap: 16px;
+    }
+
+    .kpAccountStatCard {
+        height: 124px;
+        padding: 18px;
+        gap: 12px;
+    }
+
+    .kpAccountStatIcon {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+    }
+
+    .kpAccountStatContent > strong {
+        font-size: 28px;
+        line-height: 32px;
+    }
+
+    .kpToolbar.kpToolbarInline .kpFiltersInline {
+        grid-template-columns: repeat(3, 150px) !important;
+        min-width: 474px !important;
+    }
+}
+
+@media (max-width: 860px) {
+    .kpAccountStats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .kpAccountStatCard {
+        height: 108px;
+        padding: 14px 12px;
+        border-radius: 14px;
+        gap: 10px;
+    }
+
+    .kpAccountStatIcon {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+        border-radius: 11px;
+    }
+
+    .kpAccountStatIcon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .kpAccountStatContent > span {
+        margin-top: 0;
+        font-size: 12px;
+        line-height: 15px;
+    }
+
+    .kpAccountStatContent > strong {
+        margin-top: 1px;
+        font-size: 24px;
+        line-height: 28px;
+    }
+
+    .kpAccountStatContent > small {
+        margin-top: 3px;
+        font-size: 10px;
+        line-height: 13px;
+    }
+
+    .kpShell .kpPanel .kpToolbar.kpToolbarInline > .kpFilters.kpFiltersInline {
+        grid-template-columns: 1fr !important;
+        min-width: 0 !important;
+    }
+
+    .kpShell .kpTable tbody td:nth-child(6) {
+        display: grid !important;
+        grid-template-columns: minmax(108px, 0.8fr) minmax(0, 1.45fr) !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: auto !important;
+        padding: 12px 14px !important;
+        border-bottom: 0 !important;
+        background: #ffffff !important;
+        text-align: left !important;
+    }
+
+    .kpShell .kpTable tbody td:nth-child(5) {
+        text-align: left !important;
+    }
+
+    .kpStatusBadge {
+        min-height: 27px;
+        padding: 2px 10px;
+        font-size: 11px;
+        line-height: 14px;
+    }
+
+    .kpIcoBtn {
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 11px !important;
+    }
+}
+
+@media (max-width: 620px) {
+    .kpAccountStats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .kpAccountStatCard {
+        height: 88px;
+        padding: 12px 14px;
+        align-items: center;
+    }
+
+    .kpAccountStatContent {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 8px;
+        align-items: center;
+    }
+
+    .kpAccountStatContent > span {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .kpAccountStatContent > strong {
+        grid-column: 2;
+        grid-row: 1;
+        margin: 0;
+        font-size: 22px;
+        line-height: 25px;
+    }
+
+    .kpAccountStatContent > small {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: 2px;
+        font-size: 10px;
+        line-height: 13px;
+    }
+
+    .kpShell .kpTable tbody td:nth-child(6) {
+        grid-template-columns: 1fr !important;
+        align-items: start !important;
+        gap: 5px !important;
+        padding: 11px 13px !important;
+    }
+}

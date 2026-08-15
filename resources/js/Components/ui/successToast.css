@@ -179,3 +179,63 @@
         min-height: 58px;
     }
 }
+
+/* Manajemen Akun: notifikasi aktivasi/nonaktivasi paralegal sesuai desain. */
+.st-toast.st-toast--account-status {
+    top: 12px;
+    right: 12px;
+    width: min(calc(100vw - 24px), 448px);
+    min-height: 60px;
+    padding: 10px 12px 10px 14px;
+    border-radius: 18px;
+    align-items: center;
+    gap: 10px;
+    background: #f0fdf4;
+    color: #14532d;
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #22c55e;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 14px 28px rgba(15, 23, 42, 0.2);
+}
+
+.st-toast--account-status .st-toastStatusIcon {
+    width: 28px;
+    height: 28px;
+    color: #22c55e;
+    flex: 0 0 auto;
+}
+
+.st-toast--account-status .st-toastBody {
+    display: flex;
+    align-items: center;
+}
+
+.st-toast--account-status .st-toastText {
+    color: #14532d;
+    font-family: "Outfit", sans-serif;
+    font-size: 15px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+.st-toast--account-status .st-toastClose {
+    width: 30px;
+    height: 30px;
+    color: #9ca3af;
+    font-size: 20px;
+}
+
+@media (max-width: 640px) {
+    .st-toast.st-toast--account-status {
+        top: calc(12px + env(safe-area-inset-top));
+        left: max(12px, env(safe-area-inset-left));
+        right: max(12px, env(safe-area-inset-right));
+        width: auto;
+        min-height: 58px;
+    }
+
+    .st-toast--account-status .st-toastText {
+        font-size: 14px;
+    }
+}

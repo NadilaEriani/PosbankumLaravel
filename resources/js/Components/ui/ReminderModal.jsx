@@ -1,4 +1,5 @@
 import { FiInfo } from "react-icons/fi";
+import { HiOutlineShieldCheck } from "react-icons/hi";
 import "./reminderModal.css";
 
 export default function ReminderModal({
@@ -19,21 +20,36 @@ export default function ReminderModal({
     const primaryLabel = confirmLabel || buttonLabel;
     const handlePrimary = onConfirm || onClose;
     const isNewsStatus = variant === "news-status";
+    const isAccountStatus = variant === "account-status";
+    const overlayVariantClass = isNewsStatus
+        ? "rmOverlay--news-status"
+        : isAccountStatus
+          ? "rmOverlay--account-status"
+          : "";
+    const cardVariantClass = isNewsStatus
+        ? "rmCard--news-status"
+        : isAccountStatus
+          ? "rmCard--account-status"
+          : "";
 
     return (
         <div
-            className={`rmOverlay ${isNewsStatus ? "rmOverlay--news-status" : ""}`}
+            className={`rmOverlay ${overlayVariantClass}`}
             onMouseDown={loading ? undefined : onClose}
             role="dialog"
             aria-modal="true"
         >
             <div
-                className={`rmCard ${isNewsStatus ? "rmCard--news-status" : ""}`}
+                className={`rmCard ${cardVariantClass}`}
                 onMouseDown={(e) => e.stopPropagation()}
             >
                 <div className="rmHead">
                     <div className="rmIconWrap" aria-hidden="true">
-                        <FiInfo />
+                        {isAccountStatus ? (
+                            <HiOutlineShieldCheck />
+                        ) : (
+                            <FiInfo />
+                        )}
                     </div>
                     <div className="rmHeadText">
                         <div className="rmTitle">{title}</div>

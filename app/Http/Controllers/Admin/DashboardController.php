@@ -1080,10 +1080,6 @@ class DashboardController extends Controller
             $query->where('u.role', 'paralegal');
         }
 
-        if ($this->hasColumn('users', 'status')) {
-            $query->where('u.status', 'aktif');
-        }
-
         if ($hasParalegalRelation && $this->hasColumn('posbankum_paralegal', 'assigned_at')) {
             $query->orderBy('pp.assigned_at');
         } elseif ($hasParalegalRelation && $this->hasColumn('posbankum_paralegal', 'created_at')) {

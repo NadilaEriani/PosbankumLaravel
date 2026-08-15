@@ -526,6 +526,9 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
     Route::put('/admin/manajemen-akun/paralegal/{idUser}', [ManajemenAkunController::class, 'update'])
         ->name('admin.manajemen-akun.paralegal.update');
 
+    Route::patch('/admin/manajemen-akun/paralegal/{idUser}/status', [ManajemenAkunController::class, 'updateStatus'])
+        ->name('admin.manajemen-akun.paralegal.status');
+
     Route::delete('/admin/manajemen-akun/paralegal/{idUser}', [ManajemenAkunController::class, 'destroy'])
         ->name('admin.manajemen-akun.paralegal.destroy');
 

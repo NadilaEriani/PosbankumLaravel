@@ -345,3 +345,176 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Manajemen Akun: konfirmasi mengaktifkan kembali akun Paralegal. */
+.rmOverlay.rmOverlay--account-status {
+    z-index: 10050;
+    place-items: center;
+    padding: 18px;
+    background: rgba(15, 23, 42, 0.48);
+}
+
+.rmCard.rmCard--account-status {
+    width: min(448px, calc(100vw - 36px));
+    padding: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    text-align: center;
+    font-family: "Outfit", sans-serif;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 24px 54px rgba(15, 23, 42, 0.32);
+}
+
+.rmCard--account-status .rmHead {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 24px 32px 0;
+}
+
+.rmCard--account-status .rmIconWrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #007a55;
+}
+
+.rmCard--account-status .rmIconWrap svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2;
+}
+
+.rmCard--account-status .rmHeadText {
+    width: 100%;
+}
+
+.rmCard--account-status .rmTitle {
+    color: #111827;
+    font-size: 20px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.rmCard--account-status .rmDescription {
+    margin: 12px auto 0;
+    padding: 0 32px 24px;
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 500;
+}
+
+.rmCard--account-status .rmActions {
+    margin-top: 0;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.rmCard--account-status .rmBtn {
+    width: auto;
+    min-width: 82px;
+    height: 44px;
+    border-radius: 14px;
+    padding: 0 18px;
+    font-family: "Outfit", sans-serif;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 700;
+}
+
+.rmCard--account-status .rmBtnGhost {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.rmCard--account-status .rmBtnPrimary {
+    min-width: 104px;
+    background: #007a55;
+    color: #ffffff;
+}
+
+.rmCard--account-status .rmBtnPrimary:not(:disabled):hover,
+.rmCard--account-status .rmBtnPrimary:not(:disabled):focus-visible {
+    background: #007a55;
+}
+
+@media (max-width: 520px) {
+    .rmOverlay.rmOverlay--account-status {
+        place-items: center;
+        padding: max(12px, env(safe-area-inset-top))
+            max(12px, env(safe-area-inset-right))
+            max(12px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left));
+    }
+
+    .rmCard.rmCard--account-status {
+        width: 100%;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 14px;
+        overflow-y: auto;
+    }
+
+    .rmCard--account-status .rmHead {
+        gap: 14px;
+        padding: 20px 20px 0;
+    }
+
+    .rmCard--account-status .rmIconWrap {
+        width: 48px;
+        height: 48px;
+    }
+
+    .rmCard--account-status .rmIconWrap svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .rmCard--account-status .rmTitle {
+        font-size: 18px;
+        line-height: 1.3;
+    }
+
+    .rmCard--account-status .rmDescription {
+        margin-top: 10px;
+        padding: 0 20px 20px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .rmCard--account-status .rmActions {
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .rmCard--account-status .rmBtn {
+        width: auto;
+        min-width: 76px;
+        height: 42px;
+        padding: 0 15px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 360px) {
+    .rmCard--account-status .rmActions {
+        flex-direction: column-reverse;
+    }
+
+    .rmCard--account-status .rmBtn {
+        width: 100%;
+    }
+}

@@ -8,15 +8,19 @@ import {
     FiChevronDown,
     FiEdit2,
     FiEye,
-    FiTrash2,
     FiPlus,
     FiFilter,
     FiCheck,
+    FiUsers,
+    FiUserX,
+    FiUserCheck,
 } from "react-icons/fi";
+import { RiShutDownLine } from "react-icons/ri";
 import posbankumIcon from "../../assets/icon.png";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
+import ReminderModal from "../../Components/ui/ReminderModal";
 import "../../../css/Admin/manajemenAkun.css";
 
 const PAGE_SIZE = 6;
@@ -83,6 +87,30 @@ function pick(row, keys, fallback = "") {
     }
 
     return fallback;
+}
+
+function normalizeAccountStatus(value) {
+    if (typeof value === "boolean") return value ? "aktif" : "nonaktif";
+    if (typeof value === "number") return value === 0 ? "nonaktif" : "aktif";
+
+    const normalized = String(value ?? "")
+        .trim()
+        .toLowerCase();
+
+    if (
+        [
+            "0",
+            "false",
+            "nonaktif",
+            "non-aktif",
+            "inactive",
+            "disabled",
+        ].includes(normalized)
+    ) {
+        return "nonaktif";
+    }
+
+    return "aktif";
 }
 
 function normalizeRow(row, index = 0) {
@@ -164,6 +192,13 @@ function normalizeRow(row, index = 0) {
                 "-",
             ),
             "-",
+        ),
+        status: normalizeAccountStatus(
+            pick(
+                row,
+                ["status", "status_akun", "is_active", "active"],
+                "aktif",
+            ),
         ),
     };
 }
@@ -479,6 +514,7 @@ export default function ManajemenAkun({
 
     const [kabupatenId, setKabupatenId] = useState("");
     const [kecamatanId, setKecamatanId] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
 
     const [page, setPage] = useState(1);
     const [err, setErr] = useState("");
@@ -490,6 +526,10 @@ export default function ManajemenAkun({
     const [saving, setSaving] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const [statusTarget, setStatusTarget] = useState(null);
+    const [statusUpdating, setStatusUpdating] = useState(false);
+    const [statusError, setStatusError] = useState("");
+    const [statusSuccessMessage, setStatusSuccessMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [rejectMessage, setRejectMessage] = useState("");
 
@@ -730,6 +770,9 @@ export default function ManajemenAkun({
             ) {
                 return false;
             }
+            if (statusFilter && row.status !== statusFilter) {
+                return false;
+            }
 
             if (!search) return true;
 
@@ -742,17 +785,29 @@ export default function ManajemenAkun({
                 row.kecamatan_nama,
                 row.kelurahan_nama,
                 row.lokasi,
+                row.status,
             ]
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase()
                 .includes(search);
         });
-    }, [localRows, kabupatenId, kecamatanId, debouncedQ]);
+    }, [localRows, kabupatenId, kecamatanId, statusFilter, debouncedQ]);
 
     useEffect(() => {
         setPage(1);
-    }, [kabupatenId, kecamatanId, debouncedQ]);
+    }, [kabupatenId, kecamatanId, statusFilter, debouncedQ]);
+
+    const accountStats = useMemo(() => {
+        const active = localRows.filter((row) => row.status === "aktif").length;
+        const inactive = localRows.length - active;
+
+        return {
+            total: localRows.length,
+            active,
+            inactive,
+        };
+    }, [localRows]);
 
     const total = filteredRows.length;
     const totalPages = useMemo(
@@ -981,6 +1036,76 @@ export default function ManajemenAkun({
                     showError(message);
                 },
                 onFinish: () => setDeleting(false),
+            },
+        );
+    };
+
+    const openStatusConfirm = (row) => {
+        if (!row?.id_user || statusUpdating) return;
+
+        setStatusError("");
+        setRejectMessage("");
+        setStatusTarget({
+            row,
+            nextStatus: row.status === "aktif" ? "nonaktif" : "aktif",
+        });
+    };
+
+    const closeStatusConfirm = () => {
+        if (statusUpdating) return;
+        setStatusTarget(null);
+        setStatusError("");
+    };
+
+    const confirmStatusChange = () => {
+        const target = statusTarget?.row;
+        const nextStatus = statusTarget?.nextStatus;
+
+        if (
+            !target?.id_user ||
+            !["aktif", "nonaktif"].includes(nextStatus) ||
+            statusUpdating
+        ) {
+            return;
+        }
+
+        setStatusUpdating(true);
+        setStatusError("");
+        setRejectMessage("");
+
+        router.patch(
+            `/admin/manajemen-akun/paralegal/${target.id_user}/status`,
+            { status: nextStatus },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    setLocalRows((prev) =>
+                        prev.map((row) =>
+                            String(row.id_user) === String(target.id_user)
+                                ? { ...row, status: nextStatus }
+                                : row,
+                        ),
+                    );
+                    setStatusTarget(null);
+                    setStatusError("");
+                    setStatusSuccessMessage(
+                        nextStatus === "aktif"
+                            ? "Paralegal berhasil diaktifkan!"
+                            : "Paralegal berhasil dinonaktifkan!",
+                    );
+                },
+                onError: (errors) => {
+                    const message = getFirstError(
+                        errors,
+                        nextStatus === "aktif"
+                            ? "Gagal mengaktifkan akun paralegal."
+                            : "Gagal menonaktifkan akun paralegal.",
+                    );
+                    setStatusError(message);
+                    setRejectMessage(message);
+                },
+                onFinish: () => setStatusUpdating(false),
             },
         );
     };
@@ -1270,6 +1395,44 @@ export default function ManajemenAkun({
 
     const renderListPage = () => (
         <>
+            <div
+                className="kpAccountStats"
+                aria-label="Ringkasan akun paralegal"
+            >
+                <article className="kpAccountStatCard is-total">
+                    <div className="kpAccountStatIcon" aria-hidden="true">
+                        <FiUsers />
+                    </div>
+                    <div className="kpAccountStatContent">
+                        <span>Total Paralegal</span>
+                        <strong>{accountStats.total}</strong>
+                        <small>Seluruh akun paralegal terdaftar</small>
+                    </div>
+                </article>
+
+                <article className="kpAccountStatCard is-inactive">
+                    <div className="kpAccountStatIcon" aria-hidden="true">
+                        <FiUserX />
+                    </div>
+                    <div className="kpAccountStatContent">
+                        <span>Nonaktif</span>
+                        <strong>{accountStats.inactive}</strong>
+                        <small>Akun yang sedang tidak aktif</small>
+                    </div>
+                </article>
+
+                <article className="kpAccountStatCard is-active">
+                    <div className="kpAccountStatIcon" aria-hidden="true">
+                        <FiUserCheck />
+                    </div>
+                    <div className="kpAccountStatContent">
+                        <span>Aktif</span>
+                        <strong>{accountStats.active}</strong>
+                        <small>Akun yang dapat mengakses sistem</small>
+                    </div>
+                </article>
+            </div>
+
             <div className="kpPanel">
                 <div className="kpToolbar kpToolbarInline">
                     <div className="kpSearch">
@@ -1320,6 +1483,19 @@ export default function ManajemenAkun({
                                 ...kecamatanOpts,
                             ]}
                         />
+
+                        <KpDropdown
+                            className="kpFilterDropdown kpStatusFilterDropdown"
+                            value={statusFilter}
+                            onChange={setStatusFilter}
+                            placeholder="Semua Status"
+                            searchable={false}
+                            options={[
+                                { value: "", label: "Semua Status" },
+                                { value: "aktif", label: "Aktif" },
+                                { value: "nonaktif", label: "Nonaktif" },
+                            ]}
+                        />
                     </div>
                 </div>
             </div>
@@ -1332,6 +1508,7 @@ export default function ManajemenAkun({
                             <th>Email</th>
                             <th>No. Telepon</th>
                             <th>Posbankum</th>
+                            <th>Status</th>
                             <th className="kpActionHead">Aksi</th>
                         </tr>
                     </thead>
@@ -1364,6 +1541,23 @@ export default function ManajemenAkun({
                                                 : "-"}
                                         </span>
                                     </td>
+                                    <td data-label="Status">
+                                        <span
+                                            className={`kpStatusBadge ${
+                                                r.status === "aktif"
+                                                    ? "is-active"
+                                                    : "is-inactive"
+                                            }`}
+                                        >
+                                            <span
+                                                className="kpStatusDot"
+                                                aria-hidden="true"
+                                            />
+                                            {r.status === "aktif"
+                                                ? "Aktif"
+                                                : "Nonaktif"}
+                                        </span>
+                                    </td>
                                     <td data-label="Aksi">
                                         <div className="kpActions">
                                             <button
@@ -1386,13 +1580,28 @@ export default function ManajemenAkun({
                                             </button>
 
                                             <button
-                                                className="kpIcoBtn is-delete"
+                                                className={`kpIcoBtn is-status ${
+                                                    r.status === "aktif"
+                                                        ? "is-disable"
+                                                        : "is-enable"
+                                                }`}
                                                 type="button"
-                                                onClick={() => onHapus(r)}
-                                                aria-label="Hapus"
-                                                title="Hapus"
+                                                onClick={() =>
+                                                    openStatusConfirm(r)
+                                                }
+                                                disabled={statusUpdating}
+                                                aria-label={
+                                                    r.status === "aktif"
+                                                        ? "Nonaktifkan akun"
+                                                        : "Aktifkan akun"
+                                                }
+                                                title={
+                                                    r.status === "aktif"
+                                                        ? "Nonaktifkan akun"
+                                                        : "Aktifkan akun"
+                                                }
                                             >
-                                                <FiTrash2 />
+                                                <RiShutDownLine />
                                             </button>
                                         </div>
                                     </td>
@@ -1400,7 +1609,7 @@ export default function ManajemenAkun({
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="kpEmptyCell">
+                                <td colSpan={6} className="kpEmptyCell">
                                     <div className="kpEmptyState">
                                         <div
                                             className="kpEmptyIcon"
@@ -1421,6 +1630,7 @@ export default function ManajemenAkun({
                                                 setQ("");
                                                 setKabupatenId("");
                                                 setKecamatanId("");
+                                                setStatusFilter("");
                                                 setPage(1);
                                             }}
                                         >
@@ -1519,9 +1729,67 @@ export default function ManajemenAkun({
                     onConfirm={confirmHapus}
                 />
 
+                <ReminderModal
+                    open={statusTarget?.nextStatus === "aktif"}
+                    variant="account-status"
+                    title="Aktifkan Kembali Akun Paralegal?"
+                    subtitle=""
+                    description={
+                        <>
+                            <span>
+                                Akun Paralegal akan kembali aktif dan dapat
+                                digunakan untuk mengakses Sistem Posbankum.
+                            </span>
+                            {statusError ? (
+                                <span className="kpStatusModalError">
+                                    {statusError}
+                                </span>
+                            ) : null}
+                        </>
+                    }
+                    cancelLabel="Batal"
+                    confirmLabel="Aktifkan"
+                    loading={statusUpdating}
+                    onClose={closeStatusConfirm}
+                    onConfirm={confirmStatusChange}
+                />
+
+                <DeleteConfirmModal
+                    open={statusTarget?.nextStatus === "nonaktif"}
+                    variant="account-status"
+                    title="Nonaktifkan Akun Paralegal?"
+                    subtitle=""
+                    description={
+                        <>
+                            <span>
+                                Akun Paralegal tidak dapat digunakan untuk
+                                mengakses Sistem Posbankum selama berstatus
+                                nonaktif. Data dan riwayat akun tetap tersimpan
+                                dan akun dapat diaktifkan kembali.
+                            </span>
+                            {statusError ? (
+                                <span className="kpStatusModalError">
+                                    {statusError}
+                                </span>
+                            ) : null}
+                        </>
+                    }
+                    cancelLabel="Batal"
+                    confirmLabel="Nonaktifkan"
+                    loading={statusUpdating}
+                    onCancel={closeStatusConfirm}
+                    onConfirm={confirmStatusChange}
+                />
+
                 <SuccessToast
                     message={successMessage}
                     onClose={() => setSuccessMessage("")}
+                />
+
+                <SuccessToast
+                    message={statusSuccessMessage}
+                    variant="news-status"
+                    onClose={() => setStatusSuccessMessage("")}
                 />
 
                 <RejectToast

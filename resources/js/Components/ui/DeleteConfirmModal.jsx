@@ -1,4 +1,5 @@
 import { FiAlertTriangle } from "react-icons/fi";
+import { HiOutlineShieldExclamation } from "react-icons/hi";
 import "./deleteConfirmModal.css";
 
 export default function DeleteConfirmModal({
@@ -16,21 +17,36 @@ export default function DeleteConfirmModal({
     if (!open) return null;
 
     const isNewsStatus = variant === "news-status";
+    const isAccountStatus = variant === "account-status";
+    const overlayVariantClass = isNewsStatus
+        ? "dcmOverlay--news-status"
+        : isAccountStatus
+          ? "dcmOverlay--account-status"
+          : "";
+    const cardVariantClass = isNewsStatus
+        ? "dcmCard--news-status"
+        : isAccountStatus
+          ? "dcmCard--account-status"
+          : "";
 
     return (
         <div
-            className={`dcmOverlay ${isNewsStatus ? "dcmOverlay--news-status" : ""}`}
+            className={`dcmOverlay ${overlayVariantClass}`}
             onMouseDown={loading ? undefined : onCancel}
             role="dialog"
             aria-modal="true"
         >
             <div
-                className={`dcmCard ${isNewsStatus ? "dcmCard--news-status" : ""}`}
+                className={`dcmCard ${cardVariantClass}`}
                 onMouseDown={(e) => e.stopPropagation()}
             >
                 <div className="dcmHead">
                     <div className="dcmIconWrap" aria-hidden="true">
-                        <FiAlertTriangle />
+                        {isAccountStatus ? (
+                            <HiOutlineShieldExclamation />
+                        ) : (
+                            <FiAlertTriangle />
+                        )}
                     </div>
                     <div className="dcmHeadText">
                         <div className="dcmTitle">{title}</div>
