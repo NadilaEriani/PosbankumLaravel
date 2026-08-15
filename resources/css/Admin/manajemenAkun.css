@@ -3698,8 +3698,8 @@
 }
 
 .kpIcoBtn.is-status svg {
-    width: 15px !important;
-    height: 15px !important;
+    width: 10px !important;
+    height: 10px !important;
 }
 
 .kpIcoBtn:disabled {
