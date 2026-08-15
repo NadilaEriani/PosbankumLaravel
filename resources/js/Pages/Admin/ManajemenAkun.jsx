@@ -15,7 +15,7 @@ import {
     FiUserX,
     FiUserCheck,
 } from "react-icons/fi";
-import { RiShutDownLine } from "react-icons/ri";
+import { GrPowerShutdown } from "react-icons/gr";
 import posbankumIcon from "../../assets/icon.png";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
@@ -1601,7 +1601,7 @@ export default function ManajemenAkun({
                                                         : "Aktifkan akun"
                                                 }
                                             >
-                                                <RiShutDownLine />
+                                                <GrPowerShutdown />
                                             </button>
                                         </div>
                                     </td>
