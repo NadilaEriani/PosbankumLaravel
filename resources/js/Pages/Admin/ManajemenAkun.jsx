@@ -14,6 +14,7 @@ import {
     FiUsers,
     FiUserX,
     FiUserCheck,
+    FiClock,
 } from "react-icons/fi";
 import { GrPowerShutdown } from "react-icons/gr";
 import posbankumIcon from "../../assets/icon.png";
@@ -261,6 +262,69 @@ function formatLocation(row) {
 
 function displayValue(value) {
     return cleanText(value, "-");
+}
+
+const HISTORY_MONTHS_ID = [
+    "JANUARI",
+    "FEBRUARI",
+    "MARET",
+    "APRIL",
+    "MEI",
+    "JUNI",
+    "JULI",
+    "AGUSTUS",
+    "SEPTEMBER",
+    "OKTOBER",
+    "NOVEMBER",
+    "DESEMBER",
+];
+
+function formatAccountHistoryDate(value) {
+    const raw = String(value ?? "").trim();
+    const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+    if (!match) return "-";
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+
+    if (month < 1 || month > 12 || day < 1 || day > 31) return "-";
+
+    return `${day} ${HISTORY_MONTHS_ID[month - 1]} ${year}`;
+}
+
+function buildAccountHistory(row) {
+    if (!row) return [];
+
+    const events = [];
+    const joinedAt = row.created_at || row.assigned_at;
+    const posbankumName = row.posbankum_nama
+        ? formatPosbankumName(row.posbankum_nama)
+        : "Posbankum";
+
+    if (joinedAt) {
+        events.push({
+            key: "joined",
+            date: formatAccountHistoryDate(joinedAt),
+            title: "Paralegal pertama kali bergabung",
+            description: `Akun dibuat dan terdaftar pada ${posbankumName}.`,
+        });
+    }
+
+    if (row.status_changed_at) {
+        events.push({
+            key: "status",
+            date: formatAccountHistoryDate(row.status_changed_at),
+            title:
+                normalizeAccountStatus(row.status) === "aktif"
+                    ? "Akun diaktifkan"
+                    : "Akun dinonaktifkan",
+            description: "",
+        });
+    }
+
+    return events;
 }
 
 function KpDropdown({
@@ -1314,6 +1378,9 @@ export default function ManajemenAkun({
     const renderDetailPage = () => {
         if (!detailTarget) return null;
 
+        const detailStatus = normalizeAccountStatus(detailTarget.status);
+        const accountHistory = buildAccountHistory(detailTarget);
+
         return (
             <div className="kpDetailPage">
                 {renderPageTitle({
@@ -1330,63 +1397,149 @@ export default function ManajemenAkun({
                     ),
                 })}
 
-                <article className="kpDetailCard">
-                    <div className="kpDetailCardHead">
-                        <h2>{displayValue(detailTarget.nama_lengkap)}</h2>
-                        <p>
-                            {detailTarget.posbankum_nama
-                                ? formatPosbankumName(
-                                      detailTarget.posbankum_nama,
-                                  )
-                                : "Posbankum belum tersedia"}
-                        </p>
+                <div className="kpDetailInfoGrid">
+                    <article className="kpDetailInfoCard">
+                        <div className="kpDetailInfoHead">
+                            <h2>Informasi Paralegal</h2>
+                        </div>
+
+                        <div className="kpDetailInfoBody">
+                            <div className="kpDetailInfoRow">
+                                <span className="kpDetailInfoLabel">
+                                    NAMA LENGKAP
+                                </span>
+                                <strong className="kpDetailInfoValue">
+                                    {displayValue(detailTarget.nama_lengkap)}
+                                </strong>
+                            </div>
+
+                            <div className="kpDetailInfoRow">
+                                <span className="kpDetailInfoLabel">EMAIL</span>
+                                <strong className="kpDetailInfoValue">
+                                    {displayValue(detailTarget.email)}
+                                </strong>
+                            </div>
+
+                            <div className="kpDetailInfoRow">
+                                <span className="kpDetailInfoLabel">
+                                    NOMOR TELEPON
+                                </span>
+                                <strong className="kpDetailInfoValue">
+                                    {displayValue(detailTarget.nomor_telepon)}
+                                </strong>
+                            </div>
+
+                            <div className="kpDetailInfoRow is-last">
+                                <span className="kpDetailInfoLabel">
+                                    STATUS AKUN
+                                </span>
+                                <div className="kpDetailStatusWrap">
+                                    <span
+                                        className={`kpStatusBadge ${
+                                            detailStatus === "aktif"
+                                                ? "is-active"
+                                                : "is-inactive"
+                                        }`}
+                                    >
+                                        <span
+                                            className="kpStatusDot"
+                                            aria-hidden="true"
+                                        />
+                                        {detailStatus === "aktif"
+                                            ? "Aktif"
+                                            : "Nonaktif"}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article className="kpDetailInfoCard">
+                        <div className="kpDetailInfoHead">
+                            <h2>Informasi Posbankum</h2>
+                        </div>
+
+                        <div className="kpDetailInfoBody">
+                            <div className="kpDetailInfoRow">
+                                <span className="kpDetailInfoLabel">
+                                    NAMA POSBANKUM
+                                </span>
+                                <strong className="kpDetailInfoValue">
+                                    {detailTarget.posbankum_nama
+                                        ? formatPosbankumName(
+                                              detailTarget.posbankum_nama,
+                                          )
+                                        : "-"}
+                                </strong>
+                            </div>
+
+                            <div className="kpDetailInfoRow">
+                                <span className="kpDetailInfoLabel">
+                                    KELURAHAN/DESA
+                                </span>
+                                <strong className="kpDetailInfoValue">
+                                    {displayValue(detailTarget.kelurahan_nama)}
+                                </strong>
+                            </div>
+
+                            <div className="kpDetailInfoRow">
+                                <span className="kpDetailInfoLabel">
+                                    KECAMATAN
+                                </span>
+                                <strong className="kpDetailInfoValue">
+                                    {displayValue(detailTarget.kecamatan_nama)}
+                                </strong>
+                            </div>
+
+                            <div className="kpDetailInfoRow is-last">
+                                <span className="kpDetailInfoLabel">
+                                    KABUPATEN/KOTA
+                                </span>
+                                <strong className="kpDetailInfoValue">
+                                    {displayValue(detailTarget.kabupaten_nama)}
+                                </strong>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <article className="kpAccountHistoryCard">
+                    <div className="kpAccountHistoryHead">
+                        <FiClock aria-hidden="true" />
+                        <h2>Riwayat Akun</h2>
                     </div>
 
-                    <div className="kpDetailGrid">
-                        <div className="kpDetailItem">
-                            <span>Nama Paralegal</span>
-                            <strong>
-                                {displayValue(detailTarget.nama_lengkap)}
-                            </strong>
-                        </div>
-                        <div className="kpDetailItem">
-                            <span>Email</span>
-                            <strong>{displayValue(detailTarget.email)}</strong>
-                        </div>
-                        <div className="kpDetailItem">
-                            <span>No. Telepon</span>
-                            <strong>
-                                {displayValue(detailTarget.nomor_telepon)}
-                            </strong>
-                        </div>
-                        <div className="kpDetailItem">
-                            <span>Posbankum</span>
-                            <strong>
-                                {detailTarget.posbankum_nama
-                                    ? formatPosbankumName(
-                                          detailTarget.posbankum_nama,
-                                      )
-                                    : "-"}
-                            </strong>
-                        </div>
-                        <div className="kpDetailItem">
-                            <span>Kabupaten</span>
-                            <strong>
-                                {displayValue(detailTarget.kabupaten_nama)}
-                            </strong>
-                        </div>
-                        <div className="kpDetailItem">
-                            <span>Kecamatan</span>
-                            <strong>
-                                {displayValue(detailTarget.kecamatan_nama)}
-                            </strong>
-                        </div>
-                        <div className="kpDetailItem">
-                            <span>Kelurahan</span>
-                            <strong>
-                                {displayValue(detailTarget.kelurahan_nama)}
-                            </strong>
-                        </div>
+                    <div className="kpAccountHistoryBody">
+                        {accountHistory.length ? (
+                            <div className="kpAccountTimeline">
+                                {accountHistory.map((item) => (
+                                    <div
+                                        className="kpAccountTimelineItem"
+                                        key={item.key}
+                                    >
+                                        <span
+                                            className="kpAccountTimelineDot"
+                                            aria-hidden="true"
+                                        />
+                                        <span className="kpAccountTimelineDate">
+                                            {item.date}
+                                        </span>
+                                        <strong className="kpAccountTimelineTitle">
+                                            {item.title}
+                                        </strong>
+                                        {item.description ? (
+                                            <p className="kpAccountTimelineDescription">
+                                                {item.description}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="kpAccountHistoryEmpty">
+                                Riwayat akun belum tersedia.
+                            </p>
+                        )}
                     </div>
                 </article>
             </div>

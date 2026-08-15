@@ -3698,8 +3698,8 @@
 }
 
 .kpIcoBtn.is-status svg {
-    width: 15px !important;
-    height: 15px !important;
+    width: 18px !important;
+    height: 18px !important;
 }
 
 .kpIcoBtn:disabled {
@@ -3873,4 +3873,264 @@
     font-size: 13px;
     line-height: 18px;
     font-weight: 600;
+}
+
+/* ===== Detail Paralegal - sesuai desain Manajemen Akun ===== */
+.kpDetailPage {
+    width: 100%;
+}
+
+.kpDetailInfoGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    width: 100%;
+}
+
+.kpDetailInfoCard,
+.kpAccountHistoryCard {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #dbe2ec;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.kpDetailInfoHead,
+.kpAccountHistoryHead {
+    min-height: 68px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #dbe2ec;
+    background: #ffffff;
+}
+
+.kpDetailInfoHead h2,
+.kpAccountHistoryHead h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.kpDetailInfoBody {
+    padding: 22px 24px 24px;
+}
+
+.kpDetailInfoRow {
+    min-height: 69px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    border-bottom: 1px solid #dbe2ec;
+}
+
+.kpDetailInfoRow.is-last {
+    border-bottom: 0;
+}
+
+.kpDetailInfoLabel {
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.kpDetailInfoValue {
+    color: #111827;
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.kpDetailStatusWrap {
+    display: flex;
+    align-items: center;
+    min-height: 29px;
+}
+
+.kpAccountHistoryCard {
+    margin-top: 24px;
+}
+
+.kpAccountHistoryHead {
+    gap: 10px;
+}
+
+.kpAccountHistoryHead svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    color: #0f3f93;
+}
+
+.kpAccountHistoryBody {
+    padding: 22px 24px 24px;
+}
+
+.kpAccountTimeline {
+    position: relative;
+}
+
+.kpAccountTimeline::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    bottom: 12px;
+    left: 7px;
+    width: 1px;
+    background: #dbe2ec;
+}
+
+.kpAccountTimelineItem {
+    position: relative;
+    min-height: 78px;
+    padding: 0 0 18px 29px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.kpAccountTimelineItem:last-child {
+    min-height: 0;
+    padding-bottom: 0;
+}
+
+.kpAccountTimelineDot {
+    position: absolute;
+    top: 3px;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    border: 3px solid #e8f0fe;
+    border-radius: 999px;
+    background: #343a73;
+    z-index: 1;
+}
+
+.kpAccountTimelineDate {
+    margin-bottom: 5px;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.kpAccountTimelineTitle {
+    color: #111827;
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 800;
+}
+
+.kpAccountTimelineDescription {
+    margin: 5px 0 0;
+    color: #667085;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+}
+
+.kpAccountHistoryEmpty {
+    margin: 0;
+    color: #667085;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+}
+
+@media (max-width: 860px) {
+    .kpDetailInfoGrid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .kpAccountHistoryCard {
+        margin-top: 14px;
+    }
+
+    .kpDetailInfoHead,
+    .kpAccountHistoryHead {
+        min-height: 60px;
+        padding: 0 18px;
+    }
+
+    .kpDetailInfoHead h2,
+    .kpAccountHistoryHead h2 {
+        font-size: 18px;
+    }
+
+    .kpDetailInfoBody,
+    .kpAccountHistoryBody {
+        padding: 16px 18px 18px;
+    }
+
+    .kpDetailInfoRow {
+        min-height: 62px;
+        gap: 5px;
+    }
+
+    .kpDetailInfoValue,
+    .kpAccountTimelineTitle {
+        font-size: 15px;
+    }
+
+    .kpAccountTimelineItem {
+        min-height: 72px;
+        padding-left: 27px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpDetailInfoCard,
+    .kpAccountHistoryCard {
+        border-radius: 14px;
+    }
+
+    .kpDetailInfoHead,
+    .kpAccountHistoryHead {
+        min-height: 56px;
+        padding: 0 15px;
+    }
+
+    .kpDetailInfoHead h2,
+    .kpAccountHistoryHead h2 {
+        font-size: 17px;
+    }
+
+    .kpDetailInfoBody,
+    .kpAccountHistoryBody {
+        padding: 13px 15px 16px;
+    }
+
+    .kpDetailInfoRow {
+        min-height: 58px;
+    }
+
+    .kpDetailInfoLabel,
+    .kpAccountTimelineDate {
+        font-size: 11px;
+        line-height: 15px;
+    }
+
+    .kpDetailInfoValue,
+    .kpAccountTimelineTitle {
+        font-size: 14px;
+        line-height: 19px;
+    }
+
+    .kpAccountTimelineDescription {
+        font-size: 13px;
+        line-height: 18px;
+    }
 }

@@ -442,6 +442,12 @@ class ManajemenAkunController extends Controller
                 'status' => $data['status'],
             ];
 
+            $currentStatus = strtolower(trim((string) ($user->status ?? 'aktif')));
+
+            if ($currentStatus !== $data['status']) {
+                $this->addColumn($payload, 'users', 'status_changed_at', now());
+            }
+
             $this->addColumn($payload, 'users', 'updated_at', now());
 
             DB::table('users')

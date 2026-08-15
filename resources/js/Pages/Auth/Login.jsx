@@ -1,8 +1,12 @@
+import { useEffect, useState } from "react";
 import { Head, Link } from "@inertiajs/react";
 
 import birdIcon from "../../assets/burung5.png";
 import loginDesign from "../../assets/login_design.png";
 import "../../../css/loginPage.css";
+
+const NETWORK_ERROR_MESSAGE =
+    "Koneksi internet atau jaringan terputus. Periksa koneksi Anda, lalu coba login kembali.";
 
 export default function LoginPage({ status, googleLoginUrl, errors = {} }) {
     const rawLoginError =
@@ -14,7 +18,35 @@ export default function LoginPage({ status, googleLoginUrl, errors = {} }) {
         ? rawLoginError[0]
         : rawLoginError;
 
+    const [networkError, setNetworkError] = useState("");
+
+    useEffect(() => {
+        const updateNetworkStatus = () => {
+            setNetworkError(
+                typeof navigator !== "undefined" && !navigator.onLine
+                    ? NETWORK_ERROR_MESSAGE
+                    : "",
+            );
+        };
+
+        updateNetworkStatus();
+
+        window.addEventListener("offline", updateNetworkStatus);
+        window.addEventListener("online", updateNetworkStatus);
+
+        return () => {
+            window.removeEventListener("offline", updateNetworkStatus);
+            window.removeEventListener("online", updateNetworkStatus);
+        };
+    }, []);
+
     const loginWithGoogle = () => {
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+            setNetworkError(NETWORK_ERROR_MESSAGE);
+            return;
+        }
+
+        setNetworkError("");
         window.location.assign(googleLoginUrl || "/auth/google/redirect");
     };
 
@@ -50,7 +82,12 @@ export default function LoginPage({ status, googleLoginUrl, errors = {} }) {
                         <div className="loginAlert success">{status}</div>
                     ) : null}
 
-                    {loginError ? (
+                    {networkError ? (
+                        <div className="loginAlert error" role="alert">
+                            <strong>Koneksi bermasalah.</strong>
+                            <span>{networkError}</span>
+                        </div>
+                    ) : loginError ? (
                         <div className="loginAlert error" role="alert">
                             <strong>Login gagal.</strong>
                             <span>{String(loginError)}</span>

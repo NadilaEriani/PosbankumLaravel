@@ -720,7 +720,7 @@
 /* Header preview */
 .dp-previewHead {
     padding: 18px;
-    background: linear-gradient(135deg, #2b3056 0%, #3a4070 52%, #4a5080 100%);
+    background: linear-gradient(135deg, #2B3056 0%, #3A4070 52%, #4A5080 100%);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -795,7 +795,7 @@
     min-height: 38px;
     padding: 0 10px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #2b3056 0%, #3a4070 52%, #4a5080 100%);
+    background: linear-gradient(135deg, #2B3056 0%, #3A4070 52%, #4A5080 100%);
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -946,7 +946,7 @@
     bottom: 18px;
     border-radius: 16px;
     padding: 14px 16px;
-    background: linear-gradient(135deg, #2b3056 0%, #3a4070 52%, #4a5080 100%);
+    background: linear-gradient(135deg, #2B3056 0%, #3A4070 52%, #4A5080 100%);
     color: #ffffff;
     box-shadow: 0 18px 46px rgba(2, 6, 23, 0.28);
 }
@@ -1003,7 +1003,7 @@
     padding: 0 10px;
     border-radius: 999px;
     background: rgba(43, 48, 86, 0.1);
-    color: #2b3056;
+    color: #2B3056;
     display: inline-flex;
     align-items: center;
     font-size: 12px;
@@ -1561,4 +1561,37 @@
     .dp-mapInfo {
         padding: 12px 14px;
     }
+}
+
+/* ===== Tombol Lihat Data Posbankum - sesuai design terbaru ===== */
+.dp-viewBtn {
+    width: 72.07842254638672px;
+    min-width: 72.07842254638672px;
+    height: 31.986169815063477px;
+    padding: 0;
+    justify-content: center;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(
+        180deg,
+        #2B3056 0%,
+        #3A4070 50%,
+        #4A5080 100%
+    );
+    box-shadow:
+        0 2px 4px -2px #0000001A,
+        0 4px 6px -1px #0000001A;
+}
+
+.dp-viewBtn:hover {
+    background: linear-gradient(
+        180deg,
+        #2B3056 0%,
+        #3A4070 50%,
+        #4A5080 100%
+    );
+    box-shadow:
+        0 2px 4px -2px #0000001A,
+        0 4px 6px -1px #0000001A;
+    filter: none;
 }

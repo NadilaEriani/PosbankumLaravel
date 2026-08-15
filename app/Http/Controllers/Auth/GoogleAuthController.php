@@ -27,21 +27,30 @@ class GoogleAuthController extends Controller
         }
 
         /*
-         * Buat redirect ke Google lewat Socialite.
+         * Buat redirect ke Google lewat Socialite. Jika proses persiapan OAuth
+         * gagal, tampilkan pesan yang juga mengarahkan pengguna mengecek jaringan.
          */
-        $redirect = Socialite::driver('google')->redirect();
+        try {
+            $redirect = Socialite::driver('google')->redirect();
 
-        /*
-         * Tambahkan prompt=select_account tanpa memakai method with(),
-         * karena method with() sering ditandai error oleh VS Code/Intelephense.
-         */
-        $redirect->setTargetUrl(
-            $this->addQueryToUrl($redirect->getTargetUrl(), [
-                'prompt' => 'select_account',
-            ]),
-        );
+            /*
+             * Tambahkan prompt=select_account tanpa memakai method with(),
+             * karena method with() sering ditandai error oleh VS Code/Intelephense.
+             */
+            $redirect->setTargetUrl(
+                $this->addQueryToUrl($redirect->getTargetUrl(), [
+                    'prompt' => 'select_account',
+                ]),
+            );
 
-        return $redirect;
+            return $redirect;
+        } catch (Throwable $e) {
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'google' => 'Tidak dapat terhubung ke layanan Google. Periksa koneksi internet atau jaringan Anda, lalu coba lagi.',
+                ]);
+        }
     }
 
     public function callback(Request $request)
@@ -60,7 +69,7 @@ class GoogleAuthController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'email' => 'Login dengan Google gagal. Silakan coba lagi. Jika masalah berlanjut, hubungi admin.',
+                    'google' => 'Login dengan Google gagal karena layanan tidak dapat dihubungi. Periksa koneksi internet atau jaringan Anda, lalu coba lagi.',
                 ]);
         }
 

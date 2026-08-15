@@ -1018,7 +1018,7 @@ class DashboardController extends Controller
             'u.' . $userKey . ' as id_user',
         ];
 
-        foreach (['nama_lengkap', 'name', 'email', 'email_kantor', 'email_akun', 'nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon', 'status', 'created_at'] as $column) {
+        foreach (['nama_lengkap', 'name', 'email', 'email_kantor', 'email_akun', 'nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon', 'status', 'status_changed_at', 'created_at'] as $column) {
             if ($this->hasColumn('users', $column)) {
                 $select[] = 'u.' . $column;
             }
@@ -1027,12 +1027,13 @@ class DashboardController extends Controller
         $hasParalegalRelation = $this->hasColumn('posbankum_paralegal', 'id_user') && $this->hasColumn('posbankum_paralegal', 'id_posbankum');
 
         if ($hasParalegalRelation) {
+            /*
+             * Jangan membatasi relasi hanya status aktif. Akun yang sedang
+             * dinonaktifkan tetap harus menampilkan Posbankum terakhirnya pada
+             * halaman daftar dan Detail Paralegal.
+             */
             $query->leftJoin('posbankum_paralegal as pp', function ($join) use ($userKey) {
                 $join->on('pp.id_user', '=', 'u.' . $userKey);
-
-                if ($this->hasColumn('posbankum_paralegal', 'status')) {
-                    $join->where('pp.status', '=', 'aktif');
-                }
             });
 
             $select[] = 'pp.id_posbankum';
@@ -1080,22 +1081,46 @@ class DashboardController extends Controller
             $query->where('u.role', 'paralegal');
         }
 
-        if ($hasParalegalRelation && $this->hasColumn('posbankum_paralegal', 'assigned_at')) {
-            $query->orderBy('pp.assigned_at');
-        } elseif ($hasParalegalRelation && $this->hasColumn('posbankum_paralegal', 'created_at')) {
-            $query->orderBy('pp.created_at');
+        if ($hasParalegalRelation) {
+            /*
+             * Bila satu paralegal pernah mempunyai lebih dari satu relasi,
+             * prioritaskan relasi aktif, relasi utama, lalu relasi terbaru.
+             * Setelah query selesai hanya satu baris terbaik per pengguna yang
+             * dipakai agar tabel Manajemen Akun tidak menampilkan duplikasi.
+             */
+            if ($this->hasColumn('posbankum_paralegal', 'status')) {
+                $query->orderByRaw("CASE WHEN pp.status = 'aktif' THEN 0 ELSE 1 END");
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'is_primary')) {
+                $query->orderByDesc('pp.is_primary');
+            }
+
+            if ($this->hasColumn('posbankum_paralegal', 'assigned_at')) {
+                $query->orderByDesc('pp.assigned_at');
+            } elseif ($this->hasColumn('posbankum_paralegal', 'created_at')) {
+                $query->orderByDesc('pp.created_at');
+            }
         } elseif ($this->hasColumn('users', 'created_at')) {
             $query->orderBy('u.created_at');
         } elseif ($this->hasColumn('users', 'nama_lengkap')) {
             $query->orderBy('u.nama_lengkap');
         }
 
-        return $query->select($select)->get()->map(fn($row) => [
+        $accountRows = $query->select($select)->get();
+
+        if ($hasParalegalRelation) {
+            $accountRows = $accountRows->unique('id_user')->values();
+        }
+
+        return $accountRows->map(fn($row) => [
             'id_user' => $this->rowValue($row, ['id_user']),
             'nama_lengkap' => (string) $this->rowValue($row, ['nama_lengkap', 'name'], ''),
             'email' => (string) $this->rowValue($row, ['email', 'email_kantor', 'email_akun'], ''),
             'nomor_telepon' => (string) $this->rowValue($row, ['nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon'], ''),
             'status' => (string) $this->rowValue($row, ['status'], 'aktif'),
+            'status_changed_at' => $this->rowValue($row, ['status_changed_at']),
+            'created_at' => $this->rowValue($row, ['created_at']),
             'id_posbankum' => $this->rowValue($row, ['id_posbankum']),
             'posbankum_nama' => (string) $this->rowValue($row, ['posbankum_nama'], ''),
             'id_kelurahan' => $this->rowValue($row, ['id_kelurahan']),
