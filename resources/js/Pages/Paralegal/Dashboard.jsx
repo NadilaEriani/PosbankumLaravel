@@ -1,5 +1,5 @@
 import { Head, router } from "@inertiajs/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ImStack } from "react-icons/im";
 import { CiCalendar } from "react-icons/ci";
 import { TbMessageReport } from "react-icons/tb";
@@ -11,8 +11,10 @@ import {
     FiBell,
     FiCheckCircle,
     FiUsers,
+    FiUser,
     FiChevronRight,
     FiChevronLeft,
+    FiChevronDown,
     FiMapPin,
     FiCalendar,
     FiClock,
@@ -539,7 +541,9 @@ export default function PosbankumDashboard({
 }) {
     const [active, setActive] = useState("Beranda");
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [accountMenuOpen, setAccountMenuOpen] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
+    const accountMenuRef = useRef(null);
     const [pageTarget, setPageTarget] = useState({
         type: null,
         id: null,
@@ -585,6 +589,31 @@ export default function PosbankumDashboard({
 
         return () => {
             window.removeEventListener("resize", handleViewportChange);
+            window.removeEventListener("keydown", handleEscape);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handlePointerDown = (event) => {
+            if (
+                accountMenuRef.current &&
+                !accountMenuRef.current.contains(event.target)
+            ) {
+                setAccountMenuOpen(false);
+            }
+        };
+
+        const handleEscape = (event) => {
+            if (event.key === "Escape") {
+                setAccountMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleEscape);
+
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerDown);
             window.removeEventListener("keydown", handleEscape);
         };
     }, []);
@@ -729,11 +758,26 @@ export default function PosbankumDashboard({
                 auth?.user?.nama_lengkap ||
                     auth?.user?.full_name ||
                     auth?.user?.name ||
+                    paralegalProfile?.user?.nama_lengkap ||
+                    paralegalProfile?.user?.name ||
                     auth?.user?.email ||
+                    paralegalProfile?.user?.email ||
                     "Paralegal",
             ).trim(),
-        [auth?.user],
+        [auth?.user, paralegalProfile?.user],
     );
+
+    const accountInitials = useMemo(() => {
+        const words = accountName
+            .split(/\s+/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        if (!words.length) return "P";
+        if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+
+        return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
+    }, [accountName]);
 
     // Navbar/topbar harus tetap menampilkan identitas Posbankum seperti halaman Beranda,
     // meskipun menu konten yang dibuka berbeda.
@@ -742,6 +786,7 @@ export default function PosbankumDashboard({
 
     const openMenu = (label) => {
         setMobileMenuOpen(false);
+        setAccountMenuOpen(false);
         setPageTarget({ type: null, id: null, tick: 0 });
         setNotifSelectedId(null);
 
@@ -754,6 +799,7 @@ export default function PosbankumDashboard({
 
     const handleLogout = () => {
         if (loggingOut) return;
+        setAccountMenuOpen(false);
         setLoggingOut(true);
         router.post("/logout", {}, { onFinish: () => setLoggingOut(false) });
     };
@@ -1304,12 +1350,7 @@ export default function PosbankumDashboard({
                     <FiX aria-hidden="true" />
                 </button>
 
-                <button
-                    className="pb2Brand pb2BrandButton"
-                    type="button"
-                    onClick={() => openMenu("Profil")}
-                    aria-label="Buka profil paralegal"
-                >
+                <div className="pb2Brand" aria-label="SIBAPAK">
                     <div className="pb2BrandLogoWrap">
                         <img
                             src={logo}
@@ -1323,7 +1364,7 @@ export default function PosbankumDashboard({
                             Posbankum Kemenkum Riau
                         </div>
                     </div>
-                </button>
+                </div>
 
                 <div className="pb2BrandDivider" aria-hidden="true" />
 
@@ -1389,16 +1430,6 @@ export default function PosbankumDashboard({
                     </div>
 
                     <div className="pb2TopRight">
-                        <div
-                            className="pb2TopUser"
-                            title={accountName}
-                            aria-label={`Akun aktif: ${accountName}`}
-                        >
-                            <span className="pb2TopUserName">
-                                {accountName}
-                            </span>
-                        </div>
-
                         <button
                             className="pb2Bell"
                             type="button"
@@ -1413,16 +1444,93 @@ export default function PosbankumDashboard({
                             ) : null}
                         </button>
 
-                        <button
-                            className="pb2TopLogoutBtn"
-                            type="button"
-                            onClick={handleLogout}
-                            disabled={loggingOut}
-                            title={loggingOut ? "Sedang logout..." : "Keluar"}
+                        <div
+                            className={`pb2TopUser ${
+                                accountMenuOpen ? "is-open" : ""
+                            }`}
+                            ref={accountMenuRef}
                         >
-                            <FiLogOut />
-                            {loggingOut ? "Keluar..." : "Keluar"}
-                        </button>
+                            <button
+                                type="button"
+                                className="pb2AccountButton"
+                                onClick={() =>
+                                    setAccountMenuOpen((open) => !open)
+                                }
+                                aria-haspopup="menu"
+                                aria-expanded={accountMenuOpen}
+                                aria-label={`Menu akun ${accountName}`}
+                                title={accountName}
+                            >
+                                <span className="pb2AccountAvatar">
+                                    {accountInitials}
+                                    <span
+                                        className="pb2AccountOnline"
+                                        aria-hidden="true"
+                                    />
+                                </span>
+
+                                <span className="pb2AccountIdentity">
+                                    <span className="pb2TopUserName">
+                                        {accountName}
+                                    </span>
+                                    <span className="pb2TopUserRole">
+                                        Paralegal
+                                    </span>
+                                </span>
+
+                                <FiChevronDown
+                                    className="pb2AccountChevron"
+                                    aria-hidden="true"
+                                />
+                            </button>
+
+                            {accountMenuOpen ? (
+                                <div
+                                    className="pb2AccountMenu"
+                                    role="menu"
+                                    aria-label="Menu akun paralegal"
+                                >
+                                    <div className="pb2AccountMenuHead">
+                                        <span className="pb2AccountMenuAvatar">
+                                            {accountInitials}
+                                        </span>
+                                        <span className="pb2AccountMenuIdentity">
+                                            <span className="pb2AccountMenuName">
+                                                {accountName}
+                                            </span>
+                                            <span className="pb2AccountMenuRole">
+                                                Paralegal
+                                            </span>
+                                        </span>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        className="pb2AccountMenuItem"
+                                        onClick={() => openMenu("Profil")}
+                                        role="menuitem"
+                                    >
+                                        <FiUser aria-hidden="true" />
+                                        <span>Profil Saya</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="pb2AccountMenuItem is-logout"
+                                        onClick={handleLogout}
+                                        disabled={loggingOut}
+                                        role="menuitem"
+                                    >
+                                        <FiLogOut aria-hidden="true" />
+                                        <span>
+                                            {loggingOut
+                                                ? "Keluar..."
+                                                : "Keluar"}
+                                        </span>
+                                    </button>
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
                 </header>
 
