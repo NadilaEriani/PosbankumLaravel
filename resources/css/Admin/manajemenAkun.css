@@ -3674,36 +3674,32 @@
 }
 
 .kpIcoBtn {
-    border: 1.33px solid transparent !important;
+    border: 0 !important;
 }
 
 .kpIcoBtn.is-view {
     background: #e8f0fe !important;
-    border-color: #0f3f93 !important;
     color: #0f3f93 !important;
 }
 
 .kpIcoBtn.is-edit {
     background: #fffbeb !important;
-    border-color: #e17100 !important;
     color: #e17100 !important;
 }
 
 .kpIcoBtn.is-status.is-disable {
     background: #fff1f2 !important;
-    border-color: #ec003f !important;
     color: #ec003f !important;
 }
 
 .kpIcoBtn.is-status.is-enable {
     background: #ecfdf5 !important;
-    border-color: #00bc7d !important;
     color: #007a55 !important;
 }
 
 .kpIcoBtn.is-status svg {
-    width: 18px !important;
-    height: 18px !important;
+    width: 15px !important;
+    height: 15px !important;
 }
 
 .kpIcoBtn:disabled {
@@ -3867,4 +3863,14 @@
         gap: 5px !important;
         padding: 11px 13px !important;
     }
+}
+
+.kpStatusModalError {
+    display: block;
+    margin-top: 8px;
+    color: #ec003f;
+    font-family: "Outfit", sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
 }
