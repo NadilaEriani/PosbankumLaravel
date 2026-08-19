@@ -54,7 +54,7 @@ export default function VoiceOverlay({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-sm max-h-[90vh] bg-gradient-to-b from-white to-[#f0f4ff] rounded-[2.5rem] shadow-2xl overflow-hidden animate-scale-in flex flex-col pt-8 pb-4 border border-white/50">
+      <div className="relative w-full max-w-sm max-h-[95dvh] bg-gradient-to-b from-white to-[#f0f4ff] rounded-[2.5rem] shadow-2xl overflow-hidden animate-scale-in flex flex-col pt-8 pb-4 border border-white/50">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -75,7 +75,7 @@ export default function VoiceOverlay({
           </svg>
         </button>
 
-        <div className="flex-1 overflow-y-auto mt-2">
+        <div className="flex-1 overflow-y-auto mt-2 min-h-[100px]">
           <HeroAssistant
             state={assistantState}
             hideDescription={activeResponse && assistantState !== 'listening'}
@@ -84,7 +84,7 @@ export default function VoiceOverlay({
         </div>
 
         {activeResponse && assistantState !== 'listening' ? (
-          <div className="mx-4 mb-4 p-4 rounded-3xl bg-sky-50 border border-sky-200 shadow-sm flex items-start gap-3 animate-scale-in h-40">
+          <div className="mx-4 mb-4 p-4 rounded-3xl bg-sky-50 border border-sky-200 shadow-sm flex items-start gap-3 animate-scale-in h-40 shrink-0">
             <div className="flex-1 min-w-0 h-full overflow-y-auto pr-2 custom-scrollbar flex flex-col">
               <p className="text-sm font-medium text-gray-800 leading-relaxed whitespace-pre-wrap">
                 <TypewriterText text={cleanedResponse} speedMs={100} />
@@ -95,15 +95,17 @@ export default function VoiceOverlay({
           <AssistantStatusCard state={assistantState} />
         )}
 
-        <VoiceAssistantPanel
-          isListening={isListening}
-          transcript={transcript}
-          isLoading={isLoading}
-          isSttSupported={isSttSupported}
-          onStartListening={onStartListening}
-          onStopListening={onStopListening}
-          onShowChat={onClose}
-        />
+        <div className="shrink-0">
+          <VoiceAssistantPanel
+            isListening={isListening}
+            transcript={transcript}
+            isLoading={isLoading}
+            isSttSupported={isSttSupported}
+            onStartListening={onStartListening}
+            onStopListening={onStopListening}
+            onShowChat={onClose}
+          />
+        </div>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ export default function ChatInput({
   const canSend = value.trim().length > 0 && !isLoading;
 
   return (
-    <div className="sticky bottom-0 z-20 bg-white border-t border-gray-100">
+    <div className="sticky bottom-0 z-20 bg-white border-t border-gray-100 md:rounded-b-3xl">
       <div className="max-w-4xl mx-auto px-5 py-4">
         <div className="flex items-end gap-3">
           {/* Mic button */}

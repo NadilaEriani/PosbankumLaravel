@@ -22,12 +22,12 @@ export default function VoiceAssistantPanel({
             <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
             <span className="text-xs font-medium text-blue-700">Mendengarkan...</span>
           </div>
-          <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-medium min-h-[20px] bg-white/50 px-3 py-2 rounded-xl backdrop-blur-sm">
+          <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-medium min-h-[20px] max-h-24 overflow-y-auto custom-scrollbar bg-white/50 px-3 py-2 rounded-xl backdrop-blur-sm">
             {transcript || ''}
           </p>
         </div>
       )}
-      
+
       {/* Label atas */}
       {/* <p className="text-xs text-gray-400 mb-4 font-medium">
         {isListening && !transcript
