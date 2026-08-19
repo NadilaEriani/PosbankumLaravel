@@ -1,6 +1,7 @@
 import { MdOutlineLocationOn } from "react-icons/md";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
+import ChatbotWidget from "@/Components/Chatbot";
 
 import {
     AiOutlineThunderbolt,
@@ -45,7 +46,7 @@ import medalIcon from "../assets/medal.png";
 import earthIcon from "../assets/earth.png";
 import mapsIcon from "../assets/maps.png";
 import "../../css/landingPage.css";
-
+import "../../css/chatbot.css";
 const ORG_FULL = "Kantor Wilayah Kementerian Hukum Riau";
 const ORG_ADDR = "Kanwil Kemenkum Riau, Pekanbaru";
 const ORG_EMAIL = "humaskumriau@gmail.com";
@@ -451,113 +452,113 @@ function MapInfoPopup({ location, position }) {
     );
 }
 
-function ChatbotPanel({ open, onClose }) {
-    const [message, setMessage] = useState("");
-    const hasMessage = message.trim().length > 0;
+// function ChatbotPanel({ open, onClose }) {
+//     const [message, setMessage] = useState("");
+//     const hasMessage = message.trim().length > 0;
 
-    if (!open) return null;
+//     // if (!open) return null;
+// <ChatbotWidget/>
+//     // return (
+//     //     <div className="lp-chatbot-panel">
+//     //         <div className="lp-chatbot-header">
+//     //             <div className="lp-chatbot-title-wrap">
+//     //                 <span className="lp-chatbot-logo">
+//     //                     <FiMessageCircle />
+//     //                 </span>
 
-    return (
-        <div className="lp-chatbot-panel">
-            <div className="lp-chatbot-header">
-                <div className="lp-chatbot-title-wrap">
-                    <span className="lp-chatbot-logo">
-                        <FiMessageCircle />
-                    </span>
+//     //                 <div>
+//     //                     <h3>Chatbot Posbankum</h3>
+//     //                     <p>
+//     //                         <span></span>
+//     //                         Aktif sekarang
+//     //                     </p>
+//     //                 </div>
+//     //             </div>
 
-                    <div>
-                        <h3>Chatbot Posbankum</h3>
-                        <p>
-                            <span></span>
-                            Aktif sekarang
-                        </p>
-                    </div>
-                </div>
+//     //             <div className="lp-chatbot-controls">
+//     //                 <button
+//     //                     type="button"
+//     //                     onClick={onClose}
+//     //                     aria-label="Tutup chatbot"
+//     //                 >
+//     //                     <AiOutlineClose />
+//     //                 </button>
+//     //             </div>
+//     //         </div>
 
-                <div className="lp-chatbot-controls">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        aria-label="Tutup chatbot"
-                    >
-                        <AiOutlineClose />
-                    </button>
-                </div>
-            </div>
+//     //         <div className="lp-chatbot-body">
+//     //             <div className="lp-chatbot-message">
+//     //                 Selamat datang di Chatbot Posbankum! Saya siap membantu Anda
+//     //                 dengan informasi seputar layanan bantuan hukum. Silakan
+//     //                 pilih topik di bawah atau ketik pertanyaan Anda.
+//     //             </div>
 
-            <div className="lp-chatbot-body">
-                <div className="lp-chatbot-message">
-                    Selamat datang di Chatbot Posbankum! Saya siap membantu Anda
-                    dengan informasi seputar layanan bantuan hukum. Silakan
-                    pilih topik di bawah atau ketik pertanyaan Anda.
-                </div>
+//     //             <div className="lp-chatbot-time">13.33</div>
+//     //         </div>
 
-                <div className="lp-chatbot-time">13.33</div>
-            </div>
+//     //         <div className="lp-chatbot-topics">
+//     //             <h4>Topik Populer:</h4>
 
-            <div className="lp-chatbot-topics">
-                <h4>Topik Populer:</h4>
+//     //             <div className="lp-chatbot-topic-grid">
+//     //                 <button type="button">
+//     //                     <span>
+//     //                         <SlLocationPin />
+//     //                     </span>
+//     //                     Cek Posbankum Terdekat
+//     //                 </button>
 
-                <div className="lp-chatbot-topic-grid">
-                    <button type="button">
-                        <span>
-                            <SlLocationPin />
-                        </span>
-                        Cek Posbankum Terdekat
-                    </button>
+//     //                 <button type="button">
+//     //                     <span>
+//     //                         <BiShield />
+//     //                     </span>
+//     //                     Syarat Bantuan Hukum
+//     //                 </button>
 
-                    <button type="button">
-                        <span>
-                            <BiShield />
-                        </span>
-                        Syarat Bantuan Hukum
-                    </button>
+//     //                 <button type="button">
+//     //                     <span>
+//     //                         <BsClock />
+//     //                     </span>
+//     //                     Jam Operasional
+//     //                 </button>
 
-                    <button type="button">
-                        <span>
-                            <BsClock />
-                        </span>
-                        Jam Operasional
-                    </button>
+//     //                 <button type="button">
+//     //                     <span>
+//     //                         <BsTelephone />
+//     //                     </span>
+//     //                     Kontak Admin
+//     //                 </button>
+//     //             </div>
+//     //         </div>
 
-                    <button type="button">
-                        <span>
-                            <BsTelephone />
-                        </span>
-                        Kontak Admin
-                    </button>
-                </div>
-            </div>
+//     //         <div className="lp-chatbot-input-wrap">
+//     //             <label className="lp-chatbot-input">
+//     //                 <input
+//     //                     type="text"
+//     //                     placeholder="Ketik pesan Anda..."
+//     //                     value={message}
+//     //                     onChange={(event) => setMessage(event.target.value)}
+//     //                 />
+//     //                 <button type="button" aria-label="Bantuan">
+//     //                     ?
+//     //                 </button>
+//     //             </label>
 
-            <div className="lp-chatbot-input-wrap">
-                <label className="lp-chatbot-input">
-                    <input
-                        type="text"
-                        placeholder="Ketik pesan Anda..."
-                        value={message}
-                        onChange={(event) => setMessage(event.target.value)}
-                    />
-                    <button type="button" aria-label="Bantuan">
-                        ?
-                    </button>
-                </label>
+//     //             <button
+//     //                 type="button"
+//     //                 className={`lp-chatbot-send ${hasMessage ? "has-text" : ""}`}
+//     //                 aria-label="Kirim pesan"
+//     //                 disabled={!hasMessage}
+//     //             >
+//     //                 <FiSend />
+//     //             </button>
+//     //         </div>
 
-                <button
-                    type="button"
-                    className={`lp-chatbot-send ${hasMessage ? "has-text" : ""}`}
-                    aria-label="Kirim pesan"
-                    disabled={!hasMessage}
-                >
-                    <FiSend />
-                </button>
-            </div>
-
-            <div className="lp-chatbot-powered">
-                Powered by Posbankum AI Assistant
-            </div>
-        </div>
-    );
-}
+//     //         <div className="lp-chatbot-powered">
+//     //             Powered by Posbankum AI Assistant
+//     //         </div>
+//     //     </div>
+//     // );
+// }
 
 function DetailPopup({ location, onClose }) {
     if (!location) return null;
@@ -2143,30 +2144,6 @@ export default function LandingPage({
                 </div>
             </footer>
 
-            {chatbotOpen ? (
-                <div
-                    className="lp-chatbot-backdrop"
-                    onClick={() => setChatbotOpen(false)}
-                ></div>
-            ) : null}
-
-            <ChatbotPanel
-                open={chatbotOpen}
-                onClose={() => setChatbotOpen(false)}
-            />
-
-            <button
-                type="button"
-                className={`lp-float-chat ${chatbotOpen ? "is-open" : ""}`}
-                onClick={() => setChatbotOpen((value) => !value)}
-                aria-label={
-                    chatbotOpen
-                        ? "Tutup chatbot Posbankum"
-                        : "Buka chatbot Posbankum"
-                }
-            >
-                {chatbotOpen ? <AiOutlineClose /> : <FiMessageCircle />}
-            </button>
 
             <DetailPopup
                 location={detailPopup}
@@ -2184,6 +2161,7 @@ export default function LandingPage({
                     onSelect={selectLocationFromPopup}
                 />
             ) : null}
+            <ChatbotWidget/>
         </div>
     );
 }

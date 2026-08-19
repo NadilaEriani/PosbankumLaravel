@@ -1,0 +1,318 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    background-color: transparent;
+    overscroll-behavior: none;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #c7d2fe;
+    border-radius: 99px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a5b4fc;
+  }
+}
+
+@layer components {
+  /* ── Message bubble ───────────────────────── */
+  .bubble-user {
+    @apply bg-primary-600 text-white;
+    border-bottom-right-radius: 4px !important;
+  }
+
+  .bubble-bot {
+    @apply bg-white text-gray-800 border border-gray-200;
+    border-bottom-left-radius: 4px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Kontainer isi message bot */
+  .bubble-bot .message-content {
+    @apply text-sm text-gray-800;
+    line-height: 1.5;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* Reset spacing elemen pertama & terakhir */
+  .bubble-bot .message-content > :first-child {
+    margin-top: 0 !important;
+  }
+
+  .bubble-bot .message-content > :last-child {
+    margin-bottom: 0 !important;
+  }
+
+  /* ── Headings ─────────────────────────────── */
+  .bubble-bot .message-content h1 {
+    @apply text-base font-bold text-gray-900;
+    margin: 0.25rem 0 0.5rem 0;
+    line-height: 1.35;
+  }
+
+  .bubble-bot .message-content h2 {
+    @apply text-sm font-semibold text-gray-900;
+    margin: 0.25rem 0 0.45rem 0;
+    line-height: 1.35;
+  }
+
+  .bubble-bot .message-content h3 {
+    @apply text-xs font-semibold text-gray-800;
+    margin: 0.2rem 0 0.35rem 0;
+    line-height: 1.35;
+  }
+
+  /* ── Paragraph ────────────────────────────── */
+  .bubble-bot .message-content p {
+    @apply text-sm text-gray-800;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+    white-space: normal;
+  }
+
+  /* ── Strong / emphasis ───────────────────── */
+  .bubble-bot .message-content strong {
+    @apply font-bold text-gray-900;
+  }
+
+  .bubble-bot .message-content em {
+    @apply italic;
+  }
+
+  /* ── Lists ───────────────────────────────── */
+  .bubble-bot .message-content ul,
+  .bubble-bot .message-content ol {
+    margin: 0.5rem 0 0.75rem 0;
+    padding-left: 1.4rem;
+  }
+
+  .bubble-bot .message-content ul {
+    list-style-type: disc;
+    list-style-position: outside;
+  }
+
+  .bubble-bot .message-content ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+  }
+
+  .bubble-bot .message-content li {
+    @apply text-sm text-gray-800;
+    margin: 0.2rem 0;
+    line-height: 1.5;
+    white-space: normal;
+    display: list-item;
+  }
+
+  .bubble-bot .message-content li > p {
+    margin-bottom: 0.25rem;
+  }
+
+  .bubble-bot .message-content ol li::marker {
+    font-weight: 700;
+    color: #4f46e5;
+  }
+
+  .bubble-bot .message-content ul li::marker {
+    color: #6b7280;
+  }
+
+  /* Nested list */
+  .bubble-bot .message-content li ul,
+  .bubble-bot .message-content li ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  /* ── Blockquote ──────────────────────────── */
+  .bubble-bot .message-content blockquote {
+    @apply border-l-4 border-blue-500 bg-blue-50 text-sm italic text-gray-700;
+    margin: 0.5rem 0;
+    padding: 0.55rem 0.8rem;
+    border-radius: 0.5rem;
+  }
+
+  .bubble-bot .message-content blockquote p {
+    margin: 0;
+  }
+
+  /* ── Inline code ─────────────────────────── */
+  .bubble-bot .message-content code:not(pre code) {
+    @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-xs font-mono;
+    white-space: break-spaces;
+  }
+
+  /* ── Code block ──────────────────────────── */
+  .bubble-bot .message-content pre {
+    @apply bg-gray-900 text-white rounded-md overflow-x-auto text-xs;
+    margin: 0.5rem 0;
+    padding: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .bubble-bot .message-content pre code {
+    background: transparent !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    white-space: pre;
+  }
+
+  /* ── Table ───────────────────────────────── */
+  .bubble-bot .message-content table {
+    @apply w-full border border-gray-300 rounded;
+    margin: 0.5rem 0 0.75rem 0;
+    border-collapse: collapse;
+    overflow: hidden;
+  }
+
+  .bubble-bot .message-content th,
+  .bubble-bot .message-content td {
+    @apply border border-gray-300 px-2 py-1 text-xs text-left align-top;
+  }
+
+  .bubble-bot .message-content th {
+    @apply bg-gray-100 font-semibold text-gray-800;
+  }
+
+  /* ── Links ───────────────────────────────── */
+  .bubble-bot .message-content a {
+    @apply text-blue-600 underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  .bubble-bot .message-content a:hover {
+    @apply text-blue-800;
+  }
+
+  /* ── Horizontal rule ─────────────────────── */
+  .bubble-bot .message-content hr {
+    @apply border-gray-300;
+    margin: 0.75rem 0;
+  }
+
+  /* ── Image di dalam message ──────────────── */
+  .bubble-bot .message-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    margin: 0.5rem 0;
+    display: block;
+  }
+
+  /* ── Jika HTML dari backend bawa div tambahan */
+  .bubble-bot .message-content div {
+    white-space: normal;
+  }
+
+  /* ── Avatar glow ring ────────────────────── */
+  .avatar-glow-idle {
+    box-shadow: 0 0 0 4px rgba(12, 49, 115, 0.15), 0 0 24px rgba(12, 49, 115, 0.15);
+  }
+
+  .avatar-glow-listening {
+    box-shadow: 0 0 0 4px rgba(12, 49, 115, 0.4), 0 0 40px rgba(12, 49, 115, 0.4);
+    animation: pulseGlow 1.5s ease-in-out infinite;
+  }
+
+  .avatar-glow-speaking {
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.45), 0 0 40px rgba(14, 165, 233, 0.35);
+    animation: pulseGlowSky 1.2s ease-in-out infinite;
+  }
+
+  /* ── Glassmorphism card ──────────────────── */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+  }
+
+  /* ── Mic button ──────────────────────────── */
+  .mic-idle {
+    background: #0c3173;
+    box-shadow: 0 6px 20px rgba(12, 49, 115, 0.4);
+  }
+
+  .mic-listening {
+    background: #092557;
+    box-shadow: 0 6px 30px rgba(12, 49, 115, 0.6);
+    animation: micPulse 1.2s ease-in-out infinite;
+  }
+
+  .mic-disabled {
+    background: #cdd7eb;
+    box-shadow: none;
+  }
+}
+
+@layer utilities {
+  .text-gradient-primary {
+    @apply text-primary-600 font-bold;
+  }
+}
+
+/* ── Keyframes ─────────────────────────────── */
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(12, 49, 115, 0.3), 0 0 32px rgba(12, 49, 115, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(12, 49, 115, 0.15), 0 0 40px rgba(12, 49, 115, 0.4);
+  }
+}
+
+@keyframes pulseGlowSky {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.3), 0 0 28px rgba(14, 165, 233, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(14, 165, 233, 0.12), 0 0 52px rgba(14, 165, 233, 0.5);
+  }
+}
+
+@keyframes micPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 6px 40px rgba(12, 49, 115, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 56px rgba(12, 49, 115, 0.7);
+  }
+}
