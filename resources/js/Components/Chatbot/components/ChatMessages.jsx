@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { MessageSquare } from 'lucide-react';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import QuickActions from './QuickActions';
@@ -28,8 +27,8 @@ export default function ChatMessages({
             {/* Sambutan */}
             <div className="mx-4 mb-4 rounded-3xl bg-white border border-gray-100 shadow-sm p-4 animate-fade-up">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center text-sm flex-shrink-0 mt-0.5 border border-primary-100">
-                  <MessageSquare size={16} />
+                <div className="w-8 h-8 rounded-full flex-shrink-0 mt-0.5 overflow-hidden border border-primary-100">
+                  <img src="/assets/burung_serindit.png" alt="PARIS" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-700 leading-relaxed">

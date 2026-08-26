@@ -1,5 +1,5 @@
 // ── ChatHeader Component ─────────────────────────────────────────
-import { Trash2, Volume2, VolumeX, MessageSquare, X } from 'lucide-react';
+import { Trash2, Volume2, VolumeX, X } from 'lucide-react';
 
 export default function ChatHeader({
   isMuted,
@@ -11,8 +11,8 @@ export default function ChatHeader({
     <header className="sticky top-0 z-30 bg-primary-600 rounded-t-[1.5rem] lg:rounded-none">
       <div className="max-w-4xl mx-auto px-5 py-4 flex items-center gap-3">
         {/* Avatar kecil */}
-        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary-600 shadow-sm flex-shrink-0 border-2 border-primary-500">
-          <MessageSquare size={20} strokeWidth={2.5} />
+        <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden border-2 border-primary-500">
+          <img src="/assets/burung_serindit.png" alt="PARIS" className="w-full h-full rounded-full object-cover" />
         </div>
 
         {/* Judul & Status */}
