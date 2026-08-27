@@ -1,5 +1,5 @@
 // — Main Chatbot Page ──────────────────────────────────
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 
 // Components
 import { MessageSquare } from "lucide-react";
@@ -37,120 +37,6 @@ export default function App() {
     const [hasVoiceInput, setHasVoiceInput] = useState(false);
 
     const [isWidgetOpen, setIsWidgetOpen] = useState(false);
-    const widgetTouchYRef = useRef(null);
-
-    // Izinkan area chat memakai scroll-nya sendiri. Saat area tersebut sudah
-    // mentok (atau gesture berasal dari bagian chatbot yang tidak scrollable),
-    // teruskan scroll ke landing page di belakang widget.
-    const canNestedElementConsumeScroll = useCallback(
-        (target, root, deltaY) => {
-            if (!target || !root || !deltaY) return false;
-
-            let node =
-                target instanceof Element ? target : target.parentElement;
-
-            while (node && node !== root) {
-                const style = window.getComputedStyle(node);
-                const overflowY = style.overflowY;
-                const isScrollable =
-                    /(auto|scroll|overlay)/.test(overflowY) &&
-                    node.scrollHeight > node.clientHeight + 1;
-
-                if (isScrollable) {
-                    const canScrollUp = node.scrollTop > 1;
-                    const canScrollDown =
-                        node.scrollTop + node.clientHeight <
-                        node.scrollHeight - 1;
-
-                    if (
-                        (deltaY < 0 && canScrollUp) ||
-                        (deltaY > 0 && canScrollDown)
-                    ) {
-                        return true;
-                    }
-                }
-
-                node = node.parentElement;
-            }
-
-            return false;
-        },
-        [],
-    );
-
-    const forwardScrollToLandingPage = useCallback((deltaY) => {
-        if (!deltaY) return;
-        window.scrollBy({ top: deltaY, left: 0, behavior: "auto" });
-    }, []);
-
-    const handleWidgetWheel = useCallback(
-        (event) => {
-            if (!isWidgetOpen || isVoiceOpen || !event.deltaY) return;
-
-            if (
-                canNestedElementConsumeScroll(
-                    event.target,
-                    event.currentTarget,
-                    event.deltaY,
-                )
-            ) {
-                return;
-            }
-
-            if (event.cancelable) event.preventDefault();
-            forwardScrollToLandingPage(event.deltaY);
-        },
-        [
-            canNestedElementConsumeScroll,
-            forwardScrollToLandingPage,
-            isVoiceOpen,
-            isWidgetOpen,
-        ],
-    );
-
-    const handleWidgetTouchStart = useCallback((event) => {
-        if (event.touches.length !== 1) {
-            widgetTouchYRef.current = null;
-            return;
-        }
-
-        widgetTouchYRef.current = event.touches[0].clientY;
-    }, []);
-
-    const handleWidgetTouchMove = useCallback(
-        (event) => {
-            if (!isWidgetOpen || isVoiceOpen || event.touches.length !== 1)
-                return;
-
-            const currentY = event.touches[0].clientY;
-            const previousY = widgetTouchYRef.current;
-            widgetTouchYRef.current = currentY;
-
-            if (previousY === null) return;
-
-            const deltaY = previousY - currentY;
-            if (!deltaY) return;
-
-            if (
-                canNestedElementConsumeScroll(
-                    event.target,
-                    event.currentTarget,
-                    deltaY,
-                )
-            ) {
-                return;
-            }
-
-            if (event.cancelable) event.preventDefault();
-            forwardScrollToLandingPage(deltaY);
-        },
-        [
-            canNestedElementConsumeScroll,
-            forwardScrollToLandingPage,
-            isVoiceOpen,
-            isWidgetOpen,
-        ],
-    );
 
     // Respons aktif untuk ditampilkan di overlay suara
     const activeResponse = useMemo(() => {
@@ -335,11 +221,8 @@ export default function App() {
 
             {/* ── Main Chat Container (posisi Widget Lebar/Tengah) ── */}
             <div
-                onWheel={handleWidgetWheel}
-                onTouchStart={handleWidgetTouchStart}
-                onTouchMove={handleWidgetTouchMove}
                 className={`
-          fixed z-40 transition-all duration-300 ease-in-out flex flex-col bg-white shadow-2xl overflow-clip pointer-events-auto
+          fixed z-40 transition-all duration-300 ease-in-out flex flex-col bg-white shadow-2xl overflow-clip
           ${isWidgetOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-90 translate-y-12 pointer-events-none"}
           bottom-0 right-0 w-full h-[100dvh] md:w-[400px] md:h-[600px] md:max-h-[calc(100vh-100px)] md:bottom-8 md:right-8 md:rounded-3xl
         `}
