@@ -1465,7 +1465,7 @@ export default function LandingPage({
                                             <h2 id="tuanku-title">
                                                 Akses Layanan Hukum Online
                                                 <br />
-                                                melalui <span>TUANKU</span>
+                                                melalui <span>TUANKU ONLINE</span>
                                             </h2>
 
                                             <p>
