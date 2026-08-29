@@ -5767,95 +5767,154 @@ body,
 /* =========================================================
    INTEGRASI LAYANAN EKSTERNAL - TUANKU
    Diletakkan setelah Hero dan sebelum Keunggulan Layanan.
+   Hanya mengatur tampilan section TUANKU.
    ========================================================= */
 .lp-integration-section {
     position: relative;
     z-index: 6;
     margin-top: -34px;
-    padding: 0 0 52px;
+    padding: 0 0 56px;
 }
 
 .lp-integration-card {
     position: relative;
     overflow: hidden;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(290px, 342px);
+    align-items: stretch;
     gap: 28px;
-    min-height: 154px;
-    padding: 28px 30px;
-    border: 1px solid rgba(40, 73, 184, 0.16);
-    border-radius: 28px;
+    padding: 32px;
+    border: 1px solid rgba(40, 73, 184, 0.14);
+    border-radius: 30px;
     background:
         radial-gradient(
-            circle at 92% 18%,
-            rgba(118, 145, 245, 0.14) 0%,
-            rgba(118, 145, 245, 0) 34%
+            circle at 8% 0%,
+            rgba(118, 145, 245, 0.18) 0%,
+            rgba(118, 145, 245, 0) 32%
+        ),
+        radial-gradient(
+            circle at 82% 100%,
+            rgba(24, 169, 87, 0.09) 0%,
+            rgba(24, 169, 87, 0) 30%
         ),
         linear-gradient(135deg, #ffffff 0%, #f7f9ff 100%);
     box-shadow:
-        0 18px 44px rgba(11, 31, 82, 0.12),
-        0 2px 8px rgba(11, 31, 82, 0.05);
+        0 24px 54px rgba(11, 31, 82, 0.13),
+        0 2px 8px rgba(11, 31, 82, 0.04);
+}
+
+.lp-integration-card::before {
+    content: "";
+    position: absolute;
+    left: -64px;
+    top: -74px;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    border: 32px solid rgba(40, 73, 184, 0.045);
+    pointer-events: none;
 }
 
 .lp-integration-card::after {
     content: "";
     position: absolute;
-    right: -42px;
-    bottom: -54px;
-    width: 170px;
-    height: 170px;
+    right: 274px;
+    bottom: -94px;
+    width: 210px;
+    height: 210px;
     border-radius: 50%;
-    border: 28px solid rgba(40, 73, 184, 0.05);
+    border: 34px solid rgba(24, 169, 87, 0.04);
     pointer-events: none;
 }
 
-.lp-integration-main {
+.lp-integration-content,
+.lp-integration-portal {
     position: relative;
     z-index: 1;
     min-width: 0;
+}
+
+.lp-integration-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.lp-integration-kicker-row {
     display: flex;
     align-items: center;
-    gap: 22px;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.lp-integration-eyebrow,
+.lp-integration-owner {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.lp-integration-eyebrow {
+    gap: 7px;
+    padding: 0 12px;
+    color: #163e93;
+    border: 1px solid rgba(40, 73, 184, 0.16);
+    background: #edf3ff;
+    letter-spacing: 0.07em;
+}
+
+.lp-integration-eyebrow svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.lp-integration-owner {
+    padding: 0 12px;
+    color: #526079;
+    border: 1px solid rgba(82, 96, 121, 0.12);
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.lp-integration-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
 }
 
 .lp-integration-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 22px;
-    flex: 0 0 72px;
+    width: 68px;
+    height: 68px;
+    border-radius: 21px;
+    flex: 0 0 68px;
     display: grid;
     place-items: center;
     color: #ffffff;
-    background: linear-gradient(145deg, #2849b8 0%, #0b1f52 100%);
-    box-shadow: 0 12px 28px rgba(11, 31, 82, 0.22);
+    background: linear-gradient(145deg, #2d5aca 0%, #0b1f52 100%);
+    box-shadow:
+        0 13px 27px rgba(11, 31, 82, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 .lp-integration-icon svg {
-    width: 34px;
-    height: 34px;
+    width: 33px;
+    height: 33px;
 }
 
 .lp-integration-copy {
     min-width: 0;
 }
 
-.lp-integration-eyebrow {
-    width: fit-content;
-    margin-bottom: 7px;
-    color: #2849b8;
-    font-size: 11px;
-    line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: 0.11em;
-}
-
 .lp-integration-copy h2 {
-    margin: 0 0 7px;
+    margin: -2px 0 10px;
     color: var(--lp-text-main);
-    font-size: clamp(25px, 2.5vw, 34px);
-    line-height: 1.15;
-    letter-spacing: -0.03em;
+    font-size: clamp(27px, 2.7vw, 38px);
+    line-height: 1.12;
+    letter-spacing: -0.035em;
     font-weight: 700;
 }
 
@@ -5864,131 +5923,434 @@ body,
 }
 
 .lp-integration-copy p {
-    max-width: 710px;
+    max-width: 720px;
     margin: 0;
     color: var(--lp-text-body);
     font-size: 15px;
-    line-height: 1.65;
+    line-height: 1.7;
+}
+
+.lp-integration-service-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.lp-integration-service-card {
+    min-width: 0;
+    min-height: 120px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid rgba(40, 73, 184, 0.11);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 8px 20px rgba(11, 31, 82, 0.06);
+    transition:
+        transform 0.22s ease,
+        border-color 0.22s ease,
+        box-shadow 0.22s ease;
+}
+
+.lp-integration-service-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(40, 73, 184, 0.2);
+    box-shadow: 0 12px 24px rgba(11, 31, 82, 0.09);
+}
+
+.lp-integration-service-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+}
+
+.lp-integration-service-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.lp-integration-service-blue {
+    color: #2255c7;
+    background: #e5edff;
+}
+
+.lp-integration-service-green {
+    color: #159447;
+    background: #e4f6ea;
+}
+
+.lp-integration-service-orange {
+    color: #d7761f;
+    background: #fff0dd;
+}
+
+.lp-integration-service-card strong {
+    display: block;
+    margin: 1px 0 5px;
+    color: #12224b;
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+.lp-integration-service-card p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 11.5px;
+    line-height: 1.55;
 }
 
 .lp-integration-domain {
+    width: fit-content;
+    max-width: 100%;
     display: inline-flex;
     align-items: center;
-    margin-top: 10px;
-    padding: 6px 10px;
+    gap: 7px;
+    margin-top: 18px;
+    padding: 7px 11px;
     border-radius: 999px;
-    background: #edf3ff;
+    border: 1px solid rgba(40, 73, 184, 0.11);
+    background: #f4f7ff;
     color: #163e93;
     font-size: 12px;
     line-height: 1;
     font-weight: 700;
 }
 
-.lp-integration-link {
+.lp-integration-domain svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.lp-integration-portal {
+    min-height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 26px;
+    border-radius: 24px;
+    color: #ffffff;
+    background:
+        radial-gradient(
+            circle at 86% 12%,
+            rgba(118, 145, 245, 0.34) 0%,
+            rgba(118, 145, 245, 0) 34%
+        ),
+        linear-gradient(145deg, #163e93 0%, #0b1f52 68%, #07183f 100%);
+    box-shadow:
+        0 18px 38px rgba(11, 31, 82, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.lp-integration-portal::before {
+    content: "";
+    position: absolute;
+    right: -54px;
+    bottom: -64px;
+    width: 184px;
+    height: 184px;
+    border-radius: 50%;
+    border: 30px solid rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.lp-integration-portal-top {
     position: relative;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.lp-integration-portal-icon {
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.lp-integration-portal-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.lp-integration-portal-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 29px;
+    padding: 0 10px;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.lp-integration-portal-status span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #5dd684;
+    box-shadow: 0 0 0 4px rgba(93, 214, 132, 0.12);
+}
+
+.lp-integration-portal-copy {
+    position: relative;
+    z-index: 1;
+    margin-top: 40px;
+}
+
+.lp-integration-portal-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #b9c8ef;
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+.lp-integration-portal-copy h3 {
+    margin: 0 0 10px;
+    color: #ffffff;
+    font-size: clamp(27px, 2.4vw, 34px);
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+}
+
+.lp-integration-portal-copy h3 span {
+    color: #9fbcff;
+}
+
+.lp-integration-portal-copy p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.lp-integration-portal-link {
+    position: relative;
+    z-index: 1;
+    width: 100%;
     min-height: 54px;
-    padding: 0 22px;
-    border-radius: 17px;
+    margin-top: auto;
+    padding: 0 17px;
+    border-radius: 16px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    flex-shrink: 0;
-    color: #ffffff;
-    background: linear-gradient(180deg, #163e93 0%, #0b1f52 100%);
-    box-shadow: 0 10px 24px rgba(11, 31, 82, 0.2);
+    color: #0b1f52;
+    background: #ffffff;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
     text-decoration: none;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     transition:
         transform 0.22s ease,
         box-shadow 0.22s ease,
         background 0.22s ease;
 }
 
-.lp-integration-link svg {
-    width: 18px;
-    height: 18px;
+.lp-integration-portal-link svg {
+    width: 17px;
+    height: 17px;
     flex-shrink: 0;
 }
 
-.lp-integration-link:hover,
-.lp-integration-link:focus-visible {
-    color: #ffffff;
+.lp-integration-portal-link:hover,
+.lp-integration-portal-link:focus-visible {
+    color: #0b1f52;
+    background: #f4f7ff;
     transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(11, 31, 82, 0.25);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.19);
 }
 
-.lp-integration-link:focus-visible {
-    outline: 3px solid rgba(40, 73, 184, 0.22);
+.lp-integration-portal-link:focus-visible {
+    outline: 3px solid rgba(159, 188, 255, 0.5);
     outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+    .lp-integration-card {
+        grid-template-columns: minmax(0, 1fr) minmax(270px, 305px);
+        gap: 22px;
+        padding: 28px;
+    }
+
+    .lp-integration-service-card {
+        padding: 14px;
+    }
+
+    .lp-integration-service-icon {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        border-radius: 12px;
+    }
 }
 
 @media (max-width: 980px) {
     .lp-integration-card {
         grid-template-columns: 1fr;
-        align-items: stretch;
-        gap: 20px;
+        gap: 22px;
     }
 
-    .lp-integration-link {
+    .lp-integration-card::after {
+        right: -62px;
+        bottom: 210px;
+    }
+
+    .lp-integration-portal {
+        min-height: 250px;
+    }
+
+    .lp-integration-portal-copy {
+        max-width: 620px;
+        margin-top: 28px;
+        padding-right: 20px;
+    }
+
+    .lp-integration-portal-link {
         width: fit-content;
+        min-width: 220px;
+        margin-top: 26px;
     }
 }
 
 @media (max-width: 768px) {
     .lp-integration-section {
         margin-top: -22px;
-        padding-bottom: 40px;
+        padding-bottom: 42px;
     }
 
     .lp-integration-card {
-        min-height: 0;
         padding: 22px;
-        border-radius: 22px;
+        border-radius: 24px;
         gap: 18px;
     }
 
-    .lp-integration-main {
+    .lp-integration-kicker-row {
         align-items: flex-start;
-        gap: 16px;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .lp-integration-eyebrow,
+    .lp-integration-owner {
+        min-height: 30px;
+        font-size: 10px;
+    }
+
+    .lp-integration-heading {
+        gap: 15px;
     }
 
     .lp-integration-icon {
-        width: 58px;
-        height: 58px;
-        flex-basis: 58px;
+        width: 56px;
+        height: 56px;
+        flex-basis: 56px;
         border-radius: 18px;
     }
 
     .lp-integration-icon svg {
-        width: 28px;
-        height: 28px;
+        width: 27px;
+        height: 27px;
     }
 
     .lp-integration-copy h2 {
-        font-size: 25px;
+        margin-bottom: 9px;
+        font-size: clamp(24px, 6vw, 30px);
     }
 
     .lp-integration-copy p {
         font-size: 14px;
+        line-height: 1.65;
     }
 
-    .lp-integration-link {
+    .lp-integration-service-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .lp-integration-service-card {
+        min-height: 0;
+        padding: 14px;
+    }
+
+    .lp-integration-service-card strong {
+        font-size: 13px;
+    }
+
+    .lp-integration-service-card p {
+        font-size: 11.5px;
+    }
+
+    .lp-integration-domain {
+        margin-top: 15px;
+    }
+
+    .lp-integration-portal {
+        min-height: 0;
+        padding: 22px;
+        border-radius: 20px;
+    }
+
+    .lp-integration-portal-copy {
+        margin-top: 28px;
+        padding-right: 0;
+    }
+
+    .lp-integration-portal-copy h3 {
+        font-size: 28px;
+    }
+
+    .lp-integration-portal-link {
         width: 100%;
+        min-width: 0;
         min-height: 52px;
+        margin-top: 24px;
     }
 }
 
 @media (max-width: 480px) {
+    .lp-integration-section {
+        margin-top: -16px;
+        padding-bottom: 34px;
+    }
+
     .lp-integration-card {
-        padding: 18px;
+        padding: 17px;
         border-radius: 20px;
     }
 
-    .lp-integration-main {
+    .lp-integration-card::before {
+        left: -110px;
+        top: -116px;
+    }
+
+    .lp-integration-heading {
         flex-direction: column;
+        gap: 14px;
     }
 
     .lp-integration-icon {
@@ -5999,11 +6361,82 @@ body,
     }
 
     .lp-integration-copy h2 {
-        font-size: 23px;
+        font-size: 24px;
+    }
+
+    .lp-integration-copy h2 br {
+        display: none;
+    }
+
+    .lp-integration-copy p {
+        font-size: 13px;
+    }
+
+    .lp-integration-eyebrow {
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .lp-integration-owner {
+        max-width: 100%;
+    }
+
+    .lp-integration-service-card {
+        gap: 11px;
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    .lp-integration-service-icon {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
     }
 
     .lp-integration-domain {
         max-width: 100%;
         overflow-wrap: anywhere;
+    }
+
+    .lp-integration-portal {
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    .lp-integration-portal-top {
+        align-items: flex-start;
+    }
+
+    .lp-integration-portal-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 16px;
+    }
+
+    .lp-integration-portal-icon svg {
+        width: 25px;
+        height: 25px;
+    }
+
+    .lp-integration-portal-status {
+        min-height: 27px;
+        padding: 0 9px;
+        font-size: 9px;
+    }
+
+    .lp-integration-portal-copy {
+        margin-top: 24px;
+    }
+
+    .lp-integration-portal-copy h3 {
+        font-size: 26px;
+    }
+
+    .lp-integration-portal-copy p {
+        font-size: 12.5px;
+    }
+
+    .lp-integration-portal-link {
+        font-size: 13px;
     }
 }

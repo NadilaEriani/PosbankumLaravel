@@ -1438,46 +1438,146 @@ export default function LandingPage({
                     <div className="lp-container">
                         <Reveal direction="up">
                             <div className="lp-integration-card">
-                                <div className="lp-integration-main">
-                                    <div
-                                        className="lp-integration-icon"
-                                        aria-hidden="true"
-                                    >
-                                        <HiOutlineScale />
+                                <div className="lp-integration-content">
+                                    <div className="lp-integration-kicker-row">
+                                        <div className="lp-integration-eyebrow">
+                                            <AiOutlineCheck />
+                                            <span>
+                                                LAYANAN HUKUM TERINTEGRASI
+                                            </span>
+                                        </div>
+
+                                        <div className="lp-integration-owner">
+                                            Pengadilan Tinggi Riau
+                                        </div>
                                     </div>
 
-                                    <div className="lp-integration-copy">
-                                        <div className="lp-integration-eyebrow">
-                                            LAYANAN TERINTEGRASI
+                                    <div className="lp-integration-heading">
+                                        <div
+                                            className="lp-integration-icon"
+                                            aria-hidden="true"
+                                        >
+                                            <HiOutlineScale />
                                         </div>
 
-                                        <h2 id="tuanku-title">
-                                            Akses <span>TUANKU</span>
-                                        </h2>
+                                        <div className="lp-integration-copy">
+                                            <h2 id="tuanku-title">
+                                                Akses Layanan Hukum Online
+                                                <br />
+                                                melalui <span>TUANKU</span>
+                                            </h2>
 
-                                        <p>
-                                            Terhubung langsung ke website TUANKU
-                                            Pengadilan Tinggi Riau untuk
-                                            mengakses layanan hukum online
-                                            melalui portal resmi terkait.
-                                        </p>
-
-                                        <div className="lp-integration-domain">
-                                            tuanku.pt-riau.go.id
+                                            <p>
+                                                SI BAPAK terhubung dengan portal
+                                                TUANKU Pengadilan Tinggi Riau
+                                                untuk memudahkan masyarakat
+                                                mengakses layanan hukum online
+                                                melalui kanal resmi pengadilan.
+                                            </p>
                                         </div>
+                                    </div>
+
+                                    <div className="lp-integration-service-grid">
+                                        <div className="lp-integration-service-card">
+                                            <span className="lp-integration-service-icon lp-integration-service-blue">
+                                                <FiMessageCircle />
+                                            </span>
+
+                                            <div>
+                                                <strong>
+                                                    Konsultasi Hukum Online
+                                                </strong>
+                                                <p>
+                                                    Akses konsultasi dan
+                                                    informasi hukum secara
+                                                    daring.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="lp-integration-service-card">
+                                            <span className="lp-integration-service-icon lp-integration-service-green">
+                                                <BiShield />
+                                            </span>
+
+                                            <div>
+                                                <strong>
+                                                    Pembebasan Biaya Perkara
+                                                </strong>
+                                                <p>
+                                                    Informasi layanan PRODEO
+                                                    bagi masyarakat yang
+                                                    memenuhi ketentuan.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="lp-integration-service-card">
+                                            <span className="lp-integration-service-icon lp-integration-service-orange">
+                                                <BiFile />
+                                            </span>
+
+                                            <div>
+                                                <strong>
+                                                    Pembuatan Dokumen Hukum
+                                                </strong>
+                                                <p>
+                                                    Bantuan akses informasi
+                                                    terkait dokumen dan
+                                                    kebutuhan hukum.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="lp-integration-domain">
+                                        <MdLanguage />
+                                        <span>tuanku.pt-riau.go.id</span>
                                     </div>
                                 </div>
 
-                                <a
-                                    href={TUANKU_URL}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="lp-integration-link"
-                                    aria-label="Kunjungi website TUANKU Pengadilan Tinggi Riau di tab baru"
-                                >
-                                    <span>Kunjungi TUANKU</span>
-                                    <FiExternalLink />
-                                </a>
+                                <aside className="lp-integration-portal">
+                                    <div className="lp-integration-portal-top">
+                                        <div
+                                            className="lp-integration-portal-icon"
+                                            aria-hidden="true"
+                                        >
+                                            <HiOutlineScale />
+                                        </div>
+
+                                        <div className="lp-integration-portal-status">
+                                            <span></span>
+                                            PORTAL RESMI
+                                        </div>
+                                    </div>
+
+                                    <div className="lp-integration-portal-copy">
+                                        <span className="lp-integration-portal-label">
+                                            Pengadilan Tinggi Riau
+                                        </span>
+
+                                        <h3>
+                                            TUANKU <span>Online</span>
+                                        </h3>
+
+                                        <p>
+                                            Bantuan hukum online yang dapat
+                                            diakses masyarakat melalui portal
+                                            resmi Pengadilan Tinggi Riau.
+                                        </p>
+                                    </div>
+
+                                    <a
+                                        href={TUANKU_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="lp-integration-portal-link"
+                                        aria-label="Buka TUANKU Online Pengadilan Tinggi Riau di tab baru"
+                                    >
+                                        <span>Buka TUANKU Online</span>
+                                        <FiExternalLink />
+                                    </a>
+                                </aside>
                             </div>
                         </Reveal>
                     </div>
