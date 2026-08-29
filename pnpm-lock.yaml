@@ -36,6 +36,9 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
     devDependencies:
+      '@rolldown/binding-win32-x64-msvc':
+        specifier: 1.0.3
+        version: 1.0.3
       '@tailwindcss/forms':
         specifier: ^0.5.11
         version: 0.5.11(tailwindcss@3.4.19)
@@ -1691,8 +1694,7 @@ snapshots:
   '@rolldown/binding-win32-arm64-msvc@1.0.3':
     optional: true
 
-  '@rolldown/binding-win32-x64-msvc@1.0.3':
-    optional: true
+  '@rolldown/binding-win32-x64-msvc@1.0.3': {}
 
   '@rolldown/pluginutils@1.0.1': {}
 

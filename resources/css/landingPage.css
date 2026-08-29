@@ -5763,3 +5763,247 @@ body,
         }
     }
 }
+
+/* =========================================================
+   INTEGRASI LAYANAN EKSTERNAL - TUANKU
+   Diletakkan setelah Hero dan sebelum Keunggulan Layanan.
+   ========================================================= */
+.lp-integration-section {
+    position: relative;
+    z-index: 6;
+    margin-top: -34px;
+    padding: 0 0 52px;
+}
+
+.lp-integration-card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 28px;
+    min-height: 154px;
+    padding: 28px 30px;
+    border: 1px solid rgba(40, 73, 184, 0.16);
+    border-radius: 28px;
+    background:
+        radial-gradient(
+            circle at 92% 18%,
+            rgba(118, 145, 245, 0.14) 0%,
+            rgba(118, 145, 245, 0) 34%
+        ),
+        linear-gradient(135deg, #ffffff 0%, #f7f9ff 100%);
+    box-shadow:
+        0 18px 44px rgba(11, 31, 82, 0.12),
+        0 2px 8px rgba(11, 31, 82, 0.05);
+}
+
+.lp-integration-card::after {
+    content: "";
+    position: absolute;
+    right: -42px;
+    bottom: -54px;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    border: 28px solid rgba(40, 73, 184, 0.05);
+    pointer-events: none;
+}
+
+.lp-integration-main {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.lp-integration-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    flex: 0 0 72px;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    background: linear-gradient(145deg, #2849b8 0%, #0b1f52 100%);
+    box-shadow: 0 12px 28px rgba(11, 31, 82, 0.22);
+}
+
+.lp-integration-icon svg {
+    width: 34px;
+    height: 34px;
+}
+
+.lp-integration-copy {
+    min-width: 0;
+}
+
+.lp-integration-eyebrow {
+    width: fit-content;
+    margin-bottom: 7px;
+    color: #2849b8;
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+}
+
+.lp-integration-copy h2 {
+    margin: 0 0 7px;
+    color: var(--lp-text-main);
+    font-size: clamp(25px, 2.5vw, 34px);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+}
+
+.lp-integration-copy h2 span {
+    color: #2849b8;
+}
+
+.lp-integration-copy p {
+    max-width: 710px;
+    margin: 0;
+    color: var(--lp-text-body);
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+.lp-integration-domain {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #edf3ff;
+    color: #163e93;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.lp-integration-link {
+    position: relative;
+    z-index: 1;
+    min-height: 54px;
+    padding: 0 22px;
+    border-radius: 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-shrink: 0;
+    color: #ffffff;
+    background: linear-gradient(180deg, #163e93 0%, #0b1f52 100%);
+    box-shadow: 0 10px 24px rgba(11, 31, 82, 0.2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        background 0.22s ease;
+}
+
+.lp-integration-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.lp-integration-link:hover,
+.lp-integration-link:focus-visible {
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(11, 31, 82, 0.25);
+}
+
+.lp-integration-link:focus-visible {
+    outline: 3px solid rgba(40, 73, 184, 0.22);
+    outline-offset: 3px;
+}
+
+@media (max-width: 980px) {
+    .lp-integration-card {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        gap: 20px;
+    }
+
+    .lp-integration-link {
+        width: fit-content;
+    }
+}
+
+@media (max-width: 768px) {
+    .lp-integration-section {
+        margin-top: -22px;
+        padding-bottom: 40px;
+    }
+
+    .lp-integration-card {
+        min-height: 0;
+        padding: 22px;
+        border-radius: 22px;
+        gap: 18px;
+    }
+
+    .lp-integration-main {
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .lp-integration-icon {
+        width: 58px;
+        height: 58px;
+        flex-basis: 58px;
+        border-radius: 18px;
+    }
+
+    .lp-integration-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .lp-integration-copy h2 {
+        font-size: 25px;
+    }
+
+    .lp-integration-copy p {
+        font-size: 14px;
+    }
+
+    .lp-integration-link {
+        width: 100%;
+        min-height: 52px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lp-integration-card {
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .lp-integration-main {
+        flex-direction: column;
+    }
+
+    .lp-integration-icon {
+        width: 52px;
+        height: 52px;
+        flex-basis: 52px;
+        border-radius: 16px;
+    }
+
+    .lp-integration-copy h2 {
+        font-size: 23px;
+    }
+
+    .lp-integration-domain {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+}

@@ -54,6 +54,7 @@ const ORG_WA_DISPLAY = "0811-6904-422";
 const ORG_WA_TEL = "628116904422";
 const ORG_HOURS_DAYS = "Senin - Jumat";
 const ORG_HOURS_TIME = "08:00 - 16:00 WIB";
+const TUANKU_URL = "https://tuanku.pt-riau.go.id/";
 
 const SOCIAL_LINKS = {
     facebook: "#",
@@ -1430,6 +1431,58 @@ export default function LandingPage({
                     </div>
                 </section>
 
+                <section
+                    className="lp-integration-section"
+                    aria-labelledby="tuanku-title"
+                >
+                    <div className="lp-container">
+                        <Reveal direction="up">
+                            <div className="lp-integration-card">
+                                <div className="lp-integration-main">
+                                    <div
+                                        className="lp-integration-icon"
+                                        aria-hidden="true"
+                                    >
+                                        <HiOutlineScale />
+                                    </div>
+
+                                    <div className="lp-integration-copy">
+                                        <div className="lp-integration-eyebrow">
+                                            LAYANAN TERINTEGRASI
+                                        </div>
+
+                                        <h2 id="tuanku-title">
+                                            Akses <span>TUANKU</span>
+                                        </h2>
+
+                                        <p>
+                                            Terhubung langsung ke website TUANKU
+                                            Pengadilan Tinggi Riau untuk
+                                            mengakses layanan hukum online
+                                            melalui portal resmi terkait.
+                                        </p>
+
+                                        <div className="lp-integration-domain">
+                                            tuanku.pt-riau.go.id
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <a
+                                    href={TUANKU_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="lp-integration-link"
+                                    aria-label="Kunjungi website TUANKU Pengadilan Tinggi Riau di tab baru"
+                                >
+                                    <span>Kunjungi TUANKU</span>
+                                    <FiExternalLink />
+                                </a>
+                            </div>
+                        </Reveal>
+                    </div>
+                </section>
+
                 <section className="lp-section lp-why-section" ref={whyRef}>
                     <div className="lp-container">
                         <Reveal className="lp-center-head" direction="down">
@@ -2144,7 +2197,6 @@ export default function LandingPage({
                 </div>
             </footer>
 
-
             <DetailPopup
                 location={detailPopup}
                 onClose={() => setDetailPopup(null)}
@@ -2161,7 +2213,7 @@ export default function LandingPage({
                     onSelect={selectLocationFromPopup}
                 />
             ) : null}
-            <ChatbotWidget/>
+            <ChatbotWidget />
         </div>
     );
 }
