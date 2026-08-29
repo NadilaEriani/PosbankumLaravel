@@ -45,6 +45,7 @@ import logo from "../assets/logo.png";
 import medalIcon from "../assets/medal.png";
 import earthIcon from "../assets/earth.png";
 import mapsIcon from "../assets/maps.png";
+import iconTuankuOnline from "../assets/iconTuankuOnline.png";
 import "../../css/landingPage.css";
 import "../../css/chatbot.css";
 const ORG_FULL = "Kantor Wilayah Kementerian Hukum Riau";
@@ -1542,7 +1543,11 @@ export default function LandingPage({
                                             className="lp-integration-portal-icon"
                                             aria-hidden="true"
                                         >
-                                            <HiOutlineScale />
+                                            <img
+                                                src={iconTuankuOnline}
+                                                alt=""
+                                                className="lp-integration-portal-icon-image"
+                                            />
                                         </div>
 
                                         <div className="lp-integration-portal-status">
