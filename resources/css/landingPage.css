@@ -5960,6 +5960,21 @@ body,
     box-shadow: 0 12px 24px rgba(11, 31, 82, 0.09);
 }
 
+.lp-integration-service-card.lp-integration-service-card-blue {
+    background: #eaf0fd;
+    border-color: #9fbefc;
+}
+
+.lp-integration-service-card.lp-integration-service-card-green {
+    background: #e7f3ea;
+    border-color: #a7e2ba;
+}
+
+.lp-integration-service-card.lp-integration-service-card-orange {
+    background: #f5e6cb;
+    border-color: #f0cb8a;
+}
+
 .lp-integration-service-icon {
     width: 40px;
     height: 40px;

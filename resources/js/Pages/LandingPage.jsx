@@ -1478,7 +1478,7 @@ export default function LandingPage({
                                     </div>
 
                                     <div className="lp-integration-service-grid">
-                                        <div className="lp-integration-service-card">
+                                        <div className="lp-integration-service-card lp-integration-service-card-blue">
                                             <span className="lp-integration-service-icon lp-integration-service-blue">
                                                 <FiMessageCircle />
                                             </span>
@@ -1495,7 +1495,7 @@ export default function LandingPage({
                                             </div>
                                         </div>
 
-                                        <div className="lp-integration-service-card">
+                                        <div className="lp-integration-service-card lp-integration-service-card-green">
                                             <span className="lp-integration-service-icon lp-integration-service-green">
                                                 <BiShield />
                                             </span>
@@ -1512,7 +1512,7 @@ export default function LandingPage({
                                             </div>
                                         </div>
 
-                                        <div className="lp-integration-service-card">
+                                        <div className="lp-integration-service-card lp-integration-service-card-orange">
                                             <span className="lp-integration-service-icon lp-integration-service-orange">
                                                 <BiFile />
                                             </span>
@@ -1561,9 +1561,10 @@ export default function LandingPage({
                                         </h3>
 
                                         <p>
-                                            Bantuan hukum online yang dapat
-                                            diakses masyarakat melalui portal
-                                            resmi Pengadilan Tinggi Riau.
+                                            Akses Layanan Hukum Online melalui
+                                            TUANKU ONLINE, portal resmi
+                                            Pengadilan Tinggi Riau yang dapat
+                                            diakses masyarakat secara daring.
                                         </p>
                                     </div>
 
