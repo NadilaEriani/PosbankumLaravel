@@ -5960,21 +5960,6 @@ body,
     box-shadow: 0 12px 24px rgba(11, 31, 82, 0.09);
 }
 
-.lp-integration-service-card.lp-integration-service-card-blue {
-    background: #eaf0fd;
-    border-color: #9fbefc;
-}
-
-.lp-integration-service-card.lp-integration-service-card-green {
-    background: #e7f3ea;
-    border-color: #a7e2ba;
-}
-
-.lp-integration-service-card.lp-integration-service-card-orange {
-    background: #f5e6cb;
-    border-color: #f0cb8a;
-}
-
 .lp-integration-service-icon {
     width: 40px;
     height: 40px;
@@ -6089,20 +6074,16 @@ body,
     height: 56px;
     display: grid;
     place-items: center;
-    padding: 8px;
     border-radius: 18px;
+    color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.18);
-    background: #ffffff;
-    box-shadow:
-        0 10px 22px rgba(5, 16, 45, 0.18),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.lp-integration-portal-icon-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+.lp-integration-portal-icon svg {
+    width: 28px;
+    height: 28px;
 }
 
 .lp-integration-portal-status {
@@ -6429,8 +6410,12 @@ body,
     .lp-integration-portal-icon {
         width: 50px;
         height: 50px;
-        padding: 7px;
         border-radius: 16px;
+    }
+
+    .lp-integration-portal-icon svg {
+        width: 25px;
+        height: 25px;
     }
 
     .lp-integration-portal-status {

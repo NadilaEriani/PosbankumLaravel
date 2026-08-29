@@ -45,7 +45,6 @@ import logo from "../assets/logo.png";
 import medalIcon from "../assets/medal.png";
 import earthIcon from "../assets/earth.png";
 import mapsIcon from "../assets/maps.png";
-import iconTuankuOnline from "../assets/iconTuankuOnline.png";
 import "../../css/landingPage.css";
 import "../../css/chatbot.css";
 const ORG_FULL = "Kantor Wilayah Kementerian Hukum Riau";
@@ -1479,7 +1478,7 @@ export default function LandingPage({
                                     </div>
 
                                     <div className="lp-integration-service-grid">
-                                        <div className="lp-integration-service-card lp-integration-service-card-blue">
+                                        <div className="lp-integration-service-card">
                                             <span className="lp-integration-service-icon lp-integration-service-blue">
                                                 <FiMessageCircle />
                                             </span>
@@ -1496,7 +1495,7 @@ export default function LandingPage({
                                             </div>
                                         </div>
 
-                                        <div className="lp-integration-service-card lp-integration-service-card-green">
+                                        <div className="lp-integration-service-card">
                                             <span className="lp-integration-service-icon lp-integration-service-green">
                                                 <BiShield />
                                             </span>
@@ -1513,7 +1512,7 @@ export default function LandingPage({
                                             </div>
                                         </div>
 
-                                        <div className="lp-integration-service-card lp-integration-service-card-orange">
+                                        <div className="lp-integration-service-card">
                                             <span className="lp-integration-service-icon lp-integration-service-orange">
                                                 <BiFile />
                                             </span>
@@ -1543,11 +1542,7 @@ export default function LandingPage({
                                             className="lp-integration-portal-icon"
                                             aria-hidden="true"
                                         >
-                                            <img
-                                                src={iconTuankuOnline}
-                                                alt=""
-                                                className="lp-integration-portal-icon-image"
-                                            />
+                                            <HiOutlineScale />
                                         </div>
 
                                         <div className="lp-integration-portal-status">
@@ -1566,10 +1561,9 @@ export default function LandingPage({
                                         </h3>
 
                                         <p>
-                                            Akses Layanan Hukum Online melalui
-                                            TUANKU ONLINE, portal resmi
-                                            Pengadilan Tinggi Riau yang dapat
-                                            diakses masyarakat secara daring.
+                                            Bantuan hukum online yang dapat
+                                            diakses masyarakat melalui portal
+                                            resmi Pengadilan Tinggi Riau.
                                         </p>
                                     </div>
 
