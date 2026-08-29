@@ -688,6 +688,9 @@ body {
     box-shadow: var(--lp-info-card-shadow);
     overflow: hidden;
     border: 1px solid transparent;
+    transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
 .lp-why-card::after {
@@ -726,6 +729,9 @@ body {
     box-shadow: 0 10px 18px rgba(23, 34, 56, 0.12);
     margin-bottom: 28px;
     overflow: hidden;
+    transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
 .lp-why-card-blue .lp-why-icon {
@@ -851,6 +857,9 @@ body {
     color: var(--lp-text-main);
     font-size: 17px;
     font-weight: 700;
+    transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
 .lp-service-item-icon {
@@ -863,6 +872,9 @@ body {
     background: #10b75c;
     color: #fff;
     box-shadow: 0 10px 16px rgba(17, 136, 72, 0.18);
+    transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
 .lp-service-item-icon svg {
@@ -5944,49 +5956,62 @@ body,
     align-items: flex-start;
     gap: 12px;
     padding: 16px;
-    border: 1px solid rgba(40, 73, 184, 0.11);
+    border: 1px solid transparent;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.86);
-    box-shadow: 0 8px 20px rgba(11, 31, 82, 0.06);
+    box-shadow: 0 8px 20px rgba(11, 31, 82, 0.07);
     transition:
-        transform 0.22s ease,
-        border-color 0.22s ease,
-        box-shadow 0.22s ease;
+        transform 0.28s ease,
+        border-color 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
-.lp-integration-service-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(40, 73, 184, 0.2);
-    box-shadow: 0 12px 24px rgba(11, 31, 82, 0.09);
+.lp-integration-service-card-blue {
+    background: #eaf0fd;
+    border-color: #9fbefc;
+}
+
+.lp-integration-service-card-green {
+    background: #e7f3ea;
+    border-color: #a7e2ba;
+}
+
+.lp-integration-service-card-orange {
+    background: #f5e6cb;
+    border-color: #f0cb8a;
 }
 
 .lp-integration-service-icon {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
     display: grid;
     place-items: center;
-    border-radius: 13px;
+    border-radius: 14px;
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(23, 34, 56, 0.13);
+    transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease;
 }
 
 .lp-integration-service-icon svg {
-    width: 20px;
-    height: 20px;
+    width: 23px;
+    height: 23px;
 }
 
 .lp-integration-service-blue {
-    color: #2255c7;
-    background: #e5edff;
+    color: #ffffff;
+    background: #2255c7;
 }
 
 .lp-integration-service-green {
-    color: #159447;
-    background: #e4f6ea;
+    color: #ffffff;
+    background: #18a34a;
 }
 
 .lp-integration-service-orange {
-    color: #d7761f;
-    background: #fff0dd;
+    color: #ffffff;
+    background: #f7b84b;
 }
 
 .lp-integration-service-card strong {
@@ -6070,20 +6095,35 @@ body,
 }
 
 .lp-integration-portal-icon {
-    width: 56px;
-    height: 56px;
+    width: 58px;
+    height: 58px;
+    position: relative;
     display: grid;
     place-items: center;
-    border-radius: 18px;
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    flex: 0 0 58px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
 }
 
-.lp-integration-portal-icon svg {
-    width: 28px;
-    height: 28px;
+.lp-integration-portal-icon::before {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    background: #ffffff;
+    z-index: 0;
+}
+
+.lp-integration-portal-logo {
+    position: relative;
+    z-index: 1;
+    width: 52px;
+    height: 52px;
+    display: block;
+    object-fit: contain;
+    border-radius: 15px;
 }
 
 .lp-integration-portal-status {
@@ -6408,14 +6448,21 @@ body,
     }
 
     .lp-integration-portal-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 16px;
+        width: 52px;
+        height: 52px;
+        flex-basis: 52px;
     }
 
-    .lp-integration-portal-icon svg {
-        width: 25px;
-        height: 25px;
+    .lp-integration-portal-icon::before {
+        width: 27px;
+        height: 27px;
+        border-radius: 9px;
+    }
+
+    .lp-integration-portal-logo {
+        width: 47px;
+        height: 47px;
+        border-radius: 14px;
     }
 
     .lp-integration-portal-status {
@@ -6438,5 +6485,33 @@ body,
 
     .lp-integration-portal-link {
         font-size: 13px;
+    }
+}
+
+/* Hover motion requested for TUANKU, Mengapa Memilih Kami, dan Akses Bantuan Hukum Gratis. */
+@media (hover: hover) and (pointer: fine) {
+    .lp-integration-service-card:hover,
+    .lp-why-card:hover,
+    .lp-service-item:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 18px 32px rgba(11, 31, 82, 0.14);
+    }
+
+    .lp-integration-service-card:hover .lp-integration-service-icon,
+    .lp-why-card:hover .lp-why-icon,
+    .lp-service-item:hover .lp-service-item-icon {
+        transform: rotate(-7deg) translateY(-2px);
+        box-shadow: 0 12px 22px rgba(23, 34, 56, 0.18);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lp-integration-service-card,
+    .lp-integration-service-icon,
+    .lp-why-card,
+    .lp-why-icon,
+    .lp-service-item,
+    .lp-service-item-icon {
+        transition: none !important;
     }
 }
