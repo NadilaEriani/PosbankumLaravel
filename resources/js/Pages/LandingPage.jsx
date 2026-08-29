@@ -1442,9 +1442,7 @@ export default function LandingPage({
                                     <div className="lp-integration-kicker-row">
                                         <div className="lp-integration-eyebrow">
                                             <AiOutlineCheck />
-                                            <span>
-                                                LAYANAN HUKUM TERINTEGRASI
-                                            </span>
+                                            <span>LAYANAN HUKUM TERINTEGRASI</span>
                                         </div>
 
                                         <div className="lp-integration-owner">
@@ -1464,7 +1462,7 @@ export default function LandingPage({
                                             <h2 id="tuanku-title">
                                                 Akses Layanan Hukum Online
                                                 <br />
-                                                melalui <span>TUANKU</span>
+                                                melalui <span>TUANKU ONLINE</span>
                                             </h2>
 
                                             <p>
@@ -1488,9 +1486,8 @@ export default function LandingPage({
                                                     Konsultasi Hukum Online
                                                 </strong>
                                                 <p>
-                                                    Akses konsultasi dan
-                                                    informasi hukum secara
-                                                    daring.
+                                                    Akses konsultasi dan informasi
+                                                    hukum secara daring.
                                                 </p>
                                             </div>
                                         </div>
@@ -1505,9 +1502,9 @@ export default function LandingPage({
                                                     Pembebasan Biaya Perkara
                                                 </strong>
                                                 <p>
-                                                    Informasi layanan PRODEO
-                                                    bagi masyarakat yang
-                                                    memenuhi ketentuan.
+                                                    Informasi layanan PRODEO bagi
+                                                    masyarakat yang memenuhi
+                                                    ketentuan.
                                                 </p>
                                             </div>
                                         </div>
@@ -1522,9 +1519,8 @@ export default function LandingPage({
                                                     Pembuatan Dokumen Hukum
                                                 </strong>
                                                 <p>
-                                                    Bantuan akses informasi
-                                                    terkait dokumen dan
-                                                    kebutuhan hukum.
+                                                    Bantuan akses informasi terkait
+                                                    dokumen dan kebutuhan hukum.
                                                 </p>
                                             </div>
                                         </div>
