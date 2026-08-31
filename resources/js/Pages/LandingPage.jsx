@@ -1392,7 +1392,7 @@ export default function LandingPage({
                                             {formatRealtimeNumber(
                                                 realtimeStats.paralegals,
                                             )}{" "}
-                                            Paralegal Terlatih
+                                            Paralegal Terdaftar
                                         </div>
                                     </div>
 
@@ -1635,7 +1635,7 @@ export default function LandingPage({
                                     <h3>Paralegal Berpengalaman</h3>
 
                                     <p>
-                                        Didampingi paralegal terdaftar dan
+                                        Didampingi paralegal terlatih dan
                                         bersertifikat resmi.
                                     </p>
                                 </div>
