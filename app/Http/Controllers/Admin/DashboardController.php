@@ -161,15 +161,43 @@ class DashboardController extends Controller
         return DB::table($table)->count();
     }
 
-    private function countByForeignKey(string $table, string $foreignKey, array $ids): array
+    private function applyRangeDays($query, string $table, ?int $rangeDays = null, ?string $alias = null)
+    {
+        if (!$rangeDays) {
+            return $query;
+        }
+
+        $dateCandidates = $table === 'kegiatan'
+            ? ['tgl_mulai', 'tanggal_kegiatan', 'tanggal', 'tgl_upload', 'created_at']
+            : ['tanggal_kejadian', 'created_at', 'updated_at'];
+
+        $dateColumn = collect($dateCandidates)
+            ->first(fn(string $column) => $this->hasColumn($table, $column));
+
+        if (!$dateColumn) {
+            return $query;
+        }
+
+        $qualifiedColumn = $alias ? $alias . '.' . $dateColumn : $dateColumn;
+        $startDate = Carbon::now()->startOfDay()->subDays(max(0, $rangeDays - 1));
+        $endDate = Carbon::now()->endOfDay();
+
+        return $query->whereBetween($qualifiedColumn, [$startDate, $endDate]);
+    }
+
+    private function countByForeignKey(string $table, string $foreignKey, array $ids, ?int $rangeDays = null): array
     {
         if (!$this->hasColumn($table, $foreignKey) || empty($ids)) {
             return [];
         }
 
-        return DB::table($table)
+        $query = DB::table($table)
             ->select($foreignKey, DB::raw('COUNT(*) as total'))
-            ->whereIn($foreignKey, $ids)
+            ->whereIn($foreignKey, $ids);
+
+        $query = $this->applyRangeDays($query, $table, $rangeDays);
+
+        return $query
             ->groupBy($foreignKey)
             ->pluck('total', $foreignKey)
             ->map(fn($value) => (int) $value)
@@ -236,14 +264,14 @@ class DashboardController extends Controller
         });
     }
 
-    private function pengaduanCountsByPosbankum(array $ids): array
+    private function pengaduanCountsByPosbankum(array $ids, ?int $rangeDays = null): array
     {
         if (empty($ids)) {
             return [];
         }
 
         if ($this->hasColumn('pengaduan', 'id_posbankum')) {
-            return $this->countByForeignKey('pengaduan', 'id_posbankum', $ids);
+            return $this->countByForeignKey('pengaduan', 'id_posbankum', $ids, $rangeDays);
         }
 
         $counts = [];
@@ -257,6 +285,8 @@ class DashboardController extends Controller
                 $query->where('pp.status', 'aktif');
             }
 
+            $query = $this->applyRangeDays($query, 'pengaduan', $rangeDays, 'pg');
+
             foreach ($query->select('pp.id_posbankum', DB::raw('COUNT(DISTINCT pg.id_pengaduan) as total'))
                 ->groupBy('pp.id_posbankum')
                 ->pluck('total', 'pp.id_posbankum') as $id => $total) {
@@ -265,10 +295,14 @@ class DashboardController extends Controller
         }
 
         if ($this->canFilterPengaduanViaMasyarakat()) {
-            foreach (DB::table('pengaduan as pg')
+            $query = DB::table('pengaduan as pg')
                 ->join('masyarakat as m', 'm.id_user', '=', 'pg.user_id')
                 ->join('posbankum as p', 'p.id_kelurahan', '=', 'm.id_kelurahan')
-                ->whereIn('p.id_posbankum', $ids)
+                ->whereIn('p.id_posbankum', $ids);
+
+            $query = $this->applyRangeDays($query, 'pengaduan', $rangeDays, 'pg');
+
+            foreach ($query
                 ->select('p.id_posbankum', DB::raw('COUNT(DISTINCT pg.id_pengaduan) as total'))
                 ->groupBy('p.id_posbankum')
                 ->pluck('total', 'p.id_posbankum') as $id => $total) {
@@ -427,7 +461,7 @@ class DashboardController extends Controller
         return $contacts;
     }
 
-    private function buildDetailRows($posRows): array
+    private function buildDetailRows($posRows, ?int $rangeDays = null): array
     {
         $ids = $posRows
             ->map(fn($row) => $this->getPosbankumId($row))
@@ -435,8 +469,8 @@ class DashboardController extends Controller
             ->values()
             ->all();
 
-        $pengaduanCounts = $this->pengaduanCountsByPosbankum($ids);
-        $kegiatanCounts = $this->countByForeignKey('kegiatan', 'id_posbankum', $ids);
+        $pengaduanCounts = $this->pengaduanCountsByPosbankum($ids, $rangeDays);
+        $kegiatanCounts = $this->countByForeignKey('kegiatan', 'id_posbankum', $ids, $rangeDays);
         $firstParalegalContacts = $this->firstParalegalContactsByPosbankum($ids);
         $paralegalCounts = [];
         $hasParalegalCountSource = false;
@@ -1493,14 +1527,14 @@ class DashboardController extends Controller
         })->toArray();
     }
 
-    public function admin(Request $request): Response
+    private function buildActiveRows(array $detailRows): array
     {
-        $posRows = $this->posbankumRows();
-        $detailRows = $this->buildDetailRows($posRows);
+        $maxActivity = max(array_map(
+            fn($row) => ($row['caseCount'] ?? 0) + ($row['activityCount'] ?? 0),
+            $detailRows
+        ) ?: [1]);
 
-        $maxActivity = max(array_map(fn($row) => ($row['caseCount'] ?? 0) + ($row['activityCount'] ?? 0), $detailRows) ?: [1]);
-
-        $topActive = collect($detailRows)
+        return collect($detailRows)
             ->map(function ($row, $index) use ($maxActivity) {
                 $total = ($row['caseCount'] ?? 0) + ($row['activityCount'] ?? 0);
 
@@ -1512,8 +1546,21 @@ class DashboardController extends Controller
             })
             ->sortByDesc(fn($row) => ($row['caseCount'] ?? 0) + ($row['activityCount'] ?? 0))
             ->values()
-            ->take(6)
             ->toArray();
+    }
+
+    public function admin(Request $request): Response
+    {
+        $posRows = $this->posbankumRows();
+        $detailRows = $this->buildDetailRows($posRows);
+        $activeRowsByRange = collect([7, 30, 90])
+            ->mapWithKeys(fn(int $days) => [
+                (string) $days => $this->buildActiveRows(
+                    $this->buildDetailRows($posRows, $days)
+                ),
+            ])
+            ->toArray();
+        $topActive = array_slice($activeRowsByRange['30'] ?? [], 0, 6);
 
         return Inertia::render('Admin/Dashboard', [
             'auth' => [
@@ -1525,6 +1572,7 @@ class DashboardController extends Controller
                 'monthKegiatan' => $this->monthKegiatanCount(),
             ],
             'topActive' => $topActive,
+            'activeRowsByRange' => $activeRowsByRange,
             'activities' => $this->latestActivities(),
             'detailRows' => $detailRows,
             'accountRows' => $this->accountRows(),

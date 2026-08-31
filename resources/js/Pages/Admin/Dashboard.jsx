@@ -222,6 +222,7 @@ export default function AdminDashboard() {
     const user = props.auth?.user || {};
     const stats = props.stats || {};
     const topActive = props.topActive || [];
+    const activeRowsByRange = props.activeRowsByRange || {};
     const activities = props.activities || [];
     const detailRows = props.detailRows || [];
     const beritaRows = props.beritaRows || [];
@@ -248,6 +249,12 @@ export default function AdminDashboard() {
     const [activityPage, setActivityPage] = useState(0);
     const activityPageSize = 10;
     const [actionToast, setActionToast] = useState(null);
+
+    const selectedActiveRows = useMemo(
+        () => activeRowsByRange[String(rangeDays)] || topActive,
+        [activeRowsByRange, rangeDays, topActive],
+    );
+    const displayedTopActive = selectedActiveRows.slice(0, 6);
 
     useEffect(() => {
         if (flashSuccess) {
@@ -689,7 +696,7 @@ export default function AdminDashboard() {
     }, [accountRows, detailRows, selectedPosDetail]);
 
     const handleExport = () => {
-        const rows = filteredDetailRows.map((row) => ({
+        const rows = selectedActiveRows.map((row) => ({
             Posbankum: row.name || "-",
             Total:
                 (row.activityCount || 0) +
@@ -709,19 +716,22 @@ export default function AdminDashboard() {
             "Dokumen",
             "Status",
         ];
-        const csv = [
-            headers.join(","),
+        const csvContent = [
+            headers.join(";"),
             ...rows.map((row) =>
                 headers
                     .map(
                         (header) =>
                             `"${String(row[header] ?? "").replace(/"/g, '""')}"`,
                     )
-                    .join(","),
+                    .join(";"),
             ),
-        ].join("\n");
+        ].join("\r\n");
+        const csv = `\uFEFFsep=;\r\n${csvContent}`;
 
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const blob = new Blob([csv], {
+            type: "text/csv;charset=utf-8;",
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -880,9 +890,9 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    {topActive.length > 0 ? (
+                    {displayedTopActive.length > 0 ? (
                         <div className="ad-activeBars">
-                            {topActive.map((item, index) => (
+                            {displayedTopActive.map((item, index) => (
                                 <button
                                     type="button"
                                     className="ad-activeItem"

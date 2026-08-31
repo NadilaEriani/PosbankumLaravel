@@ -6775,3 +6775,14 @@ button.ad-linkBtn {
         font-size: 12px;
     }
 }
+
+@media (min-width: 861px) {
+    .ad-side {
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+        height: 100vh;
+        height: 100dvh;
+        overflow-y: auto;
+    }
+}
