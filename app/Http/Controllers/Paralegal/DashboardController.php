@@ -545,7 +545,7 @@ class DashboardController extends Controller
             $query->where('id_posbankum', $idPosbankum);
         }
 
-        foreach (['created_at', 'tgl_upload', 'tgl_mulai', 'tanggal'] as $orderColumn) {
+        foreach (['tgl_mulai', 'tanggal_kegiatan', 'tanggal', 'tgl_upload', 'created_at'] as $orderColumn) {
             if ($this->hasColumn('kegiatan', $orderColumn)) {
                 $query->orderByDesc($orderColumn);
                 break;
@@ -582,7 +582,7 @@ class DashboardController extends Controller
             $query->where('id_posbankum', $idPosbankum);
         }
 
-        foreach (['created_at', 'tgl_upload', 'tgl_mulai', 'tanggal_kegiatan', 'tanggal'] as $orderColumn) {
+        foreach (['tgl_mulai', 'tanggal_kegiatan', 'tanggal', 'tgl_upload', 'created_at'] as $orderColumn) {
             if ($this->hasColumn('kegiatan', $orderColumn)) {
                 $query->orderByDesc($orderColumn);
                 break;

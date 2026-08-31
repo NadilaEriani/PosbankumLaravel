@@ -427,6 +427,41 @@ export default function KelolaKegiatan({
         else element.focus();
     };
 
+    const updateDateField = (field, value) => {
+        setForm((prev) => {
+            if (field !== "tgl_mulai") {
+                return { ...prev, [field]: value };
+            }
+
+            const invalidEnd =
+                prev.tgl_selesai && value && prev.tgl_selesai < value;
+
+            return {
+                ...prev,
+                tgl_mulai: value,
+                tgl_selesai: invalidEnd ? "" : prev.tgl_selesai,
+            };
+        });
+    };
+
+    const handleDatePaste = (event) => {
+        const value = event.clipboardData.getData("text").trim();
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+
+        event.preventDefault();
+        updateDateField(event.currentTarget.name, value);
+    };
+
+    const handleDateCopy = (event) => {
+        const value = form[event.currentTarget.name];
+
+        if (!value) return;
+
+        event.preventDefault();
+        event.clipboardData.setData("text/plain", value);
+    };
+
     const revokeBlobPreview = () => {
         if (thumbPreviewUrl && thumbPreviewUrl.startsWith("blob:")) {
             URL.revokeObjectURL(thumbPreviewUrl);
@@ -895,28 +930,18 @@ export default function KelolaKegiatan({
                                 <div className="kk-formDateWrap">
                                     <input
                                         ref={startDateRef}
+                                        name="tgl_mulai"
                                         className="kk-formInput kk-formDateInput"
                                         type="date"
                                         value={form.tgl_mulai}
                                         onChange={(event) =>
-                                            setForm((prev) => {
-                                                const nextMulai =
-                                                    event.target.value;
-                                                const invalidEnd =
-                                                    prev.tgl_selesai &&
-                                                    nextMulai &&
-                                                    prev.tgl_selesai <
-                                                        nextMulai;
-
-                                                return {
-                                                    ...prev,
-                                                    tgl_mulai: nextMulai,
-                                                    tgl_selesai: invalidEnd
-                                                        ? ""
-                                                        : prev.tgl_selesai,
-                                                };
-                                            })
+                                            updateDateField(
+                                                "tgl_mulai",
+                                                event.target.value,
+                                            )
                                         }
+                                        onPaste={handleDatePaste}
+                                        onCopy={handleDateCopy}
                                     />
                                     <FiCalendar
                                         className="kk-formDateIcon"
@@ -932,16 +957,19 @@ export default function KelolaKegiatan({
                                 <div className="kk-formDateWrap">
                                     <input
                                         ref={endDateRef}
+                                        name="tgl_selesai"
                                         className="kk-formInput kk-formDateInput"
                                         type="date"
                                         value={form.tgl_selesai}
                                         min={form.tgl_mulai || undefined}
                                         onChange={(event) =>
-                                            setForm((prev) => ({
-                                                ...prev,
-                                                tgl_selesai: event.target.value,
-                                            }))
+                                            updateDateField(
+                                                "tgl_selesai",
+                                                event.target.value,
+                                            )
                                         }
+                                        onPaste={handleDatePaste}
+                                        onCopy={handleDateCopy}
                                     />
                                     <FiCalendar
                                         className="kk-formDateIcon"
@@ -1543,28 +1571,18 @@ export default function KelolaKegiatan({
                                     <div className="kk-datebox">
                                         <input
                                             ref={startDateRef}
+                                            name="tgl_mulai"
                                             className="kk-input kk-input-date"
                                             type="date"
                                             value={form.tgl_mulai}
                                             onChange={(event) =>
-                                                setForm((prev) => {
-                                                    const nextMulai =
-                                                        event.target.value;
-                                                    const invalidEnd =
-                                                        prev.tgl_selesai &&
-                                                        nextMulai &&
-                                                        prev.tgl_selesai <
-                                                            nextMulai;
-
-                                                    return {
-                                                        ...prev,
-                                                        tgl_mulai: nextMulai,
-                                                        tgl_selesai: invalidEnd
-                                                            ? ""
-                                                            : prev.tgl_selesai,
-                                                    };
-                                                })
+                                                updateDateField(
+                                                    "tgl_mulai",
+                                                    event.target.value,
+                                                )
                                             }
+                                            onPaste={handleDatePaste}
+                                            onCopy={handleDateCopy}
                                         />
                                         <FiCalendar
                                             className="kk-date-ic"
@@ -1582,17 +1600,19 @@ export default function KelolaKegiatan({
                                     <div className="kk-datebox">
                                         <input
                                             ref={endDateRef}
+                                            name="tgl_selesai"
                                             className="kk-input kk-input-date"
                                             type="date"
                                             value={form.tgl_selesai}
                                             min={form.tgl_mulai || undefined}
                                             onChange={(event) =>
-                                                setForm((prev) => ({
-                                                    ...prev,
-                                                    tgl_selesai:
-                                                        event.target.value,
-                                                }))
+                                                updateDateField(
+                                                    "tgl_selesai",
+                                                    event.target.value,
+                                                )
                                             }
+                                            onPaste={handleDatePaste}
+                                            onCopy={handleDateCopy}
                                         />
                                         <FiCalendar
                                             className="kk-date-ic"
