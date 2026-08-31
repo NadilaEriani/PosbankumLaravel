@@ -11,6 +11,21 @@
     font-family: "Outfit", sans-serif;
 }
 
+/* Text containment safeguard — apf- */
+:where([class^="apf-"], [class*=" apf-"]):where([class*="Card"], [class*="card"], [class*="Panel"], [class*="panel"], [class*="Item"], [class*="item"], [class*="Box"], [class*="box"]),
+:where([class^="apf-"], [class*=" apf-"]):where([class*="Card"], [class*="card"], [class*="Panel"], [class*="panel"], [class*="Item"], [class*="item"], [class*="Box"], [class*="box"]) > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:where([class^="apf-"], [class*=" apf-"]):where([class*="Card"], [class*="card"], [class*="Panel"], [class*="panel"], [class*="Item"], [class*="item"], [class*="Box"], [class*="box"]) :where(h1, h2, h3, h4, h5, h6, p, span, strong, small, a, label, button, td, th, dd, dt) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+
 .apf-page *,
 .apf-page *::before,
 .apf-page *::after {
@@ -891,4 +906,12 @@
         padding-left: 12px;
         padding-right: 12px;
     }
+}
+
+:where([class^="apf-"], [class*=" apf-"]):where([class*="Card"], [class*="card"], [class*="Panel"], [class*="panel"], [class*="Item"], [class*="item"], [class*="Box"], [class*="box"]) :where(h1, h2, h3, h4, h5, h6, p, span, strong, small, a, label, dd, dt) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
 }

@@ -27,6 +27,68 @@
     --ad-radius-md: 16px;
 }
 
+/* Text containment safeguard — ad- */
+:where([class^="ad-"], [class*=" ad-"]):where(
+    [class*="Card"],
+    [class*="card"],
+    [class*="Panel"],
+    [class*="panel"],
+    [class*="Item"],
+    [class*="item"],
+    [class*="Box"],
+    [class*="box"]
+),
+:where([class^="ad-"], [class*=" ad-"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:where([class^="ad-"], [class*=" ad-"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    :where(
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        span,
+        strong,
+        small,
+        a,
+        label,
+        button,
+        td,
+        th,
+        dd,
+        dt
+    ) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -6785,4 +6847,22 @@ button.ad-linkBtn {
         height: 100dvh;
         overflow-y: auto;
     }
+}
+
+:where([class^="ad-"], [class*=" ad-"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    :where(h1, h2, h3, h4, h5, h6, p, span, strong, small, a, label, dd, dt) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
 }

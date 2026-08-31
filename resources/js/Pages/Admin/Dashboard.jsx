@@ -954,7 +954,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="ad-activityList">
-                        {activities.slice(0, 4).map((item, index) => (
+                        {activities.slice(0, 3).map((item, index) => (
                             <div
                                 className="ad-activityItem"
                                 key={`${item.type}-${index}`}

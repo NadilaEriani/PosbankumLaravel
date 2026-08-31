@@ -1635,7 +1635,7 @@ export default function LandingPage({
                                     <h3>Paralegal Berpengalaman</h3>
 
                                     <p>
-                                        Didampingi paralegal terlatih dan
+                                        Didampingi paralegal terdaftar dan
                                         bersertifikat resmi.
                                     </p>
                                 </div>

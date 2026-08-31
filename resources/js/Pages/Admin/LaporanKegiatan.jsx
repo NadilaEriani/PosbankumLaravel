@@ -203,6 +203,19 @@ function normalizeRow(row, index = 0) {
     };
 }
 
+function sortRowsByEventDate(rows) {
+    const timestamp = (row) => {
+        const value = row?.tgl_mulai || row?.tgl_upload;
+        const time = value ? new Date(value).getTime() : 0;
+
+        return Number.isNaN(time) ? 0 : time;
+    };
+
+    return [...rows].sort((first, second) => {
+        return timestamp(second) - timestamp(first);
+    });
+}
+
 function uiStatusKey(statusDb) {
     const status = norm(statusDb);
 
@@ -451,7 +464,10 @@ export default function LaporanKegiatan({ rows = [] }) {
     const isDetailPage = Boolean(detailId);
 
     const normalizedRows = useMemo(
-        () => (Array.isArray(rows) ? rows : []).map(normalizeRow),
+        () =>
+            sortRowsByEventDate(
+                (Array.isArray(rows) ? rows : []).map(normalizeRow),
+            ),
         [rows],
     );
 

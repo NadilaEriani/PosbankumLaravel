@@ -21,6 +21,68 @@
     --pb-radius-md: 16px;
 }
 
+/* Text containment safeguard — pb2 */
+:where([class^="pb2"], [class*=" pb2"]):where(
+    [class*="Card"],
+    [class*="card"],
+    [class*="Panel"],
+    [class*="panel"],
+    [class*="Item"],
+    [class*="item"],
+    [class*="Box"],
+    [class*="box"]
+),
+:where([class^="pb2"], [class*=" pb2"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:where([class^="pb2"], [class*=" pb2"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    :where(
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        span,
+        strong,
+        small,
+        a,
+        label,
+        button,
+        td,
+        th,
+        dd,
+        dt
+    ) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+
 .pb2Root {
     min-height: 100vh;
     display: grid;
@@ -2742,4 +2804,22 @@ button.pb2KegiatanItem:active {
         padding: 0 14px;
         font-size: 12px;
     }
+}
+
+:where([class^="pb2"], [class*=" pb2"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    :where(h1, h2, h3, h4, h5, h6, p, span, strong, small, a, label, dd, dt) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
 }

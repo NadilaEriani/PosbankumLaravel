@@ -17,6 +17,68 @@
     --kb-shadow: 0 14px 32px rgba(28, 37, 68, 0.1);
 }
 
+/* Text containment safeguard — kb- */
+:where([class^="kb-"], [class*=" kb-"]):where(
+    [class*="Card"],
+    [class*="card"],
+    [class*="Panel"],
+    [class*="panel"],
+    [class*="Item"],
+    [class*="item"],
+    [class*="Box"],
+    [class*="box"]
+),
+:where([class^="kb-"], [class*=" kb-"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:where([class^="kb-"], [class*=" kb-"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    :where(
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        span,
+        strong,
+        small,
+        a,
+        label,
+        button,
+        td,
+        th,
+        dd,
+        dt
+    ) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+
 .kb-wrap {
     position: relative;
     font-family: "Outfit", sans-serif;
@@ -2376,4 +2438,22 @@
     .kb-btnIcon {
         height: 38px;
     }
+}
+
+:where([class^="kb-"], [class*=" kb-"]):where(
+        [class*="Card"],
+        [class*="card"],
+        [class*="Panel"],
+        [class*="panel"],
+        [class*="Item"],
+        [class*="item"],
+        [class*="Box"],
+        [class*="box"]
+    )
+    :where(h1, h2, h3, h4, h5, h6, p, span, strong, small, a, label, dd, dt) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
 }
