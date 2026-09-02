@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
-    <link rel="icon" type="image/png" href="{{ Vite::asset('resources/js/assets/burung5.png') }}">
+
+    <link rel="icon" type="image/png" href="{{ Vite::asset('resources/js/assets/Kepala.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -15,7 +16,7 @@
     <!-- Scripts -->
     @routes
     @viteReactRefresh
-    @vite(['resources/js/app.jsx', 'resources/js/assets/burung5.png'])
+    @vite(['resources/js/app.jsx'])
     @inertiaHead
 </head>
 
