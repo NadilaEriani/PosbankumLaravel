@@ -43,10 +43,127 @@ const STATUS_FILTERS = [
 ];
 const TIME_FILTER_OPTIONS = [
     { value: "all", label: "Semua Waktu" },
+    { value: "today", label: "Hari Ini" },
     { value: "7d", label: "7 Hari Terakhir" },
-    { value: "30d", label: "30 Hari Terakhir" },
-    { value: "year", label: "Tahun Ini" },
+    { value: "month", label: "Bulan Ini" },
+    { value: "last_month", label: "Bulan Lalu" },
+    { value: "range", label: "Rentang Tanggal" },
 ];
+
+const KELOLA_BERITA_RANGE_STYLES = `
+.kb-timeFilterRange {
+    margin-top: 6px;
+    padding: 12px;
+    border-top: 1px solid #edf0f4;
+    background: #fbfcfe;
+    border-radius: 0 0 10px 10px;
+}
+
+.kb-timeFilterRangeTitle {
+    margin: 0 0 10px;
+    color: #343a73;
+    font-size: 12px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.kb-timeFilterRangeGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.kb-timeFilterDateField {
+    min-width: 0;
+}
+
+.kb-timeFilterDateField span {
+    display: block;
+    margin-bottom: 5px;
+    color: #667085;
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.kb-timeFilterDateField input {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    border: 1px solid #dfe3ea;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #344054;
+    padding: 0 8px;
+    outline: none;
+    font-family: "Outfit", sans-serif;
+    font-size: 12px;
+}
+
+.kb-timeFilterDateField input:focus {
+    border-color: #aab4c4;
+    box-shadow: 0 0 0 3px rgba(52, 58, 115, 0.08);
+}
+
+.kb-timeFilterRangeError {
+    margin-top: 8px;
+    color: #b42318;
+    font-size: 11px;
+    line-height: 1.35;
+    font-weight: 600;
+}
+
+.kb-timeFilterRangeActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.kb-timeFilterCancel,
+.kb-timeFilterApply {
+    min-height: 36px;
+    border: 0;
+    border-radius: 10px;
+    padding: 0 12px;
+    font-family: "Outfit", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.kb-timeFilterCancel {
+    background: #eef0f4;
+    color: #475467;
+}
+
+.kb-timeFilterApply {
+    background: #343a73;
+    color: #ffffff;
+}
+
+.kb-wrap .kb-timeFilterCancel:not(:disabled):hover,
+.kb-wrap .kb-timeFilterApply:not(:disabled):hover {
+    transform: none;
+    filter: none;
+}
+
+@media (max-width: 430px) {
+    .kb-timeFilterRangeGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .kb-timeFilterRangeActions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .kb-timeFilterCancel,
+    .kb-timeFilterApply {
+        width: 100%;
+    }
+}
+`;
 
 const normalizeBeritaStatus = (value) => {
     if (typeof value === "boolean") return value ? "aktif" : "nonaktif";
@@ -75,25 +192,122 @@ const normalizeBeritaStatus = (value) => {
     return "aktif";
 };
 
-const isDateInsideTimeFilter = (value, filter) => {
+/* TIME_FILTER_HELPERS_START */
+function startOfLocalDay(date) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        0,
+        0,
+        0,
+        0,
+    );
+}
+
+function endOfLocalDay(date) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        23,
+        59,
+        59,
+        999,
+    );
+}
+
+function parseLocalDateInput(value, useEndOfDay = false) {
+    const text = String(value ?? "").trim();
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+
+    if (!match) return null;
+
+    const year = Number(match[1]);
+    const month = Number(match[2]) - 1;
+    const day = Number(match[3]);
+
+    const date = useEndOfDay
+        ? new Date(year, month, day, 23, 59, 59, 999)
+        : new Date(year, month, day, 0, 0, 0, 0);
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month ||
+        date.getDate() !== day
+    ) {
+        return null;
+    }
+
+    return date;
+}
+
+function isDateInsideTimeFilter(
+    value,
+    filter,
+    dateRange = {},
+    now = new Date(),
+) {
     if (filter === "all") return true;
 
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return false;
 
-    const now = new Date();
+    const todayStart = startOfLocalDay(now);
+    const todayEnd = endOfLocalDay(now);
 
-    if (filter === "year") {
-        return date.getFullYear() === now.getFullYear();
+    if (filter === "today") {
+        return date >= todayStart && date <= todayEnd;
     }
 
-    const days = filter === "7d" ? 7 : 30;
-    const threshold = new Date(now);
-    threshold.setHours(0, 0, 0, 0);
-    threshold.setDate(threshold.getDate() - days);
+    if (filter === "7d") {
+        const start = new Date(todayStart);
+        start.setDate(start.getDate() - 6);
+        return date >= start && date <= todayEnd;
+    }
 
-    return date >= threshold && date <= now;
-};
+    if (filter === "month") {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        const end = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999,
+        );
+
+        return date >= start && date <= end;
+    }
+
+    if (filter === "last_month") {
+        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const end = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            0,
+            23,
+            59,
+            59,
+            999,
+        );
+
+        return date >= start && date <= end;
+    }
+
+    if (filter === "range") {
+        const start = parseLocalDateInput(dateRange?.start, false);
+        const end = parseLocalDateInput(dateRange?.end, true);
+
+        if (!start || !end || start > end) return false;
+
+        return date >= start && date <= end;
+    }
+
+    return true;
+}
+/* TIME_FILTER_HELPERS_END */
 
 const formatDateID = (value) => {
     if (!value) return "-";
@@ -105,6 +319,16 @@ const formatDateID = (value) => {
         day: "2-digit",
         month: "long",
         year: "numeric",
+    }).format(date);
+};
+
+const formatRangeDate = (value) => {
+    const date = parseLocalDateInput(value);
+    if (!date) return "";
+
+    return new Intl.DateTimeFormat("id-ID", {
+        day: "2-digit",
+        month: "short",
     }).format(date);
 };
 
@@ -246,6 +470,16 @@ export default function KelolaBerita({
     const [statusFilter, setStatusFilter] = useState("semua");
     const [timeFilter, setTimeFilter] = useState("all");
     const [timeFilterOpen, setTimeFilterOpen] = useState(false);
+    const [showRangeInputs, setShowRangeInputs] = useState(false);
+    const [rangeDraft, setRangeDraft] = useState({
+        start: "",
+        end: "",
+    });
+    const [appliedRange, setAppliedRange] = useState({
+        start: "",
+        end: "",
+    });
+    const [rangeError, setRangeError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -278,6 +512,23 @@ export default function KelolaBerita({
         [timeFilter],
     );
 
+    const selectedTimeFilterLabel = useMemo(() => {
+        if (
+            timeFilter === "range" &&
+            appliedRange.start &&
+            appliedRange.end
+        ) {
+            const start = formatRangeDate(appliedRange.start);
+            const end = formatRangeDate(appliedRange.end);
+
+            if (start && end) {
+                return `${start} - ${end}`;
+            }
+        }
+
+        return selectedTimeFilter.label;
+    }, [timeFilter, appliedRange, selectedTimeFilter]);
+
     const normalizedItems = useMemo(
         () =>
             (Array.isArray(rows) ? rows : []).map((item, index) =>
@@ -299,7 +550,13 @@ export default function KelolaBerita({
                 return false;
             }
 
-            if (!isDateInsideTimeFilter(item.tgl_publish, timeFilter)) {
+            if (
+                !isDateInsideTimeFilter(
+                    item.tgl_publish,
+                    timeFilter,
+                    appliedRange,
+                )
+            ) {
                 return false;
             }
 
@@ -311,7 +568,13 @@ export default function KelolaBerita({
 
             return haystack.includes(keyword);
         });
-    }, [normalizedItems, search, statusFilter, timeFilter]);
+    }, [
+        normalizedItems,
+        search,
+        statusFilter,
+        timeFilter,
+        appliedRange,
+    ]);
 
     const totalPages = Math.max(
         1,
@@ -330,7 +593,13 @@ export default function KelolaBerita({
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, statusFilter, timeFilter]);
+    }, [
+        search,
+        statusFilter,
+        timeFilter,
+        appliedRange.start,
+        appliedRange.end,
+    ]);
 
     useEffect(() => {
         if (currentPage > totalPages) {
@@ -347,12 +616,14 @@ export default function KelolaBerita({
                 !timeFilterRef.current.contains(event.target)
             ) {
                 setTimeFilterOpen(false);
+                setRangeError("");
             }
         };
 
         const handleKeyDown = (event) => {
             if (event.key === "Escape") {
                 setTimeFilterOpen(false);
+                setRangeError("");
             }
         };
 
@@ -418,6 +689,56 @@ export default function KelolaBerita({
             }
         };
     }, [imagePreview]);
+
+    const chooseTimeFilter = (value) => {
+        if (value === "range") {
+            setShowRangeInputs(true);
+            setRangeError("");
+
+            if (timeFilter === "range") {
+                setRangeDraft(appliedRange);
+            }
+
+            return;
+        }
+
+        setTimeFilter(value);
+        setShowRangeInputs(false);
+        setRangeError("");
+        setTimeFilterOpen(false);
+    };
+
+    const applyDateRange = () => {
+        const start = parseLocalDateInput(rangeDraft.start, false);
+        const end = parseLocalDateInput(rangeDraft.end, true);
+
+        if (!start || !end) {
+            setRangeError("Pilih tanggal awal dan tanggal akhir.");
+            return;
+        }
+
+        if (start > end) {
+            setRangeError(
+                "Tanggal awal tidak boleh lebih besar dari tanggal akhir.",
+            );
+            return;
+        }
+
+        setAppliedRange({
+            start: rangeDraft.start,
+            end: rangeDraft.end,
+        });
+        setTimeFilter("range");
+        setRangeError("");
+        setShowRangeInputs(false);
+        setTimeFilterOpen(false);
+    };
+
+    const cancelDateRange = () => {
+        setRangeDraft(appliedRange);
+        setRangeError("");
+        setShowRangeInputs(false);
+    };
 
     const resetForm = () => {
         if (imagePreview && imagePreview.startsWith("blob:")) {
@@ -1088,16 +1409,24 @@ export default function KelolaBerita({
                         <button
                             className="kb-timeFilterTrigger"
                             type="button"
-                            onClick={() =>
-                                setTimeFilterOpen((current) => !current)
-                            }
+                            onClick={() => {
+                                const nextOpen = !timeFilterOpen;
+                                setTimeFilterOpen(nextOpen);
+
+                                if (nextOpen && timeFilter === "range") {
+                                    setRangeDraft(appliedRange);
+                                    setShowRangeInputs(true);
+                                }
+
+                                setRangeError("");
+                            }}
                             aria-haspopup="listbox"
                             aria-expanded={timeFilterOpen}
                             aria-label="Filter waktu berita"
                         >
                             <FiFilter className="kb-timeFilterIcon" />
                             <span className="kb-timeFilterText">
-                                {selectedTimeFilter.label}
+                                {selectedTimeFilterLabel}
                             </span>
                             {timeFilterOpen ? (
                                 <FiChevronUp className="kb-timeFilterChevron" />
@@ -1125,15 +1454,85 @@ export default function KelolaBerita({
                                             type="button"
                                             role="option"
                                             aria-selected={isSelected}
-                                            onClick={() => {
-                                                setTimeFilter(option.value);
-                                                setTimeFilterOpen(false);
-                                            }}
+                                            onClick={() =>
+                                                chooseTimeFilter(option.value)
+                                            }
                                         >
                                             {option.label}
                                         </button>
                                     );
                                 })}
+
+                                {showRangeInputs ? (
+                                    <div className="kb-timeFilterRange">
+                                        <div className="kb-timeFilterRangeTitle">
+                                            Pilih Rentang Tanggal
+                                        </div>
+
+                                        <div className="kb-timeFilterRangeGrid">
+                                            <label className="kb-timeFilterDateField">
+                                                <span>Dari</span>
+                                                <input
+                                                    type="date"
+                                                    value={rangeDraft.start}
+                                                    onChange={(event) => {
+                                                        setRangeDraft(
+                                                            (current) => ({
+                                                                ...current,
+                                                                start: event
+                                                                    .target
+                                                                    .value,
+                                                            }),
+                                                        );
+                                                        setRangeError("");
+                                                    }}
+                                                />
+                                            </label>
+
+                                            <label className="kb-timeFilterDateField">
+                                                <span>Sampai</span>
+                                                <input
+                                                    type="date"
+                                                    value={rangeDraft.end}
+                                                    onChange={(event) => {
+                                                        setRangeDraft(
+                                                            (current) => ({
+                                                                ...current,
+                                                                end: event
+                                                                    .target
+                                                                    .value,
+                                                            }),
+                                                        );
+                                                        setRangeError("");
+                                                    }}
+                                                />
+                                            </label>
+                                        </div>
+
+                                        {rangeError ? (
+                                            <div className="kb-timeFilterRangeError">
+                                                {rangeError}
+                                            </div>
+                                        ) : null}
+
+                                        <div className="kb-timeFilterRangeActions">
+                                            <button
+                                                className="kb-timeFilterCancel"
+                                                type="button"
+                                                onClick={cancelDateRange}
+                                            >
+                                                Batal
+                                            </button>
+                                            <button
+                                                className="kb-timeFilterApply"
+                                                type="button"
+                                                onClick={applyDateRange}
+                                            >
+                                                Terapkan
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : null}
                             </div>
                         ) : null}
                     </div>
@@ -1344,6 +1743,8 @@ export default function KelolaBerita({
 
     return (
         <section className="ad-pagePad ad-pagePadBerita">
+            <style>{KELOLA_BERITA_RANGE_STYLES}</style>
+
             <div className="kb-wrap">
                 {pageMode === "list" ? (
                     <div className="ad-pageHeader">
