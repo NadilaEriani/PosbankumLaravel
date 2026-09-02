@@ -2844,3 +2844,66 @@ button.pb2KegiatanItem:active {
         overscroll-behavior-y: contain;
     }
 }
+
+/* =========================================================
+   Navbar Paralegal — cegah profil keluar batas pada desktop/tablet sempit
+   ========================================================= */
+@media (min-width: 861px) and (max-width: 1100px) {
+    .pb2Top {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        padding-left: 20px;
+        padding-right: 20px;
+        gap: 12px;
+    }
+
+    .pb2TopLeft {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .pb2TopTitle,
+    .pb2TopSub {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pb2TopRight {
+        min-width: 0;
+        max-width: 260px;
+        flex: 0 1 260px;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .pb2Bell {
+        flex: 0 0 42px;
+    }
+
+    .pb2TopUser {
+        min-width: 0;
+        max-width: 180px;
+        flex: 0 1 180px;
+    }
+
+    .pb2AccountButton {
+        width: 100%;
+        min-width: 0;
+        max-width: 180px;
+    }
+
+    .pb2AccountIdentity {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .pb2TopUserName {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
