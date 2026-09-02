@@ -2911,3 +2911,80 @@ button.pb2KegiatanItem:active {
         text-overflow: ellipsis;
     }
 }
+
+/* =========================================================
+   Navbar Paralegal — profil ringkas pada half-screen laptop
+   ========================================================= */
+@media (min-width: 641px) and (max-width: 980px) {
+    .pb2Top {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .pb2TopLeft {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .pb2TopRight {
+        width: auto;
+        min-width: 98px;
+        max-width: 98px;
+        flex: 0 0 98px;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .pb2Bell {
+        flex: 0 0 42px;
+    }
+
+    .pb2TopUser {
+        width: 44px;
+        min-width: 44px;
+        max-width: 44px;
+        flex: 0 0 44px;
+        overflow: visible;
+    }
+
+    .pb2AccountButton {
+        width: 44px;
+        min-width: 44px;
+        max-width: 44px;
+        padding: 4px;
+        gap: 0;
+        justify-content: center;
+    }
+
+    .pb2AccountIdentity,
+    .pb2AccountChevron {
+        display: none;
+    }
+
+    .pb2AccountMenu {
+        right: 0;
+        width: min(238px, calc(100vw - 24px));
+    }
+}
+
+/* Pada laptop yang sedikit lebih lebar nama tetap tampil,
+   tetapi profil dibatasi agar tidak mengambil ruang navbar berlebihan. */
+@media (min-width: 981px) and (max-width: 1100px) {
+    .pb2TopRight {
+        max-width: 208px;
+        flex-basis: 208px;
+    }
+
+    .pb2TopUser {
+        max-width: 156px;
+        flex-basis: 156px;
+    }
+
+    .pb2AccountButton {
+        max-width: 156px;
+    }
+
+    .pb2TopUserName {
+        max-width: 82px;
+    }
+}
