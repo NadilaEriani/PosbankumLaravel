@@ -7,7 +7,7 @@
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="icon" type="image/png" href="{{ Vite::asset('resources/js/assets/Kepala.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('Kepala.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

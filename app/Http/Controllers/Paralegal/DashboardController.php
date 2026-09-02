@@ -70,18 +70,19 @@ class DashboardController extends Controller
             return $query;
         }
 
-        if ($this->hasColumn('pengaduan', 'id_posbankum')) {
-            return $query->where('id_posbankum', $idPosbankum);
-        }
-
+        $hasDirectPosbankum = $this->hasColumn('pengaduan', 'id_posbankum');
         $canViaParalegal = $this->canFilterPengaduanViaParalegal();
         $canViaMasyarakat = $this->canFilterPengaduanViaMasyarakat();
 
-        if (!$canViaParalegal && !$canViaMasyarakat) {
+        if (!$hasDirectPosbankum && !$canViaParalegal && !$canViaMasyarakat) {
             return $query;
         }
 
-        return $query->where(function ($inner) use ($idPosbankum, $canViaParalegal, $canViaMasyarakat) {
+        return $query->where(function ($inner) use ($idPosbankum, $hasDirectPosbankum, $canViaParalegal, $canViaMasyarakat) {
+            if ($hasDirectPosbankum) {
+                $inner->orWhere('pengaduan.id_posbankum', $idPosbankum);
+            }
+
             if ($canViaParalegal) {
                 $inner->orWhereExists(function ($sub) use ($idPosbankum) {
                     $sub->select(DB::raw(1))
@@ -466,7 +467,35 @@ class DashboardController extends Controller
         }
 
         if ($this->hasColumn('kegiatan', 'status')) {
-            $query->whereIn('status', ['selesai', 'diterima', 'Selesai', 'Diterima', 'completed', 'done']);
+            $query->whereIn('status', [
+                'selesai',
+                'Selesai',
+                'disetujui',
+                'Disetujui',
+                'diterima',
+                'Diterima',
+                'approved',
+                'Approved',
+                'completed',
+                'Completed',
+                'done',
+                'Done',
+            ]);
+        }
+
+        $activityDateColumn = $this->firstExistingColumn('kegiatan', [
+            'tgl_mulai',
+            'tanggal_kegiatan',
+            'tanggal',
+            'tgl_selesai',
+            'created_at',
+        ]);
+
+        if ($activityDateColumn) {
+            $query->whereBetween($activityDateColumn, [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth(),
+            ]);
         }
 
         return $query->count();
