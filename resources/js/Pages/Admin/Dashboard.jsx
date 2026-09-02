@@ -1,5 +1,5 @@
 import { Head, router, usePage } from "@inertiajs/react";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import {
     FiHome,
     FiMenu,
@@ -26,17 +26,18 @@ import { HiOutlineNewspaper } from "react-icons/hi2";
 
 import "../../../css/Admin/adminDashboard.css";
 
-import DataPosbankum from "./DataPosbankum";
-import ManajemenAkun from "./ManajemenAkun";
-import VerifikasiDataPosbankum from "./VerifikasiDataPosbankum";
-import LaporanKegiatan from "./LaporanKegiatan";
-import KelolaBerita from "./KelolaBerita";
-import AdminProfile from "./AdminProfile";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 
 import posbankumIcon from "../../assets/icon.png";
 import logo from "../../assets/logo.png";
+
+const DataPosbankum = lazy(() => import("./DataPosbankum"));
+const ManajemenAkun = lazy(() => import("./ManajemenAkun"));
+const VerifikasiDataPosbankum = lazy(() => import("./VerifikasiDataPosbankum"));
+const LaporanKegiatan = lazy(() => import("./LaporanKegiatan"));
+const KelolaBerita = lazy(() => import("./KelolaBerita"));
+const AdminProfile = lazy(() => import("./AdminProfile"));
 
 const MENU_PATH_MAP = {
     Beranda: "/admin",
@@ -1551,7 +1552,13 @@ export default function AdminDashboard() {
                     </div>
                 </header>
 
-                {renderContent()}
+                <Suspense
+                    fallback={
+                        <div className="ad-pagePad">Memuat halaman...</div>
+                    }
+                >
+                    {renderContent()}
+                </Suspense>
 
                 <footer className="ad-footer">
                     <div className="ad-footerText">

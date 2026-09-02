@@ -1,5 +1,5 @@
 import { Head, router } from "@inertiajs/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ImStack } from "react-icons/im";
 import { CiCalendar } from "react-icons/ci";
 import { TbMessageReport } from "react-icons/tb";
@@ -32,11 +32,12 @@ import {
 import logo from "../../assets/logo.png";
 import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/paralegalDashboard.css";
-import LaporanPelayanan from "./LaporanPelayanan";
-import KelolaKegiatan from "./KelolaKegiatan";
-import SemuaKasus from "./SemuaKasus";
-import KelolaPosbankum from "./KelolaPosbankum";
-import ParalegalProfile from "./ParalegalProfile";
+
+const LaporanPelayanan = lazy(() => import("./LaporanPelayanan"));
+const KelolaKegiatan = lazy(() => import("./KelolaKegiatan"));
+const SemuaKasus = lazy(() => import("./SemuaKasus"));
+const KelolaPosbankum = lazy(() => import("./KelolaPosbankum"));
+const ParalegalProfile = lazy(() => import("./ParalegalProfile"));
 
 function startCase(value) {
     const text = String(value || "").trim();
@@ -224,7 +225,14 @@ function normalizeStatus(value) {
     const lower = raw.toLowerCase();
 
     if (
-        ["selesai", "done", "completed", "diterima", "approved"].includes(lower)
+        [
+            "selesai",
+            "done",
+            "completed",
+            "diterima",
+            "disetujui",
+            "approved",
+        ].includes(lower)
     ) {
         return "Selesai";
     }
@@ -940,7 +948,7 @@ export default function PosbankumDashboard({
                         <div className="pb2StatValue">
                             {stats?.completedActivities ?? 0}
                         </div>
-                        <div className="pb2StatHint">Total kegiatan</div>
+                        <div className="pb2StatHint">Bulan ini</div>
                     </div>
                 </div>
 
@@ -1534,7 +1542,15 @@ export default function PosbankumDashboard({
                     </div>
                 </header>
 
-                {renderActivePage()}
+                <Suspense
+                    fallback={
+                        <section className="pb2Content">
+                            <EmptyBox>Memuat halaman...</EmptyBox>
+                        </section>
+                    }
+                >
+                    {renderActivePage()}
+                </Suspense>
 
                 <footer className="pb2Footer">
                     <div className="pb2FooterText">

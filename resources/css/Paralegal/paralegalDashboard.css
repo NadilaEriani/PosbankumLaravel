@@ -2831,3 +2831,16 @@ button.pb2KegiatanItem:active {
     word-break: break-word;
     white-space: normal;
 }
+/* Sidebar desktop tetap pada viewport saat area konten digulir. */
+@media (min-width: 861px) {
+    .pb2Side {
+        position: sticky;
+        top: 0;
+        align-self: start;
+        height: 100vh;
+        height: 100dvh;
+        max-height: 100dvh;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+    }
+}

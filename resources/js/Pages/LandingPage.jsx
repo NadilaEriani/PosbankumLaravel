@@ -318,11 +318,30 @@ const getOsmPixelPosition = (item, center, zoom, size) => {
     const left = targetPixel.x - centerPixel.x + safeWidth / 2;
     const top = targetPixel.y - centerPixel.y + safeHeight / 2;
 
+    const popupWidth = Math.min(
+        safeWidth <= 480 ? 270 : safeWidth <= 768 ? 300 : 350,
+        Math.max(safeWidth - 24, 240),
+    );
+    const popupHeight = Math.min(
+        safeWidth <= 480 ? 190 : safeWidth <= 768 ? 210 : 230,
+        Math.max(safeHeight - 24, 180),
+    );
+
     return {
         top,
         left,
-        popupTop: clampNumber(top + 8, 12, Math.max(safeHeight - 220, 12)),
-        popupLeft: clampNumber(left - 96, 12, Math.max(safeWidth - 360, 12)),
+        popupTop: clampNumber(
+            top + 8,
+            12,
+            Math.max(safeHeight - popupHeight - 12, 12),
+        ),
+        popupLeft: clampNumber(
+            left - popupWidth / 2,
+            12,
+            Math.max(safeWidth - popupWidth - 12, 12),
+        ),
+        popupWidth,
+        popupHeight,
         mapWidth: safeWidth,
         mapHeight: safeHeight,
     };
@@ -418,6 +437,8 @@ function MapInfoPopup({ location, position }) {
             style={{
                 top: `${position.popupTop}px`,
                 left: `${position.popupLeft}px`,
+                width: `${position.popupWidth}px`,
+                maxHeight: `${position.popupHeight}px`,
             }}
             onClick={(event) => event.stopPropagation()}
         >
@@ -1465,7 +1486,8 @@ export default function LandingPage({
                                             <h2 id="tuanku-title">
                                                 Akses Layanan Hukum Online
                                                 <br />
-                                                melalui <span>TUANKU ONLINE</span>
+                                                melalui{" "}
+                                                <span>TUANKU ONLINE</span>
                                             </h2>
 
                                             <p>
