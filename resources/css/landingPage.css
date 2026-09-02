@@ -6515,3 +6515,50 @@ body,
         transition: none !important;
     }
 }
+
+/* =========================================================
+   FIX: POPUP SEMUA LOKASI POSBANKUM - CARD TIDAK MENUMPUK
+   Setiap baris grid mengikuti tinggi konten card sehingga jumlah
+   data yang banyak tetap tersusun normal dan di-scroll di popup.
+   ========================================================= */
+.lp-all-popup {
+    max-height: calc(100vh - 56px);
+    max-height: calc(100svh - 56px);
+    max-height: calc(100dvh - 56px);
+}
+
+.lp-all-popup-header,
+.lp-all-search-wrap {
+    flex: 0 0 auto;
+}
+
+.lp-all-popup-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-auto-flow: row;
+    grid-auto-rows: max-content;
+    align-content: start;
+    align-items: start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+}
+
+.lp-all-popup-body > .lp-all-card {
+    width: 100%;
+    min-width: 0;
+    height: max-content;
+    min-height: max-content;
+    align-self: start;
+}
+
+.lp-all-card-header > div:last-child,
+.lp-all-card .lp-detail-info-row > div:last-child {
+    min-width: 0;
+}
+
+.lp-all-card-header h3,
+.lp-all-card .lp-detail-info-row strong {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
