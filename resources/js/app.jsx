@@ -6,6 +6,89 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createRoot } from "react-dom/client";
 
 const appName = "SiBapak";
+const DYNAMIC_IMPORT_RELOAD_KEY = "sibapak-dynamic-import-reload-at";
+const DYNAMIC_IMPORT_RELOAD_COOLDOWN = 30000;
+
+function getDynamicImportErrorMessage(value) {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    if (typeof value?.message === "string") return value.message;
+
+    try {
+        return String(value);
+    } catch {
+        return "";
+    }
+}
+
+function isDynamicImportFailure(value) {
+    const message = getDynamicImportErrorMessage(value).toLowerCase();
+
+    return [
+        "failed to fetch dynamically imported module",
+        "error loading dynamically imported module",
+        "importing a module script failed",
+        "failed to load module script",
+    ].some((pattern) => message.includes(pattern));
+}
+
+function reloadForStaleDynamicImport() {
+    if (typeof window === "undefined") return;
+
+    const now = Date.now();
+    let lastReloadAt = 0;
+
+    try {
+        lastReloadAt = Number(
+            window.sessionStorage.getItem(DYNAMIC_IMPORT_RELOAD_KEY) || 0,
+        );
+    } catch {
+        lastReloadAt = 0;
+    }
+
+    if (
+        Number.isFinite(lastReloadAt) &&
+        lastReloadAt > 0 &&
+        now - lastReloadAt < DYNAMIC_IMPORT_RELOAD_COOLDOWN
+    ) {
+        return;
+    }
+
+    try {
+        window.sessionStorage.setItem(
+            DYNAMIC_IMPORT_RELOAD_KEY,
+            String(now),
+        );
+    } catch {
+        // Jika sessionStorage tidak tersedia, reload tetap dilakukan satu kali.
+    }
+
+    window.location.reload();
+}
+
+function installDynamicImportRecovery() {
+    if (typeof window === "undefined") return;
+
+    window.addEventListener("vite:preloadError", (event) => {
+        event.preventDefault();
+        reloadForStaleDynamicImport();
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+        if (!isDynamicImportFailure(event.reason)) return;
+
+        event.preventDefault();
+        reloadForStaleDynamicImport();
+    });
+
+    window.setTimeout(() => {
+        try {
+            window.sessionStorage.removeItem(DYNAMIC_IMPORT_RELOAD_KEY);
+        } catch {
+            // Abaikan jika sessionStorage tidak tersedia.
+        }
+    }, DYNAMIC_IMPORT_RELOAD_COOLDOWN);
+}
 
 function clipboardHtmlToStructuredText(html) {
     if (!html || typeof DOMParser === "undefined") return "";
@@ -96,6 +179,7 @@ function installStructuredTextareaPaste() {
     });
 }
 
+installDynamicImportRecovery();
 installStructuredTextareaPaste();
 
 createInertiaApp({
