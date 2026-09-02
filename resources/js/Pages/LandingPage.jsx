@@ -1,5 +1,5 @@
 import { MdOutlineLocationOn } from "react-icons/md";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import ChatbotWidget from "@/Components/Chatbot";
 
@@ -322,26 +322,17 @@ const getOsmPixelPosition = (item, center, zoom, size) => {
         safeWidth <= 480 ? 270 : safeWidth <= 768 ? 300 : 350,
         Math.max(safeWidth - 24, 240),
     );
-    const popupHeight = Math.min(
-        safeWidth <= 480 ? 190 : safeWidth <= 768 ? 210 : 230,
-        Math.max(safeHeight - 24, 180),
-    );
 
     return {
         top,
         left,
-        popupTop: clampNumber(
-            top + 8,
-            12,
-            Math.max(safeHeight - popupHeight - 12, 12),
-        ),
+        popupTop: clampNumber(top + 8, 12, Math.max(safeHeight - 12, 12)),
         popupLeft: clampNumber(
             left - popupWidth / 2,
             12,
             Math.max(safeWidth - popupWidth - 12, 12),
         ),
         popupWidth,
-        popupHeight,
         mapWidth: safeWidth,
         mapHeight: safeHeight,
     };
@@ -429,16 +420,54 @@ function LocationCard({ item, index, active, onClick }) {
 }
 
 function MapInfoPopup({ location, position }) {
+    const popupRef = useRef(null);
+    const [renderPosition, setRenderPosition] = useState({ top: 12, left: 12 });
+
+    useLayoutEffect(() => {
+        if (!location || !position || !popupRef.current) return undefined;
+
+        const popupPadding = 12;
+        const popupWidth = popupRef.current.offsetWidth;
+        const popupHeight = popupRef.current.offsetHeight;
+        const maxTop = Math.max(
+            position.mapHeight - popupHeight - popupPadding,
+            popupPadding,
+        );
+        const maxLeft = Math.max(
+            position.mapWidth - popupWidth - popupPadding,
+            popupPadding,
+        );
+        const nextTop = clampNumber(position.top + 8, popupPadding, maxTop);
+        const nextLeft = clampNumber(
+            position.left - popupWidth / 2,
+            popupPadding,
+            maxLeft,
+        );
+
+        setRenderPosition((current) => {
+            if (current.top === nextTop && current.left === nextLeft) {
+                return current;
+            }
+
+            return { top: nextTop, left: nextLeft };
+        });
+
+        return undefined;
+    }, [location, position]);
+
     if (!location || !position) return null;
 
     return (
         <div
+            ref={popupRef}
             className="lp-map-location-popup"
             style={{
-                top: `${position.popupTop}px`,
-                left: `${position.popupLeft}px`,
+                top: `${renderPosition.top}px`,
+                left: `${renderPosition.left}px`,
                 width: `${position.popupWidth}px`,
-                maxHeight: `${position.popupHeight}px`,
+                maxHeight: `${Math.max(position.mapHeight - 24, 180)}px`,
+                overflowY: "auto",
+                overflowX: "hidden",
             }}
             onClick={(event) => event.stopPropagation()}
         >
