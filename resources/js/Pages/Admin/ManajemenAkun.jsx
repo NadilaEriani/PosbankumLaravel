@@ -864,15 +864,17 @@ export default function ManajemenAkun({
     }, [kabupatenId, kecamatanId, statusFilter, debouncedQ]);
 
     const accountStats = useMemo(() => {
-        const active = localRows.filter((row) => row.status === "aktif").length;
-        const inactive = localRows.length - active;
+        const active = filteredRows.filter(
+            (row) => row.status === "aktif",
+        ).length;
+        const inactive = filteredRows.length - active;
 
         return {
-            total: localRows.length,
+            total: filteredRows.length,
             active,
             inactive,
         };
-    }, [localRows]);
+    }, [filteredRows]);
 
     const total = filteredRows.length;
     const totalPages = useMemo(
