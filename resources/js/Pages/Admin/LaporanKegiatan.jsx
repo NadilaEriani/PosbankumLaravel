@@ -1,5 +1,5 @@
 import { router } from "@inertiajs/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiSearch,
     FiX,
@@ -8,11 +8,14 @@ import {
     FiEye,
     FiChevronLeft,
     FiChevronRight,
+    FiChevronDown,
+    FiChevronUp,
     FiClock,
     FiFileText,
     FiThumbsUp,
     FiThumbsDown,
     FiMessageSquare,
+    FiFilter,
 } from "react-icons/fi";
 import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
@@ -30,7 +33,297 @@ const TABS = [
     { key: "rejected", label: "Ditolak" },
 ];
 
+const TIME_FILTER_OPTIONS = [
+    { value: "all", label: "Semua Waktu" },
+    { value: "today", label: "Hari Ini" },
+    { value: "7d", label: "7 Hari Terakhir" },
+    { value: "month", label: "Bulan Ini" },
+    { value: "last_month", label: "Bulan Lalu" },
+    { value: "range", label: "Rentang Tanggal" },
+];
+
 const DEFAULT_ADMIN_NAME = "Admin Kemenkum Riau";
+
+const REPORT_TIME_FILTER_STYLES = `
+.rk-filterTopRow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.rk-filterTopRow .rk-searchBox {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.rk-timeFilter {
+    position: relative;
+    flex: 0 0 220px;
+    min-width: 0;
+}
+
+.rk-timeFilterTrigger {
+    width: 100%;
+    height: 39px;
+    border: 0;
+    border-radius: 15px;
+    background: #f2f4f7;
+    color: #475467;
+    padding: 0 14px;
+    display: grid;
+    grid-template-columns: 17px minmax(0, 1fr) 16px;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    font-family: "Outfit", sans-serif;
+    box-shadow: none;
+}
+
+.rk-timeFilter.is-open .rk-timeFilterTrigger {
+    box-shadow:
+        0 4px 6px -4px rgba(0, 0, 0, 0.1),
+        0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.rk-timeFilterIcon,
+.rk-timeFilterChevron {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+}
+
+.rk-timeFilterChevron {
+    justify-self: end;
+}
+
+.rk-timeFilterText {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    color: #475467;
+    font-family: "Outfit", sans-serif;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.rk-timeFilterMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 90;
+    width: 270px;
+    max-width: calc(100vw - 32px);
+    padding: 6px;
+    border: 1px solid #e8e8ee;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow:
+        0 2px 4px -2px rgba(0, 0, 0, 0.1),
+        0 10px 22px rgba(15, 23, 42, 0.12);
+}
+
+.rk-timeFilterItem {
+    width: 100%;
+    min-height: 40px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #475569;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    font-family: "Outfit", sans-serif;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.rk-timeFilterItem.is-selected {
+    background: #f1f5f9;
+    color: #343a73;
+    font-weight: 700;
+}
+
+.rk-timeFilterItem:not(.is-selected):hover,
+.rk-timeFilterItem:not(.is-selected):focus-visible {
+    background: #f4f4f6;
+}
+
+.rk-timeFilterTrigger:focus-visible,
+.rk-timeFilterItem:focus-visible {
+    outline: 0;
+}
+
+.rk-timeFilterRange {
+    margin-top: 6px;
+    padding: 12px;
+    border-top: 1px solid #edf0f4;
+    background: #fbfcfe;
+    border-radius: 0 0 10px 10px;
+}
+
+.rk-timeFilterRangeTitle {
+    margin: 0 0 10px;
+    color: #343a73;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.rk-timeFilterRangeGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.rk-timeFilterDateField {
+    min-width: 0;
+}
+
+.rk-timeFilterDateField span {
+    display: block;
+    margin-bottom: 5px;
+    color: #667085;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.rk-timeFilterDateField input {
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    border: 1px solid #dfe3ea;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #344054;
+    padding: 0 8px;
+    outline: none;
+    font-family: "Outfit", sans-serif;
+    font-size: 12px;
+}
+
+.rk-timeFilterDateField input:focus {
+    border-color: #aab4c4;
+    box-shadow: 0 0 0 3px rgba(52, 58, 115, 0.08);
+}
+
+.rk-timeFilterRangeError {
+    margin-top: 8px;
+    color: #b42318;
+    font-size: 11px;
+    line-height: 1.35;
+    font-weight: 600;
+}
+
+.rk-timeFilterRangeActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.rk-timeFilterCancel,
+.rk-timeFilterApply {
+    min-height: 36px;
+    border: 0;
+    border-radius: 10px;
+    padding: 0 12px;
+    font-family: "Outfit", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rk-timeFilterCancel {
+    background: #eef0f4;
+    color: #475467;
+}
+
+.rk-timeFilterApply {
+    background: #343a73;
+    color: #ffffff;
+}
+
+.rk-filterDivider {
+    width: 100%;
+    height: 1px;
+    margin: 15px 0 13px;
+    background: #edf0f4;
+}
+
+.rk-filterPanel .rk-tabs {
+    margin-top: 0;
+}
+
+.rk-wrap .rk-timeFilterTrigger:not(:disabled):hover,
+.rk-wrap .rk-timeFilterTrigger:not(:disabled):focus-visible,
+.rk-wrap .rk-timeFilterItem:not(:disabled):hover,
+.rk-wrap .rk-timeFilterItem:not(:disabled):focus-visible,
+.rk-wrap .rk-timeFilterCancel:not(:disabled):hover,
+.rk-wrap .rk-timeFilterApply:not(:disabled):hover {
+    transform: none;
+    filter: none;
+}
+
+@media (max-width: 768px) {
+    .rk-filterTopRow {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .rk-filterTopRow .rk-searchBox,
+    .rk-timeFilter {
+        width: 100%;
+    }
+
+    .rk-timeFilter {
+        flex-basis: auto;
+    }
+
+    .rk-timeFilterTrigger {
+        height: 46px;
+        border-radius: 14px;
+    }
+
+    .rk-timeFilterMenu {
+        left: 0;
+        right: auto;
+        width: min(100%, 320px);
+    }
+
+    .rk-filterDivider {
+        margin: 13px 0 11px;
+    }
+}
+
+@media (max-width: 430px) {
+    .rk-timeFilterMenu {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .rk-timeFilterRangeGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .rk-timeFilterRangeActions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rk-timeFilterCancel,
+    .rk-timeFilterApply {
+        width: 100%;
+    }
+}
+`;
 
 const norm = (value) =>
     String(value ?? "")
@@ -270,6 +563,143 @@ function formatDate(value) {
     });
 }
 
+/* TIME_FILTER_HELPERS_START */
+function startOfLocalDay(date) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        0,
+        0,
+        0,
+        0,
+    );
+}
+
+function endOfLocalDay(date) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        23,
+        59,
+        59,
+        999,
+    );
+}
+
+function parseLocalDateInput(value, useEndOfDay = false) {
+    const text = String(value ?? "").trim();
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+
+    if (!match) return null;
+
+    const year = Number(match[1]);
+    const month = Number(match[2]) - 1;
+    const day = Number(match[3]);
+
+    const date = useEndOfDay
+        ? new Date(year, month, day, 23, 59, 59, 999)
+        : new Date(year, month, day, 0, 0, 0, 0);
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month ||
+        date.getDate() !== day
+    ) {
+        return null;
+    }
+
+    return date;
+}
+
+function eventDateValue(value) {
+    const raw =
+        value && typeof value === "object"
+            ? value?.tgl_mulai || value?.tgl_upload
+            : value;
+
+    if (!raw) return null;
+
+    const date = new Date(raw);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isDateInsideTimeFilter(
+    value,
+    filter,
+    dateRange = {},
+    now = new Date(),
+) {
+    if (filter === "all") return true;
+
+    const date = eventDateValue(value);
+    if (!date) return false;
+
+    const todayStart = startOfLocalDay(now);
+    const todayEnd = endOfLocalDay(now);
+
+    if (filter === "today") {
+        return date >= todayStart && date <= todayEnd;
+    }
+
+    if (filter === "7d") {
+        const start = new Date(todayStart);
+        start.setDate(start.getDate() - 6);
+        return date >= start && date <= todayEnd;
+    }
+
+    if (filter === "month") {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        const end = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999,
+        );
+        return date >= start && date <= end;
+    }
+
+    if (filter === "last_month") {
+        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const end = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            0,
+            23,
+            59,
+            59,
+            999,
+        );
+        return date >= start && date <= end;
+    }
+
+    if (filter === "range") {
+        const start = parseLocalDateInput(dateRange?.start, false);
+        const end = parseLocalDateInput(dateRange?.end, true);
+
+        if (!start || !end || start > end) return false;
+
+        return date >= start && date <= end;
+    }
+
+    return true;
+}
+/* TIME_FILTER_HELPERS_END */
+
+function formatRangeDate(value) {
+    const date = parseLocalDateInput(value);
+    if (!date) return "";
+
+    return new Intl.DateTimeFormat("id-ID", {
+        day: "2-digit",
+        month: "short",
+    }).format(date);
+}
+
 function safeText(value, fallback = "-") {
     const text = String(value ?? "").trim();
     return text || fallback;
@@ -449,6 +879,20 @@ export default function LaporanKegiatan({ rows = [] }) {
     const [tab, setTab] = useState("all");
     const [page, setPage] = useState(1);
 
+    const [timeFilter, setTimeFilter] = useState("all");
+    const [timeFilterOpen, setTimeFilterOpen] = useState(false);
+    const [showRangeInputs, setShowRangeInputs] = useState(false);
+    const [rangeDraft, setRangeDraft] = useState({
+        start: "",
+        end: "",
+    });
+    const [appliedRange, setAppliedRange] = useState({
+        start: "",
+        end: "",
+    });
+    const [rangeError, setRangeError] = useState("");
+    const timeFilterRef = useRef(null);
+
     const [err, setErr] = useState("");
     const [saving, setSaving] = useState(false);
     const [rejectMode, setRejectMode] = useState(false);
@@ -490,6 +934,31 @@ export default function LaporanKegiatan({ rows = [] }) {
         );
     }, [displayRows, detailId]);
 
+    const selectedTimeFilter = useMemo(
+        () =>
+            TIME_FILTER_OPTIONS.find(
+                (option) => option.value === timeFilter,
+            ) || TIME_FILTER_OPTIONS[0],
+        [timeFilter],
+    );
+
+    const selectedTimeFilterLabel = useMemo(() => {
+        if (
+            timeFilter === "range" &&
+            appliedRange.start &&
+            appliedRange.end
+        ) {
+            const start = formatRangeDate(appliedRange.start);
+            const end = formatRangeDate(appliedRange.end);
+
+            if (start && end) {
+                return `${start} - ${end}`;
+            }
+        }
+
+        return selectedTimeFilter.label;
+    }, [timeFilter, appliedRange, selectedTimeFilter]);
+
     const getThumbUrl = (item) => {
         if (!item) return null;
         return assetUrl(item.thumbnail_url || item.thumbnail_path);
@@ -502,7 +971,13 @@ export default function LaporanKegiatan({ rows = [] }) {
 
     useEffect(() => {
         setPage(1);
-    }, [tab, debouncedQ]);
+    }, [
+        tab,
+        debouncedQ,
+        timeFilter,
+        appliedRange.start,
+        appliedRange.end,
+    ]);
 
     useEffect(() => {
         setRejectMode(false);
@@ -510,29 +985,48 @@ export default function LaporanKegiatan({ rows = [] }) {
         setErr("");
     }, [detailId]);
 
-    const stats = useMemo(() => {
-        const base = {
-            total: displayRows.length,
-            pending: 0,
-            approved: 0,
-            rejected: 0,
+    useEffect(() => {
+        if (!timeFilterOpen) return undefined;
+
+        const handlePointerDown = (event) => {
+            if (
+                timeFilterRef.current &&
+                !timeFilterRef.current.contains(event.target)
+            ) {
+                setTimeFilterOpen(false);
+                setRangeError("");
+            }
         };
 
-        for (const row of displayRows) {
-            const key = uiStatusKey(row?.status);
-            if (key === "approved") base.approved += 1;
-            else if (key === "rejected") base.rejected += 1;
-            else base.pending += 1;
-        }
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape") {
+                setTimeFilterOpen(false);
+                setRangeError("");
+            }
+        };
 
-        return base;
-    }, [displayRows]);
+        document.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
 
-    const searchedRows = useMemo(() => {
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [timeFilterOpen]);
+
+    const timeFilteredRows = useMemo(
+        () =>
+            displayRows.filter((row) =>
+                isDateInsideTimeFilter(row, timeFilter, appliedRange),
+            ),
+        [displayRows, timeFilter, appliedRange],
+    );
+
+    const searchedTimeRows = useMemo(() => {
         const search = norm(debouncedQ);
-        if (!search) return displayRows;
+        if (!search) return timeFilteredRows;
 
-        return displayRows.filter((row) => {
+        return timeFilteredRows.filter((row) => {
             const haystack = [
                 row?.judul,
                 row?.deskripsi,
@@ -549,28 +1043,34 @@ export default function LaporanKegiatan({ rows = [] }) {
 
             return haystack.includes(search);
         });
-    }, [displayRows, debouncedQ]);
+    }, [timeFilteredRows, debouncedQ]);
 
-    const tabCounts = useMemo(() => {
-        const counts = {
-            all: searchedRows.length,
+    const statsRows = searchedTimeRows;
+
+    const stats = useMemo(() => {
+        const base = {
+            total: statsRows.length,
             pending: 0,
             approved: 0,
             rejected: 0,
         };
 
-        for (const row of searchedRows) {
+        for (const row of statsRows) {
             const key = uiStatusKey(row?.status);
-            counts[key] += 1;
+            if (key === "approved") base.approved += 1;
+            else if (key === "rejected") base.rejected += 1;
+            else base.pending += 1;
         }
 
-        return counts;
-    }, [searchedRows]);
+        return base;
+    }, [statsRows]);
 
     const filteredRows = useMemo(() => {
-        if (tab === "all") return searchedRows;
-        return searchedRows.filter((row) => uiStatusKey(row?.status) === tab);
-    }, [searchedRows, tab]);
+        if (tab === "all") return searchedTimeRows;
+        return searchedTimeRows.filter(
+            (row) => uiStatusKey(row?.status) === tab,
+        );
+    }, [searchedTimeRows, tab]);
 
     const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
@@ -580,10 +1080,72 @@ export default function LaporanKegiatan({ rows = [] }) {
         return filteredRows.slice(start, start + PAGE_SIZE);
     }, [filteredRows, pageClamped]);
 
+    const chooseTimeFilter = (value) => {
+        if (value === "range") {
+            setShowRangeInputs(true);
+            setRangeError("");
+
+            if (timeFilter === "range") {
+                setRangeDraft(appliedRange);
+            }
+
+            return;
+        }
+
+        setTimeFilter(value);
+        setShowRangeInputs(false);
+        setRangeError("");
+        setTimeFilterOpen(false);
+    };
+
+    const applyDateRange = () => {
+        const start = parseLocalDateInput(rangeDraft.start, false);
+        const end = parseLocalDateInput(rangeDraft.end, true);
+
+        if (!start || !end) {
+            setRangeError("Pilih tanggal awal dan tanggal akhir.");
+            return;
+        }
+
+        if (start > end) {
+            setRangeError(
+                "Tanggal awal tidak boleh lebih besar dari tanggal akhir.",
+            );
+            return;
+        }
+
+        setAppliedRange({
+            start: rangeDraft.start,
+            end: rangeDraft.end,
+        });
+        setTimeFilter("range");
+        setRangeError("");
+        setShowRangeInputs(false);
+        setTimeFilterOpen(false);
+    };
+
+    const cancelDateRange = () => {
+        setRangeDraft(appliedRange);
+        setRangeError("");
+        setShowRangeInputs(false);
+    };
+
     const resetFilters = () => {
         setQ("");
         setDebouncedQ("");
         setTab("all");
+        setTimeFilter("all");
+        setTimeFilterOpen(false);
+        setShowRangeInputs(false);
+        setRangeDraft({
+            start: "",
+            end: "",
+        });
+        setAppliedRange({
+            start: "",
+            end: "",
+        });
+        setRangeError("");
         setPage(1);
     };
 
@@ -780,6 +1342,8 @@ export default function LaporanKegiatan({ rows = [] }) {
 
     return (
         <section className="ad-pagePad">
+            <style>{REPORT_TIME_FILTER_STYLES}</style>
+
             <div className="rk-wrap">
                 {renderToasts()}
 
@@ -834,27 +1398,174 @@ export default function LaporanKegiatan({ rows = [] }) {
                 </div>
 
                 <div className="rk-filterPanel">
-                    <label
-                        className="rk-searchBox"
-                        aria-label="Cari laporan kegiatan"
-                    >
-                        <FiSearch className="rk-searchIcon" />
-                        <input
-                            value={q}
-                            onChange={(event) => setQ(event.target.value)}
-                            placeholder="Cari kegiatan, posbankum, atau lokasi..."
-                        />
-                        {q ? (
+                    <div className="rk-filterTopRow">
+                        <label
+                            className="rk-searchBox"
+                            aria-label="Cari laporan kegiatan"
+                        >
+                            <FiSearch className="rk-searchIcon" />
+                            <input
+                                value={q}
+                                onChange={(event) => setQ(event.target.value)}
+                                placeholder="Cari kegiatan, posbankum, atau lokasi..."
+                            />
+                            {q ? (
+                                <button
+                                    className="rk-searchClear"
+                                    type="button"
+                                    onClick={() => setQ("")}
+                                    aria-label="Hapus pencarian"
+                                >
+                                    <FiX />
+                                </button>
+                            ) : null}
+                        </label>
+
+                        <div
+                            ref={timeFilterRef}
+                            className={`rk-timeFilter ${
+                                timeFilterOpen ? "is-open" : ""
+                            }`}
+                        >
                             <button
-                                className="rk-searchClear"
+                                className="rk-timeFilterTrigger"
                                 type="button"
-                                onClick={() => setQ("")}
-                                aria-label="Hapus pencarian"
+                                onClick={() => {
+                                    const nextOpen = !timeFilterOpen;
+                                    setTimeFilterOpen(nextOpen);
+
+                                    if (nextOpen && timeFilter === "range") {
+                                        setRangeDraft(appliedRange);
+                                        setShowRangeInputs(true);
+                                    }
+
+                                    setRangeError("");
+                                }}
+                                aria-haspopup="listbox"
+                                aria-expanded={timeFilterOpen}
+                                aria-label="Filter waktu laporan kegiatan"
                             >
-                                <FiX />
+                                <FiFilter className="rk-timeFilterIcon" />
+                                <span className="rk-timeFilterText">
+                                    {selectedTimeFilterLabel}
+                                </span>
+                                {timeFilterOpen ? (
+                                    <FiChevronUp className="rk-timeFilterChevron" />
+                                ) : (
+                                    <FiChevronDown className="rk-timeFilterChevron" />
+                                )}
                             </button>
-                        ) : null}
-                    </label>
+
+                            {timeFilterOpen ? (
+                                <div
+                                    className="rk-timeFilterMenu"
+                                    role="listbox"
+                                    aria-label="Pilihan waktu laporan kegiatan"
+                                >
+                                    {TIME_FILTER_OPTIONS.map((option) => {
+                                        const isSelected =
+                                            option.value === timeFilter;
+
+                                        return (
+                                            <button
+                                                key={option.value}
+                                                className={`rk-timeFilterItem ${
+                                                    isSelected
+                                                        ? "is-selected"
+                                                        : ""
+                                                }`}
+                                                type="button"
+                                                role="option"
+                                                aria-selected={isSelected}
+                                                onClick={() =>
+                                                    chooseTimeFilter(
+                                                        option.value,
+                                                    )
+                                                }
+                                            >
+                                                {option.label}
+                                            </button>
+                                        );
+                                    })}
+
+                                    {showRangeInputs ? (
+                                        <div className="rk-timeFilterRange">
+                                            <div className="rk-timeFilterRangeTitle">
+                                                Pilih Rentang Tanggal
+                                            </div>
+
+                                            <div className="rk-timeFilterRangeGrid">
+                                                <label className="rk-timeFilterDateField">
+                                                    <span>Dari</span>
+                                                    <input
+                                                        type="date"
+                                                        value={
+                                                            rangeDraft.start
+                                                        }
+                                                        onChange={(event) => {
+                                                            setRangeDraft(
+                                                                (current) => ({
+                                                                    ...current,
+                                                                    start: event
+                                                                        .target
+                                                                        .value,
+                                                                }),
+                                                            );
+                                                            setRangeError("");
+                                                        }}
+                                                    />
+                                                </label>
+
+                                                <label className="rk-timeFilterDateField">
+                                                    <span>Sampai</span>
+                                                    <input
+                                                        type="date"
+                                                        value={rangeDraft.end}
+                                                        onChange={(event) => {
+                                                            setRangeDraft(
+                                                                (current) => ({
+                                                                    ...current,
+                                                                    end: event
+                                                                        .target
+                                                                        .value,
+                                                                }),
+                                                            );
+                                                            setRangeError("");
+                                                        }}
+                                                    />
+                                                </label>
+                                            </div>
+
+                                            {rangeError ? (
+                                                <div className="rk-timeFilterRangeError">
+                                                    {rangeError}
+                                                </div>
+                                            ) : null}
+
+                                            <div className="rk-timeFilterRangeActions">
+                                                <button
+                                                    className="rk-timeFilterCancel"
+                                                    type="button"
+                                                    onClick={cancelDateRange}
+                                                >
+                                                    Batal
+                                                </button>
+                                                <button
+                                                    className="rk-timeFilterApply"
+                                                    type="button"
+                                                    onClick={applyDateRange}
+                                                >
+                                                    Terapkan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            ) : null}
+                        </div>
+                    </div>
+
+                    <div className="rk-filterDivider" />
 
                     <div
                         className="rk-tabs"
@@ -865,13 +1576,12 @@ export default function LaporanKegiatan({ rows = [] }) {
                             <button
                                 key={item.key}
                                 type="button"
-                                className={`rk-tab ${tab === item.key ? "is-active" : ""}`}
+                                className={`rk-tab ${
+                                    tab === item.key ? "is-active" : ""
+                                }`}
                                 onClick={() => setTab(item.key)}
                             >
                                 <span>{item.label}</span>
-                                <span className="rk-tabCount">
-                                    {tabCounts[item.key] || 0}
-                                </span>
                             </button>
                         ))}
                     </div>
@@ -1013,7 +1723,11 @@ export default function LaporanKegiatan({ rows = [] }) {
                                         ) : (
                                             <button
                                                 key={item}
-                                                className={`rk-pageBtn ${pageClamped === item ? "is-active" : ""}`}
+                                                className={`rk-pageBtn ${
+                                                    pageClamped === item
+                                                        ? "is-active"
+                                                        : ""
+                                                }`}
                                                 type="button"
                                                 onClick={() => setPage(item)}
                                                 aria-current={
