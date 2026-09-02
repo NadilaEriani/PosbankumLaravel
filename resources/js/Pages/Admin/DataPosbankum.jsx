@@ -709,36 +709,10 @@ export default function DataPosbankum({
         });
     }, [normalizedRows]);
 
-    const stats = useMemo(() => {
-        let menunggu = 0;
-        let tidakLengkap = 0;
-
-        for (const row of enrichedRows) {
-            if (row.completeness === "incomplete") tidakLengkap += 1;
-
-            for (const upload of row.uploads || []) {
-                if (
-                    normalizeStatus(
-                        upload?.status_verifikasi ?? upload?.status,
-                    ) === "menunggu"
-                ) {
-                    menunggu += 1;
-                }
-            }
-        }
-
-        return {
-            aktif: enrichedRows.length,
-            menunggu,
-            tidakLengkap,
-        };
-    }, [enrichedRows]);
-
-    const filteredRows = useMemo(() => {
+    const filteredStatsRows = useMemo(() => {
         const search = norm(debouncedQ);
 
         return enrichedRows.filter((item) => {
-            if (tab !== "all" && item.completeness !== tab) return false;
             if (
                 kabupatenId &&
                 String(item.id_kabupaten) !== String(kabupatenId)
@@ -763,7 +737,40 @@ export default function DataPosbankum({
                 .join(" ")
                 .includes(search);
         });
-    }, [enrichedRows, tab, debouncedQ, kabupatenId, kecamatanId]);
+    }, [enrichedRows, debouncedQ, kabupatenId, kecamatanId]);
+
+    const stats = useMemo(() => {
+        let menunggu = 0;
+        let tidakLengkap = 0;
+
+        for (const row of filteredStatsRows) {
+            if (row.completeness === "incomplete") tidakLengkap += 1;
+
+            for (const upload of row.uploads || []) {
+                if (
+                    normalizeStatus(
+                        upload?.status_verifikasi ?? upload?.status,
+                    ) === "menunggu"
+                ) {
+                    menunggu += 1;
+                }
+            }
+        }
+
+        return {
+            aktif: filteredStatsRows.length,
+            menunggu,
+            tidakLengkap,
+        };
+    }, [filteredStatsRows]);
+
+    const filteredRows = useMemo(() => {
+        return filteredStatsRows.filter((item) => {
+            if (tab !== "all" && item.completeness !== tab) return false;
+
+            return true;
+        });
+    }, [filteredStatsRows, tab]);
 
     useEffect(() => {
         setPage(1);
