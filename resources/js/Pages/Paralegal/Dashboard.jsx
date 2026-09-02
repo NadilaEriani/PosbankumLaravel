@@ -31,6 +31,7 @@ import {
 
 import logo from "../../assets/logo.png";
 import posbankumIcon from "../../assets/icon.png";
+import { getDashboardCardTarget } from "../../utils/dashboardNavigation";
 import "../../../css/Paralegal/paralegalDashboard.css";
 
 const LaporanPelayanan = lazy(() => import("./LaporanPelayanan"));
@@ -805,6 +806,21 @@ export default function PosbankumDashboard({
         setActive(label);
     };
 
+    const openDashboardCard = (kind, id = null) => {
+        const target = getDashboardCardTarget(kind, id);
+        if (!target) return;
+
+        setMobileMenuOpen(false);
+        setAccountMenuOpen(false);
+        setNotifSelectedId(null);
+        setActive(target.page);
+        setPageTarget((previous) => ({
+            type: target.type,
+            id: target.id,
+            tick: previous.tick + 1,
+        }));
+    };
+
     const handleLogout = () => {
         if (loggingOut) return;
         setAccountMenuOpen(false);
@@ -926,7 +942,12 @@ export default function PosbankumDashboard({
     const renderBeranda = () => (
         <section className="pb2Content">
             <div className="pb2Stats">
-                <div className="pb2StatCard">
+                <button
+                    type="button"
+                    className="pb2StatCard"
+                    onClick={() => openDashboardCard("cases-summary")}
+                    aria-label="Buka semua kasus yang ditangani"
+                >
                     <div className="pb2StatIcon blue">
                         <FiFileText />
                     </div>
@@ -937,9 +958,14 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Bulan ini</div>
                     </div>
-                </div>
+                </button>
 
-                <div className="pb2StatCard">
+                <button
+                    type="button"
+                    className="pb2StatCard"
+                    onClick={() => openDashboardCard("activities-summary")}
+                    aria-label="Buka semua kegiatan"
+                >
                     <div className="pb2StatIcon green">
                         <FiCheckCircle />
                     </div>
@@ -950,7 +976,7 @@ export default function PosbankumDashboard({
                         </div>
                         <div className="pb2StatHint">Bulan ini</div>
                     </div>
-                </div>
+                </button>
 
                 <div className="pb2StatCard">
                     <div className="pb2StatIcon orange">
@@ -981,7 +1007,15 @@ export default function PosbankumDashboard({
                 <div className="pb2CaseGrid">
                     {caseRows.length ? (
                         caseRows.slice(0, 4).map((item) => (
-                            <div className="pb2CaseCard" key={item.id}>
+                            <button
+                                type="button"
+                                className="pb2CaseCard"
+                                key={item.id}
+                                onClick={() =>
+                                    openDashboardCard("case-detail", item.id)
+                                }
+                                aria-label={`Lihat detail kasus ${item.judul}`}
+                            >
                                 <div
                                     className={`pb2CaseIcon ${item.selesai ? "green" : "orange"}`}
                                 >
@@ -1010,7 +1044,7 @@ export default function PosbankumDashboard({
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         ))
                     ) : (
                         <EmptyBox>Belum ada kasus.</EmptyBox>
@@ -1047,7 +1081,18 @@ export default function PosbankumDashboard({
                 <div className="pb2KegiatanList">
                     {activityRows.length ? (
                         activityRows.slice(0, 4).map((item) => (
-                            <div className="pb2KegiatanItem" key={item.id}>
+                            <button
+                                type="button"
+                                className="pb2KegiatanItem"
+                                key={item.id}
+                                onClick={() =>
+                                    openDashboardCard(
+                                        "activity-detail",
+                                        item.id,
+                                    )
+                                }
+                                aria-label={`Lihat detail kegiatan ${item.judul}`}
+                            >
                                 <div className="pb2KegiatanIcon">
                                     <FiCheckCircle />
                                 </div>
@@ -1084,7 +1129,7 @@ export default function PosbankumDashboard({
                                 >
                                     {item.status}
                                 </span>
-                            </div>
+                            </button>
                         ))
                     ) : (
                         <EmptyBox>Belum ada kegiatan.</EmptyBox>

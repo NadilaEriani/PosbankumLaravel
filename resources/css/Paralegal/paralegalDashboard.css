@@ -519,8 +519,12 @@
     width: 100%;
     text-align: left;
     font-family: "Outfit", sans-serif;
-    cursor: pointer;
+    cursor: default;
     appearance: none;
+}
+
+button.pb2StatCard {
+    cursor: pointer;
 }
 
 .pb2StatCard:focus-visible {
