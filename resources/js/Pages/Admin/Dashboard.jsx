@@ -444,15 +444,28 @@ export default function AdminDashboard() {
     const filteredDetailRows = useMemo(() => {
         const q = detailSearch.trim().toLowerCase();
 
-        if (!q) return detailRows;
+        const rows = q
+            ? detailRows.filter((row) =>
+                  [row.name, row.address, row.email, row.phone, row.status]
+                      .filter(Boolean)
+                      .join(" ")
+                      .toLowerCase()
+                      .includes(q),
+              )
+            : detailRows;
 
-        return detailRows.filter((row) =>
-            [row.name, row.address, row.email, row.phone, row.status]
-                .filter(Boolean)
-                .join(" ")
-                .toLowerCase()
-                .includes(q),
-        );
+        return [...rows].sort((a, b) => {
+            const totalA =
+                (a.activityCount || 0) +
+                (a.caseCount || 0) +
+                (a.documentCount || a.dokumen || 0);
+            const totalB =
+                (b.activityCount || 0) +
+                (b.caseCount || 0) +
+                (b.documentCount || b.dokumen || 0);
+
+            return totalB - totalA;
+        });
     }, [detailRows, detailSearch]);
 
     const detailPageCount = Math.max(
