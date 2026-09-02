@@ -1,6 +1,6 @@
 import { router, usePage } from "@inertiajs/react";
 import PropTypes from "prop-types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     FiCheckCircle,
     FiEdit,
@@ -97,10 +97,16 @@ function getMemberPhone(item) {
     );
 }
 
-export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
+export default function ParalegalProfile({
+    profile = {},
+    onBack = () => {},
+    focusTeam = false,
+    focusTeamTick = 0,
+}) {
     const { props } = usePage();
     const pageErrors = props.errors || {};
     const flash = props.flash || {};
+    const teamSectionRef = useRef(null);
 
     const user = profile?.user || {};
     const posbankum = profile?.posbankum || {};
@@ -124,6 +130,19 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
             nomor_telepon: safeText(user.nomor_telepon || user.phone, ""),
         });
     }, [user.nomor_telepon, user.phone]);
+
+    useEffect(() => {
+        if (!focusTeam || !focusTeamTick) return undefined;
+
+        const frame = window.requestAnimationFrame(() => {
+            teamSectionRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        });
+
+        return () => window.cancelAnimationFrame(frame);
+    }, [focusTeam, focusTeamTick]);
 
     const profileError = useMemo(() => {
         return (
@@ -464,7 +483,10 @@ export default function ParalegalProfile({ profile = {}, onBack = () => {} }) {
 
                 <div className="prfDivider" />
 
-                <section className="prfTeamSection">
+                <section
+                    ref={teamSectionRef}
+                    className="prfTeamSection"
+                >
                     <div className="prfTeamHead">
                         <div>
                             <h3>
@@ -543,4 +565,6 @@ ParalegalProfile.propTypes = {
         team: PropTypes.array,
     }),
     onBack: PropTypes.func,
+    focusTeam: PropTypes.bool,
+    focusTeamTick: PropTypes.number,
 };
