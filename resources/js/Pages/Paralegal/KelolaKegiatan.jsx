@@ -15,11 +15,16 @@ import {
     FiMapPin,
     FiEye,
     FiUser,
+    FiChevronLeft,
+    FiChevronRight,
 } from "react-icons/fi";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import ReminderModal from "../../Components/ui/ReminderModal";
+import { getPaginationItems } from "../../utils/pagination";
 import "../../../css/Paralegal/kelolaKegiatan.css";
+
+const PAGE_SIZE = 6;
 
 const DEFAULT_FORM = {
     judul: "",
@@ -357,6 +362,7 @@ export default function KelolaKegiatan({
     const [loading, setLoading] = useState(false);
     const [kegiatan, setKegiatan] = useState(() => kegiatanRows || []);
     const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
     const [posName, setPosName] = useState("Posbankum");
 
     const [saving, setSaving] = useState(false);
@@ -530,6 +536,17 @@ export default function KelolaKegiatan({
             );
         });
     }, [kegiatan, search]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const pageClamped = Math.min(Math.max(page, 1), totalPages);
+    const pagedKegiatan = filtered.slice(
+        (pageClamped - 1) * PAGE_SIZE,
+        pageClamped * PAGE_SIZE,
+    );
 
     useEffect(() => {
         if (!openDetailId) return;
@@ -1329,7 +1346,7 @@ export default function KelolaKegiatan({
                         </p>
                     </div>
                 ) : (
-                    filtered.map((item) => {
+                    pagedKegiatan.map((item) => {
                         const id = getKegiatanId(item);
                         const kind = statusKind(item.status);
                         const pill = statusLabel(item.status);
@@ -1450,6 +1467,64 @@ export default function KelolaKegiatan({
                     })
                 )}
             </div>
+
+            {filtered.length > PAGE_SIZE ? (
+                <div
+                    className="kk-pagination"
+                    aria-label="Paginasi kelola kegiatan"
+                >
+                    <button
+                        className="kk-pageArrow"
+                        type="button"
+                        disabled={pageClamped <= 1}
+                        onClick={() =>
+                            setPage((value) => Math.max(1, value - 1))
+                        }
+                        aria-label="Halaman sebelumnya"
+                    >
+                        <FiChevronLeft />
+                    </button>
+
+                    {getPaginationItems(pageClamped, totalPages).map(
+                        (item, index) =>
+                            item === "ellipsis" ? (
+                                <span
+                                    key={`ellipsis-${index}`}
+                                    className="kk-pageBtn kk-pageEllipsis"
+                                    aria-hidden="true"
+                                >
+                                    …
+                                </span>
+                            ) : (
+                                <button
+                                    key={item}
+                                    className={`kk-pageBtn ${pageClamped === item ? "is-active" : ""}`}
+                                    type="button"
+                                    onClick={() => setPage(item)}
+                                    aria-current={
+                                        pageClamped === item
+                                            ? "page"
+                                            : undefined
+                                    }
+                                >
+                                    {item}
+                                </button>
+                            ),
+                    )}
+
+                    <button
+                        className="kk-pageArrow"
+                        type="button"
+                        disabled={pageClamped >= totalPages}
+                        onClick={() =>
+                            setPage((value) => Math.min(totalPages, value + 1))
+                        }
+                        aria-label="Halaman berikutnya"
+                    >
+                        <FiChevronRight />
+                    </button>
+                </div>
+            ) : null}
 
             <DeleteConfirmModal
                 open={!!deleteItem}

@@ -20,6 +20,7 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
+import { getPaginationItems } from "../../utils/pagination";
 import "../../../css/Admin/verifikasiDataPosbankum.css";
 
 const BUCKET = "posbankum-docs";
@@ -2627,20 +2628,32 @@ export default function VerifikasiDataPosbankum({
                                 <FiChevronLeft />
                             </button>
 
-                            {Array.from(
-                                { length: Math.min(3, totalPages) },
-                                (_, i) => i + 1,
-                            ).map((n) => (
-                                <button
-                                    key={n}
-                                    className={`vd-pageBtn ${pageClamped === n ? "is-active" : ""}`}
-                                    type="button"
-                                    onClick={() => setPage(n)}
-                                    disabled={n > totalPages}
-                                >
-                                    {n}
-                                </button>
-                            ))}
+                            {getPaginationItems(pageClamped, totalPages).map(
+                                (item, index) =>
+                                    item === "ellipsis" ? (
+                                        <span
+                                            key={`ellipsis-${index}`}
+                                            className="vd-pageBtn vd-pageEllipsis"
+                                            aria-hidden="true"
+                                        >
+                                            …
+                                        </span>
+                                    ) : (
+                                        <button
+                                            key={item}
+                                            className={`vd-pageBtn ${pageClamped === item ? "is-active" : ""}`}
+                                            type="button"
+                                            onClick={() => setPage(item)}
+                                            aria-current={
+                                                pageClamped === item
+                                                    ? "page"
+                                                    : undefined
+                                            }
+                                        >
+                                            {item}
+                                        </button>
+                                    ),
+                            )}
 
                             <button
                                 className="vd-pageNav"

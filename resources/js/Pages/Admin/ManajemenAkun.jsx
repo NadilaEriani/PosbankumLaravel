@@ -22,6 +22,7 @@ import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import ReminderModal from "../../Components/ui/ReminderModal";
+import { getPaginationItems } from "../../utils/pagination";
 import "../../../css/Admin/manajemenAkun.css";
 
 const PAGE_SIZE = 6;
@@ -885,11 +886,10 @@ export default function ManajemenAkun({
         safePage * PAGE_SIZE,
     );
 
-    const pageNums = useMemo(() => {
-        const maxShown = 4;
-        const shown = Math.min(totalPages, maxShown);
-        return Array.from({ length: shown }, (_, i) => i + 1);
-    }, [totalPages]);
+    const pageNums = useMemo(
+        () => getPaginationItems(safePage, totalPages),
+        [safePage, totalPages],
+    );
 
     const resetForm = () => {
         setFNama("");
@@ -1808,18 +1808,31 @@ export default function ManajemenAkun({
                             <FiChevronLeft />
                         </button>
 
-                        {pageNums.map((n) => (
-                            <button
-                                key={n}
-                                className={`kpPageBtn ${
-                                    safePage === n ? "is-active" : ""
-                                }`}
-                                type="button"
-                                onClick={() => setPage(n)}
-                            >
-                                {n}
-                            </button>
-                        ))}
+                        {pageNums.map((item, index) =>
+                            item === "ellipsis" ? (
+                                <span
+                                    key={`ellipsis-${index}`}
+                                    className="kpPageBtn kpPageEllipsis"
+                                    aria-hidden="true"
+                                >
+                                    …
+                                </span>
+                            ) : (
+                                <button
+                                    key={item}
+                                    className={`kpPageBtn ${
+                                        safePage === item ? "is-active" : ""
+                                    }`}
+                                    type="button"
+                                    onClick={() => setPage(item)}
+                                    aria-current={
+                                        safePage === item ? "page" : undefined
+                                    }
+                                >
+                                    {item}
+                                </button>
+                            ),
+                        )}
 
                         <button
                             className="kpNavBtn"

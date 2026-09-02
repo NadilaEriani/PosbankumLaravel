@@ -18,6 +18,7 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
+import { getPaginationItems } from "../../utils/pagination";
 import "../../../css/Admin/laporanKegiatan.css";
 
 const PAGE_SIZE = 6;
@@ -999,19 +1000,32 @@ export default function LaporanKegiatan({ rows = [] }) {
                                     <FiChevronLeft />
                                 </button>
 
-                                {Array.from(
-                                    { length: totalPages },
-                                    (_, index) => index + 1,
-                                ).map((pageNumber) => (
-                                    <button
-                                        key={pageNumber}
-                                        className={`rk-pageBtn ${pageClamped === pageNumber ? "is-active" : ""}`}
-                                        type="button"
-                                        onClick={() => setPage(pageNumber)}
-                                    >
-                                        {pageNumber}
-                                    </button>
-                                ))}
+                                {getPaginationItems(pageClamped, totalPages).map(
+                                    (item, index) =>
+                                        item === "ellipsis" ? (
+                                            <span
+                                                key={`ellipsis-${index}`}
+                                                className="rk-pageBtn rk-pageEllipsis"
+                                                aria-hidden="true"
+                                            >
+                                                …
+                                            </span>
+                                        ) : (
+                                            <button
+                                                key={item}
+                                                className={`rk-pageBtn ${pageClamped === item ? "is-active" : ""}`}
+                                                type="button"
+                                                onClick={() => setPage(item)}
+                                                aria-current={
+                                                    pageClamped === item
+                                                        ? "page"
+                                                        : undefined
+                                                }
+                                            >
+                                                {item}
+                                            </button>
+                                        ),
+                                )}
 
                                 <button
                                     className="rk-pageNav"

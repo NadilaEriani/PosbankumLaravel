@@ -4134,3 +4134,103 @@
         line-height: 18px;
     }
 }
+
+/* =========================================================
+   PAGINATION MODEL KOMPAK — Manajemen Akun
+   ========================================================= */
+.kpShell .kpPager {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 18px 20px 20px !important;
+    border-top: 1px solid #edf1f7 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+}
+
+.kpShell .kpPager::-webkit-scrollbar {
+    display: none;
+}
+
+.kpShell .kpPager .kpNavBtn,
+.kpShell .kpPager .kpPageBtn,
+.kpShell .kpPager button.kpNavBtn,
+.kpShell .kpPager button.kpPageBtn {
+    flex: 0 0 48px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    box-sizing: border-box !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    background: #ffffff !important;
+    color: #334155 !important;
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07) !important;
+}
+
+.kpShell .kpPager .kpNavBtn {
+    color: #475569 !important;
+}
+
+.kpShell .kpPager .kpPageBtn.is-active {
+    background: #343a73 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(52, 58, 115, 0.28) !important;
+}
+
+.kpShell .kpPager .kpPageEllipsis {
+    cursor: default !important;
+    box-shadow: none !important;
+}
+
+.kpShell .kpPager .kpNavBtn:disabled {
+    background: #e5e7eb !important;
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+}
+
+.kpShell .kpPager .kpNavBtn:hover:not(:disabled),
+.kpShell .kpPager button.kpPageBtn:hover:not(.is-active) {
+    background: #f8fafc !important;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 560px) {
+    .kpShell .kpPager {
+        justify-content: flex-start !important;
+        gap: 8px !important;
+        padding: 16px 10px 18px !important;
+    }
+
+    .kpShell .kpPager .kpNavBtn,
+    .kpShell .kpPager .kpPageBtn,
+    .kpShell .kpPager button.kpNavBtn,
+    .kpShell .kpPager button.kpPageBtn {
+        flex-basis: 42px !important;
+        width: 42px !important;
+        min-width: 42px !important;
+        max-width: 42px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+        border-radius: 12px !important;
+        font-size: 14px !important;
+    }
+}

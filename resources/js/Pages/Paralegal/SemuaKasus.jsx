@@ -19,6 +19,7 @@ import {
 import { BsSliders2 } from "react-icons/bs";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
+import { getPaginationItems } from "../../utils/pagination";
 import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/semuaKasus.css";
 
@@ -784,19 +785,32 @@ export default function SemuaKasus({
                         <FiChevronLeft />
                     </button>
 
-                    {Array.from(
-                        { length: totalPages },
-                        (_, index) => index + 1,
-                    ).map((pageNumber) => (
-                        <button
-                            key={pageNumber}
-                            type="button"
-                            className={`skPageBtn ${pageClamped === pageNumber ? "is-active" : ""}`}
-                            onClick={() => setPage(pageNumber)}
-                        >
-                            {pageNumber}
-                        </button>
-                    ))}
+                    {getPaginationItems(pageClamped, totalPages).map(
+                        (item, index) =>
+                            item === "ellipsis" ? (
+                                <span
+                                    key={`ellipsis-${index}`}
+                                    className="skPageBtn skPageEllipsis"
+                                    aria-hidden="true"
+                                >
+                                    …
+                                </span>
+                            ) : (
+                                <button
+                                    key={item}
+                                    type="button"
+                                    className={`skPageBtn ${pageClamped === item ? "is-active" : ""}`}
+                                    onClick={() => setPage(item)}
+                                    aria-current={
+                                        pageClamped === item
+                                            ? "page"
+                                            : undefined
+                                    }
+                                >
+                                    {item}
+                                </button>
+                            ),
+                    )}
 
                     <button
                         className="skPageArrow"

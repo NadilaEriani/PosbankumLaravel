@@ -22,6 +22,7 @@ import {
 import SuccessToast from "../../Components/ui/SuccessToast";
 import ReminderModal from "../../Components/ui/ReminderModal";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
+import { getPaginationItems } from "../../utils/pagination";
 import "../../../css/Admin/kelolaBerita.css";
 
 const OTHER_CATEGORY_OPTION = "Lainnya";
@@ -323,8 +324,8 @@ export default function KelolaBerita({
     }, [filteredItems, currentPage]);
 
     const paginationPages = useMemo(
-        () => Array.from({ length: totalPages }, (_, index) => index + 1),
-        [totalPages],
+        () => getPaginationItems(currentPage, totalPages),
+        [currentPage, totalPages],
     );
 
     useEffect(() => {
@@ -1288,25 +1289,37 @@ export default function KelolaBerita({
                             </button>
 
                             <div className="kb-paginationNumbers">
-                                {paginationPages.map((page) => (
-                                    <button
-                                        key={page}
-                                        className={`kb-pageButton ${
-                                            currentPage === page
-                                                ? "is-active"
-                                                : ""
-                                        }`}
-                                        type="button"
-                                        onClick={() => setCurrentPage(page)}
-                                        aria-current={
-                                            currentPage === page
-                                                ? "page"
-                                                : undefined
-                                        }
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
+                                {paginationPages.map((item, index) =>
+                                    item === "ellipsis" ? (
+                                        <span
+                                            key={`ellipsis-${index}`}
+                                            className="kb-pageButton kb-pageEllipsis"
+                                            aria-hidden="true"
+                                        >
+                                            …
+                                        </span>
+                                    ) : (
+                                        <button
+                                            key={item}
+                                            className={`kb-pageButton ${
+                                                currentPage === item
+                                                    ? "is-active"
+                                                    : ""
+                                            }`}
+                                            type="button"
+                                            onClick={() =>
+                                                setCurrentPage(item)
+                                            }
+                                            aria-current={
+                                                currentPage === item
+                                                    ? "page"
+                                                    : undefined
+                                            }
+                                        >
+                                            {item}
+                                        </button>
+                                    ),
+                                )}
                             </div>
 
                             <button

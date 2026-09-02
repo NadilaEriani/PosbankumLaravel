@@ -3008,3 +3008,89 @@
         flex-basis: 42px !important;
     }
 }
+
+/* =========================================================
+   PAGINATION MODEL KOMPAK — Verifikasi Data Posbankum
+   ========================================================= */
+.vd-pagination {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 28px;
+    padding: 4px 2px 8px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.vd-pagination::-webkit-scrollbar {
+    display: none;
+}
+
+.vd-pageNav,
+.vd-pageBtn {
+    flex: 0 0 48px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07);
+}
+
+.vd-pageBtn.is-active,
+.vd-pageBtn.is-active:hover:not(:disabled) {
+    background: #343a73;
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(52, 58, 115, 0.28);
+}
+
+.vd-pageEllipsis {
+    cursor: default;
+    box-shadow: none;
+}
+
+.vd-pageNav:hover:not(:disabled),
+.vd-pageBtn:hover:not(:disabled):not(.is-active):not(.vd-pageEllipsis) {
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+
+.vd-pageNav:disabled,
+.vd-pageBtn:disabled {
+    background: #e5e7eb;
+    color: #94a3b8;
+    opacity: 1;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+    .vd-pagination {
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .vd-pageNav,
+    .vd-pageBtn {
+        flex-basis: 42px;
+        width: 42px;
+        min-width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        font-size: 14px;
+    }
+}
