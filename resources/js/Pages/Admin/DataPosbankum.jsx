@@ -12,11 +12,16 @@ import {
     FiFilter,
     FiCheck,
     FiDownload,
+    FiChevronLeft,
+    FiChevronRight,
 } from "react-icons/fi";
 import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import icon from "../../assets/icon.png";
+import { getPaginationItems, paginateItems } from "../../utils/pagination";
 import "../../../css/Admin/dataPosbankum.css";
+
+const PAGE_SIZE = 6;
 
 function stripKotaPrefix(value) {
     return String(value || "")
@@ -486,6 +491,7 @@ export default function DataPosbankum({
     const [previewName, setPreviewName] = useState("");
     const [previewKategori, setPreviewKategori] = useState("");
     const [err, setErr] = useState("");
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         const timer = window.setTimeout(() => setDebouncedQ(q.trim()), 300);
@@ -760,6 +766,11 @@ export default function DataPosbankum({
     }, [enrichedRows, tab, debouncedQ, kabupatenId, kecamatanId]);
 
     useEffect(() => {
+        setPage(1);
+        setExpandedId(null);
+    }, [tab, debouncedQ, kabupatenId, kecamatanId]);
+
+    useEffect(() => {
         setExpandedId((current) => {
             if (!current) return null;
             return filteredRows.some(
@@ -769,6 +780,18 @@ export default function DataPosbankum({
                 : null;
         });
     }, [filteredRows]);
+
+    const pagination = useMemo(
+        () => paginateItems(filteredRows, page, PAGE_SIZE),
+        [filteredRows, page],
+    );
+    const pageRows = pagination.items;
+    const safePage = pagination.currentPage;
+    const totalPages = pagination.totalPages;
+    const pageNums = useMemo(
+        () => getPaginationItems(safePage, totalPages),
+        [safePage, totalPages],
+    );
 
     const tabs = useMemo(
         () => [
@@ -1045,7 +1068,7 @@ export default function DataPosbankum({
 
                 <div className="dp-list">
                     {filteredRows.length ? (
-                        filteredRows.map((item) => {
+                        pageRows.map((item) => {
                             const id = item.id_posbankum;
                             const isOpen = String(expandedId) === String(id);
                             const kabName = stripKotaPrefix(
@@ -1252,6 +1275,66 @@ export default function DataPosbankum({
                         </div>
                     )}
                 </div>
+
+                {totalPages > 1 ? (
+                    <div
+                        className="dp-pagination"
+                        aria-label="Paginasi data Posbankum"
+                    >
+                        <button
+                            className="dp-pageArrow"
+                            type="button"
+                            disabled={safePage <= 1}
+                            onClick={() => {
+                                setPage(Math.max(1, safePage - 1));
+                                setExpandedId(null);
+                            }}
+                            aria-label="Halaman sebelumnya"
+                        >
+                            <FiChevronLeft />
+                        </button>
+
+                        {pageNums.map((item, index) =>
+                            item === "ellipsis" ? (
+                                <span
+                                    key={`ellipsis-${index}`}
+                                    className="dp-pageBtn dp-pageEllipsis"
+                                    aria-hidden="true"
+                                >
+                                    …
+                                </span>
+                            ) : (
+                                <button
+                                    key={item}
+                                    className={`dp-pageBtn ${safePage === item ? "is-active" : ""}`}
+                                    type="button"
+                                    onClick={() => {
+                                        setPage(item);
+                                        setExpandedId(null);
+                                    }}
+                                    aria-current={
+                                        safePage === item ? "page" : undefined
+                                    }
+                                >
+                                    {item}
+                                </button>
+                            ),
+                        )}
+
+                        <button
+                            className="dp-pageArrow"
+                            type="button"
+                            disabled={safePage >= totalPages}
+                            onClick={() => {
+                                setPage(Math.min(totalPages, safePage + 1));
+                                setExpandedId(null);
+                            }}
+                            aria-label="Halaman berikutnya"
+                        >
+                            <FiChevronRight />
+                        </button>
+                    </div>
+                ) : null}
 
                 {previewOpen ? (
                     <div

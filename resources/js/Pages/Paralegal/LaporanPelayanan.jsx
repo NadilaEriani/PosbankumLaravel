@@ -30,7 +30,10 @@ import { BsSend } from "react-icons/bs";
 import { RiHistoryFill } from "react-icons/ri";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
+import { getPaginationItems, paginateItems } from "../../utils/pagination";
 import "../../../css/Paralegal/laporanPelayanan.css";
+
+const PAGE_SIZE = 6;
 
 const EMPTY_FORM_DATA = {
     nama_pelapor: "",
@@ -634,6 +637,7 @@ export default function LaporanPelayanan({
     const [search, setSearch] = useState("");
     const [priorityFilter, setPriorityFilter] = useState("semua");
     const [priorityDropdownOpen, setPriorityDropdownOpen] = useState(false);
+    const [page, setPage] = useState(1);
     const priorityDropdownRef = useRef(null);
     const [selectedReport, setSelectedReport] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
@@ -817,6 +821,22 @@ export default function LaporanPelayanan({
             return matchPriority && matchSearch;
         });
     }, [activeReports, completedReports, priorityFilter, search, tab]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [tab, search, priorityFilter]);
+
+    const pagination = useMemo(
+        () => paginateItems(filteredReports, page, PAGE_SIZE),
+        [filteredReports, page],
+    );
+    const pageReports = pagination.items;
+    const safePage = pagination.currentPage;
+    const totalPages = pagination.totalPages;
+    const pageNums = useMemo(
+        () => getPaginationItems(safePage, totalPages),
+        [safePage, totalPages],
+    );
 
     const handleFieldChange = (field, value) => {
         setFormData((prev) => ({
@@ -2021,7 +2041,7 @@ export default function LaporanPelayanan({
                             {renderSearchBar()}
                             <div className="lpvListWrap">
                                 {filteredReports.length ? (
-                                    filteredReports.map((report) => (
+                                    pageReports.map((report) => (
                                         <ReportListCard
                                             key={report.id_pengaduan}
                                             report={report}
@@ -2039,6 +2059,72 @@ export default function LaporanPelayanan({
                                     />
                                 )}
                             </div>
+
+                            {totalPages > 1 ? (
+                                <div
+                                    className="lpvPagination"
+                                    aria-label={
+                                        tab === "riwayat"
+                                            ? "Paginasi riwayat laporan selesai"
+                                            : "Paginasi laporan aktif"
+                                    }
+                                >
+                                    <button
+                                        className="lpvPageArrow"
+                                        type="button"
+                                        disabled={safePage <= 1}
+                                        onClick={() =>
+                                            setPage(Math.max(1, safePage - 1))
+                                        }
+                                        aria-label="Halaman sebelumnya"
+                                    >
+                                        <FiChevronLeft />
+                                    </button>
+
+                                    {pageNums.map((item, index) =>
+                                        item === "ellipsis" ? (
+                                            <span
+                                                key={`ellipsis-${index}`}
+                                                className="lpvPageBtn lpvPageEllipsis"
+                                                aria-hidden="true"
+                                            >
+                                                …
+                                            </span>
+                                        ) : (
+                                            <button
+                                                key={item}
+                                                className={`lpvPageBtn ${safePage === item ? "is-active" : ""}`}
+                                                type="button"
+                                                onClick={() => setPage(item)}
+                                                aria-current={
+                                                    safePage === item
+                                                        ? "page"
+                                                        : undefined
+                                                }
+                                            >
+                                                {item}
+                                            </button>
+                                        ),
+                                    )}
+
+                                    <button
+                                        className="lpvPageArrow"
+                                        type="button"
+                                        disabled={safePage >= totalPages}
+                                        onClick={() =>
+                                            setPage(
+                                                Math.min(
+                                                    totalPages,
+                                                    safePage + 1,
+                                                ),
+                                            )
+                                        }
+                                        aria-label="Halaman berikutnya"
+                                    >
+                                        <FiChevronRight />
+                                    </button>
+                                </div>
+                            ) : null}
                         </>
                     )}
                 </>

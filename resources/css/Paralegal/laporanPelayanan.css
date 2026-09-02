@@ -2619,3 +2619,97 @@
     word-break: break-word;
     white-space: normal;
 }
+
+/* =========================================================
+   PAGINATION MODEL KOMPAK — Laporan Aktif & Riwayat Selesai
+   ========================================================= */
+.lpvPagination {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 28px;
+    padding: 4px 2px 8px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+
+.lpvPagination::-webkit-scrollbar {
+    display: none;
+}
+
+.lpvPagination .lpvPageBtn,
+.lpvPagination .lpvPageArrow {
+    flex: 0 0 48px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07);
+    transition:
+        transform 0.16s ease,
+        background 0.16s ease,
+        box-shadow 0.16s ease;
+}
+
+.lpvPagination .lpvPageArrow svg {
+    width: 20px;
+    height: 20px;
+}
+
+.lpvPagination .lpvPageBtn.is-active {
+    background: #343a73;
+    color: #ffffff;
+    box-shadow: 0 10px 22px rgba(52, 58, 115, 0.28);
+}
+
+.lpvPagination .lpvPageEllipsis {
+    cursor: default;
+    box-shadow: none;
+}
+
+.lpvPagination .lpvPageBtn:not(.is-active):not(.lpvPageEllipsis):hover,
+.lpvPagination .lpvPageArrow:not(:disabled):hover {
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+
+.lpvPagination .lpvPageArrow:disabled {
+    background: #e5e7eb;
+    color: #94a3b8;
+    opacity: 1;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+    .lpvPagination {
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .lpvPagination .lpvPageBtn,
+    .lpvPagination .lpvPageArrow {
+        flex-basis: 42px;
+        width: 42px;
+        min-width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        font-size: 14px;
+    }
+}

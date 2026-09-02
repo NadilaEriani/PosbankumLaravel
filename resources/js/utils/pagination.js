@@ -31,3 +31,20 @@ export function getPaginationItems(currentPage, totalPages) {
         total,
     ];
 }
+
+export function paginateItems(items, currentPage, pageSize) {
+    const list = Array.isArray(items) ? items : [];
+    const size = Math.max(1, Number(pageSize) || 1);
+    const totalPages = Math.max(1, Math.ceil(list.length / size));
+    const page = Math.min(
+        Math.max(1, Number(currentPage) || 1),
+        totalPages,
+    );
+    const start = (page - 1) * size;
+
+    return {
+        currentPage: page,
+        totalPages,
+        items: list.slice(start, start + size),
+    };
+}
