@@ -1,6 +1,6 @@
 @php
-    $faviconVersion = file_exists(public_path('Kepala.png'))
-        ? filemtime(public_path('Kepala.png'))
+    $faviconVersion = file_exists(public_path('burung5.png'))
+        ? filemtime(public_path('burung5.png'))
         : time();
 @endphp
 
@@ -13,9 +13,9 @@
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('Kepala.png') }}?v={{ $faviconVersion }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('Kepala.png') }}?v={{ $faviconVersion }}">
-    <link rel="apple-touch-icon" href="{{ asset('Kepala.png') }}?v={{ $faviconVersion }}">
+    <link rel="icon" type="image/png" href="{{ asset('burung5.png') }}?v={{ $faviconVersion }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('burung5.png') }}?v={{ $faviconVersion }}">
+    <link rel="apple-touch-icon" href="{{ asset('burung5.png') }}?v={{ $faviconVersion }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
