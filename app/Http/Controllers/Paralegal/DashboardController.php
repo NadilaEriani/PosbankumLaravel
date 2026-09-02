@@ -78,7 +78,12 @@ class DashboardController extends Controller
             return $query;
         }
 
-        return $query->where(function ($inner) use ($idPosbankum, $hasDirectPosbankum, $canViaParalegal, $canViaMasyarakat) {
+        return $query->where(function ($inner) use (
+            $idPosbankum,
+            $hasDirectPosbankum,
+            $canViaParalegal,
+            $canViaMasyarakat
+        ) {
             if ($hasDirectPosbankum) {
                 $inner->orWhere('pengaduan.id_posbankum', $idPosbankum);
             }
@@ -467,20 +472,7 @@ class DashboardController extends Controller
         }
 
         if ($this->hasColumn('kegiatan', 'status')) {
-            $query->whereIn('status', [
-                'selesai',
-                'Selesai',
-                'disetujui',
-                'Disetujui',
-                'diterima',
-                'Diterima',
-                'approved',
-                'Approved',
-                'completed',
-                'Completed',
-                'done',
-                'Done',
-            ]);
+            $query->whereRaw('LOWER(TRIM(status)) = ?', ['disetujui']);
         }
 
         $activityDateColumn = $this->firstExistingColumn('kegiatan', [
