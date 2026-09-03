@@ -21,29 +21,62 @@ function startSplashSound() {
     }
 
     const audio = document.getElementById("sibapak-splash-audio");
-    const audioController = window.__sibapakSplashAudio;
 
     if (!audio || typeof audio.play !== "function") {
         return () => {};
     }
 
-    if (audioController && typeof audioController.play === "function") {
-        void audioController.play();
-    } else {
-        try {
-            const playPromise = audio.play();
+    let isActive = true;
+    let hasPlayed = false;
 
-            if (playPromise && typeof playPromise.catch === "function") {
-                playPromise.catch(() => {});
-            }
+    audio.volume = 0.45;
+    audio.loop = false;
+
+    const removeUnlockListeners = () => {
+        window.removeEventListener("pointerdown", unlockAudio);
+        window.removeEventListener("click", unlockAudio);
+        window.removeEventListener("keydown", unlockAudio);
+    };
+
+    const playAudio = async () => {
+        if (!isActive || hasPlayed) return false;
+
+        try {
+            audio.currentTime = 0;
+            await audio.play();
+
+            if (!isActive) return false;
+
+            hasPlayed = true;
+            removeUnlockListeners();
+
+            return true;
         } catch {
-            // Browser tertentu memblokir autoplay sampai ada interaksi pengguna.
+            // Browser tertentu memblokir audio sampai ada interaksi pengguna.
+            return false;
         }
+    };
+
+    function unlockAudio() {
+        void playAudio();
     }
 
-    // Audio dimiliki oleh app.blade.php agar dapat dipicu sebelum React dimuat.
-    // Jangan hentikan audio saat splash selesai agar bunyinya tidak terpotong.
-    return () => {};
+    window.addEventListener("pointerdown", unlockAudio, {
+        passive: true,
+    });
+
+    window.addEventListener("click", unlockAudio, {
+        passive: true,
+    });
+
+    window.addEventListener("keydown", unlockAudio);
+
+    void playAudio();
+
+    return () => {
+        isActive = false;
+        removeUnlockListeners();
+    };
 }
 
 function SplashScreen({ isLeaving }) {
@@ -140,14 +173,30 @@ function mountInitialSplash() {
     document.body.classList.add("sibapak-splash-open");
     document.body.appendChild(splashHost);
 
+    let stopSplashSound = () => {};
+    let splashAudioFrameOne = 0;
+    let splashAudioFrameTwo = 0;
+
     splashRoot.render(<SplashScreen isLeaving={false} />);
 
-    const stopSplashSound = startSplashSound();
+    // Tunggu splash benar-benar mendapat satu frame visual terlebih dahulu.
+    // Audio kemudian dimulai pada frame berikutnya agar terasa muncul bersamaan
+    // dengan loading screen, bukan saat tombol refresh baru ditekan.
+    splashAudioFrameOne = window.requestAnimationFrame(() => {
+        splashAudioFrameTwo = window.requestAnimationFrame(() => {
+            if (isLeaving || isRemoved) return;
+
+            stopSplashSound = startSplashSound();
+        });
+    });
 
     const removeSplash = () => {
         if (isRemoved) return;
 
         isRemoved = true;
+
+        window.cancelAnimationFrame(splashAudioFrameOne);
+        window.cancelAnimationFrame(splashAudioFrameTwo);
 
         splashRoot.unmount();
         splashHost.remove();
@@ -274,6 +323,7 @@ function clipboardHtmlToStructuredText(html) {
         html,
         "text/html",
     );
+
     const body = documentFromClipboard.body;
 
     body.querySelectorAll("br").forEach((element) => {
@@ -283,12 +333,14 @@ function clipboardHtmlToStructuredText(html) {
     body.querySelectorAll("li").forEach((element) => {
         const parent = element.parentElement;
         const isOrdered = parent?.tagName === "OL";
+
         let marker = "• ";
 
         if (isOrdered && parent) {
             const siblings = Array.from(parent.children).filter(
                 (child) => child.tagName === "LI",
             );
+
             marker = `${Math.max(siblings.indexOf(element), 0) + 1}. `;
         }
 
@@ -296,6 +348,7 @@ function clipboardHtmlToStructuredText(html) {
             documentFromClipboard.createTextNode(marker),
             element.firstChild,
         );
+
         element.append(documentFromClipboard.createTextNode("\n"));
     });
 
@@ -327,10 +380,12 @@ function installStructuredTextareaPaste() {
         }
 
         const clipboardData = event.clipboardData;
+
         if (!clipboardData) return;
 
         const html = clipboardData.getData("text/html");
         const plainText = clipboardData.getData("text/plain");
+
         const structuredText = html
             ? clipboardHtmlToStructuredText(html) || plainText
             : plainText;
@@ -340,7 +395,9 @@ function installStructuredTextareaPaste() {
         event.preventDefault();
 
         const start = target.selectionStart ?? target.value.length;
+
         const end = target.selectionEnd ?? start;
+
         target.setRangeText(structuredText, start, end, "end");
 
         const inputEvent =
@@ -350,7 +407,9 @@ function installStructuredTextareaPaste() {
                       inputType: "insertFromPaste",
                       data: structuredText,
                   })
-                : new Event("input", { bubbles: true });
+                : new Event("input", {
+                      bubbles: true,
+                  });
 
         target.dispatchEvent(inputEvent);
     });
@@ -363,16 +422,19 @@ const initialSplash = mountInitialSplash();
 
 createInertiaApp({
     title: (title) => (title ? `${appName} - ${title}` : appName),
+
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
             import.meta.glob("./Pages/**/*.jsx"),
         ),
+
     setup({ el, App, props }) {
         const root = createRoot(el);
 
         root.render(<InitialApp App={App} props={props} />);
     },
+
     progress: {
         color: "#4B5563",
     },

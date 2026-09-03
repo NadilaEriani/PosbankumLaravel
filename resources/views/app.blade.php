@@ -28,14 +28,14 @@
 
     @verbatim
         <script type="application/ld+json">
-                    {
-                        "@context": "https://schema.org",
-                        "@type": "WebSite",
-                        "name": "SiBapak",
-                        "alternateName": "SIBAPAK",
-                        "url": "https://sibapak.pocari.id/"
-                    }
-                </script>
+                                {
+                                    "@context": "https://schema.org",
+                                    "@type": "WebSite",
+                                    "name": "SiBapak",
+                                    "alternateName": "SIBAPAK",
+                                    "url": "https://sibapak.pocari.id/"
+                                }
+                            </script>
     @endverbatim
 
     <!-- Fonts -->
@@ -50,69 +50,9 @@
 </head>
 
 <body class="font-sans antialiased">
-    <audio id="sibapak-splash-audio" preload="auto" autoplay playsinline hidden>
+    <audio id="sibapak-splash-audio" preload="auto" playsinline hidden>
         <source src="/Sound1.mp3" type="audio/mpeg">
     </audio>
-
-    <script>
-        (() => {
-            const audio = document.getElementById("sibapak-splash-audio");
-
-            if (!audio) return;
-
-            let hasStarted = false;
-            audio.volume = 0.45;
-
-            const removeUnlockListeners = () => {
-                window.removeEventListener("pointerdown", unlockAudio);
-                window.removeEventListener("click", unlockAudio);
-                window.removeEventListener("keydown", unlockAudio);
-            };
-
-            const markStarted = () => {
-                hasStarted = true;
-                removeUnlockListeners();
-            };
-
-            const tryPlay = async () => {
-                if (hasStarted || (!audio.paused && !audio.ended)) {
-                    hasStarted = true;
-                    removeUnlockListeners();
-                    return true;
-                }
-
-                try {
-                    await audio.play();
-                    markStarted();
-                    return true;
-                } catch {
-                    return false;
-                }
-            };
-
-            function unlockAudio() {
-                void tryPlay();
-            }
-
-            audio.addEventListener("playing", markStarted, { once: true });
-
-            window.addEventListener("pointerdown", unlockAudio, {
-                passive: true,
-            });
-            window.addEventListener("click", unlockAudio, {
-                passive: true,
-            });
-            window.addEventListener("keydown", unlockAudio);
-
-            window.__sibapakSplashAudio = {
-                audio,
-                play: tryPlay,
-            };
-
-            audio.load();
-            void tryPlay();
-        })();
-    </script>
 
     @inertia
 </body>
