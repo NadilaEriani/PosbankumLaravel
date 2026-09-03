@@ -14,95 +14,36 @@ const DYNAMIC_IMPORT_RELOAD_KEY = "sibapak-dynamic-import-reload-at";
 const DYNAMIC_IMPORT_RELOAD_COOLDOWN = 30000;
 const SPLASH_VISIBLE_MS = 850;
 const SPLASH_FADE_MS = 220;
-const SPLASH_AUDIO_SRC = "/Sound1.mp3";
 
 function startSplashSound() {
-    if (typeof window === "undefined") return () => {};
-
-    let hasPlayed = false;
-    const audio = new Audio(SPLASH_AUDIO_SRC);
-
-    audio.preload = "auto";
-    audio.autoplay = true;
-    audio.volume = 0.45;
-    audio.loop = false;
-    audio.playsInline = true;
-
-    const removeUnlockListeners = () => {
-        window.removeEventListener("pointerdown", unlockAudio);
-        window.removeEventListener("click", unlockAudio);
-        window.removeEventListener("keydown", unlockAudio);
-    };
-
-    const playAudio = async () => {
-        if (hasPlayed) return true;
-
-        try {
-            audio.currentTime = 0;
-            await audio.play();
-
-            hasPlayed = true;
-            removeUnlockListeners();
-
-            return true;
-        } catch {
-            // Browser tertentu memblokir autoplay sampai ada interaksi pengguna.
-            return false;
-        }
-    };
-
-    function unlockAudio() {
-        void playAudio();
+    if (typeof window === "undefined" || typeof document === "undefined") {
+        return () => {};
     }
 
-    window.addEventListener("pointerdown", unlockAudio, {
-        passive: true,
-    });
+    const audio = document.getElementById("sibapak-splash-audio");
+    const audioController = window.__sibapakSplashAudio;
 
-    window.addEventListener("click", unlockAudio, {
-        passive: true,
-    });
+    if (!audio || typeof audio.play !== "function") {
+        return () => {};
+    }
 
-    window.addEventListener("keydown", unlockAudio);
-
-    audio.addEventListener(
-        "canplaythrough",
-        () => {
-            void playAudio();
-        },
-        { once: true },
-    );
-
-    audio.load();
-    void playAudio();
-
-    return () => {
-        removeUnlockListeners();
-
+    if (audioController && typeof audioController.play === "function") {
+        void audioController.play();
+    } else {
         try {
-            if (!hasPlayed) {
-                audio.pause();
-                audio.currentTime = 0;
-                audio.src = "";
-                return;
-            }
+            const playPromise = audio.play();
 
-            if (audio.ended) {
-                audio.src = "";
-                return;
+            if (playPromise && typeof playPromise.catch === "function") {
+                playPromise.catch(() => {});
             }
-
-            audio.addEventListener(
-                "ended",
-                () => {
-                    audio.src = "";
-                },
-                { once: true },
-            );
         } catch {
-            // Abaikan cleanup audio yang gagal.
+            // Browser tertentu memblokir autoplay sampai ada interaksi pengguna.
         }
-    };
+    }
+
+    // Audio dimiliki oleh app.blade.php agar dapat dipicu sebelum React dimuat.
+    // Jangan hentikan audio saat splash selesai agar bunyinya tidak terpotong.
+    return () => {};
 }
 
 function SplashScreen({ isLeaving }) {
