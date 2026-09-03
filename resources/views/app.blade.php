@@ -24,8 +24,6 @@
     <link rel="shortcut icon" type="image/png" href="/favicon-sibapak.png">
     <link rel="apple-touch-icon" href="/favicon-sibapak.png">
 
-    <link rel="preload" href="/Sound1.mp3" as="audio" type="audio/mpeg">
-
     @verbatim
         <script type="application/ld+json">
                                 {
