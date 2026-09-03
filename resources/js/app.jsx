@@ -6,7 +6,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 
-import kepalaIcon from "./assets/kepala.png";
+import kepalaIcon from "./assets/Kepala.png";
 import burung5 from "./assets/burung5.png";
 
 const appName = "SiBapak";
@@ -16,59 +16,93 @@ const SPLASH_VISIBLE_MS = 1850;
 const SPLASH_FADE_MS = 450;
 const SPLASH_AUDIO_SRC = "/Sound1.mp3";
 
-function startSplashSound() {
+function startSplashSound({ onPlayed, onBlocked }) {
     if (typeof window === "undefined") return () => {};
 
     let hasPlayed = false;
+    let blockedWasReported = false;
     const audio = new Audio(SPLASH_AUDIO_SRC);
 
     audio.preload = "auto";
-    audio.volume = 0.18;
+    audio.volume = 0.45;
     audio.loop = false;
     audio.playsInline = true;
 
+    const removeUnlockListeners = () => {
+        window.removeEventListener("pointerdown", unlockAudio);
+        window.removeEventListener("click", unlockAudio);
+        window.removeEventListener("keydown", unlockAudio);
+    };
+
     const playAudio = async () => {
-        if (hasPlayed) return;
+        if (hasPlayed) return true;
 
         try {
             audio.currentTime = 0;
             await audio.play();
+
             hasPlayed = true;
+            blockedWasReported = false;
+            removeUnlockListeners();
+            onPlayed?.();
+
+            return true;
         } catch {
-            // Browser dapat memblokir autoplay sebelum ada interaksi pengguna.
+            if (!blockedWasReported) {
+                blockedWasReported = true;
+                onBlocked?.();
+            }
+
+            return false;
         }
     };
 
-    const unlockAudio = () => {
+    function unlockAudio() {
         void playAudio();
-    };
-
-    void playAudio();
+    }
 
     window.addEventListener("pointerdown", unlockAudio, {
-        once: true,
         passive: true,
     });
 
-    window.addEventListener("keydown", unlockAudio, {
-        once: true,
+    window.addEventListener("click", unlockAudio, {
+        passive: true,
     });
 
+    window.addEventListener("keydown", unlockAudio);
+
+    void playAudio();
+
     return () => {
-        window.removeEventListener("pointerdown", unlockAudio);
-        window.removeEventListener("keydown", unlockAudio);
+        removeUnlockListeners();
 
         try {
-            audio.pause();
-            audio.currentTime = 0;
-            audio.src = "";
+            if (!hasPlayed) {
+                audio.pause();
+                audio.currentTime = 0;
+                audio.src = "";
+                return;
+            }
+
+            if (audio.ended) {
+                audio.src = "";
+                return;
+            }
+
+            audio.addEventListener(
+                "ended",
+                () => {
+                    audio.src = "";
+                },
+                { once: true },
+            );
         } catch {
             // Abaikan cleanup audio yang gagal.
         }
     };
 }
 
-function SplashScreen({ isLeaving }) {
+function SplashScreen({ isLeaving, needsAudioInteraction }) {
     return (
         <div
             className={`sibapak-splash${isLeaving ? " is-leaving" : ""}`}
@@ -111,6 +145,20 @@ function SplashScreen({ isLeaving }) {
                 aria-hidden="true"
             />
 
+            <img
+                src={kepalaIcon}
+                alt=""
+                className="sibapak-splash__ornament sibapak-splash__ornament--six"
+                aria-hidden="true"
+            />
+
+            <img
+                src={kepalaIcon}
+                alt=""
+                className="sibapak-splash__ornament sibapak-splash__ornament--seven"
+                aria-hidden="true"
+            />
+
             <div className="sibapak-splash__content">
                 <img
                     src={burung5}
@@ -125,6 +173,12 @@ function SplashScreen({ isLeaving }) {
                 <p className="sibapak-splash__subtitle">
                     SISTEM INFORMASI POSBANKUM BERDAMPAK
                 </p>
+
+                {needsAudioInteraction ? (
+                    <p className="sibapak-splash__audio-hint">
+                        Ketuk untuk melanjutkan
+                    </p>
+                ) : null}
             </div>
         </div>
     );
@@ -139,17 +193,26 @@ function mountInitialSplash() {
 
     const splashHost = document.createElement("div");
     const splashRoot = createRoot(splashHost);
-    const stopSplashSound = startSplashSound();
 
     let appReady = false;
     let minimumTimeElapsed = false;
+    let soundPlayed = false;
+    let needsAudioInteraction = false;
     let isLeaving = false;
     let isRemoved = false;
+    let stopSplashSound = () => {};
 
     document.body.classList.add("sibapak-splash-open");
     document.body.appendChild(splashHost);
 
-    splashRoot.render(<SplashScreen isLeaving={false} />);
+    const renderSplash = () => {
+        splashRoot.render(
+            <SplashScreen
+                isLeaving={isLeaving}
+                needsAudioInteraction={needsAudioInteraction}
+            />,
+        );
+    };
 
     const removeSplash = () => {
         if (isRemoved) return;
@@ -164,16 +227,36 @@ function mountInitialSplash() {
     };
 
     const beginLeaving = () => {
-        if (!appReady || !minimumTimeElapsed || isLeaving || isRemoved) {
+        if (
+            !appReady ||
+            !minimumTimeElapsed ||
+            !soundPlayed ||
+            isLeaving ||
+            isRemoved
+        ) {
             return;
         }
 
         isLeaving = true;
-
-        splashRoot.render(<SplashScreen isLeaving />);
+        renderSplash();
 
         window.setTimeout(removeSplash, SPLASH_FADE_MS);
     };
+
+    renderSplash();
+
+    stopSplashSound = startSplashSound({
+        onPlayed: () => {
+            soundPlayed = true;
+            needsAudioInteraction = false;
+            renderSplash();
+            beginLeaving();
+        },
+        onBlocked: () => {
+            needsAudioInteraction = true;
+            renderSplash();
+        },
+    });
 
     window.setTimeout(() => {
         minimumTimeElapsed = true;
@@ -369,8 +452,7 @@ installStructuredTextareaPaste();
 const initialSplash = mountInitialSplash();
 
 createInertiaApp({
-    title: (title) =>
-        !title || title === appName ? appName : `${appName} - ${title}`,
+    title: (title) => (title ? `${appName} - ${title}` : appName),
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
