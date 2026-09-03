@@ -1318,7 +1318,7 @@ export default function LandingPage({
 
     return (
         <div className="lp-page">
-            <Head title="SiBapak" />
+            <Head title="Sistem Informasi Posbankum Berdampak" />
 
             <div className="lp-topbar">
                 <div className="lp-container lp-topbar-inner">

@@ -9,7 +9,7 @@ import { createRoot } from "react-dom/client";
 import kepalaIcon from "./assets/Kepala.png";
 import burung5 from "./assets/burung5.png";
 
-const appName = "SiBapak";
+const appName = "SiBapak Riau";
 const DYNAMIC_IMPORT_RELOAD_KEY = "sibapak-dynamic-import-reload-at";
 const DYNAMIC_IMPORT_RELOAD_COOLDOWN = 30000;
 const SPLASH_VISIBLE_MS = 850;
@@ -421,7 +421,7 @@ installStructuredTextareaPaste();
 const initialSplash = mountInitialSplash();
 
 createInertiaApp({
-    title: (title) => (title ? `${appName} - ${title}` : appName),
+    title: (title) => (title ? `${appName} | ${title}` : appName),
 
     resolve: (name) =>
         resolvePageComponent(
