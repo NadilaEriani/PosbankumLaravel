@@ -6,6 +6,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 
+import kepalaIcon from "./assets/kepala.png";
 import burung5 from "./assets/burung5.png";
 
 const appName = "SiBapak";
@@ -13,65 +14,36 @@ const DYNAMIC_IMPORT_RELOAD_KEY = "sibapak-dynamic-import-reload-at";
 const DYNAMIC_IMPORT_RELOAD_COOLDOWN = 30000;
 const SPLASH_VISIBLE_MS = 1850;
 const SPLASH_FADE_MS = 450;
+const SPLASH_AUDIO_SRC = "/Sound1.mp3";
 
 function startSplashSound() {
     if (typeof window === "undefined") return () => {};
 
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextClass) return () => {};
-
-    let audioContext;
     let hasPlayed = false;
+    const audio = new Audio(SPLASH_AUDIO_SRC);
 
-    try {
-        audioContext = new AudioContextClass();
-    } catch {
-        return () => {};
-    }
+    audio.preload = "auto";
+    audio.volume = 0.18;
+    audio.loop = false;
+    audio.playsInline = true;
 
-    const playTone = async () => {
-        if (hasPlayed || audioContext.state === "closed") return;
+    const playAudio = async () => {
+        if (hasPlayed) return;
 
         try {
-            if (audioContext.state === "suspended") {
-                await audioContext.resume();
-            }
-
-            if (audioContext.state !== "running" || hasPlayed) return;
-
+            audio.currentTime = 0;
+            await audio.play();
             hasPlayed = true;
-
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            const now = audioContext.currentTime;
-
-            oscillator.type = "sine";
-            oscillator.frequency.setValueAtTime(523.25, now);
-            oscillator.frequency.exponentialRampToValueAtTime(
-                659.25,
-                now + 0.18,
-            );
-
-            gainNode.gain.setValueAtTime(0.0001, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.025, now + 0.025);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.start(now);
-            oscillator.stop(now + 0.33);
         } catch {
             // Browser dapat memblokir autoplay sebelum ada interaksi pengguna.
         }
     };
 
     const unlockAudio = () => {
-        void playTone();
+        void playAudio();
     };
 
-    void playTone();
+    void playAudio();
 
     window.addEventListener("pointerdown", unlockAudio, {
         once: true,
@@ -86,8 +58,12 @@ function startSplashSound() {
         window.removeEventListener("pointerdown", unlockAudio);
         window.removeEventListener("keydown", unlockAudio);
 
-        if (audioContext.state !== "closed") {
-            audioContext.close().catch(() => {});
+        try {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.src = "";
+        } catch {
+            // Abaikan cleanup audio yang gagal.
         }
     };
 }
@@ -100,46 +76,54 @@ function SplashScreen({ isLeaving }) {
             aria-live="polite"
             aria-label="Memuat SiBapak"
         >
-            <span
-                className="sibapak-splash__dot sibapak-splash__dot--one"
+            <img
+                src={kepalaIcon}
+                alt=""
+                className="sibapak-splash__ornament sibapak-splash__ornament--one"
                 aria-hidden="true"
             />
 
-            <span
-                className="sibapak-splash__dot sibapak-splash__dot--two"
+            <img
+                src={kepalaIcon}
+                alt=""
+                className="sibapak-splash__ornament sibapak-splash__ornament--two"
                 aria-hidden="true"
             />
 
-            <span
-                className="sibapak-splash__dot sibapak-splash__dot--three"
+            <img
+                src={kepalaIcon}
+                alt=""
+                className="sibapak-splash__ornament sibapak-splash__ornament--three"
                 aria-hidden="true"
             />
 
-            <span
-                className="sibapak-splash__dot sibapak-splash__dot--four"
+            <img
+                src={kepalaIcon}
+                alt=""
+                className="sibapak-splash__ornament sibapak-splash__ornament--four"
                 aria-hidden="true"
             />
 
-            <span
-                className="sibapak-splash__dot sibapak-splash__dot--five"
+            <img
+                src={kepalaIcon}
+                alt=""
+                className="sibapak-splash__ornament sibapak-splash__ornament--five"
                 aria-hidden="true"
             />
 
             <div className="sibapak-splash__content">
-                <div className="sibapak-splash__logo-frame">
-                    <img
-                        src={burung5}
-                        alt="Logo SiBapak"
-                        className="sibapak-splash__logo"
-                    />
-                </div>
+                <img
+                    src={burung5}
+                    alt="Logo SiBapak"
+                    className="sibapak-splash__logo"
+                />
 
                 <h1 className="sibapak-splash__title">
                     Si<span>Bapak</span>
                 </h1>
 
                 <p className="sibapak-splash__subtitle">
-                    POS BANTUAN HUKUM KEMENTERIAN HUKUM RIAU
+                    SISTEM INFORMASI POSBANKUM BERDAMPAK
                 </p>
             </div>
         </div>
@@ -174,7 +158,6 @@ function mountInitialSplash() {
 
         splashRoot.unmount();
         splashHost.remove();
-
         stopSplashSound();
 
         document.body.classList.remove("sibapak-splash-open");
@@ -276,9 +259,7 @@ function installDynamicImportRecovery() {
     });
 
     window.addEventListener("unhandledrejection", (event) => {
-        if (!isDynamicImportFailure(event.reason)) {
-            return;
-        }
+        if (!isDynamicImportFailure(event.reason)) return;
 
         event.preventDefault();
         reloadForStaleDynamicImport();
@@ -294,15 +275,12 @@ function installDynamicImportRecovery() {
 }
 
 function clipboardHtmlToStructuredText(html) {
-    if (!html || typeof DOMParser === "undefined") {
-        return "";
-    }
+    if (!html || typeof DOMParser === "undefined") return "";
 
     const documentFromClipboard = new DOMParser().parseFromString(
         html,
         "text/html",
     );
-
     const body = documentFromClipboard.body;
 
     body.querySelectorAll("br").forEach((element) => {
@@ -312,14 +290,12 @@ function clipboardHtmlToStructuredText(html) {
     body.querySelectorAll("li").forEach((element) => {
         const parent = element.parentElement;
         const isOrdered = parent?.tagName === "OL";
-
         let marker = "• ";
 
         if (isOrdered && parent) {
             const siblings = Array.from(parent.children).filter(
                 (child) => child.tagName === "LI",
             );
-
             marker = `${Math.max(siblings.indexOf(element), 0) + 1}. `;
         }
 
@@ -327,7 +303,6 @@ function clipboardHtmlToStructuredText(html) {
             documentFromClipboard.createTextNode(marker),
             element.firstChild,
         );
-
         element.append(documentFromClipboard.createTextNode("\n"));
     });
 
@@ -359,13 +334,10 @@ function installStructuredTextareaPaste() {
         }
 
         const clipboardData = event.clipboardData;
-
         if (!clipboardData) return;
 
         const html = clipboardData.getData("text/html");
-
         const plainText = clipboardData.getData("text/plain");
-
         const structuredText = html
             ? clipboardHtmlToStructuredText(html) || plainText
             : plainText;
@@ -375,9 +347,7 @@ function installStructuredTextareaPaste() {
         event.preventDefault();
 
         const start = target.selectionStart ?? target.value.length;
-
         const end = target.selectionEnd ?? start;
-
         target.setRangeText(structuredText, start, end, "end");
 
         const inputEvent =
@@ -387,9 +357,7 @@ function installStructuredTextareaPaste() {
                       inputType: "insertFromPaste",
                       data: structuredText,
                   })
-                : new Event("input", {
-                      bubbles: true,
-                  });
+                : new Event("input", { bubbles: true });
 
         target.dispatchEvent(inputEvent);
     });
@@ -402,19 +370,16 @@ const initialSplash = mountInitialSplash();
 
 createInertiaApp({
     title: (title) => (title ? `${appName} - ${title}` : appName),
-
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
             import.meta.glob("./Pages/**/*.jsx"),
         ),
-
     setup({ el, App, props }) {
         const root = createRoot(el);
 
         root.render(<InitialApp App={App} props={props} />);
     },
-
     progress: {
         color: "#4B5563",
     },
