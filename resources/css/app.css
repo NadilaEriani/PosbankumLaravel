@@ -122,8 +122,8 @@ body.sibapak-splash-open {
     opacity: 1;
     visibility: visible;
     transition:
-        opacity 0.45s ease,
-        visibility 0.45s ease;
+        opacity 0.25s ease,
+        visibility 0.25s ease;
 }
 
 .sibapak-splash.is-leaving {
@@ -241,17 +241,6 @@ body.sibapak-splash-open {
     height: clamp(16px, 1.6vw, 22px);
     opacity: 0.52;
     animation-delay: 1.85s;
-}
-
-.sibapak-splash__audio-hint {
-    margin: 18px 0 0;
-    color: #737b91;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.4;
-    letter-spacing: 0.04em;
-    opacity: 0.88;
-    animation: sibapakSplashContentIn 0.35s ease both;
 }
 
 @keyframes sibapakSplashContentIn {
@@ -443,11 +432,6 @@ body.sibapak-splash-open {
     .sibapak-splash__ornament--seven {
         bottom: 5%;
         left: 46%;
-    }
-
-    .sibapak-splash__audio-hint {
-        margin-top: 14px;
-        font-size: 11px;
     }
 }
 

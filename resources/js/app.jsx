@@ -12,18 +12,18 @@ import burung5 from "./assets/burung5.png";
 const appName = "SiBapak";
 const DYNAMIC_IMPORT_RELOAD_KEY = "sibapak-dynamic-import-reload-at";
 const DYNAMIC_IMPORT_RELOAD_COOLDOWN = 30000;
-const SPLASH_VISIBLE_MS = 1850;
-const SPLASH_FADE_MS = 450;
+const SPLASH_VISIBLE_MS = 850;
+const SPLASH_FADE_MS = 220;
 const SPLASH_AUDIO_SRC = "/Sound1.mp3";
 
-function startSplashSound({ onPlayed, onBlocked }) {
+function startSplashSound() {
     if (typeof window === "undefined") return () => {};
 
     let hasPlayed = false;
-    let blockedWasReported = false;
     const audio = new Audio(SPLASH_AUDIO_SRC);
 
     audio.preload = "auto";
+    audio.autoplay = true;
     audio.volume = 0.45;
     audio.loop = false;
     audio.playsInline = true;
@@ -42,17 +42,11 @@ function startSplashSound({ onPlayed, onBlocked }) {
             await audio.play();
 
             hasPlayed = true;
-            blockedWasReported = false;
             removeUnlockListeners();
-            onPlayed?.();
 
             return true;
         } catch {
-            if (!blockedWasReported) {
-                blockedWasReported = true;
-                onBlocked?.();
-            }
-
+            // Browser tertentu memblokir autoplay sampai ada interaksi pengguna.
             return false;
         }
     };
@@ -71,6 +65,15 @@ function startSplashSound({ onPlayed, onBlocked }) {
 
     window.addEventListener("keydown", unlockAudio);
 
+    audio.addEventListener(
+        "canplaythrough",
+        () => {
+            void playAudio();
+        },
+        { once: true },
+    );
+
+    audio.load();
     void playAudio();
 
     return () => {
@@ -102,7 +105,7 @@ function startSplashSound({ onPlayed, onBlocked }) {
     };
 }
 
-function SplashScreen({ isLeaving, needsAudioInteraction }) {
+function SplashScreen({ isLeaving }) {
     return (
         <div
             className={`sibapak-splash${isLeaving ? " is-leaving" : ""}`}
@@ -173,12 +176,6 @@ function SplashScreen({ isLeaving, needsAudioInteraction }) {
                 <p className="sibapak-splash__subtitle">
                     SISTEM INFORMASI POSBANKUM BERDAMPAK
                 </p>
-
-                {needsAudioInteraction ? (
-                    <p className="sibapak-splash__audio-hint">
-                        Ketuk untuk melanjutkan
-                    </p>
-                ) : null}
             </div>
         </div>
     );
@@ -196,23 +193,15 @@ function mountInitialSplash() {
 
     let appReady = false;
     let minimumTimeElapsed = false;
-    let soundPlayed = false;
-    let needsAudioInteraction = false;
     let isLeaving = false;
     let isRemoved = false;
-    let stopSplashSound = () => {};
 
     document.body.classList.add("sibapak-splash-open");
     document.body.appendChild(splashHost);
 
-    const renderSplash = () => {
-        splashRoot.render(
-            <SplashScreen
-                isLeaving={isLeaving}
-                needsAudioInteraction={needsAudioInteraction}
-            />,
-        );
-    };
+    splashRoot.render(<SplashScreen isLeaving={false} />);
+
+    const stopSplashSound = startSplashSound();
 
     const removeSplash = () => {
         if (isRemoved) return;
@@ -227,36 +216,16 @@ function mountInitialSplash() {
     };
 
     const beginLeaving = () => {
-        if (
-            !appReady ||
-            !minimumTimeElapsed ||
-            !soundPlayed ||
-            isLeaving ||
-            isRemoved
-        ) {
+        if (!appReady || !minimumTimeElapsed || isLeaving || isRemoved) {
             return;
         }
 
         isLeaving = true;
-        renderSplash();
+
+        splashRoot.render(<SplashScreen isLeaving />);
 
         window.setTimeout(removeSplash, SPLASH_FADE_MS);
     };
-
-    renderSplash();
-
-    stopSplashSound = startSplashSound({
-        onPlayed: () => {
-            soundPlayed = true;
-            needsAudioInteraction = false;
-            renderSplash();
-            beginLeaving();
-        },
-        onBlocked: () => {
-            needsAudioInteraction = true;
-            renderSplash();
-        },
-    });
 
     window.setTimeout(() => {
         minimumTimeElapsed = true;
