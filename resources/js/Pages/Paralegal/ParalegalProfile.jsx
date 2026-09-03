@@ -28,6 +28,18 @@ function cleanText(value) {
     return String(value ?? "").trim();
 }
 
+function formatPhoneDisplay(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || raw === "-") return "-";
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62") && digits.length > 2) {
+        return `+62 ${digits.slice(2)}`;
+    }
+
+    return raw;
+}
+
 function statusLabel(value) {
     const text = cleanText(value);
     if (!text) return "Aktif";
@@ -399,7 +411,7 @@ export default function ParalegalProfile({
                                         />
                                     ) : (
                                         <strong>
-                                            {safeText(displayPhone)}
+                                            {formatPhoneDisplay(displayPhone)}
                                         </strong>
                                     )}
                                 </div>
@@ -463,7 +475,11 @@ export default function ParalegalProfile({
                                 </span>
                                 <span>
                                     <FiPhone />
-                                    <b>{posbankumContactPhone}</b>
+                                    <b>
+                                        {formatPhoneDisplay(
+                                            posbankumContactPhone,
+                                        )}
+                                    </b>
                                 </span>
                                 <span>
                                     <TbLocation />
@@ -483,10 +499,7 @@ export default function ParalegalProfile({
 
                 <div className="prfDivider" />
 
-                <section
-                    ref={teamSectionRef}
-                    className="prfTeamSection"
-                >
+                <section ref={teamSectionRef} className="prfTeamSection">
                     <div className="prfTeamHead">
                         <div>
                             <h3>
@@ -529,7 +542,9 @@ export default function ParalegalProfile({
                                             </span>
                                             <span>
                                                 <FiPhone />
-                                                {getMemberPhone(item)}
+                                                {formatPhoneDisplay(
+                                                    getMemberPhone(item),
+                                                )}
                                             </span>
                                         </div>
                                     </div>

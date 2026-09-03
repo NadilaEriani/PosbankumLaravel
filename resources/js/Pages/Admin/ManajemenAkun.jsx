@@ -64,6 +64,18 @@ function sanitizePhoneInput(value) {
         .slice(0, 15);
 }
 
+function formatPhoneDisplay(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || raw === "-") return "-";
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62") && digits.length > 2) {
+        return `+62 ${digits.slice(2)}`;
+    }
+
+    return raw;
+}
+
 function isValidOptionalPhone(value) {
     const phone = sanitizePhoneInput(value);
 
@@ -1427,7 +1439,9 @@ export default function ManajemenAkun({
                                     NOMOR TELEPON
                                 </span>
                                 <strong className="kpDetailInfoValue">
-                                    {displayValue(detailTarget.nomor_telepon)}
+                                    {formatPhoneDisplay(
+                                        detailTarget.nomor_telepon,
+                                    )}
                                 </strong>
                             </div>
 
@@ -1684,7 +1698,9 @@ export default function ManajemenAkun({
                                     </td>
                                     <td data-label="No. Telepon">
                                         <span className="kpTextCell">
-                                            {r.nomor_telepon ?? "-"}
+                                            {formatPhoneDisplay(
+                                                r.nomor_telepon,
+                                            )}
                                         </span>
                                     </td>
                                     <td data-label="Posbankum">

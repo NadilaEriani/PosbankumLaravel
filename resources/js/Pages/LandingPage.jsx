@@ -135,6 +135,18 @@ const norm = (value) =>
         .toLowerCase()
         .replace(/\s+/g, " ");
 
+function formatPhoneDisplay(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || raw === "-") return "-";
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62") && digits.length > 2) {
+        return `+62 ${digits.slice(2)}`;
+    }
+
+    return raw;
+}
+
 const KATEGORI_ALIASES = {
     tagging_area: "tagging_area",
     "tagging area": "tagging_area",
@@ -483,7 +495,7 @@ function MapInfoPopup({ location, position }) {
 
                 <div className="lp-map-popup-info-row">
                     <FiPhone />
-                    <span>{location.phone}</span>
+                    <span>{formatPhoneDisplay(location.phone)}</span>
                 </div>
 
                 <div className="lp-map-popup-meta">
@@ -708,7 +720,7 @@ function DetailPopup({ location, onClose }) {
 
                                 <div>
                                     <small>Nomor Telepon</small>
-                                    <strong>{location.phone}</strong>
+                                    <strong>{formatPhoneDisplay(location.phone)}</strong>
                                 </div>
 
                                 {location.phone && location.phone !== "-" ? (
@@ -849,7 +861,7 @@ function AllLocationsPopup({
 
                                         <div>
                                             <small>Telepon</small>
-                                            <strong>{item.phone}</strong>
+                                            <strong>{formatPhoneDisplay(item.phone)}</strong>
                                         </div>
                                     </div>
 

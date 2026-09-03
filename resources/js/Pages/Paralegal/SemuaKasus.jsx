@@ -50,6 +50,18 @@ function firstFilled(...values) {
     return "-";
 }
 
+function formatPhoneDisplay(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || raw === "-") return "-";
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62") && digits.length > 2) {
+        return `+62 ${digits.slice(2)}`;
+    }
+
+    return raw;
+}
+
 function numberOr(value, fallback = 0) {
     const number = Number(value);
     if (!Number.isFinite(number)) return fallback;
@@ -1128,7 +1140,7 @@ function CaseDetail({ item, onBack }) {
                             />
                             <FieldItem
                                 label="No. HP Paralegal"
-                                value={item.paralegalPhone}
+                                value={formatPhoneDisplay(item.paralegalPhone)}
                             />
                             <FieldItem label="Kategori" value={item.kategori} />
                             <FieldItem label="Status" value={item.status} />

@@ -83,6 +83,18 @@ function digitsOnly(value, max = 100) {
         .slice(0, max);
 }
 
+function formatPhoneDisplay(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || raw === "-") return "-";
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62") && digits.length > 2) {
+        return `+62 ${digits.slice(2)}`;
+    }
+
+    return raw;
+}
+
 function formatDateID(value, withMonthShort = false) {
     if (!value) return "-";
     const date = new Date(value);
@@ -598,7 +610,7 @@ function buildPrintHtml(report) {
         <div class="grid-2">
             <div class="field-card"><div class="field-label">Nama Pelapor</div><div class="field-value">${report.nama_pelapor || "-"}</div></div>
             <div class="field-card"><div class="field-label">NIK</div><div class="field-value">${report.nik || "-"}</div></div>
-            <div class="field-card"><div class="field-label">Nomor Telepon</div><div class="field-value">${report.nomor_telepon || "-"}</div></div>
+            <div class="field-card"><div class="field-label">Nomor Telepon</div><div class="field-value">${formatPhoneDisplay(report.nomor_telepon)}</div></div>
             <div class="field-card"><div class="field-label">Lurah / Kades</div><div class="field-value">${report.nama_lurah || "-"}</div></div>
             <div class="field-card"><div class="field-label">Posbankum / Kecamatan</div><div class="field-value">${getFullWilayah(report)}</div></div>
             <div class="field-card"><div class="field-label">Provinsi</div><div class="field-value">${report.provinsi_nama || "Riau"}</div></div>
@@ -607,7 +619,7 @@ function buildPrintHtml(report) {
         <div class="section-title">Paralegal yang Mengurus</div>
         <div class="grid-2">
             <div class="field-card"><div class="field-label">Nama Paralegal</div><div class="field-value">${report.paralegal_nama || "-"}</div></div>
-            <div class="field-card"><div class="field-label">Nomor HP Paralegal</div><div class="field-value">${report.paralegal_hp || "-"}</div></div>
+            <div class="field-card"><div class="field-label">Nomor HP Paralegal</div><div class="field-value">${formatPhoneDisplay(report.paralegal_hp)}</div></div>
         </div>
 
         <div class="section-title">Progres Penanganan</div>
@@ -1580,7 +1592,9 @@ export default function LaporanPelayanan({
                             <div className="lpvInputShell disabled">
                                 <FiPhone />
                                 <input
-                                    value={formData.paralegal_hp}
+                                    value={formatPhoneDisplay(
+                                        formData.paralegal_hp,
+                                    )}
                                     placeholder="Otomatis mengambil nomor HP paralegal login"
                                     readOnly
                                 />
@@ -1774,7 +1788,9 @@ export default function LaporanPelayanan({
                                 <div className="lpdFieldItem">
                                     <span>No. Telepon</span>
                                     <strong>
-                                        {report.nomor_telepon || "-"}
+                                        {formatPhoneDisplay(
+                                            report.nomor_telepon,
+                                        )}
                                     </strong>
                                 </div>
                                 <div className="lpdFieldItem">
@@ -1897,7 +1913,9 @@ export default function LaporanPelayanan({
                                 <div className="lpdFieldItem">
                                     <span>Nomor HP</span>
                                     <strong>
-                                        {report.paralegal_hp || "-"}
+                                        {formatPhoneDisplay(
+                                            report.paralegal_hp,
+                                        )}
                                     </strong>
                                 </div>
                             </div>

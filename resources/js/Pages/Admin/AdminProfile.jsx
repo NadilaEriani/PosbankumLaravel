@@ -56,6 +56,18 @@ function safeTrim(value) {
     return sanitizeText(value).trim();
 }
 
+function formatPhoneDisplay(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || raw === "-") return "-";
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62") && digits.length > 2) {
+        return `+62 ${digits.slice(2)}`;
+    }
+
+    return raw;
+}
+
 function buildFormData(data = {}, fallbackUser = {}) {
     const fullName =
         data.full_name ||
@@ -258,7 +270,11 @@ export default function AdminProfile({
                     <Comp
                         className="apf-input"
                         type={textarea ? undefined : type}
-                        value={sanitizeText(form[field])}
+                        value={
+                            field === "nomor_telepon" && !editing
+                                ? formatPhoneDisplay(form[field])
+                                : sanitizeText(form[field])
+                        }
                         placeholder={placeholder}
                         readOnly={!editing || locked}
                         disabled={!editing || locked}

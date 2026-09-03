@@ -161,6 +161,18 @@ function pickTone(type) {
     return "blue";
 }
 
+function formatPhoneDisplay(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || raw === "-") return "-";
+
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62") && digits.length > 2) {
+        return `+62 ${digits.slice(2)}`;
+    }
+
+    return raw;
+}
+
 function cleanContactText(value) {
     const text = String(value ?? "").trim();
 
@@ -1684,8 +1696,9 @@ export default function AdminDashboard() {
                                                 Telepon
                                             </div>
                                             <div className="ad-detailInfoValue">
-                                                {selectedModalDetail.phone ||
-                                                    "-"}
+                                                {formatPhoneDisplay(
+                                                    selectedModalDetail.phone,
+                                                )}
                                             </div>
                                         </div>
                                     </div>
