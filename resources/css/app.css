@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -95,5 +97,264 @@ body,
             :is(input, select, textarea, button) {
             max-width: 100%;
         }
+    }
+}
+
+/* =========================================================
+   SiBapak Splash Screen
+   - Hanya muncul saat initial page load / browser refresh.
+   - Navigasi Inertia tidak mem-mount ulang splash screen.
+   ========================================================= */
+body.sibapak-splash-open {
+    overflow: hidden;
+}
+
+.sibapak-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 100vh;
+    padding: 32px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #eef2f9 0%, #f7f8fb 100%);
+    font-family: "Outfit", sans-serif;
+    opacity: 1;
+    visibility: visible;
+    transition:
+        opacity 0.45s ease,
+        visibility 0.45s ease;
+}
+
+.sibapak-splash.is-leaving {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.sibapak-splash__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(520px, 100%);
+    text-align: center;
+    animation: sibapakSplashContentIn 0.7s ease both;
+}
+
+.sibapak-splash__logo-frame {
+    width: 162px;
+    height: 162px;
+    display: grid;
+    place-items: start center;
+    overflow: hidden;
+    border-radius: 30px;
+    background: #ffffff;
+    box-shadow: 0 20px 40px rgba(27, 46, 94, 0.12);
+    animation: sibapakSplashLogoFloat 2s ease-in-out infinite;
+}
+
+.sibapak-splash__logo {
+    display: block;
+    width: 162px;
+    height: auto;
+    max-width: none;
+}
+
+.sibapak-splash__title {
+    margin: 24px 0 0;
+    color: #0b1f52;
+    font-size: clamp(42px, 5vw, 58px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.045em;
+}
+
+.sibapak-splash__title span {
+    color: #163e93;
+}
+
+.sibapak-splash__subtitle {
+    margin: 14px 0 0;
+    color: #737b91;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.28em;
+}
+
+.sibapak-splash__dot {
+    position: absolute;
+    z-index: 1;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #7691f5;
+    opacity: 0.55;
+    animation: sibapakSplashDotFloat 2.4s ease-in-out infinite;
+}
+
+.sibapak-splash__dot--one {
+    top: 24%;
+    left: 20%;
+}
+
+.sibapak-splash__dot--two {
+    top: 20%;
+    right: 24%;
+    width: 6px;
+    height: 6px;
+    animation-delay: 0.35s;
+}
+
+.sibapak-splash__dot--three {
+    right: 18%;
+    bottom: 27%;
+    width: 8px;
+    height: 8px;
+    background: #d6e4ff;
+    animation-delay: 0.7s;
+}
+
+.sibapak-splash__dot--four {
+    bottom: 32%;
+    left: 30%;
+    width: 5px;
+    height: 5px;
+    animation-delay: 1s;
+}
+
+.sibapak-splash__dot--five {
+    top: 58%;
+    right: 34%;
+    width: 10px;
+    height: 10px;
+    animation-delay: 1.25s;
+}
+
+@keyframes sibapakSplashContentIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes sibapakSplashLogoFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+@keyframes sibapakSplashDotFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-9px);
+    }
+}
+
+@supports (height: 100svh) {
+    .sibapak-splash {
+        min-height: 100svh;
+    }
+}
+
+@supports (height: 100dvh) {
+    .sibapak-splash {
+        min-height: 100dvh;
+    }
+}
+
+@media (max-width: 640px) {
+    .sibapak-splash {
+        padding: 24px;
+    }
+
+    .sibapak-splash__content {
+        width: min(360px, 100%);
+    }
+
+    .sibapak-splash__logo-frame {
+        width: 128px;
+        height: 128px;
+        border-radius: 24px;
+    }
+
+    .sibapak-splash__logo {
+        width: 128px;
+    }
+
+    .sibapak-splash__title {
+        margin-top: 20px;
+        font-size: clamp(36px, 12vw, 46px);
+    }
+
+    .sibapak-splash__subtitle {
+        width: min(310px, 100%);
+        margin-top: 12px;
+        font-size: 10px;
+        line-height: 1.6;
+        letter-spacing: 0.2em;
+    }
+
+    .sibapak-splash__dot--one {
+        left: 12%;
+    }
+
+    .sibapak-splash__dot--two {
+        right: 12%;
+    }
+
+    .sibapak-splash__dot--three {
+        right: 10%;
+    }
+
+    .sibapak-splash__dot--four {
+        left: 16%;
+    }
+}
+
+@media (max-width: 380px) {
+    .sibapak-splash__logo-frame {
+        width: 112px;
+        height: 112px;
+        border-radius: 22px;
+    }
+
+    .sibapak-splash__logo {
+        width: 112px;
+    }
+
+    .sibapak-splash__title {
+        font-size: 34px;
+    }
+
+    .sibapak-splash__subtitle {
+        font-size: 9px;
+        letter-spacing: 0.16em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sibapak-splash,
+    .sibapak-splash__content,
+    .sibapak-splash__logo-frame,
+    .sibapak-splash__dot {
+        animation: none;
     }
 }
