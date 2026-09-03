@@ -33,18 +33,20 @@
 
     <link rel="apple-touch-icon" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
 
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "SiBapak",
-            "url": "https://sibapak.pocari.id/"
-        }
-    </script>
+    @verbatim
+        <script type="application/ld+json">
+                {
+                    "@context": "https://schema.org",
+                    "@type": "WebSite",
+                    "name": "SiBapak",
+                    "url": "https://sibapak.pocari.id/"
+                }
+            </script>
+    @endverbatim
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
     @routes

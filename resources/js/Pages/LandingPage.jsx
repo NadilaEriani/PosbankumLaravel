@@ -720,7 +720,9 @@ function DetailPopup({ location, onClose }) {
 
                                 <div>
                                     <small>Nomor Telepon</small>
-                                    <strong>{formatPhoneDisplay(location.phone)}</strong>
+                                    <strong>
+                                        {formatPhoneDisplay(location.phone)}
+                                    </strong>
                                 </div>
 
                                 {location.phone && location.phone !== "-" ? (
@@ -861,7 +863,9 @@ function AllLocationsPopup({
 
                                         <div>
                                             <small>Telepon</small>
-                                            <strong>{formatPhoneDisplay(item.phone)}</strong>
+                                            <strong>
+                                                {formatPhoneDisplay(item.phone)}
+                                            </strong>
                                         </div>
                                     </div>
 
@@ -1411,9 +1415,9 @@ export default function LandingPage({
                                 </div>
 
                                 <h1 className="lp-hero-title">
-                                    Ayo Cek Data <span>Posbankum</span> 
+                                    Ayo Cek Data <span>Posbankum</span>
                                     <br />
-                                     di Wilayah Anda
+                                    di Wilayah Anda
                                 </h1>
 
                                 <p className="lp-hero-desc">
