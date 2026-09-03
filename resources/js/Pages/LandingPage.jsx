@@ -1399,7 +1399,7 @@ export default function LandingPage({
                                 </div>
 
                                 <h1 className="lp-hero-title">
-                                    Ayo Cek Data <span>Posbankum</span>
+                                    Ayo Cek Data <span>Posbankum</span> 
                                     <br />
                                     di Wilayah Anda
                                 </h1>
