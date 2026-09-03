@@ -32,12 +32,12 @@ import RejectToast from "../../Components/ui/RejectToast";
 import posbankumIcon from "../../assets/icon.png";
 import logo from "../../assets/logo.png";
 
-const DataPosbankum = lazy(() => import("./DataPosbankum"));
-const ManajemenAkun = lazy(() => import("./ManajemenAkun"));
-const VerifikasiDataPosbankum = lazy(() => import("./VerifikasiDataPosbankum"));
-const LaporanKegiatan = lazy(() => import("./LaporanKegiatan"));
-const KelolaBerita = lazy(() => import("./KelolaBerita"));
-const AdminProfile = lazy(() => import("./AdminProfile"));
+const DataPosbankum = lazy(() => import("../Admin/DataPosbankum"));
+const ManajemenAkun = lazy(() => import("../Admin/ManajemenAkun"));
+const VerifikasiDataPosbankum = lazy(() => import("../Admin/VerifikasiDataPosbankum"));
+const LaporanKegiatan = lazy(() => import("../Admin/LaporanKegiatan"));
+const KelolaBerita = lazy(() => import("../Admin/KelolaBerita"));
+const AdminProfile = lazy(() => import("../Admin/AdminProfile"));
 
 const MENU_PATH_MAP = {
     Beranda: "/admin",

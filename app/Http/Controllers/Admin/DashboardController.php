@@ -12,14 +12,27 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    /** @var array<string, bool> Per-request cache for Schema::hasTable results */
+    private array $schemaTableCache = [];
+
+    /** @var array<string, bool> Per-request cache for Schema::hasColumn results */
+    private array $schemaColumnCache = [];
+
     private function hasTable(string $table): bool
     {
-        return Schema::hasTable($table);
+        if (!array_key_exists($table, $this->schemaTableCache)) {
+            $this->schemaTableCache[$table] = Schema::hasTable($table);
+        }
+        return $this->schemaTableCache[$table];
     }
 
     private function hasColumn(string $table, string $column): bool
     {
-        return $this->hasTable($table) && Schema::hasColumn($table, $column);
+        $key = $table . '.' . $column;
+        if (!array_key_exists($key, $this->schemaColumnCache)) {
+            $this->schemaColumnCache[$key] = $this->hasTable($table) && Schema::hasColumn($table, $column);
+        }
+        return $this->schemaColumnCache[$key];
     }
 
     private function rowValue(array|object|null $row, array $keys, mixed $default = null): mixed

@@ -23,31 +23,48 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    // Cache Schema checks for this request to avoid N+1 queries to information_schema
+    $schemaTableCache = [];
+    $schemaColumnCache = [];
+    $hasTable = function (string $table) use (&$schemaTableCache): bool {
+        if (!array_key_exists($table, $schemaTableCache)) {
+            $schemaTableCache[$table] = Schema::hasTable($table);
+        }
+        return $schemaTableCache[$table];
+    };
+    $hasColumn = function (string $table, string $column) use (&$schemaTableCache, &$schemaColumnCache, $hasTable): bool {
+        $key = $table . '.' . $column;
+        if (!array_key_exists($key, $schemaColumnCache)) {
+            $schemaColumnCache[$key] = $hasTable($table) && Schema::hasColumn($table, $column);
+        }
+        return $schemaColumnCache[$key];
+    };
+
     $posbankums = [];
     $landingStats = [
         'paralegal' => 0,
         'cases' => 0,
     ];
 
-    if (Schema::hasTable('posbankum')) {
+    if ($hasTable('posbankum')) {
         $query = DB::table('posbankum as p');
 
-        if (Schema::hasTable('kelurahan') && Schema::hasColumn('posbankum', 'id_kelurahan')) {
+        if ($hasTable('kelurahan') && $hasColumn('posbankum', 'id_kelurahan')) {
             $query->leftJoin('kelurahan as kel', 'kel.id_kelurahan', '=', 'p.id_kelurahan');
         }
 
         if (
-            Schema::hasTable('kecamatan') &&
-            Schema::hasTable('kelurahan') &&
-            Schema::hasColumn('kelurahan', 'id_kecamatan')
+            $hasTable('kecamatan') &&
+            $hasTable('kelurahan') &&
+            $hasColumn('kelurahan', 'id_kecamatan')
         ) {
             $query->leftJoin('kecamatan as kec', 'kec.id_kecamatan', '=', 'kel.id_kecamatan');
         }
 
         if (
-            Schema::hasTable('kabupaten') &&
-            Schema::hasTable('kecamatan') &&
-            Schema::hasColumn('kecamatan', 'id_kabupaten')
+            $hasTable('kabupaten') &&
+            $hasTable('kecamatan') &&
+            $hasColumn('kecamatan', 'id_kabupaten')
         ) {
             $query->leftJoin('kabupaten as kab', 'kab.id_kabupaten', '=', 'kec.id_kabupaten');
         }
@@ -69,12 +86,12 @@ Route::get('/', function () {
 
         $paralegalCounts = [];
 
-        if (Schema::hasTable('posbankum_paralegal') && Schema::hasColumn('posbankum_paralegal', 'id_posbankum')) {
+        if ($hasTable('posbankum_paralegal') && $hasColumn('posbankum_paralegal', 'id_posbankum')) {
             $paralegalQuery = DB::table('posbankum_paralegal')
                 ->select('id_posbankum', DB::raw('COUNT(*) as total'))
                 ->whereIn('id_posbankum', $ids);
 
-            if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+            if ($hasColumn('posbankum_paralegal', 'status')) {
                 $paralegalQuery->where('status', 'aktif');
             }
 
@@ -88,21 +105,21 @@ Route::get('/', function () {
 
         if (
             $ids->isNotEmpty() &&
-            Schema::hasTable('posbankum_paralegal') &&
-            Schema::hasTable('users') &&
-            Schema::hasColumn('posbankum_paralegal', 'id_posbankum') &&
-            Schema::hasColumn('posbankum_paralegal', 'id_user')
+            $hasTable('posbankum_paralegal') &&
+            $hasTable('users') &&
+            $hasColumn('posbankum_paralegal', 'id_posbankum') &&
+            $hasColumn('posbankum_paralegal', 'id_user')
         ) {
-            $userKeyColumn = Schema::hasColumn('users', 'id_user') ? 'id_user' : 'id';
+            $userKeyColumn = $hasColumn('users', 'id_user') ? 'id_user' : 'id';
 
-            if (Schema::hasColumn('users', $userKeyColumn)) {
+            if ($hasColumn('users', $userKeyColumn)) {
                 $phoneColumns = array_values(array_filter(
                     ['nomor_telepon', 'nomor_tlp', 'no_hp', 'phone', 'telepon'],
-                    fn($column) => Schema::hasColumn('users', $column)
+                    fn($column) => $hasColumn('users', $column)
                 ));
                 $emailColumns = array_values(array_filter(
                     ['email', 'email_kantor', 'email_akun'],
-                    fn($column) => Schema::hasColumn('users', $column)
+                    fn($column) => $hasColumn('users', $column)
                 ));
                 $selectColumns = ['pp.id_posbankum'];
 
@@ -114,29 +131,29 @@ Route::get('/', function () {
                     ->join('users as u', 'u.' . $userKeyColumn, '=', 'pp.id_user')
                     ->whereIn('pp.id_posbankum', $ids);
 
-                if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+                if ($hasColumn('posbankum_paralegal', 'status')) {
                     $contactQuery->where('pp.status', 'aktif');
                 }
 
-                if (Schema::hasColumn('users', 'role')) {
+                if ($hasColumn('users', 'role')) {
                     $contactQuery->where('u.role', 'paralegal');
                 }
 
-                if (Schema::hasColumn('users', 'status')) {
+                if ($hasColumn('users', 'status')) {
                     $contactQuery->where('u.status', 'aktif');
                 }
 
-                if (Schema::hasColumn('posbankum_paralegal', 'is_primary')) {
+                if ($hasColumn('posbankum_paralegal', 'is_primary')) {
                     $contactQuery->orderByDesc('pp.is_primary');
                 }
 
                 foreach (['assigned_at', 'created_at'] as $column) {
-                    if (Schema::hasColumn('posbankum_paralegal', $column)) {
+                    if ($hasColumn('posbankum_paralegal', $column)) {
                         $contactQuery->orderBy('pp.' . $column);
                     }
                 }
 
-                if (Schema::hasColumn('users', 'created_at')) {
+                if ($hasColumn('users', 'created_at')) {
                     $contactQuery->orderBy('u.created_at');
                 }
 
@@ -181,28 +198,28 @@ Route::get('/', function () {
 
         $caseCounts = [];
 
-        if (Schema::hasTable('pengaduan') && $ids->isNotEmpty()) {
-            $applyCompletedCaseFilter = function ($query, string $tableAlias = 'pengaduan') {
+        if ($hasTable('pengaduan') && $ids->isNotEmpty()) {
+            $applyCompletedCaseFilter = function ($query, string $tableAlias = 'pengaduan') use ($hasColumn) {
                 $statusColumn = $tableAlias . '.status';
                 $tglSelesaiColumn = $tableAlias . '.tgl_selesai';
                 $tanggalSelesaiColumn = $tableAlias . '.tanggal_selesai';
 
-                $query->where(function ($caseQuery) use ($statusColumn, $tglSelesaiColumn, $tanggalSelesaiColumn) {
+                $query->where(function ($caseQuery) use ($statusColumn, $tglSelesaiColumn, $tanggalSelesaiColumn, $hasColumn) {
                     $hasFilter = false;
 
-                    if (Schema::hasColumn('pengaduan', 'status')) {
+                    if ($hasColumn('pengaduan', 'status')) {
                         $caseQuery->whereRaw('LOWER(TRIM(' . $statusColumn . ')) = ?', ['selesai']);
                         $hasFilter = true;
                     }
 
-                    if (Schema::hasColumn('pengaduan', 'tgl_selesai')) {
+                    if ($hasColumn('pengaduan', 'tgl_selesai')) {
                         $hasFilter
                             ? $caseQuery->orWhereNotNull($tglSelesaiColumn)
                             : $caseQuery->whereNotNull($tglSelesaiColumn);
                         $hasFilter = true;
                     }
 
-                    if (Schema::hasColumn('pengaduan', 'tanggal_selesai')) {
+                    if ($hasColumn('pengaduan', 'tanggal_selesai')) {
                         $hasFilter
                             ? $caseQuery->orWhereNotNull($tanggalSelesaiColumn)
                             : $caseQuery->whereNotNull($tanggalSelesaiColumn);
@@ -210,7 +227,7 @@ Route::get('/', function () {
                 });
             };
 
-            if (Schema::hasColumn('pengaduan', 'id_posbankum')) {
+            if ($hasColumn('pengaduan', 'id_posbankum')) {
                 $caseQuery = DB::table('pengaduan')
                     ->select('id_posbankum', DB::raw('COUNT(DISTINCT id_pengaduan) as total'))
                     ->whereIn('id_posbankum', $ids);
@@ -222,13 +239,13 @@ Route::get('/', function () {
                     ->pluck('total', 'id_posbankum')
                     ->toArray();
             } elseif (
-                Schema::hasTable('posbankum_paralegal') &&
-                Schema::hasColumn('posbankum_paralegal', 'id_posbankum') &&
-                Schema::hasColumn('posbankum_paralegal', 'id_user')
+                $hasTable('posbankum_paralegal') &&
+                $hasColumn('posbankum_paralegal', 'id_posbankum') &&
+                $hasColumn('posbankum_paralegal', 'id_user')
             ) {
                 $pengaduanParalegalColumns = array_values(array_filter(
                     ['id_paralegal', 'user_id'],
-                    fn($column) => Schema::hasColumn('pengaduan', $column)
+                    fn($column) => $hasColumn('pengaduan', $column)
                 ));
 
                 if (!empty($pengaduanParalegalColumns)) {
@@ -242,7 +259,7 @@ Route::get('/', function () {
                         ->select('pp.id_posbankum', DB::raw('COUNT(DISTINCT pe.id_pengaduan) as total'))
                         ->whereIn('pp.id_posbankum', $ids);
 
-                    if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+                    if ($hasColumn('posbankum_paralegal', 'status')) {
                         $caseQuery->where('pp.status', 'aktif');
                     }
 
@@ -268,24 +285,24 @@ Route::get('/', function () {
             return '-';
         };
 
-        if (Schema::hasTable('posbankum_paralegal') && Schema::hasColumn('posbankum_paralegal', 'id_user')) {
+        if ($hasTable('posbankum_paralegal') && $hasColumn('posbankum_paralegal', 'id_user')) {
             $landingParalegalQuery = DB::table('posbankum_paralegal as pp');
 
-            if (Schema::hasColumn('posbankum_paralegal', 'status')) {
+            if ($hasColumn('posbankum_paralegal', 'status')) {
                 $landingParalegalQuery->where('pp.status', 'aktif');
             }
 
-            if (Schema::hasTable('users')) {
-                $userKeyColumn = Schema::hasColumn('users', 'id_user') ? 'id_user' : (Schema::hasColumn('users', 'id') ? 'id' : null);
+            if ($hasTable('users')) {
+                $userKeyColumn = $hasColumn('users', 'id_user') ? 'id_user' : ($hasColumn('users', 'id') ? 'id' : null);
 
                 if ($userKeyColumn) {
                     $landingParalegalQuery->join('users as u', 'u.' . $userKeyColumn, '=', 'pp.id_user');
 
-                    if (Schema::hasColumn('users', 'role')) {
+                    if ($hasColumn('users', 'role')) {
                         $landingParalegalQuery->whereRaw('LOWER(TRIM(u.role)) = ?', ['paralegal']);
                     }
 
-                    if (Schema::hasColumn('users', 'status')) {
+                    if ($hasColumn('users', 'status')) {
                         $landingParalegalQuery->whereRaw('LOWER(TRIM(u.status)) = ?', ['aktif']);
                     }
                 }
@@ -294,19 +311,19 @@ Route::get('/', function () {
             $landingStats['paralegal'] = (int) $landingParalegalQuery
                 ->distinct()
                 ->count('pp.id_user');
-        } elseif (Schema::hasTable('users') && Schema::hasColumn('users', 'role')) {
+        } elseif ($hasTable('users') && $hasColumn('users', 'role')) {
             $landingParalegalQuery = DB::table('users')
                 ->whereRaw('LOWER(TRIM(role)) = ?', ['paralegal']);
 
-            if (Schema::hasColumn('users', 'status')) {
+            if ($hasColumn('users', 'status')) {
                 $landingParalegalQuery->whereRaw('LOWER(TRIM(status)) = ?', ['aktif']);
             }
 
             $landingStats['paralegal'] = (int) $landingParalegalQuery->count();
         }
 
-        if (Schema::hasTable('pengaduan')) {
-            $landingStats['cases'] = Schema::hasColumn('pengaduan', 'id_pengaduan')
+        if ($hasTable('pengaduan')) {
+            $landingStats['cases'] = $hasColumn('pengaduan', 'id_pengaduan')
                 ? (int) DB::table('pengaduan')->distinct()->count('id_pengaduan')
                 : (int) DB::table('pengaduan')->count();
         }
