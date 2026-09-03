@@ -1824,6 +1824,40 @@
     margin: 0;
 }
 
+/* Setengah layar / tablet: samakan pola filter dengan halaman Data Posbankum. */
+@media (max-width: 980px) {
+    .ad-pagePad .vd .vd-filterCard .vd-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .ad-pagePad .vd .vd-filterCard .vd-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ad-pagePad .vd .vd-filterCard .vd-filterRow {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 12px;
+    }
+
+    .ad-pagePad .vd .vd-filterCard .vd-dd,
+    .ad-pagePad .vd .vd-filterCard .vd-ddBtn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .ad-pagePad .vd .vd-filterCard .vd-ddText {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
 @media (max-width: 760px) {
     .ad-pagePad .vd .vd-filterCard .vd-toolbar {
         flex-direction: column;
@@ -1831,6 +1865,8 @@
     }
 
     .ad-pagePad .vd .vd-filterCard .vd-filterRow {
+        display: grid;
+        grid-template-columns: 1fr;
         flex-direction: column;
         align-items: stretch;
     }
