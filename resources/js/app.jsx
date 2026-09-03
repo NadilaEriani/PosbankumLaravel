@@ -6,7 +6,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 
-import kepalaIcon from "./assets/kepala.png";
+import kepalaIcon from "./assets/Kepala.png";
 import burung5 from "./assets/burung5.png";
 
 const appName = "SiBapak";
