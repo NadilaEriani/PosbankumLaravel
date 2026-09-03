@@ -370,9 +370,7 @@ const initialSplash = mountInitialSplash();
 
 createInertiaApp({
     title: (title) =>
-        !title || title === appName
-            ? appName
-            : `${appName} - ${title}`,
+        !title || title === appName ? appName : `${appName} - ${title}`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
