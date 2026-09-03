@@ -11,15 +11,36 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>SiBapak | Sistem Informasi Pos Bantuan Hukum Kemenkum Riau</title>
 
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ $faviconVersion }}">
+    <meta name="description"
+        content="SiBapak adalah Sistem Informasi Pos Bantuan Hukum Kantor Wilayah Kementerian Hukum Riau untuk mendukung layanan dan pengelolaan Posbankum di Provinsi Riau.">
 
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
+    <meta name="application-name" content="SiBapak">
 
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v={{ $faviconVersion }}">
+    <meta property="og:site_name" content="SiBapak">
+
+    <meta property="og:title" content="SiBapak | Sistem Informasi Pos Bantuan Hukum Kemenkum Riau">
+
+    <meta property="og:description"
+        content="SiBapak adalah Sistem Informasi Pos Bantuan Hukum Kantor Wilayah Kementerian Hukum Riau untuk mendukung layanan dan pengelolaan Posbankum di Provinsi Riau.">
+
+    <meta property="og:type" content="website">
+
+    <link rel="icon" type="image/png" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
+
+    <link rel="shortcut icon" type="image/png" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
 
     <link rel="apple-touch-icon" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "SiBapak",
+            "url": "https://sibapak.pocari.id/"
+        }
+    </script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
