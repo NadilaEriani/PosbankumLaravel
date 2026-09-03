@@ -1,9 +1,3 @@
-@php
-    $faviconVersion = file_exists(public_path('favicon-sibapak.png'))
-        ? filemtime(public_path('favicon-sibapak.png'))
-        : time();
-@endphp
-
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -19,29 +13,27 @@
     <meta name="application-name" content="SiBapak">
 
     <meta property="og:site_name" content="SiBapak">
-
     <meta property="og:title" content="SiBapak | Sistem Informasi Pos Bantuan Hukum Kemenkum Riau">
-
     <meta property="og:description"
         content="SiBapak adalah Sistem Informasi Pos Bantuan Hukum Kantor Wilayah Kementerian Hukum Riau untuk mendukung layanan dan pengelolaan Posbankum di Provinsi Riau.">
-
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sibapak.pocari.id/">
+    <meta property="og:image" content="https://sibapak.pocari.id/burung5.png">
 
-    <link rel="icon" type="image/png" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
-
-    <link rel="shortcut icon" type="image/png" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
-
-    <link rel="apple-touch-icon" href="{{ asset('favicon-sibapak.png') }}?v={{ $faviconVersion }}">
+    <link rel="icon" type="image/png" href="/favicon-sibapak.png">
+    <link rel="shortcut icon" type="image/png" href="/favicon-sibapak.png">
+    <link rel="apple-touch-icon" href="/favicon-sibapak.png">
 
     @verbatim
         <script type="application/ld+json">
-                {
-                    "@context": "https://schema.org",
-                    "@type": "WebSite",
-                    "name": "SiBapak",
-                    "url": "https://sibapak.pocari.id/"
-                }
-            </script>
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "WebSite",
+                        "name": "SiBapak",
+                        "alternateName": "SIBAPAK",
+                        "url": "https://sibapak.pocari.id/"
+                    }
+                </script>
     @endverbatim
 
     <!-- Fonts -->
