@@ -1401,7 +1401,7 @@ export default function LandingPage({
                                 <h1 className="lp-hero-title">
                                     Ayo Cek Data <span>Posbankum</span> 
                                     <br />
-                                    di Wilayah Anda
+                                     di Wilayah Anda
                                 </h1>
 
                                 <p className="lp-hero-desc">
