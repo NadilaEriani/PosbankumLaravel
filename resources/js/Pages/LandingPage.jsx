@@ -1415,7 +1415,7 @@ export default function LandingPage({
                                 </div>
 
                                 <h1 className="lp-hero-title">
-                                    Ayo Cek Data <span>Posbankum</span>
+                                    Ayo Cek Data <span>Posbankum</span> 
                                     <br />
                                     di Wilayah Anda
                                 </h1>
@@ -1529,7 +1529,7 @@ export default function LandingPage({
 
                                         <div className="lp-integration-copy">
                                             <h2 id="tuanku-title">
-                                                Akses Layanan Hukum Online
+                                                Akses Layanan Hukum Online 
                                                 <br />
                                                 melalui{" "}
                                                 <span>TUANKU ONLINE</span>
