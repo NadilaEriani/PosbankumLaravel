@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
     FiSearch,
     FiX,
@@ -19,6 +19,7 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import icon from "../../assets/icon.png";
 import { getPaginationItems, paginateItems } from "../../utils/pagination";
+import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
 import "../../../css/Admin/dataPosbankum.css";
 
 const PAGE_SIZE = 6;
@@ -492,6 +493,9 @@ export default function DataPosbankum({
     const [previewKategori, setPreviewKategori] = useState("");
     const [err, setErr] = useState("");
     const [page, setPage] = useState(1);
+    const [viewMode, setViewMode, tableRows, setTableRows] =
+        useViewMode("data-posbankum");
+    const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
 
     useEffect(() => {
         const timer = window.setTimeout(() => setDebouncedQ(q.trim()), 300);
@@ -789,8 +793,8 @@ export default function DataPosbankum({
     }, [filteredRows]);
 
     const pagination = useMemo(
-        () => paginateItems(filteredRows, page, PAGE_SIZE),
-        [filteredRows, page],
+        () => paginateItems(filteredRows, page, pageSize),
+        [filteredRows, page, pageSize],
     );
     const pageRows = pagination.items;
     const safePage = pagination.currentPage;
@@ -919,6 +923,100 @@ export default function DataPosbankum({
             </span>
         );
     };
+
+    // Tabel dokumen per posbankum, dipakai kartu (expand) dan baris tabel.
+    const renderDokumen = (id, detailRows) => (
+        <div className="dp-expandShell">
+            <table className="dp-expandTable">
+                <thead>
+                    <tr>
+                        <th>KATEGORI</th>
+                        <th>
+                            TANGGAL UNGGAH
+                        </th>
+                        <th>STATUS</th>
+                        <th>AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {detailRows.map(
+                        (row, index) => (
+                            <tr
+                                key={`${id}-${row.kategori}-${index}`}
+                            >
+                                <td
+                                    className="dp-tdStrong"
+                                    data-label="Kategori"
+                                >
+                                    <span>
+                                        {
+                                            row.kategori
+                                        }
+                                    </span>
+                                    {row.fileCount >
+                                    1 ? (
+                                        <span className="dp-fileCount">
+                                            {
+                                                row.fileCount
+                                            }{" "}
+                                            Foto
+                                        </span>
+                                    ) : null}
+                                </td>
+                                <td data-label="Tanggal Unggah">
+                                    {
+                                        row.tanggal
+                                    }
+                                </td>
+                                <td data-label="Status">
+                                    {renderStatus(
+                                        row.status,
+                                    )}
+                                </td>
+                                <td data-label="Aksi">
+                                    {row.path ? (
+                                        <button
+                                            className="dp-viewBtn"
+                                            type="button"
+                                            onClick={(
+                                                event,
+                                            ) => {
+                                                event.stopPropagation();
+                                                openFile(
+                                                    row,
+                                                );
+                                            }}
+                                        >
+                                            <FiEye />
+                                            <span>
+                                                Lihat
+                                            </span>
+                                        </button>
+                                    ) : (
+                                        <span className="dp-muted">
+                                            -
+                                        </span>
+                                    )}
+                                </td>
+                            </tr>
+                        ),
+                    )}
+                </tbody>
+            </table>
+
+            <div className="dp-expandFoot">
+                <button
+                    className="dp-closeInlineBtn"
+                    type="button"
+                    onClick={() =>
+                        setExpandedId(null)
+                    }
+                >
+                    Tutup
+                </button>
+            </div>
+        </div>
+    );
 
     return (
         <section className="ad-pagePad">
@@ -1073,215 +1171,243 @@ export default function DataPosbankum({
                     </div>
                 </div>
 
-                <div className="dp-list">
-                    {filteredRows.length ? (
-                        pageRows.map((item) => {
-                            const id = item.id_posbankum;
-                            const isOpen = String(expandedId) === String(id);
-                            const kabName = stripKotaPrefix(
-                                item.kabupaten_nama || "",
-                            );
-                            const kecName = stripKotaPrefix(
-                                item.kecamatan_nama || "",
-                            );
-                            const loc =
-                                [kabName, kecName]
-                                    .filter(Boolean)
-                                    .join(" • ") || "-";
-                            const detailRows = item.detailRows || [];
-                            const badgeText =
-                                item.completeness === "complete"
-                                    ? "Lengkap"
-                                    : "Tidak Lengkap";
+                {filteredRows.length ? (
+                    <div className="vt-bar">
+                        <div className="vt-count">
+                            Menampilkan <strong>{rangeLabel(safePage, pageSize, filteredRows.length)}</strong> dari{" "}
+                            <strong>{filteredRows.length}</strong> posbankum
+                        </div>
+                        <ViewToggle
+                            value={viewMode}
+                            rows={tableRows}
+                            onRowsChange={(n) => {
+                                setTableRows(n);
+                                setPage(1);
+                            }}
+                            onChange={(mode) => {
+                                setViewMode(mode);
+                                setPage(1);
+                                setExpandedId(null);
+                            }}
+                        />
+                    </div>
+                ) : null}
 
-                            return (
-                                <div
-                                    key={id}
-                                    className={`dp-card ${isOpen ? "is-open" : ""}`}
-                                >
-                                    <div
-                                        className="dp-cardHead"
-                                        role="button"
-                                        tabIndex={0}
-                                        aria-expanded={isOpen}
-                                        onClick={() =>
-                                            setExpandedId(isOpen ? null : id)
-                                        }
-                                        onKeyDown={(event) => {
-                                            if (
-                                                event.key === "Enter" ||
-                                                event.key === " "
-                                            ) {
-                                                event.preventDefault();
-                                                setExpandedId(
-                                                    isOpen ? null : id,
-                                                );
-                                            }
-                                        }}
-                                    >
-                                        <div
-                                            className="dp-iconWrap"
-                                            aria-hidden="true"
-                                        >
-                                            <img
-                                                src={icon}
-                                                alt=""
-                                                className="dp-imgIcon"
-                                            />
-                                        </div>
+                {viewMode === "tabel" && filteredRows.length ? (
+                    <div className="vt-tableCard">
+                        <table
+                            className="vt-table"
+                            style={{ "--vt-min": "760px" }}
+                        >
+                            <thead>
+                                <tr>
+                                    <th className="vt-sticky">Posbankum</th>
+                                    <th>Kabupaten/Kota</th>
+                                    <th>Kecamatan</th>
+                                    <th>Kelengkapan</th>
+                                    <th className="vt-center">Dokumen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pageRows.map((item) => {
+                                    const id = item.id_posbankum;
+                                    const isOpen =
+                                        String(expandedId) === String(id);
+                                    const lengkap =
+                                        item.completeness === "complete";
 
-                                        <div className="dp-titleWrap">
-                                            <div className="dp-name">
-                                                {item.nama}
-                                            </div>
-                                            <div className="dp-sub">
-                                                <FiMapPin className="dp-subIcon" />
-                                                <span className="dp-subText">
-                                                    {loc}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="dp-right">
-                                            <span
-                                                className={`dp-rowBadge ${
-                                                    item.completeness ===
-                                                    "complete"
-                                                        ? "is-ok"
-                                                        : "is-warn"
-                                                }`}
-                                            >
-                                                {badgeText}
-                                            </span>
-
-                                            <div
-                                                className="dp-chevron"
-                                                aria-hidden="true"
-                                            >
-                                                {isOpen ? (
-                                                    <FiChevronUp />
-                                                ) : (
-                                                    <FiChevronDown />
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {isOpen ? (
-                                        <div
-                                            className="dp-cardExpand"
-                                            onClick={(event) =>
-                                                event.stopPropagation()
-                                            }
-                                        >
-                                            <div className="dp-expandShell">
-                                                <table className="dp-expandTable">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>KATEGORI</th>
-                                                            <th>
-                                                                TANGGAL UNGGAH
-                                                            </th>
-                                                            <th>STATUS</th>
-                                                            <th>AKSI</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {detailRows.map(
-                                                            (row, index) => (
-                                                                <tr
-                                                                    key={`${id}-${row.kategori}-${index}`}
-                                                                >
-                                                                    <td
-                                                                        className="dp-tdStrong"
-                                                                        data-label="Kategori"
-                                                                    >
-                                                                        <span>
-                                                                            {
-                                                                                row.kategori
-                                                                            }
-                                                                        </span>
-                                                                        {row.fileCount >
-                                                                        1 ? (
-                                                                            <span className="dp-fileCount">
-                                                                                {
-                                                                                    row.fileCount
-                                                                                }{" "}
-                                                                                Foto
-                                                                            </span>
-                                                                        ) : null}
-                                                                    </td>
-                                                                    <td data-label="Tanggal Unggah">
-                                                                        {
-                                                                            row.tanggal
-                                                                        }
-                                                                    </td>
-                                                                    <td data-label="Status">
-                                                                        {renderStatus(
-                                                                            row.status,
-                                                                        )}
-                                                                    </td>
-                                                                    <td data-label="Aksi">
-                                                                        {row.path ? (
-                                                                            <button
-                                                                                className="dp-viewBtn"
-                                                                                type="button"
-                                                                                onClick={(
-                                                                                    event,
-                                                                                ) => {
-                                                                                    event.stopPropagation();
-                                                                                    openFile(
-                                                                                        row,
-                                                                                    );
-                                                                                }}
-                                                                            >
-                                                                                <FiEye />
-                                                                                <span>
-                                                                                    Lihat
-                                                                                </span>
-                                                                            </button>
-                                                                        ) : (
-                                                                            <span className="dp-muted">
-                                                                                -
-                                                                            </span>
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
-                                                            ),
-                                                        )}
-                                                    </tbody>
-                                                </table>
-
-                                                <div className="dp-expandFoot">
+                                    return (
+                                        <Fragment key={id}>
+                                            <tr>
+                                                <td className="vt-sticky">
+                                                    <span className="vt-title">
+                                                        {item.nama}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {stripKotaPrefix(
+                                                        item.kabupaten_nama ||
+                                                            "",
+                                                    ) || "-"}
+                                                </td>
+                                                <td>
+                                                    {stripKotaPrefix(
+                                                        item.kecamatan_nama ||
+                                                            "",
+                                                    ) || "-"}
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        className={`dp-rowBadge vt-pill ${lengkap ? "is-ok" : "is-warn"}`}
+                                                    >
+                                                        {lengkap
+                                                            ? "Lengkap"
+                                                            : "Tidak Lengkap"}
+                                                    </span>
+                                                </td>
+                                                <td className="vt-center">
                                                     <button
-                                                        className="dp-closeInlineBtn"
+                                                        className={`vt-linkBtn ${isOpen ? "is-active" : ""}`}
                                                         type="button"
+                                                        aria-expanded={isOpen}
                                                         onClick={() =>
-                                                            setExpandedId(null)
+                                                            setExpandedId(
+                                                                isOpen
+                                                                    ? null
+                                                                    : id,
+                                                            )
                                                         }
                                                     >
-                                                        Tutup
+                                                        {isOpen ? (
+                                                            <FiChevronUp />
+                                                        ) : (
+                                                            <FiChevronDown />
+                                                        )}
+                                                        {isOpen
+                                                            ? "Tutup"
+                                                            : "Lihat"}
                                                     </button>
+                                                </td>
+                                            </tr>
+                                            {isOpen ? (
+                                                <tr className="vt-expandRow">
+                                                    <td colSpan={5}>
+                                                        {renderDokumen(
+                                                            id,
+                                                            item.detailRows ||
+                                                                [],
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ) : null}
+                                        </Fragment>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="dp-list">
+                        {filteredRows.length ? (
+                            pageRows.map((item) => {
+                                const id = item.id_posbankum;
+                                const isOpen = String(expandedId) === String(id);
+                                const kabName = stripKotaPrefix(
+                                    item.kabupaten_nama || "",
+                                );
+                                const kecName = stripKotaPrefix(
+                                    item.kecamatan_nama || "",
+                                );
+                                const loc =
+                                    [kabName, kecName]
+                                        .filter(Boolean)
+                                        .join(" • ") || "-";
+                                const detailRows = item.detailRows || [];
+                                const badgeText =
+                                    item.completeness === "complete"
+                                        ? "Lengkap"
+                                        : "Tidak Lengkap";
+    
+                                return (
+                                    <div
+                                        key={id}
+                                        className={`dp-card ${isOpen ? "is-open" : ""}`}
+                                    >
+                                        <div
+                                            className="dp-cardHead"
+                                            role="button"
+                                            tabIndex={0}
+                                            aria-expanded={isOpen}
+                                            onClick={() =>
+                                                setExpandedId(isOpen ? null : id)
+                                            }
+                                            onKeyDown={(event) => {
+                                                if (
+                                                    event.key === "Enter" ||
+                                                    event.key === " "
+                                                ) {
+                                                    event.preventDefault();
+                                                    setExpandedId(
+                                                        isOpen ? null : id,
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            <div
+                                                className="dp-iconWrap"
+                                                aria-hidden="true"
+                                            >
+                                                <img
+                                                    src={icon}
+                                                    alt=""
+                                                    className="dp-imgIcon"
+                                                />
+                                            </div>
+    
+                                            <div className="dp-titleWrap">
+                                                <div className="dp-name">
+                                                    {item.nama}
+                                                </div>
+                                                <div className="dp-sub">
+                                                    <FiMapPin className="dp-subIcon" />
+                                                    <span className="dp-subText">
+                                                        {loc}
+                                                    </span>
+                                                </div>
+                                            </div>
+    
+                                            <div className="dp-right">
+                                                <span
+                                                    className={`dp-rowBadge ${
+                                                        item.completeness ===
+                                                        "complete"
+                                                            ? "is-ok"
+                                                            : "is-warn"
+                                                    }`}
+                                                >
+                                                    {badgeText}
+                                                </span>
+    
+                                                <div
+                                                    className="dp-chevron"
+                                                    aria-hidden="true"
+                                                >
+                                                    {isOpen ? (
+                                                        <FiChevronUp />
+                                                    ) : (
+                                                        <FiChevronDown />
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-                                    ) : null}
+    
+                                        {isOpen ? (
+                                            <div
+                                                className="dp-cardExpand"
+                                                onClick={(event) =>
+                                                    event.stopPropagation()
+                                                }
+                                            >
+                                                {renderDokumen(id, detailRows)}
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="dp-emptyCard">
+                                <div className="dp-emptyIcon">
+                                    <FiFileText />
                                 </div>
-                            );
-                        })
-                    ) : (
-                        <div className="dp-emptyCard">
-                            <div className="dp-emptyIcon">
-                                <FiFileText />
+                                <h2>Tidak Ada Data Ditemukan</h2>
+                                <p>
+                                    Tidak ada data posbankum yang sesuai dengan
+                                    filter yang dipilih.
+                                </p>
                             </div>
-                            <h2>Tidak Ada Data Ditemukan</h2>
-                            <p>
-                                Tidak ada data posbankum yang sesuai dengan
-                                filter yang dipilih.
-                            </p>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
 
                 {totalPages > 1 ? (
                     <div

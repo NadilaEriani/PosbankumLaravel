@@ -31,6 +31,7 @@ import { RiHistoryFill } from "react-icons/ri";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems, paginateItems } from "../../utils/pagination";
+import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
 import "../../../css/Paralegal/laporanPelayanan.css";
 
 const PAGE_SIZE = 6;
@@ -337,6 +338,81 @@ function buildStats(reports) {
           )
         : 0;
     return { total, aktif, selesai, tinggi, tingkatSelesai, avgHari };
+}
+
+function ReportTable({ reports, onDetail, onDelete }) {
+    return (
+        <div className="vt-tableCard">
+            <table className="vt-table" style={{ "--vt-min": "960px" }}>
+                <thead>
+                    <tr>
+                        <th className="vt-sticky">Judul Laporan</th>
+                        <th>Pelapor</th>
+                        <th>Kategori</th>
+                        <th>Status</th>
+                        <th>Prioritas</th>
+                        <th>Tgl Kejadian</th>
+                        <th className="vt-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {reports.map((report) => (
+                        <tr key={report.id_pengaduan}>
+                            <td className="vt-sticky">
+                                <span className="vt-title">
+                                    {report.judul_pengaduan}
+                                </span>
+                                <span className="vt-sub">
+                                    {report.nomor_pengaduan}
+                                </span>
+                            </td>
+                            <td>{report.nama_pelapor}</td>
+                            <td>{report.jenis_masalah}</td>
+                            <td>
+                                <span
+                                    className={`lpvChip vt-pill ${report.status === "selesai" ? "isGreen" : "isBlue"}`}
+                                >
+                                    {getStatusLabel(report.status)}
+                                </span>
+                            </td>
+                            <td>
+                                <span
+                                    className={`lpvChip vt-pill ${report.prioritas === "tinggi" ? "isRed" : "isOrange"}`}
+                                >
+                                    {getPriorityLabel(report.prioritas)}
+                                </span>
+                            </td>
+                            <td className="vt-nowrap">
+                                {formatDateID(report.tanggal_kejadian, true)}
+                            </td>
+                            <td className="vt-center">
+                                <div className="vt-actions">
+                                    <button
+                                        className="vt-iconBtn"
+                                        type="button"
+                                        onClick={() => onDetail(report)}
+                                        aria-label={`Detail ${report.judul_pengaduan}`}
+                                        title="Detail"
+                                    >
+                                        <FiEye />
+                                    </button>
+                                    <button
+                                        className="vt-iconBtn is-danger"
+                                        type="button"
+                                        onClick={() => onDelete(report)}
+                                        aria-label={`Hapus ${report.judul_pengaduan}`}
+                                        title="Hapus"
+                                    >
+                                        <FiTrash2 />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
 }
 
 function ReportListCard({ report, onDetail, onDelete }) {
@@ -650,6 +726,9 @@ export default function LaporanPelayanan({
     const [priorityFilter, setPriorityFilter] = useState("semua");
     const [priorityDropdownOpen, setPriorityDropdownOpen] = useState(false);
     const [page, setPage] = useState(1);
+    const [viewMode, setViewMode, tableRows, setTableRows] =
+        useViewMode("laporan-pelayanan");
+    const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
     const priorityDropdownRef = useRef(null);
     const [selectedReport, setSelectedReport] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
@@ -839,8 +918,8 @@ export default function LaporanPelayanan({
     }, [tab, search, priorityFilter]);
 
     const pagination = useMemo(
-        () => paginateItems(filteredReports, page, PAGE_SIZE),
-        [filteredReports, page],
+        () => paginateItems(filteredReports, page, pageSize),
+        [filteredReports, page, pageSize],
     );
     const pageReports = pagination.items;
     const safePage = pagination.currentPage;
@@ -2057,26 +2136,59 @@ export default function LaporanPelayanan({
                     ) : (
                         <>
                             {renderSearchBar()}
-                            <div className="lpvListWrap">
-                                {filteredReports.length ? (
-                                    pageReports.map((report) => (
-                                        <ReportListCard
-                                            key={report.id_pengaduan}
-                                            report={report}
-                                            onDetail={handleOpenDetail}
-                                            onDelete={handleDelete}
-                                        />
-                                    ))
-                                ) : (
-                                    <EmptyState
-                                        message={
-                                            tab === "riwayat"
-                                                ? "Belum ada riwayat laporan selesai."
-                                                : "Belum ada laporan aktif."
-                                        }
+                            {filteredReports.length ? (
+                                <div className="vt-bar">
+                                    <div className="vt-count">
+                                        Menampilkan{" "}
+                                        <strong>{rangeLabel(safePage, pageSize, filteredReports.length)}</strong>{" "}
+                                        dari{" "}
+                                        <strong>
+                                            {filteredReports.length}
+                                        </strong>{" "}
+                                        laporan
+                                    </div>
+                                    <ViewToggle
+                                        value={viewMode}
+                                        rows={tableRows}
+                                        onRowsChange={(n) => {
+                                            setTableRows(n);
+                                            setPage(1);
+                                        }}
+                                        onChange={(mode) => {
+                                            setViewMode(mode);
+                                            setPage(1);
+                                        }}
                                     />
-                                )}
-                            </div>
+                                </div>
+                            ) : null}
+                            {viewMode === "tabel" && filteredReports.length ? (
+                                <ReportTable
+                                    reports={pageReports}
+                                    onDetail={handleOpenDetail}
+                                    onDelete={handleDelete}
+                                />
+                            ) : (
+                                <div className="lpvListWrap">
+                                    {filteredReports.length ? (
+                                        pageReports.map((report) => (
+                                            <ReportListCard
+                                                key={report.id_pengaduan}
+                                                report={report}
+                                                onDetail={handleOpenDetail}
+                                                onDelete={handleDelete}
+                                            />
+                                        ))
+                                    ) : (
+                                        <EmptyState
+                                            message={
+                                                tab === "riwayat"
+                                                    ? "Belum ada riwayat laporan selesai."
+                                                    : "Belum ada laporan aktif."
+                                            }
+                                        />
+                                    )}
+                                </div>
+                            )}
 
                             {totalPages > 1 ? (
                                 <div

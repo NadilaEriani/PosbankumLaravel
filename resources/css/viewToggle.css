@@ -1,0 +1,473 @@
+/* Toggle Kartu/Tabel + tabel list bersama. Mengikuti gaya tabel Manajemen Akun (.kpTable). */
+
+.vt-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 0 0 16px;
+}
+
+.vt-bar > :not(.vt-controls) {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.vt-bar.is-end {
+    justify-content: flex-end;
+}
+
+.vt-count {
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.vt-count strong {
+    color: #111827;
+    font-weight: 700;
+}
+
+.vt-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Jumlah baris per halaman (hanya mode tabel). Select bawaan: picker native di HP. */
+.vt-rows {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.vt-rowsSelect {
+    height: 46px;
+    min-width: 76px;
+    padding: 0 34px 0 14px;
+    border: 1px solid #e4ebf5;
+    border-radius: 14px;
+    background: #ffffff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23343b73' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")
+        no-repeat right 13px center;
+    color: #1e293b;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+}
+
+.vt-rowsSelect:hover {
+    border-color: #cfd8ea;
+}
+
+.vt-rowsSelect:focus-visible {
+    outline: 2px solid #343b73;
+    outline-offset: 2px;
+}
+
+.vt-toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+    padding: 4px;
+    gap: 4px;
+    background: #ffffff;
+    border: 1px solid #e4ebf5;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+}
+
+.vt-toggleBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #475569;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease;
+}
+
+.vt-toggleBtn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.vt-toggleBtn:hover:not(.is-active) {
+    background: #f1f5fb;
+    color: #343b73;
+}
+
+.vt-toggleBtn.is-active {
+    background: #343b73;
+    color: #ffffff;
+    cursor: default;
+}
+
+.vt-toggleBtn:focus-visible,
+.vt-iconBtn:focus-visible,
+.vt-linkBtn:focus-visible {
+    outline: 2px solid #343b73;
+    outline-offset: 2px;
+}
+
+/* ---------- Tabel ---------- */
+
+/*
+ * Catatan spesifisitas: CSS halaman (mis. `.rk-wrap * { min-width: 0 }` di ≤768px)
+ * dimuat setelah file ini. Aturan lebar yang penting memakai dua kelas (0,2,0)
+ * supaya tidak tertimpa reset tersebut.
+ */
+.vt-tableCard {
+    /* contain: lebar tabel tidak ikut melebarkan grid/flex induk,
+       sehingga tabel digeser di dalam kartu, bukan halaman yang melebar. */
+    contain: inline-size;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e6eaf1;
+    border-radius: 17px;
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.08),
+        0 4px 6px -4px rgba(0, 0, 0, 0.08);
+    -webkit-overflow-scrolling: touch;
+}
+
+.vt-tableCard > .vt-table {
+    width: 100%;
+    max-width: none;
+    min-width: var(--vt-min, 860px);
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #334155;
+    font-size: 14px;
+}
+
+.vt-table th {
+    height: 52px;
+    padding: 0 18px;
+    background: #f8fbff;
+    color: #334155;
+    text-align: left;
+    font-size: 13.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    border-bottom: 1px solid #e4ebf5;
+}
+
+.vt-table td {
+    height: 60px;
+    padding: 12px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #edf1f7;
+    vertical-align: middle;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.vt-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.vt-table tbody tr:hover > td {
+    background: #fbfcff;
+}
+
+.vt-table .vt-center {
+    text-align: center;
+}
+
+.vt-table .vt-nowrap {
+    white-space: nowrap;
+}
+
+/* Kolom pertama tetap terlihat saat tabel digeser di layar sempit. */
+.vt-table .vt-sticky {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+.vt-table th.vt-sticky {
+    z-index: 2;
+}
+
+.vt-table td.vt-sticky {
+    box-shadow:
+        -4px 0 0 #ffffff,
+        1px 0 0 #edf1f7;
+}
+
+.vt-table th.vt-sticky {
+    box-shadow: -4px 0 0 #f8fbff;
+}
+
+.vt-table .vt-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-width: 180px;
+    max-width: 340px;
+    color: #1e293b;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.vt-table .vt-sub {
+    display: block;
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12.5px;
+    font-weight: 500;
+}
+
+.vt-table .vt-sub.is-danger {
+    color: #b91c1c;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    max-width: 340px;
+}
+
+/* Badge status dari kartu yang aslinya menempel di atas gambar (absolute). */
+.vt-table .vt-pill {
+    position: static !important;
+    inset: auto !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    white-space: nowrap;
+}
+
+/* Sel dokumen (Verifikasi Data Posbankum): ikon status + status/tanggal + tombol lihat. */
+.vt-table .vt-doc {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 128px;
+}
+
+.vt-doc > svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.vt-doc.is-ok > svg {
+    color: #00bc7d;
+}
+
+.vt-doc.is-wait > svg {
+    color: #fe9a00;
+}
+
+.vt-doc.is-no > svg {
+    color: #fb2c36;
+}
+
+.vt-doc.is-empty > svg {
+    color: #cbd5e1;
+}
+
+.vt-docText {
+    flex: 1;
+    min-width: 0;
+    font-size: 13.5px;
+}
+
+.vt-docText strong {
+    display: block;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.vt-doc.is-empty .vt-docText strong {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.vt-table .vt-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    min-width: 160px;
+}
+
+.vt-muted {
+    color: #64748b;
+}
+
+.vt-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.vt-iconBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: 1px solid #e4ebf5;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #343b73;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.vt-iconBtn svg {
+    width: 17px;
+    height: 17px;
+}
+
+.vt-iconBtn:hover:not(:disabled) {
+    background: #eef2fb;
+    border-color: #cfd8ea;
+}
+
+.vt-iconBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.vt-iconBtn.is-edit {
+    color: #c2410c;
+}
+
+.vt-iconBtn.is-edit:hover:not(:disabled) {
+    background: #fff4ea;
+    border-color: #fed7aa;
+}
+
+.vt-iconBtn.is-danger {
+    color: #dc2626;
+}
+
+.vt-iconBtn.is-danger:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.vt-iconBtn.is-ok {
+    color: #15803d;
+}
+
+.vt-iconBtn.is-ok:hover:not(:disabled) {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.vt-linkBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid #e4ebf5;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #343b73;
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.vt-linkBtn:hover {
+    background: #eef2fb;
+}
+
+.vt-linkBtn.is-active {
+    background: #343b73;
+    border-color: #343b73;
+    color: #ffffff;
+}
+
+/* Baris ekspansi (Data Posbankum): isi tabel dokumen yang sama dengan kartu. */
+.vt-table tr.vt-expandRow > td,
+.vt-table tbody tr.vt-expandRow:hover > td {
+    height: auto;
+    padding: 4px 18px 18px;
+    background: #f8fbff;
+}
+
+.vt-empty {
+    padding: 40px 18px !important;
+    text-align: center;
+    color: #64748b;
+}
+
+@media (max-width: 1024px) {
+    .vt-table .vt-sticky .vt-title,
+    .vt-table .vt-sticky .vt-sub {
+        max-width: 240px;
+    }
+}
+
+@media (max-width: 640px) {
+    .vt-table th,
+    .vt-table td {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    /* Kolom sticky dipersempit agar kolom lain tetap kebagian ruang saat digeser. */
+    .vt-table .vt-sticky .vt-title,
+    .vt-table .vt-sticky .vt-sub {
+        min-width: 120px;
+        max-width: 150px;
+    }
+
+    .vt-table .vt-sticky .vt-title {
+        font-size: 13.5px;
+    }
+}
+
+@media (max-width: 420px) {
+    .vt-toggleLabel,
+    .vt-rowsLabel {
+        display: none;
+    }
+
+    .vt-toggleBtn {
+        padding: 0 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vt-toggleBtn,
+    .vt-iconBtn,
+    .vt-linkBtn {
+        transition: none;
+    }
+}

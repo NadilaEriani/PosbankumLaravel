@@ -21,6 +21,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems } from "../../utils/pagination";
+import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
 import "../../../css/Admin/verifikasiDataPosbankum.css";
 
 const BUCKET = "posbankum-docs";
@@ -310,7 +311,9 @@ export default function VerifikasiDataPosbankum({
     const [err, setErr] = useState("");
 
     const [page, setPage] = useState(1);
-    const PAGE_SIZE = 9;
+    const [viewMode, setViewMode, tableRows, setTableRows] =
+        useViewMode("verifikasi-data-posbankum");
+    const PAGE_SIZE = viewMode === "tabel" ? tableRows : 9;
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewMode, setPreviewMode] = useState("file");
@@ -1221,7 +1224,7 @@ export default function VerifikasiDataPosbankum({
     const pageItems = useMemo(() => {
         const start = (pageClamped - 1) * PAGE_SIZE;
         return cards.slice(start, start + PAGE_SIZE);
-    }, [cards, pageClamped]);
+    }, [cards, pageClamped, PAGE_SIZE]);
 
     const posById = useMemo(() => {
         const m = {};
@@ -2017,6 +2020,36 @@ export default function VerifikasiDataPosbankum({
         return <FiClock className="vd-docStatusIcon" />;
     };
 
+    // Dipakai bersama tampilan kartu dan tabel.
+    const docTone = (status) =>
+        status === "disetujui"
+            ? "is-ok"
+            : status === "ditolak"
+              ? "is-no"
+              : "is-wait";
+
+    const docStatusLabel = (status) =>
+        status === "disetujui"
+            ? "Disetujui"
+            : status === "ditolak"
+              ? "Ditolak"
+              : "Menunggu";
+
+    const docBisaDibuka = (d) => Boolean(d.path) || d.key === "tagging_area";
+
+    const bukaDokumen = (d, posId) =>
+        d.viewerType === "tagging_area"
+            ? openPreview(d, posId)
+            : openReviewDetail(d, posId);
+
+    const lokasiPos = (p) =>
+        [
+            stripKnownAddressPrefix(kabupatenNameById[p.id_kabupaten] ?? ""),
+            stripKnownAddressPrefix(kecamatanNameById[p.id_kecamatan] ?? ""),
+        ]
+            .filter(Boolean)
+            .join(" • ") || "-";
+
     const renderPreviewActions = () => {
         if (!selectedDoc) return null;
 
@@ -2490,130 +2523,227 @@ export default function VerifikasiDataPosbankum({
                             {err && <div className="vd-error">{err}</div>}
                         </div>
 
-                        <div className="vd-grid">
-                            {loading ? (
-                                <div className="vd-loading">Memuat data...</div>
-                            ) : pageItems.length ? (
-                                pageItems.map((p) => {
-                                    const kabName = stripKnownAddressPrefix(
-                                        kabupatenNameById[p.id_kabupaten] ?? "",
-                                    );
-                                    const kecName = stripKnownAddressPrefix(
-                                        kecamatanNameById[p.id_kecamatan] ?? "",
-                                    );
-                                    const loc =
-                                        [kabName, kecName]
-                                            .filter(Boolean)
-                                            .join(" • ") || "-";
+                        {!loading && cards.length ? (
+                            <div className="vt-bar">
+                                <div className="vt-count">
+                                    Menampilkan{" "}
+                                    <strong>{rangeLabel(pageClamped, PAGE_SIZE, cards.length)}</strong> dari{" "}
+                                    <strong>{cards.length}</strong> posbankum
+                                </div>
+                                <ViewToggle
+                                    value={viewMode}
+                                    rows={tableRows}
+                                    onRowsChange={(n) => {
+                                        setTableRows(n);
+                                        setPage(1);
+                                    }}
+                                    onChange={(mode) => {
+                                        setViewMode(mode);
+                                        setPage(1);
+                                    }}
+                                />
+                            </div>
+                        ) : null}
 
-                                    return (
-                                        <div
-                                            key={p.id_posbankum}
-                                            className="vd-card"
-                                        >
-                                            <div className="vd-cardHead">
-                                                <div className="vd-cardTitle">
-                                                    {p.nama}
-                                                </div>
-                                                <div className="vd-cardSub">
-                                                    {loc}
-                                                </div>
-                                            </div>
-
-                                            <div className="vd-docs">
+                        {viewMode === "tabel" &&
+                        !loading &&
+                        pageItems.length ? (
+                            <div className="vt-tableCard">
+                                <table
+                                    className="vt-table"
+                                    style={{ "--vt-min": "900px" }}
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th className="vt-sticky">
+                                                Posbankum
+                                            </th>
+                                            {pageItems[0].docs.map((d) => (
+                                                <th key={d.key}>{d.label}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {pageItems.map((p) => (
+                                            <tr key={p.id_posbankum}>
+                                                <td className="vt-sticky">
+                                                    <span className="vt-title">
+                                                        {p.nama}
+                                                    </span>
+                                                    <span className="vt-sub">
+                                                        {lokasiPos(p)}
+                                                    </span>
+                                                </td>
                                                 {p.docs.map((d) => {
-                                                    const tone =
-                                                        d.status === "disetujui"
-                                                            ? "is-ok"
-                                                            : d.status ===
-                                                                "ditolak"
-                                                              ? "is-no"
-                                                              : "is-wait";
+                                                    const bisa =
+                                                        docBisaDibuka(d);
 
                                                     return (
-                                                        <div
-                                                            key={d.key}
-                                                            className={`vd-docPill ${tone}`}
-                                                        >
-                                                            <div className="vd-docLeft">
-                                                                <span
-                                                                    className={`vd-docStatus ${tone}`}
+                                                        <td key={d.key}>
+                                                            <div
+                                                                className={`vt-doc ${bisa ? docTone(d.status) : "is-empty"}`}
+                                                            >
+                                                                {renderDocIcon(
+                                                                    d.status,
+                                                                )}
+                                                                <span className="vt-docText">
+                                                                    <strong>
+                                                                        {bisa
+                                                                            ? docStatusLabel(
+                                                                                  d.status,
+                                                                              )
+                                                                            : "Belum ada"}
+                                                                    </strong>
+                                                                    {bisa &&
+                                                                    d.tanggal ? (
+                                                                        <span className="vt-sub">
+                                                                            {
+                                                                                d.tanggal
+                                                                            }
+                                                                            {d.fileCount >
+                                                                            1
+                                                                                ? ` • ${d.fileCount} Foto`
+                                                                                : ""}
+                                                                        </span>
+                                                                    ) : null}
+                                                                </span>
+                                                                <button
+                                                                    className="vt-iconBtn"
+                                                                    type="button"
+                                                                    disabled={
+                                                                        !bisa
+                                                                    }
+                                                                    aria-label={`Lihat ${d.label} ${p.nama}`}
                                                                     title={
-                                                                        d.status
+                                                                        bisa
+                                                                            ? "Lihat"
+                                                                            : "Belum ada berkas"
+                                                                    }
+                                                                    onClick={() =>
+                                                                        bukaDokumen(
+                                                                            d,
+                                                                            p.id_posbankum,
+                                                                        )
                                                                     }
                                                                 >
-                                                                    {renderDocIcon(
-                                                                        d.status,
-                                                                    )}
-                                                                </span>
-                                                                <div className="vd-docMeta">
-                                                                    <div className="vd-docLabel">
-                                                                        {
-                                                                            d.label
-                                                                        }
-                                                                    </div>
-                                                                    <div className="vd-docDate">
-                                                                        {
-                                                                            d.tanggal
-                                                                        }
-                                                                        {d.fileCount >
-                                                                        1
-                                                                            ? ` • ${d.fileCount} Foto`
-                                                                            : ""}
-                                                                    </div>
-                                                                </div>
+                                                                    <FiEye />
+                                                                </button>
                                                             </div>
-
-                                                            <button
-                                                                className="vd-eyeBtn"
-                                                                type="button"
-                                                                disabled={
-                                                                    !d.path &&
-                                                                    d.key !==
-                                                                        "tagging_area"
-                                                                }
-                                                                title={
-                                                                    !d.path &&
-                                                                    d.key !==
-                                                                        "tagging_area"
-                                                                        ? "Belum ada berkas"
-                                                                        : "Lihat"
-                                                                }
-                                                                onClick={() =>
-                                                                    d.viewerType ===
-                                                                    "tagging_area"
-                                                                        ? openPreview(
-                                                                              d,
-                                                                              p.id_posbankum,
-                                                                          )
-                                                                        : openReviewDetail(
-                                                                              d,
-                                                                              p.id_posbankum,
-                                                                          )
-                                                                }
-                                                            >
-                                                                <FiEye />
-                                                            </button>
-                                                        </div>
+                                                        </td>
                                                     );
                                                 })}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="vd-grid">
+                                {loading ? (
+                                    <div className="vd-loading">Memuat data...</div>
+                                ) : pageItems.length ? (
+                                    pageItems.map((p) => {
+                                        const loc = lokasiPos(p);
+    
+                                        return (
+                                            <div
+                                                key={p.id_posbankum}
+                                                className="vd-card"
+                                            >
+                                                <div className="vd-cardHead">
+                                                    <div className="vd-cardTitle">
+                                                        {p.nama}
+                                                    </div>
+                                                    <div className="vd-cardSub">
+                                                        {loc}
+                                                    </div>
+                                                </div>
+    
+                                                <div className="vd-docs">
+                                                    {p.docs.map((d) => {
+                                                        const tone = docTone(
+                                                            d.status,
+                                                        );
+    
+                                                        return (
+                                                            <div
+                                                                key={d.key}
+                                                                className={`vd-docPill ${tone}`}
+                                                            >
+                                                                <div className="vd-docLeft">
+                                                                    <span
+                                                                        className={`vd-docStatus ${tone}`}
+                                                                        title={
+                                                                            d.status
+                                                                        }
+                                                                    >
+                                                                        {renderDocIcon(
+                                                                            d.status,
+                                                                        )}
+                                                                    </span>
+                                                                    <div className="vd-docMeta">
+                                                                        <div className="vd-docLabel">
+                                                                            {
+                                                                                d.label
+                                                                            }
+                                                                        </div>
+                                                                        <div className="vd-docDate">
+                                                                            {
+                                                                                d.tanggal
+                                                                            }
+                                                                            {d.fileCount >
+                                                                            1
+                                                                                ? ` • ${d.fileCount} Foto`
+                                                                                : ""}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+    
+                                                                <button
+                                                                    className="vd-eyeBtn"
+                                                                    type="button"
+                                                                    disabled={
+                                                                        !docBisaDibuka(
+                                                                            d,
+                                                                        )
+                                                                    }
+                                                                    title={
+                                                                        docBisaDibuka(
+                                                                            d,
+                                                                        )
+                                                                            ? "Lihat"
+                                                                            : "Belum ada berkas"
+                                                                    }
+                                                                    onClick={() =>
+                                                                        bukaDokumen(
+                                                                            d,
+                                                                            p.id_posbankum,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <FiEye />
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                             </div>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="vd-emptyCard">
+                                        <div className="vd-emptyIcon">
+                                            <FiFileText />
                                         </div>
-                                    );
-                                })
-                            ) : (
-                                <div className="vd-emptyCard">
-                                    <div className="vd-emptyIcon">
-                                        <FiFileText />
+                                        <h2>Tidak Ada Data Ditemukan</h2>
+                                        <p>
+                                            Tidak ada data posbankum yang sesuai
+                                            dengan filter yang dipilih.
+                                        </p>
                                     </div>
-                                    <h2>Tidak Ada Data Ditemukan</h2>
-                                    <p>
-                                        Tidak ada data posbankum yang sesuai
-                                        dengan filter yang dipilih.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        )}
 
                         <div className="vd-pagination">
                             <button

@@ -20,6 +20,7 @@ import { BsSliders2 } from "react-icons/bs";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems } from "../../utils/pagination";
+import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
 import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/semuaKasus.css";
 
@@ -387,6 +388,9 @@ export default function SemuaKasus({
     const [view, setView] = useState("list");
     const [showFilter, setShowFilter] = useState(false);
     const [page, setPage] = useState(1);
+    const [viewMode, setViewMode, tableRows, setTableRows] =
+        useViewMode("semua-kasus");
+    const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
     const [filters, setFilters] = useState({
         kategori: "Semua",
         status: "Semua",
@@ -520,11 +524,11 @@ export default function SemuaKasus({
         setPage(1);
     }, [filters, search]);
 
-    const totalPages = Math.max(1, Math.ceil(filteredCases.length / PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(filteredCases.length / pageSize));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
     const pagedCases = filteredCases.slice(
-        (pageClamped - 1) * PAGE_SIZE,
-        pageClamped * PAGE_SIZE,
+        (pageClamped - 1) * pageSize,
+        pageClamped * pageSize,
     );
 
     const applyFilters = () => {
@@ -753,37 +757,58 @@ export default function SemuaKasus({
                 ) : null}
             </div>
 
-            <div className="skResultText">
-                Menampilkan{" "}
-                <span className="skResultNumber">{pagedCases.length}</span> dari{" "}
-                <span className="skResultNumber">{filteredCases.length}</span>{" "}
-                kasus
+            <div className="vt-bar">
+                <div className="skResultText">
+                    Menampilkan{" "}
+                    <span className="skResultNumber">{rangeLabel(pageClamped, pageSize, filteredCases.length)}</span>{" "}
+                    dari{" "}
+                    <span className="skResultNumber">
+                        {filteredCases.length}
+                    </span>{" "}
+                    kasus
+                </div>
+                <ViewToggle
+                    value={viewMode}
+                    rows={tableRows}
+                    onRowsChange={(n) => {
+                        setTableRows(n);
+                        setPage(1);
+                    }}
+                    onChange={(mode) => {
+                        setViewMode(mode);
+                        setPage(1);
+                    }}
+                />
             </div>
 
-            <div className="skCardGrid">
-                {pagedCases.length ? (
-                    pagedCases.map((item) => (
-                        <CaseCard
-                            key={`${item.id}-${item.id_pengaduan}`}
-                            item={item}
-                            onDetail={openDetail}
-                        />
-                    ))
-                ) : (
-                    <div className="skEmptyCard">
-                        <div>
-                            <HiOutlineScale size={56} />
-                            <h2>Belum ada kasus</h2>
-                            <p>
-                                Data kasus belum tersedia atau tidak sesuai
-                                filter.
-                            </p>
+            {viewMode === "tabel" && pagedCases.length ? (
+                <CaseTable items={pagedCases} onDetail={openDetail} />
+            ) : (
+                <div className="skCardGrid">
+                    {pagedCases.length ? (
+                        pagedCases.map((item) => (
+                            <CaseCard
+                                key={`${item.id}-${item.id_pengaduan}`}
+                                item={item}
+                                onDetail={openDetail}
+                            />
+                        ))
+                    ) : (
+                        <div className="skEmptyCard">
+                            <div>
+                                <HiOutlineScale size={56} />
+                                <h2>Belum ada kasus</h2>
+                                <p>
+                                    Data kasus belum tersedia atau tidak sesuai
+                                    filter.
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
 
-            {filteredCases.length > PAGE_SIZE ? (
+            {filteredCases.length > pageSize ? (
                 <div className="skPagination" aria-label="Paginasi semua kasus">
                     <button
                         className="skPageArrow"
@@ -847,6 +872,72 @@ export default function SemuaKasus({
                     onReset={resetFilters}
                 />
             ) : null}
+        </div>
+    );
+}
+
+function CaseTable({ items, onDetail }) {
+    return (
+        <div className="vt-tableCard">
+            <table className="vt-table" style={{ "--vt-min": "1080px" }}>
+                <thead>
+                    <tr>
+                        <th className="vt-sticky">Judul Kasus</th>
+                        <th>No. Kasus</th>
+                        <th>Posbankum</th>
+                        <th>Pelapor</th>
+                        <th>Paralegal</th>
+                        <th>Status</th>
+                        <th>Prioritas</th>
+                        <th>Tanggal</th>
+                        <th className="vt-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items.map((item) => (
+                        <tr key={`${item.id}-${item.id_pengaduan}`}>
+                            <td className="vt-sticky">
+                                <span className="vt-title">{item.judul}</span>
+                                <span className="vt-sub">{item.kategori}</span>
+                            </td>
+                            <td className="vt-nowrap vt-muted">{item.id}</td>
+                            <td>
+                                {removePosbankumPrefix(item.posbankum) || "-"}
+                            </td>
+                            <td>{item.pelapor}</td>
+                            <td>{item.paralegal}</td>
+                            <td className="vt-nowrap">
+                                <span
+                                    className={`skStatusBadge skStatus${item.status}`}
+                                >
+                                    {getStatusIcon(item.status)} {item.status}
+                                </span>
+                            </td>
+                            <td className="vt-nowrap">
+                                <span
+                                    className={`skPriorityPill skPriority${item.prioritas}`}
+                                >
+                                    {item.prioritas}
+                                </span>
+                            </td>
+                            <td className="vt-nowrap">
+                                {formatShortDateID(item.tanggalLapor)}
+                            </td>
+                            <td className="vt-center">
+                                <button
+                                    className="vt-iconBtn"
+                                    type="button"
+                                    onClick={() => onDetail(item)}
+                                    aria-label={`Lihat detail ${item.judul}`}
+                                    title="Lihat detail"
+                                >
+                                    <FiEye />
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }

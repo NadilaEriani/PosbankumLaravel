@@ -23,6 +23,7 @@ import SuccessToast from "../../Components/ui/SuccessToast";
 import ReminderModal from "../../Components/ui/ReminderModal";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import { getPaginationItems } from "../../utils/pagination";
+import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
 import "../../../css/Admin/kelolaBerita.css";
 
 const OTHER_CATEGORY_OPTION = "Lainnya";
@@ -481,6 +482,9 @@ export default function KelolaBerita({
     });
     const [rangeError, setRangeError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [viewMode, setViewMode, tableRows, setTableRows] =
+        useViewMode("kelola-berita");
+    const pageSize = viewMode === "tabel" ? tableRows : BERITA_PAGE_SIZE;
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [statusUpdating, setStatusUpdating] = useState(false);
@@ -578,13 +582,13 @@ export default function KelolaBerita({
 
     const totalPages = Math.max(
         1,
-        Math.ceil(filteredItems.length / BERITA_PAGE_SIZE),
+        Math.ceil(filteredItems.length / pageSize),
     );
 
     const paginatedItems = useMemo(() => {
-        const startIndex = (currentPage - 1) * BERITA_PAGE_SIZE;
-        return filteredItems.slice(startIndex, startIndex + BERITA_PAGE_SIZE);
-    }, [filteredItems, currentPage]);
+        const startIndex = (currentPage - 1) * pageSize;
+        return filteredItems.slice(startIndex, startIndex + pageSize);
+    }, [filteredItems, currentPage, pageSize]);
 
     const paginationPages = useMemo(
         () => getPaginationItems(currentPage, totalPages),
@@ -1556,117 +1560,257 @@ export default function KelolaBerita({
                 </div>
             ) : (
                 <>
-                    <div className="kb-grid">
-                        {paginatedItems.map((item) => {
-                            const imagePath = pickBeritaImagePath(item);
-                            const imageUrl =
-                                item.imageUrl || assetUrl(imagePath);
-                            const isActive = item.status === "aktif";
+                    <div className="vt-bar">
+                        <div className="vt-count">
+                            Menampilkan <strong>{rangeLabel(currentPage, pageSize, filteredItems.length)}</strong>{" "}
+                            dari <strong>{filteredItems.length}</strong> berita
+                        </div>
+                        <ViewToggle
+                            value={viewMode}
+                            rows={tableRows}
+                            onRowsChange={(n) => {
+                                setTableRows(n);
+                                setCurrentPage(1);
+                            }}
+                            onChange={(mode) => {
+                                setViewMode(mode);
+                                setCurrentPage(1);
+                            }}
+                        />
+                    </div>
 
-                            return (
-                                <article
-                                    key={item.id_berita}
-                                    className={`kb-card ${
-                                        isActive ? "is-active" : "is-inactive"
-                                    }`}
-                                >
-                                    <div
-                                        className={`kb-cardMedia ${
-                                            !imageUrl ? "is-placeholder" : ""
+                    {viewMode === "tabel" ? (
+                        <div className="vt-tableCard">
+                            <table
+                                className="vt-table"
+                                style={{ "--vt-min": "860px" }}
+                            >
+                                <thead>
+                                    <tr>
+                                        <th className="vt-sticky">Judul</th>
+                                        <th>Tanggal Publish</th>
+                                        <th>Penulis</th>
+                                        <th>Status</th>
+                                        <th className="vt-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedItems.map((item) => {
+                                        const isActive =
+                                            item.status === "aktif";
+                                        const judul =
+                                            item.judul || "Tanpa Judul";
+
+                                        return (
+                                            <tr key={item.id_berita}>
+                                                <td className="vt-sticky">
+                                                    <span className="vt-title">
+                                                        {judul}
+                                                    </span>
+                                                    <span className="vt-sub">
+                                                        {item.kategori ||
+                                                            "Kegiatan"}
+                                                    </span>
+                                                </td>
+                                                <td className="vt-nowrap">
+                                                    {formatDateID(
+                                                        item.tgl_publish,
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    {item.authorName ||
+                                                        "Admin"}
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        className={`kb-statusBadge vt-pill ${
+                                                            isActive
+                                                                ? "is-active"
+                                                                : "is-inactive"
+                                                        }`}
+                                                    >
+                                                        {isActive
+                                                            ? "Aktif"
+                                                            : "Nonaktif"}
+                                                    </span>
+                                                </td>
+                                                <td className="vt-center">
+                                                    <div className="vt-actions">
+                                                        <button
+                                                            className="vt-iconBtn"
+                                                            type="button"
+                                                            onClick={() =>
+                                                                openDetail(item)
+                                                            }
+                                                            aria-label={`Lihat ${judul}`}
+                                                            title="Lihat"
+                                                        >
+                                                            <FiEye />
+                                                        </button>
+                                                        <button
+                                                            className="vt-iconBtn is-edit"
+                                                            type="button"
+                                                            onClick={() =>
+                                                                openEdit(item)
+                                                            }
+                                                            aria-label={`Edit ${judul}`}
+                                                            title="Edit"
+                                                        >
+                                                            <FiEdit />
+                                                        </button>
+                                                        <button
+                                                            className={`vt-iconBtn ${
+                                                                isActive
+                                                                    ? "is-danger"
+                                                                    : "is-ok"
+                                                            }`}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                openStatusConfirm(
+                                                                    item,
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                statusUpdating
+                                                            }
+                                                            aria-label={
+                                                                isActive
+                                                                    ? `Nonaktifkan ${judul}`
+                                                                    : `Aktifkan kembali ${judul}`
+                                                            }
+                                                            title={
+                                                                isActive
+                                                                    ? "Nonaktifkan berita"
+                                                                    : "Aktifkan kembali berita"
+                                                            }
+                                                        >
+                                                            {isActive ? (
+                                                                <AiOutlineMinusCircle />
+                                                            ) : (
+                                                                <HiOutlineCheckCircle />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="kb-grid">
+                            {paginatedItems.map((item) => {
+                                const imagePath = pickBeritaImagePath(item);
+                                const imageUrl =
+                                    item.imageUrl || assetUrl(imagePath);
+                                const isActive = item.status === "aktif";
+    
+                                return (
+                                    <article
+                                        key={item.id_berita}
+                                        className={`kb-card ${
+                                            isActive ? "is-active" : "is-inactive"
                                         }`}
-                                        style={
-                                            imageUrl
-                                                ? {
-                                                      backgroundImage: `url("${imageUrl}")`,
-                                                  }
-                                                : undefined
-                                        }
                                     >
-                                        <span
-                                            className={`kb-statusBadge ${
-                                                isActive
-                                                    ? "is-active"
-                                                    : "is-inactive"
+                                        <div
+                                            className={`kb-cardMedia ${
+                                                !imageUrl ? "is-placeholder" : ""
                                             }`}
+                                            style={
+                                                imageUrl
+                                                    ? {
+                                                          backgroundImage: `url("${imageUrl}")`,
+                                                      }
+                                                    : undefined
+                                            }
                                         >
-                                            {isActive ? "Aktif" : "Nonaktif"}
-                                        </span>
-
-                                        <span className="kb-badge">
-                                            {item.kategori || "Kegiatan"}
-                                        </span>
-                                    </div>
-
-                                    <div className="kb-cardBody">
-                                        <h3 className="kb-cardTitle">
-                                            {item.judul || "Tanpa Judul"}
-                                        </h3>
-                                        <p className="kb-cardText">
-                                            {excerptText(item.isi, 140)}
-                                        </p>
-
-                                        <div className="kb-cardMeta">
-                                            <span className="kb-metaItem">
-                                                <FiCalendar />
-                                                {formatDateID(item.tgl_publish)}
+                                            <span
+                                                className={`kb-statusBadge ${
+                                                    isActive
+                                                        ? "is-active"
+                                                        : "is-inactive"
+                                                }`}
+                                            >
+                                                {isActive ? "Aktif" : "Nonaktif"}
                                             </span>
-                                            <span className="kb-metaAuthor">
-                                                <FiUser />
-                                                {item.authorName || "Admin"}
+    
+                                            <span className="kb-badge">
+                                                {item.kategori || "Kegiatan"}
                                             </span>
                                         </div>
-                                    </div>
-
-                                    <div className="kb-cardActions">
-                                        <button
-                                            className="kb-btnView"
-                                            type="button"
-                                            onClick={() => openDetail(item)}
-                                        >
-                                            <FiEye />
-                                            Lihat
-                                        </button>
-                                        <button
-                                            className="kb-btnIcon is-edit"
-                                            type="button"
-                                            onClick={() => openEdit(item)}
-                                            aria-label="Edit berita"
-                                        >
-                                            <FiEdit />
-                                        </button>
-                                        <button
-                                            className={`kb-btnIcon is-status ${
-                                                isActive
-                                                    ? "is-disable"
-                                                    : "is-enable"
-                                            }`}
-                                            type="button"
-                                            onClick={() =>
-                                                openStatusConfirm(item)
-                                            }
-                                            disabled={statusUpdating}
-                                            aria-label={
-                                                isActive
-                                                    ? "Nonaktifkan berita"
-                                                    : "Aktifkan kembali berita"
-                                            }
-                                            title={
-                                                isActive
-                                                    ? "Nonaktifkan berita"
-                                                    : "Aktifkan kembali berita"
-                                            }
-                                        >
-                                            {isActive ? (
-                                                <AiOutlineMinusCircle />
-                                            ) : (
-                                                <HiOutlineCheckCircle />
-                                            )}
-                                        </button>
-                                    </div>
-                                </article>
-                            );
-                        })}
-                    </div>
+    
+                                        <div className="kb-cardBody">
+                                            <h3 className="kb-cardTitle">
+                                                {item.judul || "Tanpa Judul"}
+                                            </h3>
+                                            <p className="kb-cardText">
+                                                {excerptText(item.isi, 140)}
+                                            </p>
+    
+                                            <div className="kb-cardMeta">
+                                                <span className="kb-metaItem">
+                                                    <FiCalendar />
+                                                    {formatDateID(item.tgl_publish)}
+                                                </span>
+                                                <span className="kb-metaAuthor">
+                                                    <FiUser />
+                                                    {item.authorName || "Admin"}
+                                                </span>
+                                            </div>
+                                        </div>
+    
+                                        <div className="kb-cardActions">
+                                            <button
+                                                className="kb-btnView"
+                                                type="button"
+                                                onClick={() => openDetail(item)}
+                                            >
+                                                <FiEye />
+                                                Lihat
+                                            </button>
+                                            <button
+                                                className="kb-btnIcon is-edit"
+                                                type="button"
+                                                onClick={() => openEdit(item)}
+                                                aria-label="Edit berita"
+                                            >
+                                                <FiEdit />
+                                            </button>
+                                            <button
+                                                className={`kb-btnIcon is-status ${
+                                                    isActive
+                                                        ? "is-disable"
+                                                        : "is-enable"
+                                                }`}
+                                                type="button"
+                                                onClick={() =>
+                                                    openStatusConfirm(item)
+                                                }
+                                                disabled={statusUpdating}
+                                                aria-label={
+                                                    isActive
+                                                        ? "Nonaktifkan berita"
+                                                        : "Aktifkan kembali berita"
+                                                }
+                                                title={
+                                                    isActive
+                                                        ? "Nonaktifkan berita"
+                                                        : "Aktifkan kembali berita"
+                                                }
+                                            >
+                                                {isActive ? (
+                                                    <AiOutlineMinusCircle />
+                                                ) : (
+                                                    <HiOutlineCheckCircle />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {totalPages > 1 ? (
                         <nav

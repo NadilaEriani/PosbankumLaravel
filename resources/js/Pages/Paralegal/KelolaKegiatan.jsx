@@ -22,6 +22,7 @@ import SuccessToast from "../../Components/ui/SuccessToast";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import ReminderModal from "../../Components/ui/ReminderModal";
 import { getPaginationItems } from "../../utils/pagination";
+import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
 import "../../../css/Paralegal/kelolaKegiatan.css";
 
 const PAGE_SIZE = 6;
@@ -100,6 +101,10 @@ function pickFirst(obj, keys) {
     }
 
     return "";
+}
+
+function getLokasi(item) {
+    return pickFirst(item, ["lokasi", "tempat", "alamat", "location"]);
 }
 
 function parseListValue(value) {
@@ -363,6 +368,9 @@ export default function KelolaKegiatan({
     const [kegiatan, setKegiatan] = useState(() => kegiatanRows || []);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
+    const [viewMode, setViewMode, tableRows, setTableRows] =
+        useViewMode("kelola-kegiatan");
+    const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
     const [posName, setPosName] = useState("Posbankum");
 
     const [saving, setSaving] = useState(false);
@@ -541,11 +549,11 @@ export default function KelolaKegiatan({
         setPage(1);
     }, [search]);
 
-    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
     const pagedKegiatan = filtered.slice(
-        (pageClamped - 1) * PAGE_SIZE,
-        pageClamped * PAGE_SIZE,
+        (pageClamped - 1) * pageSize,
+        pageClamped * pageSize,
     );
 
     useEffect(() => {
@@ -1329,146 +1337,265 @@ export default function KelolaKegiatan({
                 <div className="kk-form-error">{formError}</div>
             ) : null}
 
-            <div className="kk-list">
-                {loading ? (
-                    <div className="kk-emptyCard is-loading">
-                        Memuat data kegiatan...
+            {!loading && filtered.length ? (
+                <div className="vt-bar">
+                    <div className="vt-count">
+                        Menampilkan <strong>{rangeLabel(pageClamped, pageSize, filtered.length)}</strong>{" "}
+                        dari <strong>{filtered.length}</strong> kegiatan
                     </div>
-                ) : filtered.length === 0 ? (
-                    <div className="kk-emptyCard">
-                        <div className="kk-emptyIcon">
-                            <FiFileText />
-                        </div>
-                        <h2>Tidak Ada Kegiatan Ditemukan</h2>
-                        <p>
-                            Tidak ada kegiatan yang sesuai dengan kata kunci
-                            pencarian.
-                        </p>
-                    </div>
-                ) : (
-                    pagedKegiatan.map((item) => {
-                        const id = getKegiatanId(item);
-                        const kind = statusKind(item.status);
-                        const pill = statusLabel(item.status);
-                        const thumbUrl = getThumbUrl(item);
-                        const lokasi = pickFirst(item, [
-                            "lokasi",
-                            "tempat",
-                            "alamat",
-                            "location",
-                        ]);
-                        const catatan = pickFirst(item, [
-                            "catatan",
-                            "catatan_admin",
-                            "note",
-                            "keterangan",
-                        ]);
-                        const isRejected = kind === "reject";
-                        const isAccepted = kind === "accept";
+                    <ViewToggle
+                        value={viewMode}
+                        rows={tableRows}
+                        onRowsChange={(n) => {
+                            setTableRows(n);
+                            setPage(1);
+                        }}
+                        onChange={(mode) => {
+                            setViewMode(mode);
+                            setPage(1);
+                        }}
+                    />
+                </div>
+            ) : null}
 
-                        return (
-                            <div className="kk-card" key={id}>
-                                <div
-                                    className="kk-media"
-                                    style={
-                                        thumbUrl
-                                            ? {
-                                                  backgroundImage: `url(${thumbUrl})`,
-                                              }
-                                            : undefined
-                                    }
-                                >
-                                    <span
-                                        className={`kk-statusPill is-${kind}`}
-                                    >
-                                        {isRejected ? <FiXCircle /> : null}
-                                        {pill}
-                                    </span>
-                                </div>
+            {viewMode === "tabel" && !loading && filtered.length ? (
+                <div className="vt-tableCard">
+                    <table
+                        className="vt-table"
+                        style={{ "--vt-min": "820px" }}
+                    >
+                        <thead>
+                            <tr>
+                                <th className="vt-sticky">Judul Kegiatan</th>
+                                <th>Tanggal</th>
+                                <th>Lokasi</th>
+                                <th>Status</th>
+                                <th className="vt-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {pagedKegiatan.map((item) => {
+                                const kind = statusKind(item.status);
+                                const isRejected = kind === "reject";
+                                const judul =
+                                    item.judul || item.nama_kegiatan || "-";
 
-                                <div className="kk-cardBody">
-                                    <div className="kk-judul">
-                                        {item.judul ||
-                                            item.nama_kegiatan ||
-                                            "-"}
-                                    </div>
-                                    <div className="kk-desc">
-                                        {formatShortText(
-                                            item.deskripsi || item.catatan,
-                                            128,
-                                        )}
-                                    </div>
-
-                                    {isRejected && catatan ? (
-                                        <div className="kk-rejectBox">
-                                            <div className="kk-rejectTitle">
-                                                Alasan Penolakan:
-                                            </div>
-                                            <div className="kk-rejectText">
-                                                {catatan}
-                                            </div>
-                                        </div>
-                                    ) : null}
-
-                                    <div className="kk-meta">
-                                        <span className="kk-metaItem">
-                                            <FiCalendar className="kk-ic kk-ic-cal" />
+                                return (
+                                    <tr key={getKegiatanId(item)}>
+                                        <td className="vt-sticky">
+                                            <span className="vt-title">
+                                                {judul}
+                                            </span>
+                                        </td>
+                                        <td className="vt-nowrap">
                                             {formatDate(
                                                 item.tgl_mulai ||
                                                     item.tgl_upload ||
                                                     item.created_at,
                                             )}
-                                        </span>
-
-                                        {lokasi ? (
-                                            <span className="kk-metaItem">
-                                                <FiMapPin className="kk-ic kk-ic-cal" />
-                                                {lokasi}
+                                        </td>
+                                        <td>
+                                            <span
+                                                className="vt-clamp"
+                                                title={getLokasi(item)}
+                                            >
+                                                {getLokasi(item) || "-"}
                                             </span>
+                                        </td>
+                                        <td>
+                                            <span
+                                                className={`kk-statusPill vt-pill is-${kind}`}
+                                            >
+                                                {isRejected ? (
+                                                    <FiXCircle />
+                                                ) : null}
+                                                {statusLabel(item.status)}
+                                            </span>
+                                        </td>
+                                        <td className="vt-center">
+                                            <div className="vt-actions">
+                                                <button
+                                                    className="vt-iconBtn"
+                                                    type="button"
+                                                    onClick={() =>
+                                                        openDetail(item)
+                                                    }
+                                                    aria-label={`Lihat ${judul}`}
+                                                    title="Lihat"
+                                                >
+                                                    <FiEye />
+                                                </button>
+                                                {kind !== "accept" ? (
+                                                    <button
+                                                        className="vt-iconBtn is-edit"
+                                                        type="button"
+                                                        onClick={() =>
+                                                            openEdit(item)
+                                                        }
+                                                        aria-label={`Edit ${judul}`}
+                                                        title="Edit"
+                                                    >
+                                                        <FiEdit />
+                                                    </button>
+                                                ) : null}
+                                                {isRejected ? (
+                                                    <button
+                                                        className="vt-iconBtn is-danger"
+                                                        type="button"
+                                                        onClick={() =>
+                                                            handleDelete(item)
+                                                        }
+                                                        aria-label={`Hapus ${judul}`}
+                                                        title="Hapus"
+                                                    >
+                                                        <FiTrash2 />
+                                                    </button>
+                                                ) : null}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="kk-list">
+                    {loading ? (
+                        <div className="kk-emptyCard is-loading">
+                            Memuat data kegiatan...
+                        </div>
+                    ) : filtered.length === 0 ? (
+                        <div className="kk-emptyCard">
+                            <div className="kk-emptyIcon">
+                                <FiFileText />
+                            </div>
+                            <h2>Tidak Ada Kegiatan Ditemukan</h2>
+                            <p>
+                                Tidak ada kegiatan yang sesuai dengan kata kunci
+                                pencarian.
+                            </p>
+                        </div>
+                    ) : (
+                        pagedKegiatan.map((item) => {
+                            const id = getKegiatanId(item);
+                            const kind = statusKind(item.status);
+                            const pill = statusLabel(item.status);
+                            const thumbUrl = getThumbUrl(item);
+                            const lokasi = getLokasi(item);
+                            const catatan = pickFirst(item, [
+                                "catatan",
+                                "catatan_admin",
+                                "note",
+                                "keterangan",
+                            ]);
+                            const isRejected = kind === "reject";
+                            const isAccepted = kind === "accept";
+    
+                            return (
+                                <div className="kk-card" key={id}>
+                                    <div
+                                        className="kk-media"
+                                        style={
+                                            thumbUrl
+                                                ? {
+                                                      backgroundImage: `url(${thumbUrl})`,
+                                                  }
+                                                : undefined
+                                        }
+                                    >
+                                        <span
+                                            className={`kk-statusPill is-${kind}`}
+                                        >
+                                            {isRejected ? <FiXCircle /> : null}
+                                            {pill}
+                                        </span>
+                                    </div>
+    
+                                    <div className="kk-cardBody">
+                                        <div className="kk-judul">
+                                            {item.judul ||
+                                                item.nama_kegiatan ||
+                                                "-"}
+                                        </div>
+                                        <div className="kk-desc">
+                                            {formatShortText(
+                                                item.deskripsi || item.catatan,
+                                                128,
+                                            )}
+                                        </div>
+    
+                                        {isRejected && catatan ? (
+                                            <div className="kk-rejectBox">
+                                                <div className="kk-rejectTitle">
+                                                    Alasan Penolakan:
+                                                </div>
+                                                <div className="kk-rejectText">
+                                                    {catatan}
+                                                </div>
+                                            </div>
+                                        ) : null}
+    
+                                        <div className="kk-meta">
+                                            <span className="kk-metaItem">
+                                                <FiCalendar className="kk-ic kk-ic-cal" />
+                                                {formatDate(
+                                                    item.tgl_mulai ||
+                                                        item.tgl_upload ||
+                                                        item.created_at,
+                                                )}
+                                            </span>
+    
+                                            {lokasi ? (
+                                                <span className="kk-metaItem">
+                                                    <FiMapPin className="kk-ic kk-ic-cal" />
+                                                    {lokasi}
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                    </div>
+    
+                                    <div className="kk-cardFooter">
+                                        <button
+                                            className="kk-btnView"
+                                            type="button"
+                                            onClick={() => openDetail(item)}
+                                            title="Lihat"
+                                        >
+                                            <FiEye />
+                                            {isRejected ? "Lihat Detail" : "Lihat"}
+                                        </button>
+    
+                                        {!isAccepted ? (
+                                            <button
+                                                className="kk-btnIcon is-orange"
+                                                type="button"
+                                                title="Edit"
+                                                onClick={() => openEdit(item)}
+                                            >
+                                                <FiEdit />
+                                            </button>
+                                        ) : null}
+    
+                                        {isRejected ? (
+                                            <button
+                                                className="kk-btnIcon is-red"
+                                                type="button"
+                                                title="Hapus"
+                                                onClick={() => handleDelete(item)}
+                                            >
+                                                <FiTrash2 />
+                                            </button>
                                         ) : null}
                                     </div>
                                 </div>
+                            );
+                        })
+                    )}
+                </div>
+            )}
 
-                                <div className="kk-cardFooter">
-                                    <button
-                                        className="kk-btnView"
-                                        type="button"
-                                        onClick={() => openDetail(item)}
-                                        title="Lihat"
-                                    >
-                                        <FiEye />
-                                        {isRejected ? "Lihat Detail" : "Lihat"}
-                                    </button>
-
-                                    {!isAccepted ? (
-                                        <button
-                                            className="kk-btnIcon is-orange"
-                                            type="button"
-                                            title="Edit"
-                                            onClick={() => openEdit(item)}
-                                        >
-                                            <FiEdit />
-                                        </button>
-                                    ) : null}
-
-                                    {isRejected ? (
-                                        <button
-                                            className="kk-btnIcon is-red"
-                                            type="button"
-                                            title="Hapus"
-                                            onClick={() => handleDelete(item)}
-                                        >
-                                            <FiTrash2 />
-                                        </button>
-                                    ) : null}
-                                </div>
-                            </div>
-                        );
-                    })
-                )}
-            </div>
-
-            {filtered.length > PAGE_SIZE ? (
+            {filtered.length > pageSize ? (
                 <div
                     className="kk-pagination"
                     aria-label="Paginasi kelola kegiatan"

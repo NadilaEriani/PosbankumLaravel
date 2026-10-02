@@ -22,6 +22,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems } from "../../utils/pagination";
+import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
 import "../../../css/Admin/laporanKegiatan.css";
 
 const PAGE_SIZE = 6;
@@ -878,6 +879,9 @@ export default function LaporanKegiatan({ rows = [] }) {
     const [debouncedQ, setDebouncedQ] = useState("");
     const [tab, setTab] = useState("all");
     const [page, setPage] = useState(1);
+    const [viewMode, setViewMode, tableRows, setTableRows] =
+        useViewMode("laporan-kegiatan");
+    const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
 
     const [timeFilter, setTimeFilter] = useState("all");
     const [timeFilterOpen, setTimeFilterOpen] = useState(false);
@@ -1072,13 +1076,13 @@ export default function LaporanKegiatan({ rows = [] }) {
         );
     }, [searchedTimeRows, tab]);
 
-    const totalPages = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
 
     const pageItems = useMemo(() => {
-        const start = (pageClamped - 1) * PAGE_SIZE;
-        return filteredRows.slice(start, start + PAGE_SIZE);
-    }, [filteredRows, pageClamped]);
+        const start = (pageClamped - 1) * pageSize;
+        return filteredRows.slice(start, start + pageSize);
+    }, [filteredRows, pageClamped, pageSize]);
 
     const chooseTimeFilter = (value) => {
         if (value === "range") {
@@ -1609,87 +1613,179 @@ export default function LaporanKegiatan({ rows = [] }) {
                     </div>
                 ) : (
                     <>
-                        <div className="rk-cardGrid">
-                            {pageItems.map((item) => {
-                                const thumbUrl = getThumbUrl(item);
-                                const rejected = isRejected(item.status);
+                        <div className="vt-bar">
+                            <div className="vt-count">
+                                Menampilkan <strong>{rangeLabel(pageClamped, pageSize, filteredRows.length)}</strong>{" "}
+                                dari <strong>{filteredRows.length}</strong>{" "}
+                                laporan kegiatan
+                            </div>
+                            <ViewToggle
+                                value={viewMode}
+                                rows={tableRows}
+                                onRowsChange={(n) => {
+                                    setTableRows(n);
+                                    setPage(1);
+                                }}
+                                onChange={(mode) => {
+                                    setViewMode(mode);
+                                    setPage(1);
+                                }}
+                            />
+                        </div>
 
-                                return (
-                                    <article
-                                        className="rk-activityCard"
-                                        key={item.id_kegiatan}
-                                    >
-                                        <div
-                                            className="rk-cardImage"
-                                            style={
-                                                thumbUrl
-                                                    ? {
-                                                          backgroundImage: `url(${thumbUrl})`,
-                                                      }
-                                                    : undefined
-                                            }
-                                        >
-                                            {renderStatusPill(
-                                                item.status,
-                                                "rk-cardStatus",
-                                            )}
-                                        </div>
-
-                                        <div className="rk-cardBody">
-                                            <h2 className="rk-cardTitle">
-                                                {safeText(item.judul)}
-                                            </h2>
-
-                                            <div className="rk-cardMeta">
-                                                <FiMapPin />
-                                                <span>
+                        {viewMode === "tabel" ? (
+                            <div className="vt-tableCard">
+                                <table
+                                    className="vt-table"
+                                    style={{ "--vt-min": "820px" }}
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th className="vt-sticky">
+                                                Judul Kegiatan
+                                            </th>
+                                            <th>Posbankum</th>
+                                            <th>Tanggal</th>
+                                            <th>Status</th>
+                                            <th className="vt-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {pageItems.map((item) => (
+                                            <tr key={item.id_kegiatan}>
+                                                <td className="vt-sticky">
+                                                    <span className="vt-title">
+                                                        {safeText(item.judul)}
+                                                    </span>
+                                                    {isRejected(item.status) &&
+                                                    item.catatan ? (
+                                                        <span className="vt-sub is-danger">
+                                                            Alasan:{" "}
+                                                            {item.catatan}
+                                                        </span>
+                                                    ) : null}
+                                                </td>
+                                                <td>
                                                     {selectedPosNameForRow(
                                                         item,
                                                     )}
-                                                </span>
-                                            </div>
-
-                                            <div className="rk-cardMeta">
-                                                <FiCalendar />
-                                                <span>
+                                                </td>
+                                                <td className="vt-nowrap">
                                                     {formatDate(
                                                         item.tgl_mulai ||
                                                             item.tgl_upload,
                                                     )}
-                                                </span>
-                                            </div>
-
-                                            {rejected && item.catatan ? (
-                                                <div className="rk-reasonBox">
-                                                    <div className="rk-reasonTitle">
-                                                        <AiOutlineCloseCircle />
-                                                        <span>
-                                                            Alasan Penolakan:
-                                                        </span>
-                                                    </div>
-                                                    <p>{item.catatan}</p>
-                                                </div>
-                                            ) : null}
-
-                                            <button
-                                                className="rk-detailBtn"
-                                                type="button"
-                                                onClick={() =>
-                                                    router.visit(
-                                                        kegiatanDetailUrl(
-                                                            item.id_kegiatan,
-                                                        ),
-                                                    )
+                                                </td>
+                                                <td>
+                                                    {renderStatusPill(
+                                                        item.status,
+                                                    )}
+                                                </td>
+                                                <td className="vt-center">
+                                                    <button
+                                                        className="vt-iconBtn"
+                                                        type="button"
+                                                        onClick={() =>
+                                                            router.visit(
+                                                                kegiatanDetailUrl(
+                                                                    item.id_kegiatan,
+                                                                ),
+                                                            )
+                                                        }
+                                                        aria-label={`Lihat detail ${safeText(item.judul)}`}
+                                                        title="Lihat detail"
+                                                    >
+                                                        <FiEye />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="rk-cardGrid">
+                                {pageItems.map((item) => {
+                                    const thumbUrl = getThumbUrl(item);
+                                    const rejected = isRejected(item.status);
+    
+                                    return (
+                                        <article
+                                            className="rk-activityCard"
+                                            key={item.id_kegiatan}
+                                        >
+                                            <div
+                                                className="rk-cardImage"
+                                                style={
+                                                    thumbUrl
+                                                        ? {
+                                                              backgroundImage: `url(${thumbUrl})`,
+                                                          }
+                                                        : undefined
                                                 }
                                             >
-                                                <FiEye />
-                                                <span>Lihat Detail</span>
-                                            </button>
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </div>
+                                                {renderStatusPill(
+                                                    item.status,
+                                                    "rk-cardStatus",
+                                                )}
+                                            </div>
+    
+                                            <div className="rk-cardBody">
+                                                <h2 className="rk-cardTitle">
+                                                    {safeText(item.judul)}
+                                                </h2>
+    
+                                                <div className="rk-cardMeta">
+                                                    <FiMapPin />
+                                                    <span>
+                                                        {selectedPosNameForRow(
+                                                            item,
+                                                        )}
+                                                    </span>
+                                                </div>
+    
+                                                <div className="rk-cardMeta">
+                                                    <FiCalendar />
+                                                    <span>
+                                                        {formatDate(
+                                                            item.tgl_mulai ||
+                                                                item.tgl_upload,
+                                                        )}
+                                                    </span>
+                                                </div>
+    
+                                                {rejected && item.catatan ? (
+                                                    <div className="rk-reasonBox">
+                                                        <div className="rk-reasonTitle">
+                                                            <AiOutlineCloseCircle />
+                                                            <span>
+                                                                Alasan Penolakan:
+                                                            </span>
+                                                        </div>
+                                                        <p>{item.catatan}</p>
+                                                    </div>
+                                                ) : null}
+    
+                                                <button
+                                                    className="rk-detailBtn"
+                                                    type="button"
+                                                    onClick={() =>
+                                                        router.visit(
+                                                            kegiatanDetailUrl(
+                                                                item.id_kegiatan,
+                                                            ),
+                                                        )
+                                                    }
+                                                >
+                                                    <FiEye />
+                                                    <span>Lihat Detail</span>
+                                                </button>
+                                            </div>
+                                        </article>
+                                    );
+                                })}
+                            </div>
+                        )}
 
                         {totalPages > 1 ? (
                             <div
