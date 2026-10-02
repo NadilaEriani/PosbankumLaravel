@@ -566,6 +566,16 @@ class LaporanPelayananController extends Controller
             abort(404);
         }
 
+        // Satu kasus satu paralegal (sama dengan API mobile): kasus milik paralegal lain
+        // tidak boleh diubah, kasus yang belum diambil dicatat atas nama paralegal ini.
+        $handler = $this->rowValue($row, ['id_paralegal'], '');
+        $authId = (string) $this->authUserId($request);
+        if ($handler !== '' && (string) $handler !== $authId) {
+            throw ValidationException::withMessages([
+                'status' => 'Kasus ini ditangani paralegal lain.',
+            ]);
+        }
+
         $oldCatatan = $this->parseCatatanAdmin($this->rowValue($row, ['catatan_admin'], '{}'));
         $request->merge([
             'prioritas' => $oldCatatan['prioritas'] ?? $this->rowValue($row, ['prioritas'], 'sedang'),
@@ -585,6 +595,9 @@ class LaporanPelayananController extends Controller
         ]);
 
         $payload = [];
+        if ($handler === '') {
+            $this->addColumn($payload, 'pengaduan', 'id_paralegal', $authId);
+        }
         $this->addColumn($payload, 'pengaduan', 'status', $validated['status']);
         $this->addColumn($payload, 'pengaduan', 'catatan_admin', $this->buildCatatanAdmin($request, $validated['status'], $oldCatatan));
         $this->addColumn($payload, 'pengaduan', 'updated_at', now());

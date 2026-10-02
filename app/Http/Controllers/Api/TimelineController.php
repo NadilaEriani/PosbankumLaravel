@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\AksesPengaduan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -8,8 +9,18 @@ use Illuminate\Support\Str;
 
 class TimelineController extends Controller
 {
-    public function index($id)
+    use AksesPengaduan;
+
+    public function index(Request $request, $id)
     {
+        $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
+        if (!$pengaduan) {
+            return $this->tolakAkses('Pengaduan tidak ditemukan', 404);
+        }
+        if (!$this->bisaLihatPengaduan($request->user(), $pengaduan)) {
+            return $this->tolakAkses();
+        }
+
         $data = DB::table('pengaduan_timeline')
             ->where('id_pengaduan', $id)
             ->orderBy('created_at', 'asc')
@@ -23,6 +34,16 @@ class TimelineController extends Controller
             'title'     => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
         ]);
+
+        // Progres kasus hanya ditulis paralegal yang menangani
+        $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
+        if (!$pengaduan) {
+            return $this->tolakAkses('Pengaduan tidak ditemukan', 404);
+        }
+        $user = $request->user();
+        if ($user->role !== 'paralegal' || !$this->menanganiPengaduan($user, $pengaduan)) {
+            return $this->tolakAkses('Hanya paralegal yang menangani kasus ini yang bisa menambah progres');
+        }
 
         $uuid = (string) Str::uuid();
 
@@ -38,7 +59,6 @@ class TimelineController extends Controller
         ]);
 
         // Kirim notifikasi ke Warga pelapor terkait update progres
-        $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
         if ($pengaduan && !empty($pengaduan->user_id)) {
             try {
                 $judulNotif = 'Update Progres Kasus';

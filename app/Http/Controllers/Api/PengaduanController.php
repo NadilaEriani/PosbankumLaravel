@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\AksesPengaduan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -8,6 +9,8 @@ use Illuminate\Support\Str;
 
 class PengaduanController extends Controller
 {
+    use AksesPengaduan;
+
     /**
      * Daftar pengaduan.
      * - Warga: hanya pengaduan miliknya (filter by user_id)
@@ -25,6 +28,7 @@ class PengaduanController extends Controller
                 ->leftJoin('users as u', 'u.id_user', '=', 'pengaduan.id_paralegal')
                 ->select([
                     'pengaduan.*',
+                    'u.nama_lengkap as nama_paralegal',
                     'u.foto_profile as foto_profile_lawan_bicara',
                     DB::raw("(SELECT isi_pesan FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message"),
                     DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time"),
@@ -221,7 +225,7 @@ class PengaduanController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $data = DB::table('pengaduan as p')
             ->leftJoin('users as u', 'u.id_user', '=', 'p.id_paralegal')
@@ -254,14 +258,22 @@ class PengaduanController extends Controller
         if (!$data) {
             return response()->json(['status' => false, 'message' => 'Tidak ditemukan', 'data' => null], 404);
         }
+        if (!$this->bisaLihatPengaduan($request->user(), $data)) {
+            return $this->tolakAkses();
+        }
         return response()->json(['status' => true, 'message' => 'Berhasil', 'data' => $data]);
     }
 
     /**
-     * Update status pengaduan oleh paralegal.
-     * - 'diproses': paralegal klaim kasus → id_paralegal diisi otomatis
-     * - 'selesai': tgl_selesai diisi
-     * - 'dibatalkan': catatan_internal wajib (alasan penolakan)
+     * Update status pengaduan (model "satu kasus, satu paralegal"):
+     * - Warga: hanya membatalkan pengaduannya sendiri selama masih 'menunggu'.
+     * - Paralegal, kasus 'menunggu': ambil ('diproses') atau tolak ('dibatalkan')
+     *   jika pelapor ada di wilayah posbankumnya. id_paralegal diisi di kedua kasus
+     *   agar tercatat siapa yang mengambil/menolak.
+     * - Paralegal, kasus 'diproses': hanya paralegal yang menangani yang bisa
+     *   menutup ('selesai' / 'dibatalkan').
+     * Update memakai syarat status lama, jadi bila dua paralegal mengambil kasus
+     * bersamaan hanya satu yang berhasil; yang lain mendapat 409.
      */
     public function updateStatus(Request $request, $id)
     {
@@ -276,9 +288,36 @@ class PengaduanController extends Controller
             'updated_at' => now(),
         ];
 
-        // Paralegal klaim kasus → isi id_paralegal dengan id_user paralegal
-        if ($request->status === 'diproses' && $user->role === 'paralegal') {
+        // Ambil data sebelum update untuk mendapatkan detail pelapor/kasus
+        $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
+        if (!$pengaduan) {
+            return $this->tolakAkses('Pengaduan tidak ditemukan', 404);
+        }
+
+        if ($user->role === 'warga') {
+            if ($pengaduan->user_id !== $user->id_user || $request->status !== 'dibatalkan') {
+                return $this->tolakAkses();
+            }
+            if ($pengaduan->status !== 'menunggu') {
+                return $this->tolakAkses('Pengaduan sudah diproses paralegal sehingga tidak bisa dibatalkan', 409);
+            }
+        } elseif ($user->role === 'paralegal' && $pengaduan->status === 'menunggu') {
+            if (!in_array($request->status, ['diproses', 'dibatalkan'], true)
+                || !$this->pengaduanDiWilayahParalegal($user, $pengaduan)) {
+                return $this->tolakAkses();
+            }
             $updateData['id_paralegal'] = $user->id_user;
+        } elseif ($user->role === 'paralegal' && $pengaduan->status === 'diproses') {
+            if ($pengaduan->id_paralegal !== $user->id_user) {
+                return $this->tolakAkses('Kasus ini sudah diambil paralegal lain', 409);
+            }
+            if (!in_array($request->status, ['selesai', 'dibatalkan'], true)) {
+                return $this->tolakAkses();
+            }
+        } elseif ($user->role === 'paralegal') {
+            return $this->tolakAkses('Kasus sudah ditutup dan tidak bisa diubah lagi', 409);
+        } else {
+            return $this->tolakAkses();
         }
 
         if ($request->status === 'selesai') {
@@ -289,10 +328,14 @@ class PengaduanController extends Controller
             $updateData['catatan_internal'] = $request->catatan_internal;
         }
 
-        // Ambil data sebelum update untuk mendapatkan detail pelapor/kasus
-        $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
+        $berubah = DB::table('pengaduan')
+            ->where('id_pengaduan', $id)
+            ->where('status', $pengaduan->status)
+            ->update($updateData);
 
-        DB::table('pengaduan')->where('id_pengaduan', $id)->update($updateData);
+        if ($berubah === 0) {
+            return $this->tolakAkses('Kasus ini sudah diambil atau diubah oleh pengguna lain. Muat ulang halaman.', 409);
+        }
 
         // Kirim notifikasi ke warga terkait update status kasus
         if ($pengaduan) {

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\AksesPengaduan;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +10,8 @@ use Illuminate\Support\Str;
 
 class UploadController extends Controller
 {
+    use AksesPengaduan;
+
     /**
      * Mengunggah foto profil ke disk public (storage/profiles/) 
      * dan memperbarui foto_profile pada user yang sedang aktif.
@@ -49,8 +52,16 @@ class UploadController extends Controller
         ], 400);
     }
 
-    public function getLampiran($id)
+    public function getLampiran(Request $request, $id)
     {
+        $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id)->first();
+        if (!$pengaduan) {
+            return $this->tolakAkses('Pengaduan tidak ditemukan', 404);
+        }
+        if (!$this->bisaLihatPengaduan($request->user(), $pengaduan)) {
+            return $this->tolakAkses();
+        }
+
         $data = DB::table('pengaduan_lampiran')
             ->where('id_pengaduan', $id)
             ->orderBy('created_at', 'asc')
@@ -91,6 +102,10 @@ class UploadController extends Controller
                 'status' => false,
                 'message' => 'Pengaduan tidak ditemukan'
             ], 404);
+        }
+        // Lampiran hanya diunggah pelapor atau paralegal yang menangani
+        if (!$this->menanganiPengaduan($request->user(), $pengaduan)) {
+            return $this->tolakAkses();
         }
 
         if ($request->hasFile('file')) {
@@ -159,37 +174,7 @@ class UploadController extends Controller
         }
 
         // 3. Pengecekan Otorisasi Berdasarkan Role
-        $isAuthorized = false;
-
-        if ($user->role === 'admin') {
-            $isAuthorized = true;
-        } elseif ($user->role === 'warga') {
-            // Warga hanya boleh akses lampiran aduannya sendiri
-            if ($user->id_user === $pengaduan->user_id) {
-                $isAuthorized = true;
-            }
-        } elseif ($user->role === 'paralegal') {
-            // Paralegal hanya boleh akses lampiran aduan yang kelurahan pembuatnya
-            // sama dengan kelurahan posbankum tempat dia bertugas
-            $id_kelurahan_posbankum = DB::table('posbankum_paralegal as pp')
-                ->join('posbankum as pos', 'pos.id_posbankum', '=', 'pp.id_posbankum')
-                ->where('pp.id_user', $user->id_user)
-                ->where('pp.status', 'aktif')
-                ->orderBy('pp.is_primary', 'desc')
-                ->value('pos.id_kelurahan');
-
-            if ($id_kelurahan_posbankum) {
-                $pelapor = DB::table('masyarakat')
-                    ->where('id_user', $pengaduan->user_id)
-                    ->first();
-                
-                if ($pelapor && $pelapor->id_kelurahan === $id_kelurahan_posbankum) {
-                    $isAuthorized = true;
-                }
-            }
-        }
-
-        if (!$isAuthorized) {
+        if (!$this->bisaLihatPengaduan($user, $pengaduan)) {
             return response()->json(['status' => false, 'message' => 'Anda tidak memiliki hak akses untuk dokumen ini'], 403);
         }
 
