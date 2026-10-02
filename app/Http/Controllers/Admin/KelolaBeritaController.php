@@ -275,7 +275,7 @@ class KelolaBeritaController extends Controller
 
     private function storeImage($file): string
     {
-        $extension = strtolower($file->getClientOriginalExtension());
+        $extension = $file->extension(); // ekstensi dari isi file, bukan nama kiriman
         $filename = Str::uuid()->toString() . '.' . $extension;
 
         return $file->storeAs('berita', $filename, 'public');

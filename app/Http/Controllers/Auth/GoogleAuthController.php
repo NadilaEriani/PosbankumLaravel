@@ -105,6 +105,15 @@ class GoogleAuthController extends Controller
             }
         }
 
+        // Web hanya untuk admin & paralegal; warga memakai aplikasi mobile
+        if (!in_array(strtolower(trim((string) $user->role)), ['admin', 'paralegal', 'posbankum'], true)) {
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'email' => 'Akun warga hanya bisa login di aplikasi mobile SIBAPAK.',
+                ]);
+        }
+
         /*
          * false agar Laravel tidak mencoba mengisi remember_token.
          * Tabel users tuan sebelumnya tidak punya kolom remember_token.

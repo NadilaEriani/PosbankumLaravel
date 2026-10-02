@@ -378,7 +378,7 @@ class LaporanPelayananController extends Controller
             }
 
             $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-            $extension = strtolower($file->getClientOriginalExtension() ?: 'bin');
+            $extension = $file->extension() ?: 'bin'; // ekstensi dari isi file, bukan nama kiriman
             $filename = now()->format('YmdHis') . '-' . Str::random(10) . '-' . ($safeName ?: 'lampiran') . '.' . $extension;
             $path = $file->storeAs('laporan-pelayanan/' . $idPengaduan, $filename, 'public');
 

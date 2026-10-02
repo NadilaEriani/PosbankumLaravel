@@ -69,6 +69,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Web hanya untuk admin & paralegal; warga memakai aplikasi mobile
+        if (!in_array(strtolower(trim((string) $user->role)), ['admin', 'paralegal', 'posbankum'], true)) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun warga hanya bisa login di aplikasi mobile SIBAPAK.',
+            ]);
+        }
+
         Auth::login($user, false);
 
         RateLimiter::clear($this->throttleKey());

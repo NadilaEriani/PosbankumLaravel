@@ -273,7 +273,7 @@ class KelolaPosbankumController extends Controller
 
         try {
             foreach ($files as $file) {
-                $extension = strtolower($file->getClientOriginalExtension() ?: 'pdf');
+                $extension = $file->extension() ?: 'pdf'; // ekstensi dari isi file, bukan nama kiriman
                 $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
                 $filename = now()->format('YmdHis') . '-' . Str::random(8) . '-' . ($safeName ?: Str::uuid()->toString()) . '.' . $extension;
                 $folder = 'posbankum-docs/' . preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $idPosbankum) . '/' . $kategori;

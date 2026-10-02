@@ -194,7 +194,7 @@ class KelolaKegiatanController extends Controller
         }
 
         $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $extension = $file->extension() ?: 'jpg'; // ekstensi dari isi file, bukan nama kiriman
         $filename = now()->format('YmdHis') . '-' . Str::random(10) . '-' . ($safeName ?: 'kegiatan') . '.' . $extension;
 
         return $file->storeAs(

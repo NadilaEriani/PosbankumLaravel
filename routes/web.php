@@ -481,7 +481,8 @@ $streamPublicFile = static function (Request $request, ?string $path = null) {
     ]);
 };
 
-Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
+// role.area: /admin* hanya admin, /paralegal* & /posbankum hanya paralegal (lihat EnsureRoleForArea)
+Route::middleware(['auth', 'role.area'])->group(function () use ($streamPublicFile) {
     Route::get('/file-preview', $streamPublicFile)->name('file.preview');
 
     Route::get('/storage/{path}', $streamPublicFile)
@@ -680,7 +681,7 @@ Route::middleware(['auth'])->group(function () use ($streamPublicFile) {
 
         if ($request->hasFile('foto_profile') && Schema::hasColumn('users', 'foto_profile')) {
             $file = $request->file('foto_profile');
-            $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+            $extension = $file->extension() ?: 'jpg'; // ekstensi dari isi file, bukan nama kiriman
             $filename = Str::uuid()->toString() . '.' . $extension;
             $folder = 'profile-photos/admin/' . preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $userKey);
 

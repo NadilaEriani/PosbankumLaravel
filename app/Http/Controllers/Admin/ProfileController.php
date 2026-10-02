@@ -289,7 +289,7 @@ class ProfileController extends Controller
     private function storeProfilePhoto(Request $request, mixed $userKey): string
     {
         $file = $request->file('foto_profile');
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $extension = $file->extension() ?: 'jpg'; // ekstensi dari isi file, bukan nama kiriman
         $filename = Str::uuid()->toString() . '.' . $extension;
         $folder = 'profile-photos/admin/' . preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $userKey);
 
