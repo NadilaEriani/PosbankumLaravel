@@ -15,13 +15,23 @@ class AuthController extends Controller
     {
         $request->validate(['id_token' => 'required|string']);
 
-        $response = Http::get("https://oauth2.googleapis.com/tokeninfo?id_token=" . $request->id_token);
+        $response = Http::get('https://oauth2.googleapis.com/tokeninfo', ['id_token' => $request->id_token]);
         
         if ($response->failed()) {
             return response()->json(['status' => false, 'message' => 'Token Google tidak valid'], 401);
         }
 
         $googleData = $response->json();
+
+        // tokeninfo hanya memastikan tanda tangan Google. Token harus juga dibuat untuk
+        // aplikasi kita (aud) dan emailnya terverifikasi, kalau tidak token dari aplikasi
+        // lain bisa dipakai login sebagai pemilik email tersebut.
+        $allowedAud = array_filter(array_map('trim', explode(',', (string) config('services.google.mobile_client_id'))));
+        $emailVerified = filter_var($googleData['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        if (!in_array($googleData['aud'] ?? '', $allowedAud, true) || !$emailVerified || empty($googleData['email'])) {
+            return response()->json(['status' => false, 'message' => 'Token Google tidak valid'], 401);
+        }
+
         $email = $googleData['email'];
         $googleId = $googleData['sub'];
 
@@ -55,6 +65,9 @@ class AuthController extends Controller
                     ]
                 );
             } else {
+                if (!$this->akunAktif($user)) {
+                    return $this->akunNonaktifResponse();
+                }
                 $user->update(['google_id' => $googleId]);
             }
 
@@ -125,6 +138,10 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => 'Email atau password salah'], 401);
         }
 
+        if (!$this->akunAktif($user)) {
+            return $this->akunNonaktifResponse();
+        }
+
         $token = $user->createToken('flutter-app')->plainTextToken;
 
         return response()->json([
@@ -135,6 +152,18 @@ class AuthController extends Controller
                 'user'  => $this->formatUserResponse($user)
             ]
         ]);
+    }
+
+    // Sama dengan aturan login web & middleware EnsureUserAktif: status kosong dianggap aktif
+    private function akunAktif($user): bool
+    {
+        $status = strtolower(trim((string) $user->status));
+        return $status === '' || in_array($status, ['aktif', 'active'], true);
+    }
+
+    private function akunNonaktifResponse()
+    {
+        return response()->json(['status' => false, 'message' => 'Akun ini sedang dinonaktifkan. Hubungi admin.'], 403);
     }
 
     /**

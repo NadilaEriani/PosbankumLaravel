@@ -90,7 +90,8 @@ class KegiatanController extends Controller
         if (!$file || !$file->isValid()) return null;
 
         $safeName  = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        // Ekstensi dari isi file, bukan dari nama kiriman klien (cegah .php/.html di disk public)
+        $extension = $file->extension() ?: 'jpg';
         $filename  = now()->format('YmdHis') . '-' . Str::random(10) . '-' . ($safeName ?: 'kegiatan') . '.' . $extension;
 
         $storedPath = $file->storeAs(
@@ -195,6 +196,29 @@ class KegiatanController extends Controller
         return $payload;
     }
 
+    // Edit dari mobile mengirim thumbnail_path berisi URL lama (teks) bila foto tidak diganti,
+    // jadi aturan gambar hanya berlaku saat yang dikirim berupa file.
+    private function aturanThumbnail(Request $request, string $key): string
+    {
+        return $request->hasFile($key) ? 'image|mimes:jpg,jpeg,png,webp|max:5120' : 'nullable';
+    }
+
+    // Kegiatan hanya urusan paralegal; null = boleh, selain itu response penolakan
+    private function tolakSelainParalegal(Request $request)
+    {
+        if ($request->user()?->role !== 'paralegal') {
+            return response()->json(['status' => false, 'message' => 'Hanya paralegal yang bisa mengakses kegiatan'], 403);
+        }
+        return null;
+    }
+
+    // Kegiatan hanya boleh dibuka/diubah paralegal dari posbankum pemiliknya
+    private function bukanPosbankumSaya(Request $request, object $row): bool
+    {
+        $milik = $row->id_posbankum ?? null;
+        return $milik !== null && (string) $milik !== (string) $this->resolveUserPosbankumId($request->user());
+    }
+
     // =========================================================================
     // API ENDPOINTS
     // =========================================================================
@@ -205,12 +229,18 @@ class KegiatanController extends Controller
      */
     public function index(Request $request)
     {
+        if ($tolak = $this->tolakSelainParalegal($request)) {
+            return $tolak;
+        }
+
         $query = DB::table('kegiatan');
 
-        // Filter hanya kegiatan milik posbankum paralegal yang login (jika ada)
+        // Hanya kegiatan milik posbankum paralegal yang login; tanpa posbankum = daftar kosong
         $idPosbankum = $this->resolveUserPosbankumId($request->user());
-        if ($idPosbankum && Schema::hasColumn('kegiatan', 'id_posbankum')) {
-            $query->where('id_posbankum', $idPosbankum);
+        if (Schema::hasColumn('kegiatan', 'id_posbankum')) {
+            $idPosbankum
+                ? $query->where('id_posbankum', $idPosbankum)
+                : $query->whereRaw('1 = 0');
         }
 
         // Tentukan kolom sort yang tersedia
@@ -230,12 +260,16 @@ class KegiatanController extends Controller
      * GET /api/kegiatan/{id}
      * Detail kegiatan berdasarkan UUID.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
+        if ($tolak = $this->tolakSelainParalegal($request)) {
+            return $tolak;
+        }
+
         $keyColumn = $this->kegiatanKeyColumn();
         $data = DB::table('kegiatan')->where($keyColumn, $id)->first();
 
-        if (!$data) {
+        if (!$data || $this->bukanPosbankumSaya($request, $data)) {
             return response()->json([
                 'status'  => false,
                 'message' => 'Kegiatan tidak ditemukan',
@@ -255,6 +289,10 @@ class KegiatanController extends Controller
      */
     public function store(Request $request)
     {
+        if ($tolak = $this->tolakSelainParalegal($request)) {
+            return $tolak;
+        }
+
         $request->validate([
             'judul'            => 'required|string|max:255',
             'deskripsi'        => 'nullable|string',
@@ -262,6 +300,8 @@ class KegiatanController extends Controller
             'lokasi'           => 'required|string|max:255',
             'jumlah_peserta'   => 'nullable|integer|min:0',
             'anggota_terlibat' => 'nullable',
+            'thumbnail'        => $this->aturanThumbnail($request, 'thumbnail'),
+            'thumbnail_path'   => $this->aturanThumbnail($request, 'thumbnail_path'),
         ]);
 
         $idPosbankum   = $this->resolveUserPosbankumId($request->user());
@@ -290,6 +330,10 @@ class KegiatanController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if ($tolak = $this->tolakSelainParalegal($request)) {
+            return $tolak;
+        }
+
         $request->validate([
             'judul'            => 'required|string|max:255',
             'deskripsi'        => 'nullable|string',
@@ -297,12 +341,14 @@ class KegiatanController extends Controller
             'lokasi'           => 'required|string|max:255',
             'jumlah_peserta'   => 'nullable|integer|min:0',
             'anggota_terlibat' => 'nullable',
+            'thumbnail'        => $this->aturanThumbnail($request, 'thumbnail'),
+            'thumbnail_path'   => $this->aturanThumbnail($request, 'thumbnail_path'),
         ]);
 
         $keyColumn = $this->kegiatanKeyColumn();
         $row       = DB::table('kegiatan')->where($keyColumn, $id)->first();
 
-        if (!$row) {
+        if (!$row || $this->bukanPosbankumSaya($request, $row)) {
             return response()->json([
                 'status'  => false,
                 'message' => 'Kegiatan tidak ditemukan',

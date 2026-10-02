@@ -20,7 +20,6 @@ class PosbankumController extends Controller
                 'p.nama',
                 'p.alamat',
                 'p.nomor_tlp',
-                'p.email_akun',
                 'p.latitude',
                 'p.longitude',
                 'p.gambar',
@@ -60,8 +59,17 @@ class PosbankumController extends Controller
             ->leftJoin('kelurahan as k', 'p.id_kelurahan', '=', 'k.id_kelurahan')
             ->leftJoin('kecamatan as kc', 'k.id_kecamatan', '=', 'kc.id_kecamatan')
             ->leftJoin('kabupaten as kb', 'kc.id_kabupaten', '=', 'kb.id_kabupaten')
+            // Kolom eksplisit: jangan pakai p.* (ada kolom lama email_akun/password_akun)
             ->select(
-                'p.*',
+                'p.id_posbankum',
+                'p.id_kelurahan',
+                'p.nama',
+                'p.alamat',
+                'p.kode_pos',
+                'p.nomor_tlp',
+                'p.latitude',
+                'p.longitude',
+                'p.gambar',
                 'k.nama as kelurahan',
                 'kc.nama as kecamatan',
                 'kb.nama as kabupaten'

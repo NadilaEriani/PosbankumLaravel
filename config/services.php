@@ -33,6 +33,9 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL') . '/auth/google/callback'),
+        // Client ID (publik, bukan rahasia) yang dipakai aplikasi mobile sebagai serverClientId.
+        // id_token login Google mobile wajib ber-aud salah satu ID ini (pisahkan dengan koma).
+        'mobile_client_id' => env('GOOGLE_MOBILE_CLIENT_ID', '544639004251-hpijg9mt4k9eqmj4hqetcae06ga64ooc.apps.googleusercontent.com'),
     ],
 
     'slack' => [

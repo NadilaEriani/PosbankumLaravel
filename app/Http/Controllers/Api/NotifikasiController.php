@@ -7,7 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class NotifikasiController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Notifikasi milik user yang login:
+     * - Paralegal: notifikasi posbankum tempat bertugas + yang ditujukan langsung
+     * - Warga: hanya yang ditujukan ke id_user_penerima
+     */
+    private function milikUser(Request $request)
     {
         $user = $request->user();
         $query = DB::table('notifikasi')->where('kategori', '!=', 'dokumen');
@@ -29,7 +34,12 @@ class NotifikasiController extends Controller
             $query->where('id_user_penerima', $userId);
         }
 
-        $data = $query->orderBy('created_at', 'desc')->get();
+        return $query;
+    }
+
+    public function index(Request $request)
+    {
+        $data = $this->milikUser($request)->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'status'  => true,
@@ -38,9 +48,10 @@ class NotifikasiController extends Controller
         ]);
     }
 
-    public function markRead($id)
+    public function markRead(Request $request, $id)
     {
-        DB::table('notifikasi')
+        // Hanya notifikasi milik user sendiri yang bisa ditandai dibaca
+        $this->milikUser($request)
             ->where('id_notifikasi', $id)
             ->update([
                 'is_read' => 1,
@@ -56,27 +67,7 @@ class NotifikasiController extends Controller
 
     public function unreadCount(Request $request)
     {
-        $user = $request->user();
-        $query = DB::table('notifikasi')->where('is_read', 0)->where('kategori', '!=', 'dokumen');
-
-        if ($user->role === 'paralegal') {
-            $idPosbankum = DB::table('posbankum_paralegal')
-                ->where('id_user', $user->id_user)
-                ->where('status', 'aktif')
-                ->value('id_posbankum');
-
-            $query->where(function ($q) use ($idPosbankum, $user) {
-                if ($idPosbankum) {
-                    $q->where('id_posbankum', $idPosbankum);
-                }
-                $q->orWhere('id_user_penerima', $user->id_user);
-            });
-        } else {
-            $userId = $user->id_user ?? $user->id;
-            $query->where('id_user_penerima', $userId);
-        }
-
-        $count = $query->count();
+        $count = $this->milikUser($request)->where('is_read', 0)->count();
 
         return response()->json([
             'status'  => true,
@@ -89,27 +80,7 @@ class NotifikasiController extends Controller
 
     public function markAllRead(Request $request)
     {
-        $user = $request->user();
-        $query = DB::table('notifikasi')->where('is_read', 0)->where('kategori', '!=', 'dokumen');
-
-        if ($user->role === 'paralegal') {
-            $idPosbankum = DB::table('posbankum_paralegal')
-                ->where('id_user', $user->id_user)
-                ->where('status', 'aktif')
-                ->value('id_posbankum');
-
-            $query->where(function ($q) use ($idPosbankum, $user) {
-                if ($idPosbankum) {
-                    $q->where('id_posbankum', $idPosbankum);
-                }
-                $q->orWhere('id_user_penerima', $user->id_user);
-            });
-        } else {
-            $userId = $user->id_user ?? $user->id;
-            $query->where('id_user_penerima', $userId);
-        }
-
-        $query->update([
+        $this->milikUser($request)->where('is_read', 0)->update([
             'is_read' => 1,
             'read_at' => now(),
         ]);

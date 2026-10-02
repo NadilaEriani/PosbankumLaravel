@@ -119,7 +119,8 @@ class ProfileController extends Controller
         $request->validate([
             'nama_lengkap'  => 'required|string|max:255',
             'nomor_telepon' => 'nullable|string|max:30',
-            'foto_profile'  => 'nullable|string',
+            // Hanya URL http(s) (hasil /upload/foto-profil atau foto Google), bukan skema lain
+            'foto_profile'  => 'nullable|string|max:2048|starts_with:http://,https://',
             // Validasi field warga (masyarakat)
             'nik'           => 'nullable|string|max:30',
             'alamat'        => 'nullable|string',

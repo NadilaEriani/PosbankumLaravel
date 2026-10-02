@@ -49,18 +49,19 @@ use App\Http\Controllers\Api\UploadController;
 
 // Auth: Google OAuth — Flutter kirim id_token dari package google_sign_in
 // Backend verifikasi via Laravel Socialite, return Sanctum token
-Route::post('/auth/google/callback', [AuthController::class, 'googleCallback']);
+// Rate limiter 'login' & 'register' didefinisikan di AppServiceProvider (anti brute force)
+Route::post('/auth/google/callback', [AuthController::class, 'googleCallback'])->middleware('throttle:login');
 
 // Auth: login & register manual (email + password)
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login',    [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:register');
+Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:login');
 
 
 
 // Posbankum — publik agar warga bisa lihat & pilih posbankum sebelum login
 // GET /api/posbankum?search=...&id_kabupaten=...&id_kecamatan=...
+// Detail (berisi kontak paralegal) ada di grup PROTECTED di bawah.
 Route::get('/posbankum',      [PosbankumController::class, 'index']);
-Route::get('/posbankum/{id}', [PosbankumController::class, 'show']); // termasuk daftar paralegal aktif
 
 // Wilayah — publik untuk dropdown saat register & input pengaduan
 // Relasi: kabupaten -> kecamatan (?id_kabupaten=) -> kelurahan (?id_kecamatan=)
@@ -71,10 +72,14 @@ Route::get('/wilayah/kelurahan', [WilayahController::class, 'kelurahan']); // ?i
 // =========================================================================
 // PROTECTED — wajib Bearer Token (Authorization: Bearer <token>)
 // =========================================================================
-Route::middleware('auth:sanctum')->group(function () {
+// aktif: akun nonaktif ditolak (401) & tokennya dicabut; throttle:api = batas request per user
+Route::middleware(['auth:sanctum', 'aktif', 'throttle:api'])->group(function () {
 
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Detail posbankum + daftar paralegal aktif (dipakai halaman kegiatan paralegal)
+    Route::get('/posbankum/{id}', [PosbankumController::class, 'show']);
 
 
 

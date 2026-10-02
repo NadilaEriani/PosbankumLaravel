@@ -50,7 +50,9 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Menit. Kosong = tidak kedaluwarsa. Aktifkan (mis. 43200 = 30 hari) lewat .env
+    // setelah APK yang menangani 401 (kembali ke login) sudah dipakai semua pengguna.
+    'expiration' => env('SANCTUM_EXPIRATION') ? (int) env('SANCTUM_EXPIRATION') : null,
 
     /*
     |--------------------------------------------------------------------------

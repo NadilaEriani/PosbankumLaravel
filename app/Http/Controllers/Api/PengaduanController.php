@@ -32,8 +32,8 @@ class PengaduanController extends Controller
                     'u.foto_profile as foto_profile_lawan_bicara',
                     DB::raw("(SELECT isi_pesan FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message"),
                     DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time"),
-                    DB::raw("(SELECT COUNT(*) FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan AND chat_pesan.is_read = 0 AND chat_pesan.pengirim_id != '$user->id_user') as unread_count")
                 ])
+                ->selectRaw("(SELECT COUNT(*) FROM chat_pesan WHERE chat_pesan.id_pengaduan = pengaduan.id_pengaduan AND chat_pesan.is_read = 0 AND chat_pesan.pengirim_id != ?) as unread_count", [$user->id_user])
                 ->where('pengaduan.user_id', $user->id_user)
                 ->orderBy('pengaduan.created_at', 'desc');
 
@@ -57,7 +57,6 @@ class PengaduanController extends Controller
                         'uw.foto_profile as foto_profile_lawan_bicara',
                         DB::raw("(SELECT isi_pesan FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message"),
                         DB::raw("(SELECT created_at FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan ORDER BY created_at DESC LIMIT 1) as last_message_time"),
-                        DB::raw("(SELECT COUNT(*) FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan AND chat_pesan.is_read = 0 AND chat_pesan.pengirim_id != '$user->id_user') as unread_count"),
                         DB::raw("
                             (
                                 CASE p.status
@@ -86,6 +85,7 @@ class PengaduanController extends Controller
                             ) AS priority_score
                         ")
                     ])
+                    ->selectRaw("(SELECT COUNT(*) FROM chat_pesan WHERE chat_pesan.id_pengaduan = p.id_pengaduan AND chat_pesan.is_read = 0 AND chat_pesan.pengirim_id != ?) as unread_count", [$user->id_user])
                     ->orderBy('priority_score', 'desc');
             }
         }
@@ -117,6 +117,11 @@ class PengaduanController extends Controller
      */
     public function store(Request $request)
     {
+        // Pengaduan diajukan warga; laporan dari paralegal lewat web (laporan pelayanan)
+        if ($request->user()->role !== 'warga') {
+            return $this->tolakAkses('Hanya warga yang dapat membuat pengaduan');
+        }
+
         $request->validate([
             'nomor_pengaduan' => 'required|string|unique:pengaduan,nomor_pengaduan',
             'nama_pelapor' => 'required|string',
