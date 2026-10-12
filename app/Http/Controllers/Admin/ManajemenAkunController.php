@@ -378,13 +378,18 @@ class ManajemenAkunController extends Controller
             ]);
         }
 
-        // Akun sudah tersimpan: gagal menandai Sheet tidak boleh membatalkannya.
+        // Akun sudah tersimpan: Sheet ditandai setelah jawaban terkirim supaya
+        // admin tidak menunggu Apps Script, dan gagal menandai tidak membatalkan akun.
         if (!empty($data['no_registrasi'])) {
-            try {
-                PendaftaranParalegalService::tandai($data['no_registrasi'], 'Disetujui');
-            } catch (\Throwable $e) {
-                report($e);
-            }
+            $noRegistrasi = $data['no_registrasi'];
+
+            defer(function () use ($noRegistrasi) {
+                try {
+                    PendaftaranParalegalService::tandai($noRegistrasi, 'Disetujui');
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            });
         }
 
         return back()->with('success', 'Data paralegal berhasil disimpan.');
