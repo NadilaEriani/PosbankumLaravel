@@ -31,7 +31,13 @@ import { RiHistoryFill } from "react-icons/ri";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems, paginateItems } from "../../utils/pagination";
-import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
+import ViewToggle, {
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
+import { sortItems, waktu } from "../../utils/sort";
 import "../../../css/Paralegal/laporanPelayanan.css";
 
 const PAGE_SIZE = 6;
@@ -340,18 +346,44 @@ function buildStats(reports) {
     return { total, aktif, selesai, tinggi, tingkatSelesai, avgHari };
 }
 
-function ReportTable({ reports, onDetail, onDelete }) {
+const PERINGKAT_PRIORITAS = { rendah: 1, sedang: 2, tinggi: 3 };
+
+const KOLOM_LAPORAN = [
+    { k: "judul", label: "Judul Laporan", className: "vt-sticky" },
+    { k: "pelapor", label: "Pelapor" },
+    { k: "kategori", label: "Kategori" },
+    { k: "status", label: "Status" },
+    { k: "prioritas", label: "Prioritas" },
+    { k: "tanggal", label: "Tgl Kejadian" },
+];
+
+const NILAI_URUT_LAPORAN = {
+    judul: (report) => report.judul_pengaduan,
+    pelapor: (report) => report.nama_pelapor,
+    kategori: (report) => report.jenis_masalah,
+    status: (report) => getStatusLabel(report.status),
+    prioritas: (report) =>
+        PERINGKAT_PRIORITAS[normalizePriority(report.prioritas)],
+    tanggal: (report) => waktu(report.tanggal_kejadian),
+};
+
+function ReportTable({ reports, onDetail, onDelete, urut, onSort }) {
     return (
         <div className="vt-tableCard">
             <table className="vt-table" style={{ "--vt-min": "960px" }}>
                 <thead>
                     <tr>
-                        <th className="vt-sticky">Judul Laporan</th>
-                        <th>Pelapor</th>
-                        <th>Kategori</th>
-                        <th>Status</th>
-                        <th>Prioritas</th>
-                        <th>Tgl Kejadian</th>
+                        {KOLOM_LAPORAN.map(({ k, label, className }) => (
+                            <SortTh
+                                key={k}
+                                k={k}
+                                urut={urut}
+                                onSort={onSort}
+                                className={className}
+                            >
+                                {label}
+                            </SortTh>
+                        ))}
                         <th className="vt-center">Aksi</th>
                     </tr>
                 </thead>
@@ -729,6 +761,7 @@ export default function LaporanPelayanan({
     const [viewMode, setViewMode, tableRows, setTableRows] =
         useViewMode("laporan-pelayanan");
     const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
+    const [urut, ubahUrut] = useSort(null, () => setPage(1));
     const priorityDropdownRef = useRef(null);
     const [selectedReport, setSelectedReport] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
@@ -917,9 +950,19 @@ export default function LaporanPelayanan({
         setPage(1);
     }, [tab, search, priorityFilter]);
 
+    const sortedReports = useMemo(
+        () =>
+            sortItems(
+                filteredReports,
+                viewMode === "tabel" ? urut : null,
+                NILAI_URUT_LAPORAN,
+            ),
+        [filteredReports, urut, viewMode],
+    );
+
     const pagination = useMemo(
-        () => paginateItems(filteredReports, page, pageSize),
-        [filteredReports, page, pageSize],
+        () => paginateItems(sortedReports, page, pageSize),
+        [sortedReports, page, pageSize],
     );
     const pageReports = pagination.items;
     const safePage = pagination.currentPage;
@@ -2166,6 +2209,8 @@ export default function LaporanPelayanan({
                                     reports={pageReports}
                                     onDetail={handleOpenDetail}
                                     onDelete={handleDelete}
+                                    urut={urut}
+                                    onSort={ubahUrut}
                                 />
                             ) : (
                                 <div className="lpvListWrap">

@@ -23,7 +23,13 @@ import SuccessToast from "../../Components/ui/SuccessToast";
 import ReminderModal from "../../Components/ui/ReminderModal";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import { getPaginationItems } from "../../utils/pagination";
-import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
+import ViewToggle, {
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
+import { sortItems, waktu } from "../../utils/sort";
 import "../../../css/Admin/kelolaBerita.css";
 
 const OTHER_CATEGORY_OPTION = "Lainnya";
@@ -37,6 +43,13 @@ const KATEGORI_OPTIONS = [
 ];
 
 const BERITA_PAGE_SIZE = 6;
+
+const NILAI_URUT_BERITA = {
+    judul: (item) => item.judul,
+    tanggal: (item) => waktu(item.tgl_publish),
+    penulis: (item) => item.authorName,
+    status: (item) => item.status,
+};
 const STATUS_FILTERS = [
     { value: "semua", label: "Semua" },
     { value: "aktif", label: "Aktif" },
@@ -485,6 +498,7 @@ export default function KelolaBerita({
     const [viewMode, setViewMode, tableRows, setTableRows] =
         useViewMode("kelola-berita");
     const pageSize = viewMode === "tabel" ? tableRows : BERITA_PAGE_SIZE;
+    const [urut, ubahUrut] = useSort(null, () => setCurrentPage(1));
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [statusUpdating, setStatusUpdating] = useState(false);
@@ -585,10 +599,20 @@ export default function KelolaBerita({
         Math.ceil(filteredItems.length / pageSize),
     );
 
+    const sortedItems = useMemo(
+        () =>
+            sortItems(
+                filteredItems,
+                viewMode === "tabel" ? urut : null,
+                NILAI_URUT_BERITA,
+            ),
+        [filteredItems, urut, viewMode],
+    );
+
     const paginatedItems = useMemo(() => {
         const startIndex = (currentPage - 1) * pageSize;
-        return filteredItems.slice(startIndex, startIndex + pageSize);
-    }, [filteredItems, currentPage, pageSize]);
+        return sortedItems.slice(startIndex, startIndex + pageSize);
+    }, [sortedItems, currentPage, pageSize]);
 
     const paginationPages = useMemo(
         () => getPaginationItems(currentPage, totalPages),
@@ -1587,10 +1611,22 @@ export default function KelolaBerita({
                             >
                                 <thead>
                                     <tr>
-                                        <th className="vt-sticky">Judul</th>
-                                        <th>Tanggal Publish</th>
-                                        <th>Penulis</th>
-                                        <th>Status</th>
+                                        {[
+                                            ["judul", "Judul", "vt-sticky"],
+                                            ["tanggal", "Tanggal Publish"],
+                                            ["penulis", "Penulis"],
+                                            ["status", "Status"],
+                                        ].map(([k, label, className]) => (
+                                            <SortTh
+                                                key={k}
+                                                k={k}
+                                                urut={urut}
+                                                onSort={ubahUrut}
+                                                className={className}
+                                            >
+                                                {label}
+                                            </SortTh>
+                                        ))}
                                         <th className="vt-center">Aksi</th>
                                     </tr>
                                 </thead>

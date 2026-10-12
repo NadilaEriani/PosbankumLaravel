@@ -22,7 +22,13 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems } from "../../utils/pagination";
-import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
+import ViewToggle, {
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
+import { sortItems, waktu } from "../../utils/sort";
 import "../../../css/Admin/laporanKegiatan.css";
 
 const PAGE_SIZE = 6;
@@ -770,6 +776,13 @@ function readDetailIdFromPath() {
     return null;
 }
 
+const NILAI_URUT_KEGIATAN = {
+    judul: (item) => item.judul,
+    posbankum: (item) => selectedPosNameForRow(item),
+    tanggal: (item) => waktu(item.tgl_mulai || item.tgl_upload),
+    status: (item) => item.status,
+};
+
 function selectedPosNameForRow(item) {
     const name = safeText(
         item?.posbankum?.nama || item?.posbankumName || item?.posbankum_nama,
@@ -882,6 +895,7 @@ export default function LaporanKegiatan({ rows = [] }) {
     const [viewMode, setViewMode, tableRows, setTableRows] =
         useViewMode("laporan-kegiatan");
     const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
+    const [urut, ubahUrut] = useSort(null, () => setPage(1));
 
     const [timeFilter, setTimeFilter] = useState("all");
     const [timeFilterOpen, setTimeFilterOpen] = useState(false);
@@ -1079,10 +1093,20 @@ export default function LaporanKegiatan({ rows = [] }) {
     const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
 
+    const sortedRows = useMemo(
+        () =>
+            sortItems(
+                filteredRows,
+                viewMode === "tabel" ? urut : null,
+                NILAI_URUT_KEGIATAN,
+            ),
+        [filteredRows, urut, viewMode],
+    );
+
     const pageItems = useMemo(() => {
         const start = (pageClamped - 1) * pageSize;
-        return filteredRows.slice(start, start + pageSize);
-    }, [filteredRows, pageClamped, pageSize]);
+        return sortedRows.slice(start, start + pageSize);
+    }, [sortedRows, pageClamped, pageSize]);
 
     const chooseTimeFilter = (value) => {
         if (value === "range") {
@@ -1641,12 +1665,22 @@ export default function LaporanKegiatan({ rows = [] }) {
                                 >
                                     <thead>
                                         <tr>
-                                            <th className="vt-sticky">
-                                                Judul Kegiatan
-                                            </th>
-                                            <th>Posbankum</th>
-                                            <th>Tanggal</th>
-                                            <th>Status</th>
+                                            {[
+                                                ["judul", "Judul Kegiatan", "vt-sticky"],
+                                                ["posbankum", "Posbankum"],
+                                                ["tanggal", "Tanggal"],
+                                                ["status", "Status"],
+                                            ].map(([k, label, className]) => (
+                                                <SortTh
+                                                    key={k}
+                                                    k={k}
+                                                    urut={urut}
+                                                    onSort={ubahUrut}
+                                                    className={className}
+                                                >
+                                                    {label}
+                                                </SortTh>
+                                            ))}
                                             <th className="vt-center">Aksi</th>
                                         </tr>
                                     </thead>

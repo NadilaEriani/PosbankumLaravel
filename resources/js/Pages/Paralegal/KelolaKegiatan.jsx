@@ -22,7 +22,13 @@ import SuccessToast from "../../Components/ui/SuccessToast";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import ReminderModal from "../../Components/ui/ReminderModal";
 import { getPaginationItems } from "../../utils/pagination";
-import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
+import ViewToggle, {
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
+import { sortItems, waktu } from "../../utils/sort";
 import "../../../css/Paralegal/kelolaKegiatan.css";
 
 const PAGE_SIZE = 6;
@@ -102,6 +108,14 @@ function pickFirst(obj, keys) {
 
     return "";
 }
+
+const NILAI_URUT_KEGIATAN = {
+    judul: (item) => item.judul || item.nama_kegiatan,
+    tanggal: (item) =>
+        waktu(item.tgl_mulai || item.tgl_upload || item.created_at),
+    lokasi: (item) => getLokasi(item),
+    status: (item) => statusLabel(item.status),
+};
 
 function getLokasi(item) {
     return pickFirst(item, ["lokasi", "tempat", "alamat", "location"]);
@@ -371,6 +385,7 @@ export default function KelolaKegiatan({
     const [viewMode, setViewMode, tableRows, setTableRows] =
         useViewMode("kelola-kegiatan");
     const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
+    const [urut, ubahUrut] = useSort(null, () => setPage(1));
     const [posName, setPosName] = useState("Posbankum");
 
     const [saving, setSaving] = useState(false);
@@ -551,7 +566,16 @@ export default function KelolaKegiatan({
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
-    const pagedKegiatan = filtered.slice(
+    const sorted = useMemo(
+        () =>
+            sortItems(
+                filtered,
+                viewMode === "tabel" ? urut : null,
+                NILAI_URUT_KEGIATAN,
+            ),
+        [filtered, urut, viewMode],
+    );
+    const pagedKegiatan = sorted.slice(
         (pageClamped - 1) * pageSize,
         pageClamped * pageSize,
     );
@@ -1366,10 +1390,22 @@ export default function KelolaKegiatan({
                     >
                         <thead>
                             <tr>
-                                <th className="vt-sticky">Judul Kegiatan</th>
-                                <th>Tanggal</th>
-                                <th>Lokasi</th>
-                                <th>Status</th>
+                                {[
+                                    ["judul", "Judul Kegiatan", "vt-sticky"],
+                                    ["tanggal", "Tanggal"],
+                                    ["lokasi", "Lokasi"],
+                                    ["status", "Status"],
+                                ].map(([k, label, className]) => (
+                                    <SortTh
+                                        key={k}
+                                        k={k}
+                                        urut={urut}
+                                        onSort={ubahUrut}
+                                        className={className}
+                                    >
+                                        {label}
+                                    </SortTh>
+                                ))}
                                 <th className="vt-center">Aksi</th>
                             </tr>
                         </thead>

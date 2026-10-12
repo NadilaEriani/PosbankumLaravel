@@ -4293,17 +4293,6 @@
     text-align: center;
 }
 
-.kpShell .kpPendaftarBar {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.kpShell .kpPendaftarBar > .kpSearch {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
 .kpShell .kpPendaftarReload {
     flex: 0 0 auto;
     display: inline-flex;
@@ -4393,11 +4382,6 @@
         padding: 0 10px;
     }
 
-    .kpShell .kpPendaftarBar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
     .kpShell .kpPendaftarReload {
         justify-content: center;
     }
@@ -4428,5 +4412,39 @@
     .kpShell .kpTable.kpPendaftarTable tbody td {
         width: auto !important;
         min-width: 0 !important;
+    }
+}
+
+/* Baris "Menampilkan ... dari ..." + pilihan jumlah baris di atas tabel */
+.kpShell .vt-bar {
+    margin: 0 0 14px;
+    padding: 0 4px;
+}
+
+@media (min-width: 861px) {
+    .kpShell .kpTable.kpPendaftarTable thead th:nth-child(2) {
+        width: 21% !important;
+    }
+
+    .kpShell .kpTable.kpPendaftarTable thead th:nth-child(4) {
+        width: 21% !important;
+    }
+}
+
+.kpShell .vt-controls .kpPendaftarReload {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 0 16px !important;
+    border-radius: 14px !important;
+    white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+    .kpShell .vt-controls .kpPendaftarReload span {
+        display: none;
     }
 }

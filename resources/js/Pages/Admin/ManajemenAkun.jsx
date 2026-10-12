@@ -23,13 +23,26 @@ import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import DeleteConfirmModal from "../../Components/ui/DeleteConfirmModal";
 import ReminderModal from "../../Components/ui/ReminderModal";
+import {
+    RowsSelect,
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
 import { getPaginationItems } from "../../utils/pagination";
+import { sortItems, waktu } from "../../utils/sort";
 import "../../../css/Admin/manajemenAkun.css";
 
-const PAGE_SIZE = 6;
 const EMPTY_LIST = [];
-const PENDAFTAR_PAGE_SIZE = 10;
 const PENDAFTAR_URL = "/admin/manajemen-akun/pendaftar";
+const KOLOM_PENDAFTAR = [
+    { key: "nama", label: "Nama Pendaftar" },
+    { key: "email", label: "Email" },
+    { label: "No. Telepon" },
+    { key: "domisili", label: "Domisili" },
+    { key: "waktu", label: "Tanggal Daftar" },
+];
 
 function getFirstError(
     errors,
@@ -109,6 +122,29 @@ function cariWilayah(options, nama, cocok = () => true) {
 
     return found ? String(found.value) : "";
 }
+
+function opsiNama(daftar) {
+    return [...new Set(daftar.filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, "id"))
+        .map((nama) => ({ value: nama, label: nama }));
+}
+
+const NILAI_URUT_PENDAFTAR = {
+    nama: (item) => item.nama,
+    email: (item) => item.email,
+    domisili: (item) =>
+        [item.kabupaten, item.kecamatan, item.kelurahan]
+            .filter(Boolean)
+            .join(" "),
+    waktu: (item) => waktu(item.waktu),
+};
+
+const NILAI_URUT_AKUN = {
+    nama: (row) => row.nama_lengkap,
+    email: (row) => (row.email === "-" ? "" : row.email),
+    posbankum: (row) => stripPosbankumPrefix(row.posbankum_nama),
+    status: (row) => row.status,
+};
 
 function pick(row, keys, fallback = "") {
     for (const key of keys) {
@@ -639,6 +675,17 @@ export default function ManajemenAkun({
         pesan: "",
     });
     const [pagePendaftar, setPagePendaftar] = useState(1);
+    const [pKabupaten, setPKabupaten] = useState("");
+    const [pKecamatan, setPKecamatan] = useState("");
+    const [urutPendaftar, ubahUrutPendaftar] = useSort(
+        { key: "waktu", arah: "desc" },
+        () => setPagePendaftar(1),
+    );
+    const [urutAkun, ubahUrutAkun] = useSort(null, () => setPage(1));
+    const [, , akunPageSize, setAkunPageSize] = useViewMode("manajemen-akun");
+    const [, , pendaftarPageSize, setPendaftarPageSize] = useViewMode(
+        "manajemen-akun-pendaftar",
+    );
     const [pendaftarAktif, setPendaftarAktif] = useState(null);
     const [tolakTarget, setTolakTarget] = useState(null);
     const [menolak, setMenolak] = useState(false);
@@ -938,15 +985,45 @@ export default function ManajemenAkun({
     useEffect(() => {
         setPage(1);
         setPagePendaftar(1);
-    }, [kabupatenId, kecamatanId, statusFilter, debouncedQ]);
+    }, [
+        kabupatenId,
+        kecamatanId,
+        statusFilter,
+        debouncedQ,
+        pKabupaten,
+        pKecamatan,
+    ]);
+
+    useEffect(() => {
+        setPKecamatan("");
+    }, [pKabupaten]);
+
+    // Pendaftar hanya membawa nama wilayah (dari Sheet), jadi filternya
+    // memakai nama, bukan ID seperti tab akun.
+    const pKabupatenOpts = useMemo(
+        () => opsiNama(pendaftar.map((item) => item.kabupaten)),
+        [pendaftar],
+    );
+
+    const pKecamatanOpts = useMemo(
+        () =>
+            opsiNama(
+                pendaftar
+                    .filter((item) => item.kabupaten === pKabupaten)
+                    .map((item) => item.kecamatan),
+            ),
+        [pendaftar, pKabupaten],
+    );
 
     const filteredPendaftar = useMemo(() => {
         const search = debouncedQ.toLowerCase();
 
-        if (!search) return pendaftar;
+        const rows = pendaftar.filter((item) => {
+            if (pKabupaten && item.kabupaten !== pKabupaten) return false;
+            if (pKecamatan && item.kecamatan !== pKecamatan) return false;
+            if (!search) return true;
 
-        return pendaftar.filter((item) =>
-            [
+            return [
                 item.nama,
                 item.email,
                 item.telp,
@@ -958,18 +1035,20 @@ export default function ManajemenAkun({
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase()
-                .includes(search),
-        );
-    }, [pendaftar, debouncedQ]);
+                .includes(search);
+        });
+
+        return sortItems(rows, urutPendaftar, NILAI_URUT_PENDAFTAR);
+    }, [pendaftar, debouncedQ, pKabupaten, pKecamatan, urutPendaftar]);
 
     const totalPagesPendaftar = Math.max(
         1,
-        Math.ceil(filteredPendaftar.length / PENDAFTAR_PAGE_SIZE),
+        Math.ceil(filteredPendaftar.length / pendaftarPageSize),
     );
     const safePagePendaftar = Math.min(pagePendaftar, totalPagesPendaftar);
     const pagePendaftarRows = filteredPendaftar.slice(
-        (safePagePendaftar - 1) * PENDAFTAR_PAGE_SIZE,
-        safePagePendaftar * PENDAFTAR_PAGE_SIZE,
+        (safePagePendaftar - 1) * pendaftarPageSize,
+        safePagePendaftar * pendaftarPageSize,
     );
 
     const accountStats = useMemo(() => {
@@ -987,14 +1066,18 @@ export default function ManajemenAkun({
 
     const total = filteredRows.length;
     const totalPages = useMemo(
-        () => Math.max(1, Math.ceil(total / PAGE_SIZE)),
-        [total],
+        () => Math.max(1, Math.ceil(total / akunPageSize)),
+        [total, akunPageSize],
     );
 
     const safePage = Math.min(page, totalPages);
-    const pageRows = filteredRows.slice(
-        (safePage - 1) * PAGE_SIZE,
-        safePage * PAGE_SIZE,
+    const sortedRows = useMemo(
+        () => sortItems(filteredRows, urutAkun, NILAI_URUT_AKUN),
+        [filteredRows, urutAkun],
+    );
+    const pageRows = sortedRows.slice(
+        (safePage - 1) * akunPageSize,
+        safePage * akunPageSize,
     );
 
     const resetForm = () => {
@@ -1912,15 +1995,43 @@ export default function ManajemenAkun({
                 </div>
             </div>
 
+            <div className="vt-bar">
+                <div className="vt-count">
+                    Menampilkan{" "}
+                    <strong>{rangeLabel(safePage, akunPageSize, total)}</strong>{" "}
+                    dari <strong>{total}</strong> akun
+                </div>
+                <div className="vt-controls">
+                    <RowsSelect
+                        value={akunPageSize}
+                        onChange={(n) => {
+                            setAkunPageSize(n);
+                            setPage(1);
+                        }}
+                    />
+                </div>
+            </div>
+
             <div className="kpTableCard">
                 <table className="kpTable">
                     <thead>
                         <tr>
-                            <th>Nama Paralegal</th>
-                            <th>Email</th>
-                            <th>No. Telepon</th>
-                            <th>Posbankum</th>
-                            <th>Status</th>
+                            {[
+                                ["nama", "Nama Paralegal"],
+                                ["email", "Email"],
+                                [null, "No. Telepon"],
+                                ["posbankum", "Posbankum"],
+                                ["status", "Status"],
+                            ].map(([key, label]) => (
+                                <SortTh
+                                    key={label}
+                                    k={key}
+                                    urut={urutAkun}
+                                    onSort={ubahUrutAkun}
+                                >
+                                    {label}
+                                </SortTh>
+                            ))}
                             <th className="kpActionHead">Aksi</th>
                         </tr>
                     </thead>
@@ -2091,7 +2202,7 @@ export default function ManajemenAkun({
     const renderPendaftarPage = () => (
         <>
             <div className="kpPanel">
-                <div className="kpPendaftarBar">
+                <div className="kpToolbar kpToolbarInline">
                     <div className="kpSearch">
                         <FiSearch className="kpSearchIco" />
                         <input
@@ -2117,17 +2228,30 @@ export default function ManajemenAkun({
                         ) : null}
                     </div>
 
-                    <button
-                        className="kpPageBtnGhost kpPendaftarReload"
-                        type="button"
-                        onClick={muatPendaftar}
-                        disabled={pendaftarInfo.memuat}
-                    >
-                        <FiRefreshCw aria-hidden="true" />
-                        <span>
-                            {pendaftarInfo.memuat ? "Memuat..." : "Muat ulang"}
-                        </span>
-                    </button>
+                    <div className="kpFilters kpFiltersInline">
+                        <KpDropdown
+                            className="kpFilterDropdown"
+                            value={pKabupaten}
+                            onChange={setPKabupaten}
+                            placeholder="Pilih Kabupaten"
+                            options={[
+                                { value: "", label: "Semua" },
+                                ...pKabupatenOpts,
+                            ]}
+                        />
+
+                        <KpDropdown
+                            className="kpFilterDropdown"
+                            value={pKecamatan}
+                            onChange={setPKecamatan}
+                            placeholder="Pilih Kecamatan"
+                            disabled={!pKabupaten}
+                            options={[
+                                { value: "", label: "Semua" },
+                                ...pKecamatanOpts,
+                            ]}
+                        />
+                    </div>
                 </div>
 
                 <p className="kpPendaftarHint">
@@ -2142,15 +2266,55 @@ export default function ManajemenAkun({
                 </div>
             ) : null}
 
+            <div className="vt-bar">
+                <div className="vt-count">
+                    Menampilkan{" "}
+                    <strong>
+                        {rangeLabel(
+                            safePagePendaftar,
+                            pendaftarPageSize,
+                            filteredPendaftar.length,
+                        )}
+                    </strong>{" "}
+                    dari <strong>{filteredPendaftar.length}</strong> pendaftar
+                </div>
+                <div className="vt-controls">
+                    <RowsSelect
+                        value={pendaftarPageSize}
+                        onChange={(n) => {
+                            setPendaftarPageSize(n);
+                            setPagePendaftar(1);
+                        }}
+                    />
+                    <button
+                        className="kpPageBtnGhost kpPendaftarReload"
+                        type="button"
+                        aria-label="Muat ulang daftar pendaftar"
+                        onClick={muatPendaftar}
+                        disabled={pendaftarInfo.memuat}
+                    >
+                        <FiRefreshCw aria-hidden="true" />
+                        <span>
+                            {pendaftarInfo.memuat ? "Memuat..." : "Muat ulang"}
+                        </span>
+                    </button>
+                </div>
+            </div>
+
             <div className="kpTableCard">
                 <table className="kpTable kpPendaftarTable">
                     <thead>
                         <tr>
-                            <th>Nama Pendaftar</th>
-                            <th>Email</th>
-                            <th>No. Telepon</th>
-                            <th>Domisili</th>
-                            <th>Tanggal Daftar</th>
+                            {KOLOM_PENDAFTAR.map(({ key, label }) => (
+                                <SortTh
+                                    key={label}
+                                    k={key}
+                                    urut={urutPendaftar}
+                                    onSort={ubahUrutPendaftar}
+                                >
+                                    {label}
+                                </SortTh>
+                            ))}
                             <th className="kpActionHead">Aksi</th>
                         </tr>
                     </thead>

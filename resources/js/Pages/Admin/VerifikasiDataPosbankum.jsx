@@ -21,10 +21,20 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems } from "../../utils/pagination";
-import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
+import ViewToggle, {
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
+import { sortItems } from "../../utils/sort";
 import "../../../css/Admin/verifikasiDataPosbankum.css";
 
 const BUCKET = "posbankum-docs";
+
+const NILAI_URUT_VERIFIKASI = {
+    nama: (item) => item.nama,
+};
 
 const LEAFLET_CSS_URLS = [
     "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
@@ -314,6 +324,7 @@ export default function VerifikasiDataPosbankum({
     const [viewMode, setViewMode, tableRows, setTableRows] =
         useViewMode("verifikasi-data-posbankum");
     const PAGE_SIZE = viewMode === "tabel" ? tableRows : 9;
+    const [urut, ubahUrut] = useSort(null, () => setPage(1));
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewMode, setPreviewMode] = useState("file");
@@ -1221,10 +1232,20 @@ export default function VerifikasiDataPosbankum({
     const totalPages = Math.max(1, Math.ceil(cards.length / PAGE_SIZE));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
 
+    const sortedCards = useMemo(
+        () =>
+            sortItems(
+                cards,
+                viewMode === "tabel" ? urut : null,
+                NILAI_URUT_VERIFIKASI,
+            ),
+        [cards, urut, viewMode],
+    );
+
     const pageItems = useMemo(() => {
         const start = (pageClamped - 1) * PAGE_SIZE;
-        return cards.slice(start, start + PAGE_SIZE);
-    }, [cards, pageClamped, PAGE_SIZE]);
+        return sortedCards.slice(start, start + PAGE_SIZE);
+    }, [sortedCards, pageClamped, PAGE_SIZE]);
 
     const posById = useMemo(() => {
         const m = {};
@@ -2555,9 +2576,14 @@ export default function VerifikasiDataPosbankum({
                                 >
                                     <thead>
                                         <tr>
-                                            <th className="vt-sticky">
+                                            <SortTh
+                                                k="nama"
+                                                urut={urut}
+                                                onSort={ubahUrut}
+                                                className="vt-sticky"
+                                            >
                                                 Posbankum
-                                            </th>
+                                            </SortTh>
                                             {pageItems[0].docs.map((d) => (
                                                 <th key={d.key}>{d.label}</th>
                                             ))}

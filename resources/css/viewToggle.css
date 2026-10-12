@@ -471,3 +471,41 @@
         transition: none;
     }
 }
+
+/* Judul kolom yang bisa diurutkan (SortTh). */
+.vt-sortBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.vt-sortBtn svg {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    opacity: 0.3;
+}
+
+.vt-sortBtn:hover svg,
+.vt-sortBtn.is-active svg {
+    opacity: 1;
+}
+
+.vt-sortBtn.is-active {
+    color: #343b73;
+}
+
+.vt-sortBtn:focus-visible {
+    outline: 2px solid #343b73;
+    outline-offset: 3px;
+    border-radius: 4px;
+}

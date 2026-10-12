@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiGrid, FiList } from "react-icons/fi";
+import { FiArrowDown, FiArrowUp, FiGrid, FiList } from "react-icons/fi";
 import "../../css/viewToggle.css";
 
 export const TABLE_ROW_OPTIONS = [10, 25, 50];
@@ -54,10 +54,76 @@ export function rangeLabel(page, pageSize, total) {
     return `${from}–${to}`;
 }
 
+// Urutan tabel lewat judul kolom: klik kolom baru = naik, klik lagi = balik arah.
+// Dipakai bersama sortItems() di utils/sort.js.
+export function useSort(awal = null, onChange) {
+    const [urut, setUrut] = useState(awal);
+
+    const ubah = (key) => {
+        setUrut((prev) => ({
+            key,
+            arah: prev?.key === key && prev.arah === "asc" ? "desc" : "asc",
+        }));
+        onChange?.();
+    };
+
+    return [urut, ubah, setUrut];
+}
+
+// Judul kolom tabel. Dengan `k` kolom bisa diurutkan; tanpa `k` menjadi <th> biasa.
+export function SortTh({ k, urut, onSort, className, children }) {
+    if (!k) return <th className={className}>{children}</th>;
+
+    const aktif = urut?.key === k;
+    const turun = aktif && urut.arah === "desc";
+
+    return (
+        <th
+            className={className}
+            aria-sort={aktif ? (turun ? "descending" : "ascending") : undefined}
+        >
+            <button
+                type="button"
+                className={`vt-sortBtn ${aktif ? "is-active" : ""}`}
+                onClick={() => onSort(k)}
+                title="Urutkan kolom ini"
+            >
+                {children}
+                {turun ? (
+                    <FiArrowDown aria-hidden="true" />
+                ) : (
+                    <FiArrowUp aria-hidden="true" />
+                )}
+            </button>
+        </th>
+    );
+}
+
 const OPSI = [
     { value: "kartu", label: "Kartu", Icon: FiGrid },
     { value: "tabel", label: "Tabel", Icon: FiList },
 ];
+
+// Pilihan jumlah baris per halaman. Dipakai juga oleh halaman yang hanya punya tabel.
+export function RowsSelect({ value, onChange }) {
+    return (
+        <label className="vt-rows">
+            <span className="vt-rowsLabel">Baris</span>
+            <select
+                className="vt-rowsSelect"
+                value={value}
+                onChange={(event) => onChange(Number(event.target.value))}
+                aria-label="Jumlah baris per halaman"
+            >
+                {TABLE_ROW_OPTIONS.map((n) => (
+                    <option key={n} value={n}>
+                        {n}
+                    </option>
+                ))}
+            </select>
+        </label>
+    );
+}
 
 export default function ViewToggle({
     value,
@@ -69,23 +135,7 @@ export default function ViewToggle({
     return (
         <div className={`vt-controls ${className}`.trim()}>
             {value === "tabel" && onRowsChange ? (
-                <label className="vt-rows">
-                    <span className="vt-rowsLabel">Baris</span>
-                    <select
-                        className="vt-rowsSelect"
-                        value={rows}
-                        onChange={(event) =>
-                            onRowsChange(Number(event.target.value))
-                        }
-                        aria-label="Jumlah baris per halaman"
-                    >
-                        {TABLE_ROW_OPTIONS.map((n) => (
-                            <option key={n} value={n}>
-                                {n}
-                            </option>
-                        ))}
-                    </select>
-                </label>
+                <RowsSelect value={rows} onChange={onRowsChange} />
             ) : null}
 
             <div className="vt-toggle" role="group" aria-label="Pilih tampilan">

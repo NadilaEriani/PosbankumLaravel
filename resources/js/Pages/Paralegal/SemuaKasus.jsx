@@ -20,7 +20,13 @@ import { BsSliders2 } from "react-icons/bs";
 import SuccessToast from "../../Components/ui/SuccessToast";
 import RejectToast from "../../Components/ui/RejectToast";
 import { getPaginationItems } from "../../utils/pagination";
-import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
+import ViewToggle, {
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
+import { sortItems, waktu } from "../../utils/sort";
 import posbankumIcon from "../../assets/icon.png";
 import "../../../css/Paralegal/semuaKasus.css";
 
@@ -391,6 +397,7 @@ export default function SemuaKasus({
     const [viewMode, setViewMode, tableRows, setTableRows] =
         useViewMode("semua-kasus");
     const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
+    const [urut, ubahUrut, setUrut] = useSort(null, () => setPage(1));
     const [filters, setFilters] = useState({
         kategori: "Semua",
         status: "Semua",
@@ -524,9 +531,24 @@ export default function SemuaKasus({
         setPage(1);
     }, [filters, search]);
 
+    // Filter "Urutkan" diganti: urut kolom dikosongkan supaya pilihan itu yang berlaku.
+    useEffect(() => {
+        setUrut(null);
+    }, [filters.urutkan]);
+
+    const sortedCases = useMemo(
+        () =>
+            sortItems(
+                filteredCases,
+                viewMode === "tabel" ? urut : null,
+                NILAI_URUT_KASUS,
+            ),
+        [filteredCases, urut, viewMode],
+    );
+
     const totalPages = Math.max(1, Math.ceil(filteredCases.length / pageSize));
     const pageClamped = Math.min(Math.max(page, 1), totalPages);
-    const pagedCases = filteredCases.slice(
+    const pagedCases = sortedCases.slice(
         (pageClamped - 1) * pageSize,
         pageClamped * pageSize,
     );
@@ -782,7 +804,12 @@ export default function SemuaKasus({
             </div>
 
             {viewMode === "tabel" && pagedCases.length ? (
-                <CaseTable items={pagedCases} onDetail={openDetail} />
+                <CaseTable
+                    items={pagedCases}
+                    onDetail={openDetail}
+                    urut={urut}
+                    onSort={ubahUrut}
+                />
             ) : (
                 <div className="skCardGrid">
                     {pagedCases.length ? (
@@ -876,20 +903,45 @@ export default function SemuaKasus({
     );
 }
 
-function CaseTable({ items, onDetail }) {
+const KOLOM_KASUS = [
+    { k: "judul", label: "Judul Kasus", className: "vt-sticky" },
+    { k: "id", label: "No. Kasus" },
+    { k: "posbankum", label: "Posbankum" },
+    { k: "pelapor", label: "Pelapor" },
+    { k: "paralegal", label: "Paralegal" },
+    { k: "status", label: "Status" },
+    { k: "prioritas", label: "Prioritas" },
+    { k: "tanggal", label: "Tanggal" },
+];
+
+const NILAI_URUT_KASUS = {
+    judul: (item) => item.judul,
+    id: (item) => item.id,
+    posbankum: (item) => removePosbankumPrefix(item.posbankum),
+    pelapor: (item) => item.pelapor,
+    paralegal: (item) => item.paralegal,
+    status: (item) => item.status,
+    prioritas: (item) => getPriorityWeight(item.prioritas),
+    tanggal: (item) => waktu(item.tanggalLapor),
+};
+
+function CaseTable({ items, onDetail, urut, onSort }) {
     return (
         <div className="vt-tableCard">
             <table className="vt-table" style={{ "--vt-min": "1080px" }}>
                 <thead>
                     <tr>
-                        <th className="vt-sticky">Judul Kasus</th>
-                        <th>No. Kasus</th>
-                        <th>Posbankum</th>
-                        <th>Pelapor</th>
-                        <th>Paralegal</th>
-                        <th>Status</th>
-                        <th>Prioritas</th>
-                        <th>Tanggal</th>
+                        {KOLOM_KASUS.map(({ k, label, className }) => (
+                            <SortTh
+                                key={k}
+                                k={k}
+                                urut={urut}
+                                onSort={onSort}
+                                className={className}
+                            >
+                                {label}
+                            </SortTh>
+                        ))}
                         <th className="vt-center">Aksi</th>
                     </tr>
                 </thead>

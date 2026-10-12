@@ -19,10 +19,23 @@ import { BsCheck2Circle } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import icon from "../../assets/icon.png";
 import { getPaginationItems, paginateItems } from "../../utils/pagination";
-import ViewToggle, { rangeLabel, useViewMode } from "../../Components/ViewToggle";
+import ViewToggle, {
+    SortTh,
+    rangeLabel,
+    useSort,
+    useViewMode,
+} from "../../Components/ViewToggle";
+import { sortItems } from "../../utils/sort";
 import "../../../css/Admin/dataPosbankum.css";
 
 const PAGE_SIZE = 6;
+
+const NILAI_URUT_POSBANKUM = {
+    nama: (item) => item.nama,
+    kabupaten: (item) => stripKotaPrefix(item.kabupaten_nama || ""),
+    kecamatan: (item) => stripKotaPrefix(item.kecamatan_nama || ""),
+    kelengkapan: (item) => item.completeness,
+};
 
 function stripKotaPrefix(value) {
     return String(value || "")
@@ -496,6 +509,7 @@ export default function DataPosbankum({
     const [viewMode, setViewMode, tableRows, setTableRows] =
         useViewMode("data-posbankum");
     const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
+    const [urut, ubahUrut] = useSort(null, () => setPage(1));
 
     useEffect(() => {
         const timer = window.setTimeout(() => setDebouncedQ(q.trim()), 300);
@@ -792,9 +806,19 @@ export default function DataPosbankum({
         });
     }, [filteredRows]);
 
+    const sortedRows = useMemo(
+        () =>
+            sortItems(
+                filteredRows,
+                viewMode === "tabel" ? urut : null,
+                NILAI_URUT_POSBANKUM,
+            ),
+        [filteredRows, urut, viewMode],
+    );
+
     const pagination = useMemo(
-        () => paginateItems(filteredRows, page, pageSize),
-        [filteredRows, page, pageSize],
+        () => paginateItems(sortedRows, page, pageSize),
+        [sortedRows, page, pageSize],
     );
     const pageRows = pagination.items;
     const safePage = pagination.currentPage;
@@ -1201,10 +1225,22 @@ export default function DataPosbankum({
                         >
                             <thead>
                                 <tr>
-                                    <th className="vt-sticky">Posbankum</th>
-                                    <th>Kabupaten/Kota</th>
-                                    <th>Kecamatan</th>
-                                    <th>Kelengkapan</th>
+                                    {[
+                                        ["nama", "Posbankum", "vt-sticky"],
+                                        ["kabupaten", "Kabupaten/Kota"],
+                                        ["kecamatan", "Kecamatan"],
+                                        ["kelengkapan", "Kelengkapan"],
+                                    ].map(([k, label, className]) => (
+                                        <SortTh
+                                            key={k}
+                                            k={k}
+                                            urut={urut}
+                                            onSort={ubahUrut}
+                                            className={className}
+                                        >
+                                            {label}
+                                        </SortTh>
+                                    ))}
                                     <th className="vt-center">Dokumen</th>
                                 </tr>
                             </thead>
