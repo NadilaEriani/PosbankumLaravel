@@ -4234,3 +4234,199 @@
         font-size: 14px !important;
     }
 }
+
+/* ===== Tab Akun / Pendaftar Baru (pendaftar dari form Apps Script) ===== */
+.kpShell .kpTabs {
+    display: inline-flex;
+    max-width: 100%;
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    border: 1px solid #e4ebf5;
+    border-radius: 14px;
+}
+
+.kpShell .kpTab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #475569;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background 0.18s ease,
+        color 0.18s ease;
+}
+
+.kpShell .kpTab:hover {
+    background: #f1f5fb;
+}
+
+.kpShell .kpTab.is-active {
+    background: #343b73;
+    color: #ffffff;
+}
+
+.kpShell .kpTab:focus-visible,
+.kpShell .kpMiniBtn:focus-visible {
+    outline: 2px solid #343b73;
+    outline-offset: 2px;
+}
+
+.kpShell .kpTabCount {
+    min-width: 22px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.kpShell .kpPendaftarBar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.kpShell .kpPendaftarBar > .kpSearch {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.kpShell .kpPendaftarReload {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.kpShell .kpPendaftarHint {
+    margin: 14px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.kpShell .kpPendaftarSub,
+.kpShell .kpPendaftarFlag {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.kpShell .kpPendaftarSub {
+    color: #64748b;
+}
+
+.kpShell .kpPendaftarFlag {
+    color: #b45309;
+    font-weight: 700;
+}
+
+.kpShell .kpMiniBtn {
+    min-height: 36px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s ease;
+}
+
+.kpShell .kpMiniBtn.is-ok {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.kpShell .kpMiniBtn.is-ok:hover:not(:disabled) {
+    background: #bbf7d0;
+}
+
+.kpShell .kpMiniBtn.is-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.kpShell .kpMiniBtn.is-danger:hover {
+    background: #fecaca;
+}
+
+.kpShell .kpMiniBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.kpShell .kpPendaftarNote {
+    margin: 0 0 20px;
+    padding: 12px 15px;
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+    .kpShell .kpTabs {
+        display: flex;
+    }
+
+    .kpShell .kpTab {
+        flex: 1 1 0;
+        justify-content: center;
+        padding: 0 10px;
+    }
+
+    .kpShell .kpPendaftarBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .kpShell .kpPendaftarReload {
+        justify-content: center;
+    }
+}
+
+/* Tabel pendaftar: kolom mengikuti isi dan teks boleh turun baris, supaya
+   kolom Aksi terlihat tanpa menggeser tabel di layar desktop. */
+.kpShell .kpPendaftarTable .kpNameCell,
+.kpShell .kpPendaftarTable .kpTextCell {
+    white-space: normal !important;
+}
+
+.kpShell .kpPendaftarTable td[data-label="Email"] .kpTextCell {
+    overflow-wrap: anywhere;
+}
+
+.kpShell .kpPendaftarTable td[data-label="No. Telepon"] .kpTextCell {
+    white-space: nowrap !important;
+}
+
+@media (min-width: 861px) {
+    .kpShell .kpTable.kpPendaftarTable {
+        min-width: 860px !important;
+        table-layout: auto !important;
+    }
+
+    .kpShell .kpTable.kpPendaftarTable thead th,
+    .kpShell .kpTable.kpPendaftarTable tbody td {
+        width: auto !important;
+        min-width: 0 !important;
+    }
+}

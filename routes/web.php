@@ -532,6 +532,13 @@ Route::middleware(['auth', 'role.area'])->group(function () use ($streamPublicFi
     Route::patch('/admin/laporan-kegiatan/{idKegiatan}/status', [LaporanKegiatanController::class, 'updateStatus'])
         ->name('admin.laporan-kegiatan.status');
 
+    Route::get('/admin/manajemen-akun/pendaftar', [ManajemenAkunController::class, 'pendaftar'])
+        ->name('admin.manajemen-akun.pendaftar');
+
+    Route::post('/admin/manajemen-akun/pendaftar/{noRegistrasi}/tolak', [ManajemenAkunController::class, 'tolakPendaftar'])
+        ->where('noRegistrasi', 'PR-\d{4}-\d{4,}')
+        ->name('admin.manajemen-akun.pendaftar.tolak');
+
     Route::get('/admin/manajemen-akun/{mode?}/{id?}', [AdminDashboardController::class, 'admin'])
         ->where('mode', 'tambah|edit|detail')
         ->where('id', '[^/]+')

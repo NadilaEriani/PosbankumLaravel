@@ -38,6 +38,12 @@ return [
         'mobile_client_id' => env('GOOGLE_MOBILE_CLIENT_ID', '544639004251-hpijg9mt4k9eqmj4hqetcae06ga64ooc.apps.googleusercontent.com'),
     ],
 
+    // Web app Apps Script form pendaftaran paralegal (lihat PendaftaranParalegalService).
+    'pendaftaran_paralegal' => [
+        'url' => env('PENDAFTARAN_PARALEGAL_URL'),
+        'key' => env('PENDAFTARAN_PARALEGAL_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

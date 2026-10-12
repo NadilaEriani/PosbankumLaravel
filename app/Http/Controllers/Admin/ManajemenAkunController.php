@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\PendaftaranParalegalService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -88,6 +90,7 @@ class ManajemenAkunController extends Controller
             'id_kecamatan' => ['required', 'string', Rule::exists('kecamatan', 'id_kecamatan')],
             'id_kelurahan' => ['required', 'string', Rule::exists('kelurahan', 'id_kelurahan')],
             'id_posbankum' => ['nullable', 'string', Rule::exists('posbankum', 'id_posbankum')],
+            'no_registrasi' => ['nullable', 'string', 'regex:' . PendaftaranParalegalService::POLA_NO_REGISTRASI],
         ];
 
         $messages = [
@@ -105,6 +108,7 @@ class ManajemenAkunController extends Controller
             'id_kecamatan.exists' => 'Kecamatan tidak ditemukan di database.',
             'id_kelurahan.exists' => 'Kelurahan tidak ditemukan di database.',
             'id_posbankum.exists' => 'Posbankum tidak ditemukan di database.',
+            'no_registrasi.regex' => 'Nomor registrasi pendaftar tidak valid.',
         ];
 
         $data = Validator::make($request->all(), $rules, $messages)->validate();
@@ -374,7 +378,55 @@ class ManajemenAkunController extends Controller
             ]);
         }
 
+        // Akun sudah tersimpan: gagal menandai Sheet tidak boleh membatalkannya.
+        if (!empty($data['no_registrasi'])) {
+            try {
+                PendaftaranParalegalService::tandai($data['no_registrasi'], 'Disetujui');
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
         return back()->with('success', 'Data paralegal berhasil disimpan.');
+    }
+
+    /**
+     * Pendaftar dari form Apps Script yang belum punya akun paralegal.
+     */
+    public function pendaftar(): JsonResponse
+    {
+        try {
+            $baris = PendaftaranParalegalService::daftar();
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => [],
+            ], 502);
+        }
+
+        $akun = DB::table('users')
+            ->select('email', 'role', 'nomor_telepon', 'nama_lengkap')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'OK',
+            'data' => PendaftaranParalegalService::saring($baris, $akun),
+        ]);
+    }
+
+    public function tolakPendaftar(string $noRegistrasi): RedirectResponse
+    {
+        try {
+            PendaftaranParalegalService::tandai($noRegistrasi, 'Ditolak');
+        } catch (\RuntimeException $e) {
+            throw ValidationException::withMessages([
+                'pendaftar' => $e->getMessage(),
+            ]);
+        }
+
+        return back();
     }
 
     public function update(Request $request, string $idUser): RedirectResponse

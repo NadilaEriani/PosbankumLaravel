@@ -15,6 +15,7 @@ import {
     FiUserX,
     FiUserCheck,
     FiClock,
+    FiRefreshCw,
 } from "react-icons/fi";
 import { GrPowerShutdown } from "react-icons/gr";
 import posbankumIcon from "../../assets/icon.png";
@@ -27,6 +28,8 @@ import "../../../css/Admin/manajemenAkun.css";
 
 const PAGE_SIZE = 6;
 const EMPTY_LIST = [];
+const PENDAFTAR_PAGE_SIZE = 10;
+const PENDAFTAR_URL = "/admin/manajemen-akun/pendaftar";
 
 function getFirstError(
     errors,
@@ -86,6 +89,25 @@ function isValidOptionalPhone(value) {
 
 function isValidEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
+// Nama wilayah di Sheet pendaftaran dan di database berformat sama; yang
+// dibedakan hanya huruf besar/kecil, spasi, dan tanda baca.
+function samakanNama(value) {
+    return String(value ?? "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+}
+
+function cariWilayah(options, nama, cocok = () => true) {
+    const target = samakanNama(nama);
+    if (!target) return "";
+
+    const found = options.find(
+        (item) => cocok(item) && samakanNama(item.label) === target,
+    );
+
+    return found ? String(found.value) : "";
 }
 
 function pick(row, keys, fallback = "") {
@@ -610,6 +632,17 @@ export default function ManajemenAkun({
     const [successMessage, setSuccessMessage] = useState("");
     const [rejectMessage, setRejectMessage] = useState("");
 
+    const [tab, setTab] = useState("akun");
+    const [pendaftar, setPendaftar] = useState(EMPTY_LIST);
+    const [pendaftarInfo, setPendaftarInfo] = useState({
+        memuat: true,
+        pesan: "",
+    });
+    const [pagePendaftar, setPagePendaftar] = useState(1);
+    const [pendaftarAktif, setPendaftarAktif] = useState(null);
+    const [tolakTarget, setTolakTarget] = useState(null);
+    const [menolak, setMenolak] = useState(false);
+
     const [fNama, setFNama] = useState("");
     const [fEmail, setFEmail] = useState("");
     const [fTelepon, setFTelepon] = useState("");
@@ -621,6 +654,37 @@ export default function ManajemenAkun({
     useEffect(() => {
         setLocalRows(normalizedSourceRows);
     }, [normalizedSourceRows]);
+
+    const muatPendaftar = async () => {
+        setPendaftarInfo({ memuat: true, pesan: "" });
+
+        let json = null;
+
+        try {
+            const res = await fetch(PENDAFTAR_URL, {
+                headers: { Accept: "application/json" },
+            });
+            json = await res.json();
+        } catch {
+            json = null;
+        }
+
+        if (json?.status && Array.isArray(json.data)) {
+            setPendaftar(json.data);
+            setPendaftarInfo({ memuat: false, pesan: "" });
+            return;
+        }
+
+        setPendaftar(EMPTY_LIST);
+        setPendaftarInfo({
+            memuat: false,
+            pesan: json?.message || "Gagal memuat pendaftar baru.",
+        });
+    };
+
+    useEffect(() => {
+        muatPendaftar();
+    }, []);
 
     useEffect(() => {
         const t = window.setTimeout(() => setDebouncedQ(q.trim()), 300);
@@ -873,7 +937,40 @@ export default function ManajemenAkun({
 
     useEffect(() => {
         setPage(1);
+        setPagePendaftar(1);
     }, [kabupatenId, kecamatanId, statusFilter, debouncedQ]);
+
+    const filteredPendaftar = useMemo(() => {
+        const search = debouncedQ.toLowerCase();
+
+        if (!search) return pendaftar;
+
+        return pendaftar.filter((item) =>
+            [
+                item.nama,
+                item.email,
+                item.telp,
+                item.no_registrasi,
+                item.kelurahan,
+                item.kecamatan,
+                item.kabupaten,
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+                .includes(search),
+        );
+    }, [pendaftar, debouncedQ]);
+
+    const totalPagesPendaftar = Math.max(
+        1,
+        Math.ceil(filteredPendaftar.length / PENDAFTAR_PAGE_SIZE),
+    );
+    const safePagePendaftar = Math.min(pagePendaftar, totalPagesPendaftar);
+    const pagePendaftarRows = filteredPendaftar.slice(
+        (safePagePendaftar - 1) * PENDAFTAR_PAGE_SIZE,
+        safePagePendaftar * PENDAFTAR_PAGE_SIZE,
+    );
 
     const accountStats = useMemo(() => {
         const active = filteredRows.filter(
@@ -900,11 +997,6 @@ export default function ManajemenAkun({
         safePage * PAGE_SIZE,
     );
 
-    const pageNums = useMemo(
-        () => getPaginationItems(safePage, totalPages),
-        [safePage, totalPages],
-    );
-
     const resetForm = () => {
         setFNama("");
         setFEmail("");
@@ -913,6 +1005,7 @@ export default function ManajemenAkun({
         setFKecamatanId("");
         setFKelurahanId("");
         setFPosbankumId("");
+        setPendaftarAktif(null);
     };
 
     const showError = (message) => {
@@ -943,6 +1036,71 @@ export default function ManajemenAkun({
         resetForm();
         setPageMode("add");
         window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const openSetujui = (item) => {
+        const idKabupaten = cariWilayah(masterKabupatenOpts, item.kabupaten);
+        const idKecamatan = idKabupaten
+            ? cariWilayah(
+                  masterKecamatanOpts,
+                  item.kecamatan,
+                  (opt) => String(opt.id_kabupaten) === idKabupaten,
+              )
+            : "";
+        const idKelurahan = idKecamatan
+            ? cariWilayah(
+                  masterKelurahanOpts,
+                  item.kelurahan,
+                  (opt) => String(opt.id_kecamatan) === idKecamatan,
+              )
+            : "";
+
+        setErr("");
+        setRejectMessage("");
+        setMode("add");
+        setEditingId(null);
+        setDetailTarget(null);
+
+        setFNama(item.nama ?? "");
+        setFEmail(item.email ?? "");
+        setFTelepon(sanitizePhoneInput(item.telp));
+        setFKabupatenId(idKabupaten);
+        setFKecamatanId(idKecamatan);
+        setFKelurahanId(idKelurahan);
+        setFPosbankumId("");
+        setPendaftarAktif(item);
+
+        setPageMode("add");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const confirmTolak = () => {
+        if (!tolakTarget || menolak) return;
+
+        const noRegistrasi = tolakTarget.no_registrasi;
+
+        router.post(
+            `${PENDAFTAR_URL}/${encodeURIComponent(noRegistrasi)}/tolak`,
+            {},
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onStart: () => setMenolak(true),
+                onSuccess: () => {
+                    setPendaftar((prev) =>
+                        prev.filter(
+                            (item) => item.no_registrasi !== noRegistrasi,
+                        ),
+                    );
+                    setSuccessMessage("Pendaftar ditolak.");
+                },
+                onError: (errors) => showError(getFirstError(errors)),
+                onFinish: () => {
+                    setMenolak(false);
+                    setTolakTarget(null);
+                },
+            },
+        );
     };
 
     const openDetail = (row) => {
@@ -1040,6 +1198,11 @@ export default function ManajemenAkun({
             id_posbankum: fPosbankumId,
         };
 
+        const noRegistrasi =
+            mode === "add" ? pendaftarAktif?.no_registrasi : null;
+
+        if (noRegistrasi) payload.no_registrasi = noRegistrasi;
+
         const url =
             mode === "add"
                 ? "/admin/manajemen-akun/paralegal"
@@ -1056,6 +1219,13 @@ export default function ManajemenAkun({
                         : "Data paralegal berhasil diperbarui.",
                 );
                 setErr("");
+                if (noRegistrasi) {
+                    setPendaftar((prev) =>
+                        prev.filter(
+                            (item) => item.no_registrasi !== noRegistrasi,
+                        ),
+                    );
+                }
                 resetForm();
                 setEditingId(null);
                 setDetailTarget(null);
@@ -1188,8 +1358,13 @@ export default function ManajemenAkun({
         );
     };
 
-    const formTitle = mode === "add" ? "Tambah Paralegal" : "Edit Paralegal";
-    const formCrumb = mode === "add" ? "Tambah Paralegal" : "Edit Paralegal";
+    const formTitle =
+        mode !== "add"
+            ? "Edit Paralegal"
+            : pendaftarAktif
+              ? "Setujui Pendaftar"
+              : "Tambah Paralegal";
+    const formCrumb = formTitle;
 
     const renderBreadcrumb = (current) => (
         <div className="kpBreadcrumb" aria-label="Breadcrumb">
@@ -1253,6 +1428,25 @@ export default function ManajemenAkun({
                 </div>
 
                 <div className="kpFormPageBody">
+                    {pendaftarAktif && mode === "add" ? (
+                        <p className="kpPendaftarNote">
+                            Data dari pendaftaran{" "}
+                            <strong>{pendaftarAktif.no_registrasi}</strong>.
+                            Domisili di formulir:{" "}
+                            {[
+                                pendaftarAktif.kelurahan,
+                                pendaftarAktif.kecamatan,
+                                pendaftarAktif.kabupaten,
+                            ]
+                                .filter(Boolean)
+                                .join(", ") || "-"}
+                            .
+                            {fKelurahanId
+                                ? " Periksa kembali sebelum menyimpan."
+                                : " Wilayah belum cocok otomatis, pilih secara manual."}
+                        </p>
+                    ) : null}
+
                     <div className="kpGrid2 kpGridFormRow">
                         <div className="kpFormGroup">
                             <label className="kpLabel" htmlFor="nama-paralegal">
@@ -1562,6 +1756,55 @@ export default function ManajemenAkun({
         );
     };
 
+    const renderPager = (aktif, jumlah, ubah) =>
+        jumlah > 1 ? (
+            <div className="kpPager">
+                <button
+                    className="kpNavBtn"
+                    type="button"
+                    onClick={() => ubah(Math.max(1, aktif - 1))}
+                    disabled={aktif <= 1}
+                    aria-label="Halaman sebelumnya"
+                >
+                    <FiChevronLeft />
+                </button>
+
+                {getPaginationItems(aktif, jumlah).map((item, index) =>
+                    item === "ellipsis" ? (
+                        <span
+                            key={`ellipsis-${index}`}
+                            className="kpPageBtn kpPageEllipsis"
+                            aria-hidden="true"
+                        >
+                            …
+                        </span>
+                    ) : (
+                        <button
+                            key={item}
+                            className={`kpPageBtn ${
+                                aktif === item ? "is-active" : ""
+                            }`}
+                            type="button"
+                            onClick={() => ubah(item)}
+                            aria-current={aktif === item ? "page" : undefined}
+                        >
+                            {item}
+                        </button>
+                    ),
+                )}
+
+                <button
+                    className="kpNavBtn"
+                    type="button"
+                    onClick={() => ubah(Math.min(jumlah, aktif + 1))}
+                    disabled={aktif >= jumlah}
+                    aria-label="Halaman berikutnya"
+                >
+                    <FiChevronRight />
+                </button>
+            </div>
+        ) : null;
+
     const renderListPage = () => (
         <>
             <div
@@ -1814,57 +2057,220 @@ export default function ManajemenAkun({
                     </tbody>
                 </table>
 
-                {totalPages > 1 ? (
-                    <div className="kpPager">
-                        <button
-                            className="kpNavBtn"
-                            type="button"
-                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                            disabled={safePage <= 1}
-                            aria-label="Halaman sebelumnya"
-                        >
-                            <FiChevronLeft />
-                        </button>
+                {renderPager(safePage, totalPages, setPage)}
+            </div>
+        </>
+    );
 
-                        {pageNums.map((item, index) =>
-                            item === "ellipsis" ? (
-                                <span
-                                    key={`ellipsis-${index}`}
-                                    className="kpPageBtn kpPageEllipsis"
-                                    aria-hidden="true"
-                                >
-                                    …
-                                </span>
-                            ) : (
-                                <button
-                                    key={item}
-                                    className={`kpPageBtn ${
-                                        safePage === item ? "is-active" : ""
-                                    }`}
-                                    type="button"
-                                    onClick={() => setPage(item)}
-                                    aria-current={
-                                        safePage === item ? "page" : undefined
-                                    }
-                                >
-                                    {item}
-                                </button>
-                            ),
-                        )}
-
-                        <button
-                            className="kpNavBtn"
-                            type="button"
-                            onClick={() =>
-                                setPage((p) => Math.min(totalPages, p + 1))
-                            }
-                            disabled={safePage >= totalPages}
-                            aria-label="Halaman berikutnya"
-                        >
-                            <FiChevronRight />
-                        </button>
-                    </div>
+    const renderTabs = () => (
+        <div className="kpTabs" role="tablist" aria-label="Jenis data akun">
+            <button
+                className={`kpTab ${tab === "akun" ? "is-active" : ""}`}
+                type="button"
+                role="tab"
+                aria-selected={tab === "akun"}
+                onClick={() => setTab("akun")}
+            >
+                Akun Paralegal
+            </button>
+            <button
+                className={`kpTab ${tab === "pendaftar" ? "is-active" : ""}`}
+                type="button"
+                role="tab"
+                aria-selected={tab === "pendaftar"}
+                onClick={() => setTab("pendaftar")}
+            >
+                Pendaftar Baru
+                {pendaftar.length ? (
+                    <span className="kpTabCount">{pendaftar.length}</span>
                 ) : null}
+            </button>
+        </div>
+    );
+
+    const renderPendaftarPage = () => (
+        <>
+            <div className="kpPanel">
+                <div className="kpPendaftarBar">
+                    <div className="kpSearch">
+                        <FiSearch className="kpSearchIco" />
+                        <input
+                            className="kpSearchInput"
+                            name="pendaftar_search_input"
+                            placeholder="Cari pendaftar..."
+                            value={q}
+                            onChange={(e) => setQ(e.target.value)}
+                            autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck={false}
+                        />
+                        {q ? (
+                            <button
+                                className="kpClear"
+                                type="button"
+                                onClick={() => setQ("")}
+                                aria-label="Bersihkan pencarian"
+                            >
+                                <FiX />
+                            </button>
+                        ) : null}
+                    </div>
+
+                    <button
+                        className="kpPageBtnGhost kpPendaftarReload"
+                        type="button"
+                        onClick={muatPendaftar}
+                        disabled={pendaftarInfo.memuat}
+                    >
+                        <FiRefreshCw aria-hidden="true" />
+                        <span>
+                            {pendaftarInfo.memuat ? "Memuat..." : "Muat ulang"}
+                        </span>
+                    </button>
+                </div>
+
+                <p className="kpPendaftarHint">
+                    Pendaftar dari formulir pendaftaran paralegal yang belum
+                    memiliki akun. Menyetujui akan membuat akun paralegal.
+                </p>
+            </div>
+
+            {pendaftarInfo.pesan ? (
+                <div className="kpError" role="alert">
+                    {pendaftarInfo.pesan}
+                </div>
+            ) : null}
+
+            <div className="kpTableCard">
+                <table className="kpTable kpPendaftarTable">
+                    <thead>
+                        <tr>
+                            <th>Nama Pendaftar</th>
+                            <th>Email</th>
+                            <th>No. Telepon</th>
+                            <th>Domisili</th>
+                            <th>Tanggal Daftar</th>
+                            <th className="kpActionHead">Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {pagePendaftarRows.length ? (
+                            pagePendaftarRows.map((item) => (
+                                <tr key={item.no_registrasi}>
+                                    <td data-label="Nama Pendaftar">
+                                        <span className="kpNameCell">
+                                            {item.nama || "-"}
+                                        </span>
+                                        <span className="kpPendaftarSub">
+                                            {item.no_registrasi}
+                                        </span>
+                                        {item.akun_warga ? (
+                                            <span className="kpPendaftarFlag">
+                                                Email sudah terdaftar sebagai
+                                                warga
+                                            </span>
+                                        ) : null}
+                                        {item.telepon_dipakai ? (
+                                            <span className="kpPendaftarFlag">
+                                                No. HP sama dengan akun{" "}
+                                                {item.telepon_dipakai}
+                                            </span>
+                                        ) : null}
+                                    </td>
+                                    <td data-label="Email">
+                                        <span className="kpTextCell">
+                                            {item.email || "-"}
+                                        </span>
+                                    </td>
+                                    <td data-label="No. Telepon">
+                                        <span className="kpTextCell">
+                                            {formatPhoneDisplay(item.telp)}
+                                        </span>
+                                    </td>
+                                    <td data-label="Domisili">
+                                        <span className="kpTextCell">
+                                            {[
+                                                item.kelurahan,
+                                                item.kecamatan,
+                                                item.kabupaten,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(", ") || "-"}
+                                        </span>
+                                    </td>
+                                    <td data-label="Tanggal Daftar">
+                                        <span className="kpTextCell">
+                                            {formatAccountHistoryDate(
+                                                item.waktu,
+                                            )}
+                                        </span>
+                                    </td>
+                                    <td data-label="Aksi">
+                                        <div className="kpActions">
+                                            <button
+                                                className="kpMiniBtn is-ok"
+                                                type="button"
+                                                onClick={() =>
+                                                    openSetujui(item)
+                                                }
+                                                disabled={item.akun_warga}
+                                                title={
+                                                    item.akun_warga
+                                                        ? "Email ini sudah dipakai akun warga"
+                                                        : undefined
+                                                }
+                                            >
+                                                Setujui
+                                            </button>
+                                            <button
+                                                className="kpMiniBtn is-danger"
+                                                type="button"
+                                                onClick={() =>
+                                                    setTolakTarget(item)
+                                                }
+                                            >
+                                                Tolak
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={6} className="kpEmptyCell">
+                                    <div className="kpEmptyState">
+                                        <div
+                                            className="kpEmptyIcon"
+                                            aria-hidden="true"
+                                        >
+                                            <img src={posbankumIcon} alt="" />
+                                        </div>
+                                        <h2>
+                                            {pendaftarInfo.memuat
+                                                ? "Memuat Pendaftar..."
+                                                : "Tidak Ada Pendaftar Baru"}
+                                        </h2>
+                                        <p>
+                                            {pendaftarInfo.memuat
+                                                ? "Mengambil data dari formulir pendaftaran."
+                                                : q
+                                                  ? "Tidak ada pendaftar yang sesuai dengan pencarian."
+                                                  : "Semua pendaftar sudah diproses."}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+
+                {renderPager(
+                    safePagePendaftar,
+                    totalPagesPendaftar,
+                    setPagePendaftar,
+                )}
             </div>
         </>
     );
@@ -1891,7 +2297,13 @@ export default function ManajemenAkun({
 
                 {err ? <div className="kpError">{err}</div> : null}
 
-                {pageMode === "list" ? renderListPage() : null}
+                {pageMode === "list" ? renderTabs() : null}
+                {pageMode === "list" && tab === "akun"
+                    ? renderListPage()
+                    : null}
+                {pageMode === "list" && tab === "pendaftar"
+                    ? renderPendaftarPage()
+                    : null}
                 {pageMode === "add" || pageMode === "edit"
                     ? renderFormPage()
                     : null}
@@ -1911,6 +2323,22 @@ export default function ManajemenAkun({
                     loading={deleting}
                     onCancel={() => !deleting && setDeleteTarget(null)}
                     onConfirm={confirmHapus}
+                />
+
+                <DeleteConfirmModal
+                    open={Boolean(tolakTarget)}
+                    title="Tolak Pendaftar?"
+                    subtitle="Status di formulir pendaftaran akan diubah"
+                    description={
+                        tolakTarget
+                            ? `Pendaftaran ${tolakTarget.nama} (${tolakTarget.no_registrasi}) akan ditandai Ditolak dan hilang dari daftar ini.`
+                            : ""
+                    }
+                    confirmLabel={menolak ? "Menolak..." : "Tolak"}
+                    cancelLabel="Batal"
+                    loading={menolak}
+                    onCancel={() => !menolak && setTolakTarget(null)}
+                    onConfirm={confirmTolak}
                 />
 
                 <ReminderModal
