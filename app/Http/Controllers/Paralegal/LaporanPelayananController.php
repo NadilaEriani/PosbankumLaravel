@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Paralegal;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -236,6 +235,22 @@ class LaporanPelayananController extends Controller
         return null;
     }
 
+    // Paralegal aktif di posbankum ini (sama dengan pilihan paralegal di form laporan).
+    private function paralegalAktifDiPosbankum(mixed $idUser, mixed $idPosbankum): bool
+    {
+        if (!$idUser || !$idPosbankum) {
+            return false;
+        }
+
+        return DB::table('posbankum_paralegal as pp')
+            ->join('users as u', 'u.id_user', '=', 'pp.id_user')
+            ->where('pp.id_posbankum', $idPosbankum)
+            ->where('pp.id_user', $idUser)
+            ->where('pp.status', 'aktif')
+            ->where('u.role', 'paralegal')
+            ->exists();
+    }
+
     private function pengaduanKeyColumn(): string
     {
         return $this->hasColumn('pengaduan', 'id_pengaduan') ? 'id_pengaduan' : 'id';
@@ -310,16 +325,6 @@ class LaporanPelayananController extends Controller
             'progress' => $nextProgress,
             'updates' => $updates,
         ], JSON_UNESCAPED_UNICODE);
-    }
-
-    private function parseCatatanAdmin(mixed $value): array
-    {
-        if (is_array($value)) {
-            return $value;
-        }
-
-        $decoded = json_decode((string) $value, true);
-        return is_array($decoded) ? $decoded : [];
     }
 
     /**
@@ -489,6 +494,13 @@ class LaporanPelayananController extends Controller
             ]);
         }
 
+        // id_paralegal menjadi pemilik laporan (user_id); hanya paralegal posbankum sendiri.
+        if (!$this->paralegalAktifDiPosbankum($validated['id_paralegal'], $idPosbankum)) {
+            throw ValidationException::withMessages([
+                'id_paralegal' => 'Paralegal tidak terdaftar di Posbankum Anda.',
+            ]);
+        }
+
         $payload = [];
         $idPengaduan = $this->makePengaduanPrimaryKey($payload);
         $assignedUserId = $this->blankToNull($validated['id_paralegal'] ?? null) ?: $createdBy;
@@ -544,20 +556,11 @@ class LaporanPelayananController extends Controller
         return redirect()->back()->with('success', 'Laporan berhasil disimpan.');
     }
 
-    public function updateStatus(Request $request, mixed $id): RedirectResponse
+    public function destroy(Request $request, mixed $id): RedirectResponse
     {
         if (!$this->hasTable('pengaduan')) {
             abort(404);
         }
-
-        $validated = $request->validate([
-            'status' => ['required', 'in:diproses,selesai'],
-            'progress' => ['nullable', 'integer', 'min:0', 'max:100'],
-            'progress_title' => ['nullable', 'string', 'max:120'],
-            'progress_desc' => ['nullable', 'string'],
-            'append_update' => ['nullable', 'boolean'],
-            'update_mode' => ['nullable', 'in:append,reset'],
-        ]);
 
         $idColumn = $this->pengaduanKeyColumn();
         $row = DB::table('pengaduan')->where($idColumn, $id)->first();
@@ -566,63 +569,13 @@ class LaporanPelayananController extends Controller
             abort(404);
         }
 
-        // Satu kasus satu paralegal (sama dengan API mobile): kasus milik paralegal lain
-        // tidak boleh diubah, kasus yang belum diambil dicatat atas nama paralegal ini.
-        $handler = $this->rowValue($row, ['id_paralegal'], '');
-        $authId = (string) $this->authUserId($request);
-        if ($handler !== '' && (string) $handler !== $authId) {
+        // Hanya laporan buatan web posbankum sendiri (user_id = paralegal posbankum ini).
+        // Pengaduan warga dari aplikasi tidak bisa dihapus dari web.
+        $idPosbankum = $this->resolveUserPosbankumId($request->user());
+        if (!$this->paralegalAktifDiPosbankum($this->rowValue($row, ['user_id']), $idPosbankum)) {
             throw ValidationException::withMessages([
-                'status' => 'Kasus ini ditangani paralegal lain.',
+                'pengaduan' => 'Laporan ini tidak bisa dihapus dari web.',
             ]);
-        }
-
-        $oldCatatan = $this->parseCatatanAdmin($this->rowValue($row, ['catatan_admin'], '{}'));
-        $request->merge([
-            'prioritas' => $oldCatatan['prioritas'] ?? $this->rowValue($row, ['prioritas'], 'sedang'),
-            'id_paralegal' => $oldCatatan['id_paralegal'] ?? $this->rowValue($row, ['id_paralegal', 'user_id'], ''),
-            'paralegal_nama' => $oldCatatan['paralegal_nama'] ?? '',
-            'paralegal_hp' => $oldCatatan['paralegal_hp'] ?? '',
-            'catatan_internal' => $request->input('catatan_internal', $oldCatatan['catatan_internal'] ?? ''),
-            'nik' => $oldCatatan['nik'] ?? '',
-            'nama_lurah' => $oldCatatan['nama_lurah'] ?? '',
-            'progress' => $validated['status'] === 'selesai'
-                ? 100
-                : (int) ($validated['progress'] ?? ($oldCatatan['progress'] ?? 0)),
-            'progress_title' => $validated['progress_title'] ?? null,
-            'progress_desc' => $validated['progress_desc'] ?? null,
-            'append_update' => $request->has('append_update') ? $request->boolean('append_update') : true,
-            'update_mode' => $validated['update_mode'] ?? 'append',
-        ]);
-
-        $payload = [];
-        if ($handler === '') {
-            $this->addColumn($payload, 'pengaduan', 'id_paralegal', $authId);
-        }
-        $this->addColumn($payload, 'pengaduan', 'status', $validated['status']);
-        $this->addColumn($payload, 'pengaduan', 'catatan_admin', $this->buildCatatanAdmin($request, $validated['status'], $oldCatatan));
-        $this->addColumn($payload, 'pengaduan', 'updated_at', now());
-
-        if ($validated['status'] === 'selesai') {
-            $this->addColumn($payload, 'pengaduan', 'tgl_selesai', Carbon::now()->toDateString());
-            $this->addColumn($payload, 'pengaduan', 'tanggal_selesai', Carbon::now()->toDateString());
-        }
-
-        DB::table('pengaduan')->where($idColumn, $id)->update($payload);
-
-        return redirect()->back()->with('success', 'Status laporan berhasil diperbarui.');
-    }
-
-    public function destroy(mixed $id): RedirectResponse
-    {
-        if (!$this->hasTable('pengaduan')) {
-            abort(404);
-        }
-
-        $idColumn = $this->pengaduanKeyColumn();
-        $row = DB::table('pengaduan')->where($idColumn, $id)->first();
-
-        if (!$row) {
-            abort(404);
         }
 
         $this->deleteLampiran($id);

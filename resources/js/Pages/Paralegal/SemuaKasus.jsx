@@ -167,6 +167,12 @@ function getStatusIcon(status) {
     return <FiClock />;
 }
 
+// Nama wilayah dari tabel wilayah; "-" berarti belum dipetakan.
+function namaWilayah(value) {
+    const nama = String(value ?? "").trim();
+    return nama === "-" ? "" : nama;
+}
+
 function normalizeCase(row, index = 0) {
     const status = normalizeStatus(row?.status);
     const prioritas = normalizePrioritas(row?.prioritas || row?.priority);
@@ -236,6 +242,9 @@ function normalizeCase(row, index = 0) {
         posbankumPlain: removePosbankumPrefix(posbankum),
         kota: wilayah,
         wilayah,
+        kabupaten: namaWilayah(row?.kabupaten_nama),
+        kecamatan: namaWilayah(row?.kecamatan_nama),
+        kelurahan: namaWilayah(row?.kelurahan_nama),
         provinsi: firstFilled(row?.provinsi, "Riau"),
         pelapor: firstFilled(row?.pelapor, row?.nama_pelapor),
         namaLurah: firstFilled(
@@ -383,6 +392,46 @@ function ProgressBar({ value, className = "" }) {
     );
 }
 
+// Filter wilayah bertingkat: memilih tingkat atas mengosongkan tingkat di bawahnya.
+const WILAYAH_KEYS = ["kabupaten", "kecamatan", "kelurahan"];
+const WILAYAH_LABEL = {
+    kabupaten: "Kabupaten/Kota",
+    kecamatan: "Kecamatan",
+    kelurahan: "Kelurahan/Desa",
+};
+const FILTER_AWAL = {
+    kategori: "Semua",
+    status: "Semua",
+    prioritas: "Semua",
+    urutkan: "Terbaru",
+    kabupaten: "Semua",
+    kecamatan: "Semua",
+    kelurahan: "Semua",
+};
+
+function turunanWilayah(key) {
+    return WILAYAH_KEYS.slice(WILAYAH_KEYS.indexOf(key) + 1);
+}
+
+function cocokWilayah(item, filters, sampai = WILAYAH_KEYS.length) {
+    return WILAYAH_KEYS.slice(0, sampai).every(
+        (key) => filters[key] === "Semua" || item[key] === filters[key],
+    );
+}
+
+// Pilihan wilayah diambil dari kasus yang ada, mengikuti tingkat di atasnya.
+function opsiWilayah(rows, key, filters) {
+    const tingkat = WILAYAH_KEYS.indexOf(key);
+    const nilai = new Set(
+        rows
+            .filter((item) => cocokWilayah(item, filters, tingkat))
+            .map((item) => item[key])
+            .filter(Boolean),
+    );
+
+    return [...nilai].sort((a, b) => a.localeCompare(b, "id"));
+}
+
 export default function SemuaKasus({
     cases = [],
     flash = {},
@@ -398,12 +447,7 @@ export default function SemuaKasus({
         useViewMode("semua-kasus");
     const pageSize = viewMode === "tabel" ? tableRows : PAGE_SIZE;
     const [urut, ubahUrut, setUrut] = useSort(null, () => setPage(1));
-    const [filters, setFilters] = useState({
-        kategori: "Semua",
-        status: "Semua",
-        prioritas: "Semua",
-        urutkan: "Terbaru",
-    });
+    const [filters, setFilters] = useState(FILTER_AWAL);
     const [draftFilters, setDraftFilters] = useState(filters);
     const [successToast, setSuccessToast] = useState({
         title: "",
@@ -472,9 +516,12 @@ export default function SemuaKasus({
 
     const activeFilterCount = useMemo(
         () =>
-            [filters.kategori, filters.status, filters.prioritas].filter(
-                (item) => item !== "Semua",
-            ).length,
+            [
+                filters.kategori,
+                filters.status,
+                filters.prioritas,
+                ...WILAYAH_KEYS.map((key) => filters[key]),
+            ].filter((item) => item !== "Semua").length,
         [filters],
     );
 
@@ -505,7 +552,8 @@ export default function SemuaKasus({
                 (filters.status === "Semua" ||
                     item.status === filters.status) &&
                 (filters.prioritas === "Semua" ||
-                    item.prioritas === filters.prioritas)
+                    item.prioritas === filters.prioritas) &&
+                cocokWilayah(item, filters)
             );
         });
 
@@ -559,21 +607,24 @@ export default function SemuaKasus({
     };
 
     const resetFilters = () => {
-        const next = {
-            kategori: "Semua",
-            status: "Semua",
-            prioritas: "Semua",
-            urutkan: "Terbaru",
-        };
-        setDraftFilters(next);
-        setFilters(next);
+        setDraftFilters(FILTER_AWAL);
+        setFilters(FILTER_AWAL);
         setSearch("");
     };
 
     const removeFilter = (key) => {
         const nextValue = key === "urutkan" ? "Terbaru" : "Semua";
-        setFilters((previous) => ({ ...previous, [key]: nextValue }));
-        setDraftFilters((previous) => ({ ...previous, [key]: nextValue }));
+        const update = (previous) => {
+            const next = { ...previous, [key]: nextValue };
+            if (WILAYAH_KEYS.includes(key)) {
+                turunanWilayah(key).forEach((child) => {
+                    next[child] = "Semua";
+                });
+            }
+            return next;
+        };
+        setFilters(update);
+        setDraftFilters(update);
     };
 
     const openDetail = (item) => {
@@ -766,6 +817,19 @@ export default function SemuaKasus({
                                         <FiX />
                                     </button>
                                 )}
+                                {WILAYAH_KEYS.filter(
+                                    (key) => filters[key] !== "Semua",
+                                ).map((key) => (
+                                    <button
+                                        key={key}
+                                        className="skActiveChip"
+                                        type="button"
+                                        onClick={() => removeFilter(key)}
+                                    >
+                                        {filters[key]}
+                                        <FiX />
+                                    </button>
+                                ))}
                             </div>
                         </div>
                         <button
@@ -892,6 +956,7 @@ export default function SemuaKasus({
 
             {showFilter ? (
                 <FilterPanel
+                    rows={rows}
                     draftFilters={draftFilters}
                     setDraftFilters={setDraftFilters}
                     onClose={() => setShowFilter(false)}
@@ -1065,6 +1130,7 @@ function CaseCard({ item, onDetail }) {
 }
 
 function FilterPanel({
+    rows,
     draftFilters,
     setDraftFilters,
     onClose,
@@ -1096,10 +1162,15 @@ function FilterPanel({
     ];
 
     const updateDraftFilter = (key, value) => {
-        setDraftFilters((previous) => ({
-            ...previous,
-            [key]: value,
-        }));
+        setDraftFilters((previous) => {
+            const next = { ...previous, [key]: value };
+            if (WILAYAH_KEYS.includes(key)) {
+                turunanWilayah(key).forEach((child) => {
+                    next[child] = "Semua";
+                });
+            }
+            return next;
+        });
     };
 
     return (
@@ -1165,6 +1236,45 @@ function FilterPanel({
                             </div>
                         </section>
                     ))}
+
+                    <section
+                        className="skFilterSection"
+                        aria-labelledby="sk-filter-wilayah"
+                    >
+                        <h3
+                            className="skFilterSectionTitle"
+                            id="sk-filter-wilayah"
+                        >
+                            Wilayah
+                        </h3>
+
+                        <div className="skFilterSelectGrid">
+                            {WILAYAH_KEYS.map((key) => (
+                                <label className="skFilterSelectField" key={key}>
+                                    <span>{WILAYAH_LABEL[key]}</span>
+                                    <select
+                                        className="skFilterSelect"
+                                        value={draftFilters[key]}
+                                        onChange={(event) =>
+                                            updateDraftFilter(
+                                                key,
+                                                event.target.value,
+                                            )
+                                        }
+                                    >
+                                        <option value="Semua">Semua</option>
+                                        {opsiWilayah(rows, key, draftFilters).map(
+                                            (nama) => (
+                                                <option key={nama} value={nama}>
+                                                    {nama}
+                                                </option>
+                                            ),
+                                        )}
+                                    </select>
+                                </label>
+                            ))}
+                        </div>
+                    </section>
                 </div>
 
                 <div className="skModalActions">

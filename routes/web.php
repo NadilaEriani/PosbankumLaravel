@@ -613,9 +613,6 @@ Route::middleware(['auth', 'role.area'])->group(function () use ($streamPublicFi
     Route::post('/paralegal/laporan-pelayanan', [LaporanPelayananController::class, 'store'])
         ->name('paralegal.laporan-pelayanan.store');
 
-    Route::patch('/paralegal/laporan-pelayanan/{id}/status', [LaporanPelayananController::class, 'updateStatus'])
-        ->name('paralegal.laporan-pelayanan.status');
-
     Route::delete('/paralegal/laporan-pelayanan/{id}', [LaporanPelayananController::class, 'destroy'])
         ->name('paralegal.laporan-pelayanan.destroy');
 

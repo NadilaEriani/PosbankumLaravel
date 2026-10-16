@@ -324,6 +324,7 @@ function normalizeReport(row, index = 0) {
         kecamatan_nama: row?.kecamatan_nama || "",
         kabupaten_nama: row?.kabupaten_nama || "Pekanbaru",
         provinsi_nama: row?.provinsi || "Riau",
+        bisa_dihapus: Boolean(row?.bisa_dihapus),
     };
 }
 
@@ -428,15 +429,17 @@ function ReportTable({ reports, onDetail, onDelete, urut, onSort }) {
                                     >
                                         <FiEye />
                                     </button>
-                                    <button
-                                        className="vt-iconBtn is-danger"
-                                        type="button"
-                                        onClick={() => onDelete(report)}
-                                        aria-label={`Hapus ${report.judul_pengaduan}`}
-                                        title="Hapus"
-                                    >
-                                        <FiTrash2 />
-                                    </button>
+                                    {report.bisa_dihapus && (
+                                        <button
+                                            className="vt-iconBtn is-danger"
+                                            type="button"
+                                            onClick={() => onDelete(report)}
+                                            aria-label={`Hapus ${report.judul_pengaduan}`}
+                                            title="Hapus"
+                                        >
+                                            <FiTrash2 />
+                                        </button>
+                                    )}
                                 </div>
                             </td>
                         </tr>
@@ -533,13 +536,15 @@ function ReportListCard({ report, onDetail, onDelete }) {
                     </span>
                 </div>
                 <div className="lpvActionRow">
-                    <button
-                        type="button"
-                        className="lpvDangerBtn"
-                        onClick={() => onDelete(report)}
-                    >
-                        <FiTrash2 /> Hapus
-                    </button>
+                    {report.bisa_dihapus && (
+                        <button
+                            type="button"
+                            className="lpvDangerBtn"
+                            onClick={() => onDelete(report)}
+                        >
+                            <FiTrash2 /> Hapus
+                        </button>
+                    )}
                     <button
                         type="button"
                         className="lpvPrimaryBtn"
@@ -601,6 +606,15 @@ function getDetailTopMetrics(report) {
     ];
 }
 
+// Isi laporan berasal dari warga/paralegal: wajib di-escape sebelum masuk HTML cetak.
+function escapeHtml(value) {
+    return String(value ?? "").replace(
+        /[&<>"']/g,
+        (ch) =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch],
+    );
+}
+
 function buildPrintHtml(report) {
     const topMetrics = getDetailTopMetrics(report);
     const badgeStatusClass = report.status === "selesai" ? "done" : "process";
@@ -617,11 +631,11 @@ function buildPrintHtml(report) {
                     <div class="print-timeline-dot"></div>
                     <div class="print-timeline-card">
                         <div class="print-timeline-head">
-                            <strong>${item.title || "Update"}</strong>
-                            <span>${item.date || "-"}${item.time ? ` • ${item.time}` : ""}</span>
+                            <strong>${escapeHtml(item.title || "Update")}</strong>
+                            <span>${escapeHtml(item.date || "-")}${item.time ? ` • ${escapeHtml(item.time)}` : ""}</span>
                         </div>
-                        <p>${item.desc || "-"}</p>
-                        <small>${item.by || "Posbankum"}</small>
+                        <p>${escapeHtml(item.desc || "-")}</p>
+                        <small>${escapeHtml(item.by || "Posbankum")}</small>
                     </div>
                 </div>`,
         )
@@ -633,7 +647,7 @@ function buildPrintHtml(report) {
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Print ${report.nomor_pengaduan}</title>
+<title>Print ${escapeHtml(report.nomor_pengaduan)}</title>
 <style>
     * { box-sizing: border-box; }
     body { font-family: Arial, Helvetica, sans-serif; margin: 0; color: #111827; background: #ffffff; }
@@ -678,10 +692,10 @@ function buildPrintHtml(report) {
         <div class="print-topbar">
             <div>
                 <h1>Detail Laporan Pelayanan</h1>
-                <div class="code">${report.nomor_pengaduan}</div>
+                <div class="code">${escapeHtml(report.nomor_pengaduan)}</div>
                 <div class="badges">
-                    <span class="badge ${badgeStatusClass}">Status: ${getStatusLabel(report.status)}</span>
-                    <span class="badge ${badgePriorityClass}">Prioritas: ${getPriorityLabel(report.prioritas)}</span>
+                    <span class="badge ${badgeStatusClass}">Status: ${escapeHtml(getStatusLabel(report.status))}</span>
+                    <span class="badge ${badgePriorityClass}">Prioritas: ${escapeHtml(getPriorityLabel(report.prioritas))}</span>
                 </div>
                 <div class="title-line"></div>
             </div>
@@ -690,44 +704,44 @@ function buildPrintHtml(report) {
         <div class="section-title">Informasi Laporan</div>
         <div class="field-card" style="margin-bottom:14px;">
             <div class="field-label">Judul Laporan</div>
-            <div class="field-value">${report.judul_pengaduan}</div>
+            <div class="field-value">${escapeHtml(report.judul_pengaduan)}</div>
         </div>
         <div class="field-card" style="margin-bottom:14px;">
             <div class="field-label">Jenis Masalah</div>
-            <div class="field-value">${report.jenis_masalah}</div>
+            <div class="field-value">${escapeHtml(report.jenis_masalah)}</div>
         </div>
-        <div class="story-box">${report.kronologi}</div>
+        <div class="story-box">${escapeHtml(report.kronologi)}</div>
 
         <div class="grid-3" style="margin-top:14px;">
             ${topMetrics
                 .map(
                     (item) =>
-                        `<div class="metric-card"><div class="metric-label">${item.label}</div><div class="metric-value">${item.value}</div></div>`,
+                        `<div class="metric-card"><div class="metric-label">${escapeHtml(item.label)}</div><div class="metric-value">${escapeHtml(item.value)}</div></div>`,
                 )
                 .join("")}
         </div>
 
         <div class="field-card" style="margin-top:14px;">
             <div class="field-label">Lokasi Kejadian</div>
-            <div class="field-value">${report.lokasi_kejadian || "-"}</div>
+            <div class="field-value">${escapeHtml(report.lokasi_kejadian || "-")}</div>
         </div>
 
-        ${report.catatan_internal ? `<div class="note-box"><strong>Catatan Paralegal</strong><div style="margin-top:8px; line-height:1.7;">${report.catatan_internal}</div></div>` : ""}
+        ${report.catatan_internal ? `<div class="note-box"><strong>Catatan Paralegal</strong><div style="margin-top:8px; line-height:1.7;">${escapeHtml(report.catatan_internal)}</div></div>` : ""}
 
         <div class="section-title">Data Pelapor</div>
         <div class="grid-2">
-            <div class="field-card"><div class="field-label">Nama Pelapor</div><div class="field-value">${report.nama_pelapor || "-"}</div></div>
-            <div class="field-card"><div class="field-label">NIK</div><div class="field-value">${report.nik || "-"}</div></div>
-            <div class="field-card"><div class="field-label">Nomor Telepon</div><div class="field-value">${formatPhoneDisplay(report.nomor_telepon)}</div></div>
-            <div class="field-card"><div class="field-label">Lurah / Kades</div><div class="field-value">${report.nama_lurah || "-"}</div></div>
-            <div class="field-card"><div class="field-label">Posbankum / Kecamatan</div><div class="field-value">${getFullWilayah(report)}</div></div>
-            <div class="field-card"><div class="field-label">Provinsi</div><div class="field-value">${report.provinsi_nama || "Riau"}</div></div>
+            <div class="field-card"><div class="field-label">Nama Pelapor</div><div class="field-value">${escapeHtml(report.nama_pelapor || "-")}</div></div>
+            <div class="field-card"><div class="field-label">NIK</div><div class="field-value">${escapeHtml(report.nik || "-")}</div></div>
+            <div class="field-card"><div class="field-label">Nomor Telepon</div><div class="field-value">${escapeHtml(formatPhoneDisplay(report.nomor_telepon))}</div></div>
+            <div class="field-card"><div class="field-label">Lurah / Kades</div><div class="field-value">${escapeHtml(report.nama_lurah || "-")}</div></div>
+            <div class="field-card"><div class="field-label">Posbankum / Kecamatan</div><div class="field-value">${escapeHtml(getFullWilayah(report))}</div></div>
+            <div class="field-card"><div class="field-label">Provinsi</div><div class="field-value">${escapeHtml(report.provinsi_nama || "Riau")}</div></div>
         </div>
 
         <div class="section-title">Paralegal yang Mengurus</div>
         <div class="grid-2">
-            <div class="field-card"><div class="field-label">Nama Paralegal</div><div class="field-value">${report.paralegal_nama || "-"}</div></div>
-            <div class="field-card"><div class="field-label">Nomor HP Paralegal</div><div class="field-value">${formatPhoneDisplay(report.paralegal_hp)}</div></div>
+            <div class="field-card"><div class="field-label">Nama Paralegal</div><div class="field-value">${escapeHtml(report.paralegal_nama || "-")}</div></div>
+            <div class="field-card"><div class="field-label">Nomor HP Paralegal</div><div class="field-value">${escapeHtml(formatPhoneDisplay(report.paralegal_hp))}</div></div>
         </div>
 
         <div class="section-title">Progres Penanganan</div>

@@ -834,6 +834,8 @@ class DashboardController extends Controller
                 'lampiran' => $lampiranMap[$id] ?? [],
                 'updates' => $updates,
                 'progress' => $computedProgress,
+                // Laporan buatan web (pemilik = paralegal); pengaduan warga tidak bisa dihapus dari web.
+                'bisa_dihapus' => $this->rowValue($userMap->get((string) $this->rowValue($row, ['user_id'], '')), ['role']) === 'paralegal',
             ];
         })->toArray();
     }

@@ -1548,3 +1548,43 @@
         font-size: 14px;
     }
 }
+
+/* Filter wilayah (Kabupaten/Kecamatan/Kelurahan) */
+.skFilterSelectGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.skFilterSelectField {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.skFilterSelect {
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background-color: #f0f1f4;
+    color: #374151;
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.skFilterSelect:focus-visible {
+    outline: 2px solid #3a4070;
+    outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+    .skFilterSelectGrid {
+        grid-template-columns: 1fr;
+    }
+}
