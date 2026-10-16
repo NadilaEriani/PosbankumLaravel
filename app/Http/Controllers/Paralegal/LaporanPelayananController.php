@@ -385,7 +385,7 @@ class LaporanPelayananController extends Controller
             $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
             $extension = $file->extension() ?: 'bin'; // ekstensi dari isi file, bukan nama kiriman
             $filename = now()->format('YmdHis') . '-' . Str::random(10) . '-' . ($safeName ?: 'lampiran') . '.' . $extension;
-            $path = $file->storeAs('laporan-pelayanan/' . $idPengaduan, $filename, 'public');
+            $path = $file->storeAs('laporan-pelayanan/' . $idPengaduan, $filename, 'local'); // privat, dibuka lewat /file-preview
 
             $payload = [];
             $this->makeLampiranPrimaryKey($payload, $table);
@@ -426,8 +426,15 @@ class LaporanPelayananController extends Controller
             $path = (string) $this->rowValue($row, ['path_file', 'path', 'file_path'], '');
             $clean = preg_replace('#^/?storage/#', '', str_replace('\\', '/', $path));
 
-            if ($clean && !preg_match('/^https?:\/\//i', $clean) && Storage::disk('public')->exists($clean)) {
-                Storage::disk('public')->delete($clean);
+            if (!$clean || preg_match('/^https?:\/\//i', $clean)) {
+                continue;
+            }
+
+            // Lampiran baru di disk privat 'local'; lampiran lama mungkin masih di 'public'
+            foreach (['local', 'public'] as $disk) {
+                if (Storage::disk($disk)->exists($clean)) {
+                    Storage::disk($disk)->delete($clean);
+                }
             }
         }
 

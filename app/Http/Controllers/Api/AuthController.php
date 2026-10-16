@@ -37,9 +37,9 @@ class AuthController extends Controller
 
         return DB::transaction(function () use ($email, $googleId, $googleData) {
             // GUNAKAN where()->first() -- Jangan pakai find atau binding yang bisa memicu 404 otomatis
-            $user = User::where('google_id', $googleId)
-                        ->orWhere('email', $email)
-                        ->first();
+            // google_id dulu, baru email.
+            $user = User::where('google_id', $googleId)->first()
+                ?? User::where('email', $email)->first();
 
             if (!$user) {
                 // Simpan User Baru
@@ -54,7 +54,9 @@ class AuthController extends Controller
                 ]);
 
                 // Query ulang data user berdasarkan email agar ID UUID dari trigger DB terbaca
-                $user = User::where('email', $email)->first(); 
+                $user = User::where('email', $email)->first();
+                // google_id tidak ada di $fillable, jadi create() membuangnya.
+                $user->forceFill(['google_id' => $googleId])->save();
 
                 // Insert ke Masyarakat
                 DB::table('masyarakat')->updateOrInsert(
@@ -68,7 +70,16 @@ class AuthController extends Controller
                 if (!$this->akunAktif($user)) {
                     return $this->akunNonaktifResponse();
                 }
-                $user->update(['google_id' => $googleId]);
+                if ((string) $user->google_id !== (string) $googleId) {
+                    // Akun warga dari /register tidak membuktikan kepemilikan email. Saat pemilik
+                    // email asli pertama kali masuk lewat Google, hanguskan password dan token
+                    // lama agar pendaftar sebelumnya tidak ikut memegang akun ini.
+                    if ($user->role === 'warga') {
+                        $user->password_hash = Hash::make(Str::random(32));
+                        $user->tokens()->delete();
+                    }
+                    $user->forceFill(['google_id' => $googleId])->save();
+                }
             }
 
             $token = $user->createToken('flutter-app')->plainTextToken;

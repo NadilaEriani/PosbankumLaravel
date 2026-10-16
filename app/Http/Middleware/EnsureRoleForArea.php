@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -28,6 +29,23 @@ class EnsureRoleForArea
         };
 
         abort_unless(in_array($role, $allowed, true), 403, 'Anda tidak memiliki akses ke halaman ini.');
+
+        if (in_array($role, self::PARALEGAL, true)) {
+            // Posbankum paralegal = penugasan aktif. Tanpa itu filter posbankum di controller
+            // akan kosong (= semua data), jadi area paralegal ditutup. Dipakai juga oleh /file-preview.
+            $idPosbankum = DB::table('posbankum_paralegal')
+                ->where('id_user', $request->user()->id_user)
+                ->where('status', 'aktif')
+                ->value('id_posbankum');
+
+            abort_if(
+                !$idPosbankum && $allowed === self::PARALEGAL,
+                403,
+                'Akun Anda belum ditugaskan ke Posbankum. Hubungi admin.'
+            );
+
+            $request->attributes->set('id_posbankum', $idPosbankum);
+        }
 
         return $next($request);
     }

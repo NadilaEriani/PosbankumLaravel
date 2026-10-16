@@ -107,8 +107,11 @@ class KelolaPosbankumController extends Controller
         $clean = preg_replace('#^storage/#', '', $clean);
         $clean = preg_replace('#^public/#', '', $clean);
 
-        if ($clean && Storage::disk('public')->exists($clean)) {
-            Storage::disk('public')->delete($clean);
+        // Dokumen baru di disk privat 'local'; dokumen lama mungkin masih di 'public'
+        foreach (['local', 'public'] as $disk) {
+            if ($clean && Storage::disk($disk)->exists($clean)) {
+                Storage::disk($disk)->delete($clean);
+            }
         }
     }
 
@@ -277,7 +280,7 @@ class KelolaPosbankumController extends Controller
                 $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
                 $filename = now()->format('YmdHis') . '-' . Str::random(8) . '-' . ($safeName ?: Str::uuid()->toString()) . '.' . $extension;
                 $folder = 'posbankum-docs/' . preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $idPosbankum) . '/' . $kategori;
-                $path = $file->storeAs($folder, $filename, 'public');
+                $path = $file->storeAs($folder, $filename, 'local'); // privat, dibuka lewat /file-preview
                 $storedPaths[] = $path;
 
                 $payload = [];

@@ -93,7 +93,7 @@ class VerifikasiDataPosbankumController extends Controller
         return $cleanName !== '' ? $cleanName : 'dokumen';
     }
 
-    private function streamPublicDocument(string $clean, ?string $name = null, ?string $mime = null)
+    private function streamPublicDocument(string $clean, ?string $name = null)
     {
         $cleanPath = ltrim(str_replace('\\', '/', trim($clean)), '/');
 
@@ -102,6 +102,7 @@ class VerifikasiDataPosbankumController extends Controller
         }
 
         $candidateRoots = array_values(array_unique(array_filter([
+            storage_path('app/private'), // dokumen legalitas baru disimpan privat
             (string) config('filesystems.disks.public.root', storage_path('app/public')),
             storage_path('app/public'),
             public_path('storage'),
@@ -134,11 +135,15 @@ class VerifikasiDataPosbankumController extends Controller
         }
 
         $fileName = $this->safeInlineFileName($name ?: basename($cleanPath));
-        $fileMime = trim((string) ($mime ?: '')) ?: $this->detectMimeType($absolutePath);
+        // Tipe selalu dideteksi dari isi file (jangan dari query/DB); selain tipe aman → unduhan
+        $fileMime = $this->detectMimeType($absolutePath);
+        $disposition = in_array($fileMime, ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)
+            ? 'inline'
+            : 'attachment';
 
         return response()->file($absolutePath, [
             'Content-Type' => $fileMime,
-            'Content-Disposition' => 'inline; filename="' . addcslashes($fileName, '"\\') . '"',
+            'Content-Disposition' => $disposition . '; filename="' . addcslashes($fileName, '"\\') . '"',
             'Cache-Control' => 'private, max-age=0, must-revalidate',
             'X-Content-Type-Options' => 'nosniff',
         ]);
@@ -185,9 +190,8 @@ class VerifikasiDataPosbankumController extends Controller
         }
 
         $name = (string) $this->rowValue($row, ['nama_berkas', 'nama_file', 'file_name', 'name'], basename($clean));
-        $mime = (string) $this->rowValue($row, ['mime_type', 'mime'], '');
 
-        return $this->streamPublicDocument($clean, $name, $mime);
+        return $this->streamPublicDocument($clean, $name);
     }
 
 
@@ -195,10 +199,7 @@ class VerifikasiDataPosbankumController extends Controller
     {
         $path = (string) $request->query('path', '');
 
-        if (preg_match('/^https?:\/\//i', $path)) {
-            return redirect()->away($path);
-        }
-
+        // Tidak redirect ke URL dari query (open redirect); host dibuang, file dicari di storage sendiri
         $clean = $this->normalizePublicStoragePath($path);
 
         if (!$clean || str_contains($clean, '..')) {
@@ -206,9 +207,8 @@ class VerifikasiDataPosbankumController extends Controller
         }
 
         $name = (string) $request->query('name', basename($clean));
-        $mime = (string) $request->query('mime', '');
 
-        return $this->streamPublicDocument($clean, $name, $mime);
+        return $this->streamPublicDocument($clean, $name);
     }
 
     public function updateDokumenStatus(Request $request, string|int $id): RedirectResponse

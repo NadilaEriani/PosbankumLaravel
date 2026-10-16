@@ -433,11 +433,43 @@ $streamPublicFile = static function (Request $request, ?string $path = null) {
     $cleanPath = preg_replace('#^(storage|public|app/public)/#i', '', $cleanPath);
     $cleanPath = ltrim(str_replace('\\', '/', (string) $cleanPath), '/');
 
-    if ($cleanPath === '' || str_contains($cleanPath, "\0") || str_contains($cleanPath, '..')) {
+    // Segmen kosong atau '.' (mis. './x', 'a//b') ditolak agar cek prefix di bawah tidak bisa dilewati
+    if ($cleanPath === '' || str_contains($cleanPath, "\0") || str_contains($cleanPath, '..')
+        || preg_match('#(^|/)\.?(/|$)#', $cleanPath)) {
         abort(403, 'Path berkas tidak valid.');
     }
 
+    // Lampiran pengaduan & dokumen legalitas: disimpan privat, hanya admin atau paralegal
+    // posbankum pemiliknya (aturan sama dengan filter pengaduan di dashboard paralegal).
+    $privat = preg_match('#^(laporan-pelayanan|lampiran|posbankum-docs)/([^/]+)/#i', $cleanPath, $m) === 1;
+    $m[1] = strtolower($m[1] ?? '');
+
+    if ($privat && strtolower(trim((string) $request->user()?->role)) !== 'admin') {
+        $idPosbankum = $request->attributes->get('id_posbankum'); // diisi EnsureRoleForArea
+
+        $boleh = $idPosbankum && ($m[1] === 'posbankum-docs'
+            ? $m[2] === preg_replace('/[^A-Za-z0-9_\-]/', '-', (string) $idPosbankum)
+            : DB::table('pengaduan')
+                ->where('id_pengaduan', $m[2])
+                ->where(function ($q) use ($idPosbankum) {
+                    $q->whereExists(fn ($s) => $s->select(DB::raw(1))
+                        ->from('masyarakat as m')
+                        ->join('posbankum as p', 'p.id_kelurahan', '=', 'm.id_kelurahan')
+                        ->whereColumn('m.id_user', 'pengaduan.user_id')
+                        ->where('p.id_posbankum', $idPosbankum))
+                    ->orWhereExists(fn ($s) => $s->select(DB::raw(1))
+                        ->from('posbankum_paralegal as pp')
+                        ->whereColumn('pp.id_user', 'pengaduan.user_id')
+                        ->where('pp.id_posbankum', $idPosbankum)
+                        ->where('pp.status', 'aktif'));
+                })
+                ->exists());
+
+        abort_unless($boleh, 403, 'Anda tidak memiliki akses ke berkas ini.');
+    }
+
     $candidateRoots = array_values(array_unique(array_filter([
+        $privat ? storage_path('app/private') : null, // berkas lama masih dicari di root public
         storage_path('app/public'),
         public_path('storage'),
         public_path(),
