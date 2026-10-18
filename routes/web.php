@@ -11,7 +11,6 @@ use App\Http\Controllers\Paralegal\KelolaKegiatanController;
 use App\Http\Controllers\Paralegal\KelolaPosbankumController;
 use App\Http\Controllers\Paralegal\LaporanPelayananController;
 use App\Http\Controllers\Paralegal\ProfileController as ParalegalProfileController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -763,16 +762,6 @@ Route::middleware(['auth', 'role.area'])->group(function () use ($streamPublicFi
             ->back()
             ->with('success', 'Profil admin berhasil diperbarui.');
     })->name('admin.profile.update');
-
-    /* Profile */
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
-
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';

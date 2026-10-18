@@ -207,6 +207,8 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+        // HP ini tidak lagi milik sesi akun ini: jangan kirim push akun ini ke sana
+        DB::table('users')->where('id_user', $request->user()->id_user)->update(['fcm_token' => null]);
         return response()->json(['status' => true, 'message' => 'Logout berhasil']);
     }
 }

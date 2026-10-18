@@ -447,8 +447,15 @@ class ManajemenAkunController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($data, $request, $idUser) {
+            DB::transaction(function () use ($data, $request, $idUser, $user) {
                 $this->updateUser($idUser, $data);
+
+                // Email = identitas login. Kalau diganti, akses yang dipegang pemilik email lama
+                // dicabut: token API dan tautan Google (sesi web diputus oleh EnsureUserAktif).
+                if (strtolower(trim((string) $user->email)) !== strtolower(trim((string) $data['email']))) {
+                    DB::table('personal_access_tokens')->where('tokenable_id', $idUser)->delete();
+                    DB::table('users')->where($this->userKeyColumn(), $idUser)->update(['google_id' => null, 'fcm_token' => null]);
+                }
 
                 $this->syncPosbankumParalegal(
                     $idUser,
@@ -506,6 +513,12 @@ class ManajemenAkunController extends Controller
             }
 
             $this->addColumn($payload, 'users', 'updated_at', now());
+
+            // Nonaktif: hentikan push ke HP-nya dan cabut token API (sesi web diputus EnsureUserAktif)
+            if ($data['status'] === 'nonaktif') {
+                $payload['fcm_token'] = null;
+                DB::table('personal_access_tokens')->where('tokenable_id', $idUser)->delete();
+            }
 
             DB::table('users')
                 ->where($this->userKeyColumn(), $idUser)

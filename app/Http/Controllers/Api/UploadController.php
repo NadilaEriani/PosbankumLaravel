@@ -122,7 +122,7 @@ class UploadController extends Controller
                 'id_timeline'     => $request->id_timeline,
                 'nama_file'       => $file->getClientOriginalName(),
                 'path_file'       => $path, // Simpan relative path: lampiran/{id_pengaduan}/filename.ext
-                'mime_type'       => $file->getClientMimeType(),
+                'mime_type'       => $file->getMimeType(), // dari isi file, bukan kiriman klien
                 'size_bytes'      => $file->getSize(),
                 'jenis_lampiran'  => $request->jenis_lampiran ?? 'bukti_awal',
                 'created_by'      => $request->user()->id_user,
@@ -201,9 +201,15 @@ class UploadController extends Controller
             return response()->json(['status' => false, 'message' => 'File fisik tidak ditemukan di server'], 404);
         }
 
+        // Tipe dideteksi dari isi file (mime_type di DB bisa berasal dari klien); selain pdf/gambar → unduhan
+        $mime = mime_content_type($filePath) ?: 'application/octet-stream';
+        $disposition = in_array($mime, ['application/pdf', 'image/jpeg', 'image/png'], true) ? 'inline' : 'attachment';
+        $namaFile = str_replace(['"', "\r", "\n"], '', (string) $lampiran->nama_file) ?: basename($filePath);
+
         return response()->file($filePath, [
-            'Content-Type' => $lampiran->mime_type ?? 'application/octet-stream',
-            'Content-Disposition' => 'inline; filename="' . $lampiran->nama_file . '"'
+            'Content-Type' => $mime,
+            'Content-Disposition' => $disposition . '; filename="' . addcslashes($namaFile, '"\\') . '"',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 }

@@ -182,6 +182,12 @@ class ProfileController extends Controller
 
         if ($hasColumn) {
             try {
+                // Satu HP = satu akun: lepas token yang sama dari akun lain (mis. akun sebelumnya di HP ini)
+                DB::table('users')
+                    ->where('fcm_token', $request->fcm_token)
+                    ->where('id_user', '!=', $user->id_user)
+                    ->update(['fcm_token' => null]);
+
                 DB::table('users')
                     ->where('id_user', $user->id_user)
                     ->update([

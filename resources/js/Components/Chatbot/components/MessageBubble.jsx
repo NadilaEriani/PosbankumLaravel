@@ -2,6 +2,7 @@ import { Volume2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 
 function formatTime(ts) {
   if (!ts) return '';
@@ -11,8 +12,6 @@ function formatTime(ts) {
     minute: '2-digit',
   });
 }
-
-const isHtmlString = (text = '') => /<[^>]+>/.test(text);
 
 const stripOuterDiv = (text = '') => {
   return text.replace(/^\s*<div[^>]*>([\s\S]*)<\/div>\s*$/i, '$1').trim();
@@ -51,16 +50,13 @@ export default function MessageBubble({ message, onReplay }) {
         >
           {isUser ? (
             <div>{text}</div>
-          ) : isHtmlString(text) ? (
-            <div
-              className="message-content"
-              dangerouslySetInnerHTML={{ __html: stripOuterDiv(text) }}
-            />
           ) : (
             <div className="message-content">
+              {/* Balasan bot datang dari webhook pihak ketiga: HTML-nya dibolehkan
+                  tapi disaring (rehypeSanitize wajib setelah rehypeRaw) */}
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
+                rehypePlugins={[rehypeRaw, rehypeSanitize]}
                 components={{
                   a: ({ ...props }) => (
                     <a
@@ -71,7 +67,7 @@ export default function MessageBubble({ message, onReplay }) {
                   ),
                 }}
               >
-                {text}
+                {stripOuterDiv(text)}
               </ReactMarkdown>
             </div>
           )}

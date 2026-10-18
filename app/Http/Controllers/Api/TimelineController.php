@@ -23,6 +23,8 @@ class TimelineController extends Controller
 
         $data = DB::table('pengaduan_timeline')
             ->where('id_pengaduan', $id)
+            // is_visible=0 = catatan internal, disembunyikan dari warga
+            ->when($request->user()->role === 'warga', fn ($q) => $q->where('is_visible', 1))
             ->orderBy('created_at', 'asc')
             ->get();
         return response()->json(['status' => true, 'message' => 'Berhasil', 'data' => $data]);

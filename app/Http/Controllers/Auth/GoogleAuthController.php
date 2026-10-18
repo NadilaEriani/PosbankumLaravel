@@ -83,6 +83,15 @@ class GoogleAuthController extends Controller
                 ]);
         }
 
+        // Sama dengan login Google API: email harus sudah diverifikasi Google
+        if (!filter_var($googleUser->getRaw()['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'email' => 'Email akun Google ini belum terverifikasi. Silakan gunakan akun Google lain atau hubungi admin.',
+                ]);
+        }
+
         $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
 
         if (!$user) {

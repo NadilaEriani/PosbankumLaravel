@@ -396,7 +396,7 @@ class LaporanPelayananController extends Controller
             $this->addColumn($payload, $table, 'path_file', $path);
             $this->addColumn($payload, $table, 'path', $path);
             $this->addColumn($payload, $table, 'file_path', $path);
-            $this->addColumn($payload, $table, 'mime_type', $file->getClientMimeType());
+            $this->addColumn($payload, $table, 'mime_type', $file->getMimeType()); // dari isi file
             $this->addColumn($payload, $table, 'size_bytes', $file->getSize());
             $this->addColumn($payload, $table, 'created_at', now());
             $this->addColumn($payload, $table, 'updated_at', now());
