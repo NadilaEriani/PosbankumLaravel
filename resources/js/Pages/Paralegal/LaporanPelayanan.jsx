@@ -752,7 +752,6 @@ function buildPrintHtml(report) {
             <span>Halaman 1</span>
         </div>
     </div>
-    <script>window.onload = function(){ window.print(); };</script>
 </body>
 </html>`;
 }
@@ -1162,6 +1161,9 @@ export default function LaporanPelayanan({
             return;
         }
         printWindow.document.open();
+        // print() dipanggil dari sini, bukan <script> inline di dokumen cetak (diblokir CSP).
+        // Dipasang setelah open(): document.open() menghapus handler yang dipasang sebelumnya.
+        printWindow.onload = () => printWindow.print();
         printWindow.document.write(buildPrintHtml(report));
         printWindow.document.close();
     };

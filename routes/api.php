@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
@@ -68,6 +70,22 @@ Route::get('/posbankum',      [PosbankumController::class, 'index']);
 Route::get('/wilayah/kabupaten', [WilayahController::class, 'kabupaten']);
 Route::get('/wilayah/kecamatan', [WilayahController::class, 'kecamatan']); // ?id_kabupaten={id}
 Route::get('/wilayah/kelurahan', [WilayahController::class, 'kelurahan']); // ?id_kecamatan={id}
+
+// Laporan pelanggaran CSP dari browser (header Report-Only di middleware ContentSecurityPolicy).
+// Hanya field ringkas yang dicatat, dipotong, dan dibatasi per IP agar log tidak bisa dibanjiri.
+Route::post('/csp-report', function (Request $request) {
+    $laporan = json_decode($request->getContent(), true)['csp-report'] ?? [];
+    $ambil = fn (string $key) => mb_substr((string) ($laporan[$key] ?? ''), 0, 300);
+
+    Log::warning('CSP', [
+        'directive' => $ambil('violated-directive'),
+        'blocked'   => $ambil('blocked-uri'),
+        'page'      => $ambil('document-uri'),
+        'source'    => $ambil('source-file') . ':' . $ambil('line-number'),
+    ]);
+
+    return response()->noContent();
+})->middleware('throttle:csp');
 
 // =========================================================================
 // PROTECTED — wajib Bearer Token (Authorization: Bearer <token>)

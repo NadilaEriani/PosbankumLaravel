@@ -40,6 +40,9 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('register', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
 
+        // Laporan CSP dari browser: satu halaman bisa mengirim beberapa sekaligus
+        RateLimiter::for('csp', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
+
         // Buat pengaduan: tiap pengaduan mengirim push ke semua paralegal kelurahan → cegah spam
         RateLimiter::for('pengaduan', fn (Request $request) => Limit::perHour(5)
             ->by($request->user()?->id_user ?: $request->ip())

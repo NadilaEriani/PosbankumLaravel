@@ -48,7 +48,8 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet">
 
     <!-- Scripts -->
-    @routes
+    {{-- nonce dari middleware ContentSecurityPolicy; skrip inline tanpa nonce dilaporkan CSP --}}
+    @routes(null, Vite::cspNonce())
     @viteReactRefresh
     @vite(['resources/js/app.jsx'])
     @inertiaHead
@@ -59,7 +60,7 @@
         <source src="/Sound1.mp3" type="audio/mpeg">
     </audio>
 
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         (() => {
             const audio = document.getElementById("sibapak-splash-audio");
 
