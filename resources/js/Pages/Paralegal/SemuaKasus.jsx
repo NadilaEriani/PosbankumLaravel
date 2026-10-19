@@ -310,8 +310,11 @@ function exportCsv(rows) {
         "Tanggal Lapor",
         "Update Terakhir",
     ];
+    // Awalan ' agar teks seperti "=HYPERLINK(...)" tidak dijalankan sebagai rumus di Excel/Sheets
     const escapeValue = (value) =>
-        `"${String(value ?? "").replace(/"/g, '""')}"`;
+        `"${String(value ?? "")
+            .replace(/^[=+\-@\t\r]/, "'$&")
+            .replace(/"/g, '""')}"`;
     const csv = [
         headers.join(","),
         ...rows.map((row) =>

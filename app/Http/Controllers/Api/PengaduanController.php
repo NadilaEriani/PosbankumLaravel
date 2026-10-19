@@ -92,8 +92,8 @@ class PengaduanController extends Controller
 
         if ($query) {
             if ($request->has('page') || $request->has('limit')) {
-                $limit = (int) $request->input('limit', 10);
-                $page = (int) $request->input('page', 1);
+                $limit = min(max((int) $request->input('limit', 10), 1), 100);
+                $page = max((int) $request->input('page', 1), 1);
                 $offset = ($page - 1) * $limit;
                 $data = $query->limit($limit)->offset($offset)->get();
             } else {
@@ -123,11 +123,12 @@ class PengaduanController extends Controller
         }
 
         $request->validate([
-            'nomor_pengaduan' => 'required|string|unique:pengaduan,nomor_pengaduan',
-            'nama_pelapor' => 'required|string',
+            // Format dari aplikasi (PGN-tahun-5 digit); ruang nomor PBKT/ milik laporan web
+            'nomor_pengaduan' => ['required', 'string', 'regex:/^PGN-\d{4}-\d{5}$/', 'unique:pengaduan,nomor_pengaduan'],
+            'nama_pelapor' => 'required|string|max:255',
             'nik' => 'required|string|size:16',
             'nomor_telepon' => 'required|string',
-            'judul_pengaduan' => 'required|string',
+            'judul_pengaduan' => 'required|string|max:255',
             'jenis_masalah' => 'required|string',
             'kronologi' => 'required|string',
             'lokasi_kejadian' => 'required|string',

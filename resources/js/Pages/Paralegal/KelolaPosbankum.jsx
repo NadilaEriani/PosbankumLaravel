@@ -30,6 +30,9 @@ const LEAFLET_JS_URLS = [
     "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
     "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js",
 ];
+// SRI resmi leaflet 1.9.4 (sama di unpkg & jsDelivr): skrip CDN yang diubah ditolak browser
+const LEAFLET_CSS_SRI = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
+const LEAFLET_JS_SRI = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
 const LEAFLET_ICON_URLS = {
     iconRetina:
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -222,6 +225,8 @@ function ensureLeaflet() {
                 const link = existing || document.createElement("link");
                 link.id = id;
                 link.rel = "stylesheet";
+                link.integrity = LEAFLET_CSS_SRI;
+                link.crossOrigin = "anonymous";
                 link.href = href;
                 link.dataset.loaded = "false";
 
@@ -271,6 +276,8 @@ function ensureLeaflet() {
                 const script = existing || document.createElement("script");
                 script.id = id;
                 script.async = true;
+                script.integrity = LEAFLET_JS_SRI;
+                script.crossOrigin = "anonymous";
                 script.src = src;
                 script.dataset.loaded = "false";
 

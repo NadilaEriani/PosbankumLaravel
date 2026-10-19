@@ -30,16 +30,21 @@ class ChatController extends Controller
             ->where('is_read', 0)
             ->update(['is_read' => 1]);
 
+        // ponytail: hanya 500 pesan terbaru per kasus (dipoll tiap 3 dtk); kalau perlu riwayat lebih
+        // lama, tambah paginasi ?before= di API + mobile
         $data = DB::table('chat_pesan')
             ->where('id_pengaduan', $id_pengaduan)
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->orderBy('created_at', 'desc')
+            ->limit(500)
+            ->get()
+            ->reverse()
+            ->values();
         return response()->json(['status' => true, 'message' => 'Berhasil', 'data' => $data]);
     }
 
     public function store(Request $request, $id_pengaduan)
     {
-        $request->validate(['pesan' => 'required|string']);
+        $request->validate(['pesan' => 'required|string|max:5000']);
 
         $pengaduan = DB::table('pengaduan')->where('id_pengaduan', $id_pengaduan)->first();
         if (!$pengaduan) {

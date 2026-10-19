@@ -361,6 +361,14 @@ class KelolaKegiatanController extends Controller
         $this->validated($request);
 
         $row = $this->findKegiatanForUser($request, $id);
+
+        // Persetujuan admin berlaku untuk isi yang diverifikasi; sama dengan UI (Edit disembunyikan)
+        if (strtolower((string) ($row->status ?? '')) === 'disetujui') {
+            throw ValidationException::withMessages([
+                'kegiatan' => 'Kegiatan yang sudah disetujui admin tidak bisa diubah.',
+            ]);
+        }
+
         $idPosbankum = $this->resolveUserPosbankumId($request->user());
         $oldThumbnail = (string) $this->rowValue($row, ['thumbnail_path', 'gambar', 'image'], '');
         $thumbnailPath = $oldThumbnail;
@@ -405,6 +413,14 @@ class KelolaKegiatanController extends Controller
     public function destroy(Request $request, mixed $id): RedirectResponse
     {
         $row = $this->findKegiatanForUser($request, $id);
+
+        // Sama dengan UI: hanya laporan yang ditolak (atau draft) yang boleh dihapus paralegal
+        if (!in_array(strtolower((string) ($row->status ?? '')), ['ditolak', 'draft'], true)) {
+            throw ValidationException::withMessages([
+                'kegiatan' => 'Hanya kegiatan yang ditolak yang bisa dihapus.',
+            ]);
+        }
+
         $thumbnail = (string) $this->rowValue($row, ['thumbnail_path', 'gambar', 'image'], '');
 
         DB::table('kegiatan')

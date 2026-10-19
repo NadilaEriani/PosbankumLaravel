@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Paralegal;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -256,7 +257,7 @@ class LaporanPelayananController extends Controller
         return $this->hasColumn('pengaduan', 'id_pengaduan') ? 'id_pengaduan' : 'id';
     }
 
-    private function generateNomorPengaduan(mixed $idPosbankum): string
+    private function generateNomorPengaduan(): string
     {
         $year = now()->format('Y');
         $month = now()->format('m');
@@ -264,15 +265,13 @@ class LaporanPelayananController extends Controller
         $nextNumber = 1;
 
         if ($this->hasColumn('pengaduan', 'nomor_pengaduan')) {
-            $query = DB::table('pengaduan')->where('nomor_pengaduan', 'like', $prefix . '%');
+            // nomor_pengaduan UNIQUE se-tabel → urutan dihitung dari semua posbankum, secara angka
+            // (urutan teks membuat '999' > '1000')
+            $last = DB::table('pengaduan')
+                ->where('nomor_pengaduan', 'like', $prefix . '%')
+                ->max(DB::raw("CAST(SUBSTRING_INDEX(nomor_pengaduan, '/', -1) AS UNSIGNED)"));
 
-            $query = $this->applyPengaduanPosbankumFilter($query, $idPosbankum);
-
-            $last = $query->orderByDesc('nomor_pengaduan')->value('nomor_pengaduan');
-
-            if ($last && preg_match('/(\d+)$/', (string) $last, $matches)) {
-                $nextNumber = ((int) $matches[1]) + 1;
-            }
+            $nextNumber = ((int) $last) + 1;
         }
 
         return $prefix . str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT);
@@ -516,7 +515,7 @@ class LaporanPelayananController extends Controller
         $this->addColumn($payload, 'pengaduan', 'id_paralegal', $validated['id_paralegal']);
         $this->addColumn($payload, 'pengaduan', 'created_by', $createdBy);
         $this->addColumn($payload, 'pengaduan', 'masyarakat_id', $this->blankToNull($validated['masyarakat_id'] ?? null));
-        $this->addColumn($payload, 'pengaduan', 'nomor_pengaduan', $this->generateNomorPengaduan($idPosbankum));
+        $this->addColumn($payload, 'pengaduan', 'nomor_pengaduan', $this->generateNomorPengaduan());
         $this->addColumn($payload, 'pengaduan', 'nama_pelapor', $validated['nama_pelapor']);
         $this->addColumn($payload, 'pengaduan', 'nik', $this->digitsOnly($validated['nik']));
         $this->addColumn($payload, 'pengaduan', 'nomor_telepon', $this->digitsOnly($validated['nomor_telepon']));
@@ -550,11 +549,22 @@ class LaporanPelayananController extends Controller
         }
 
         DB::transaction(function () use ($request, $payload, &$idPengaduan) {
-            if ($idPengaduan) {
-                DB::table('pengaduan')->insert($payload);
-            } else {
-                $idColumn = $this->pengaduanKeyColumn();
-                $idPengaduan = DB::table('pengaduan')->insertGetId($payload, $idColumn);
+            // Nomor unik global: kalau keduluan laporan lain (dua paralegal simpan bersamaan), ambil nomor baru
+            for ($coba = 1; ; $coba++) {
+                try {
+                    if ($idPengaduan) {
+                        DB::table('pengaduan')->insert($payload);
+                    } else {
+                        $idColumn = $this->pengaduanKeyColumn();
+                        $idPengaduan = DB::table('pengaduan')->insertGetId($payload, $idColumn);
+                    }
+                    break;
+                } catch (UniqueConstraintViolationException $e) {
+                    if ($coba >= 3 || !array_key_exists('nomor_pengaduan', $payload)) {
+                        throw $e;
+                    }
+                    $payload['nomor_pengaduan'] = $this->generateNomorPengaduan();
+                }
             }
 
             $this->storeLampiran($request, $idPengaduan);

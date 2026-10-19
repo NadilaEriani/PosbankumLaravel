@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class FcmService
@@ -30,7 +31,14 @@ class FcmService
             return false;
         }
 
-        $accessToken = self::getAccessToken($serviceAccount);
+        // Token OAuth berlaku 1 jam: pakai ulang (50 menit) daripada minta ke Google tiap push
+        $accessToken = Cache::get('fcm_access_token');
+        if (!$accessToken) {
+            $accessToken = self::getAccessToken($serviceAccount);
+            if ($accessToken) {
+                Cache::put('fcm_access_token', $accessToken, now()->addMinutes(50));
+            }
+        }
         if (!$accessToken) {
             return false;
         }
@@ -42,7 +50,7 @@ class FcmService
             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
         ], $data);
 
-        $response = Http::withHeaders([
+        $response = Http::timeout(5)->withHeaders([
             'Authorization' => "Bearer {$accessToken}",
             'Content-Type' => 'application/json',
         ])->post($url, [
@@ -108,7 +116,7 @@ class FcmService
         $base64UrlSignature = self::base64UrlEncode($signature);
         $jwt = $signatureInput . "." . $base64UrlSignature;
 
-        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+        $response = Http::timeout(5)->asForm()->post('https://oauth2.googleapis.com/token', [
             'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'assertion' => $jwt,
         ]);

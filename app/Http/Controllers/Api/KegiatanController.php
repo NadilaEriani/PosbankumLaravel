@@ -215,8 +215,10 @@ class KegiatanController extends Controller
     // Kegiatan hanya boleh dibuka/diubah paralegal dari posbankum pemiliknya
     private function bukanPosbankumSaya(Request $request, object $row): bool
     {
+        // Tanpa pemilik atau pemanggil tanpa posbankum = bukan milik pemanggil
         $milik = $row->id_posbankum ?? null;
-        return $milik !== null && (string) $milik !== (string) $this->resolveUserPosbankumId($request->user());
+        $saya = $this->resolveUserPosbankumId($request->user());
+        return $milik === null || !$saya || (string) $milik !== (string) $saya;
     }
 
     // =========================================================================
@@ -305,7 +307,10 @@ class KegiatanController extends Controller
         ]);
 
         $idPosbankum   = $this->resolveUserPosbankumId($request->user());
-        $thumbnailPath = $this->storeThumbnail($request, $idPosbankum ?: 'api');
+        if (!$idPosbankum) {
+            return response()->json(['status' => false, 'message' => 'Akun Anda belum ditugaskan ke Posbankum. Hubungi admin.', 'data' => null], 403);
+        }
+        $thumbnailPath = $this->storeThumbnail($request, $idPosbankum);
         $payload       = $this->buildPayload($request, $thumbnailPath, true);
 
         if (empty($payload)) {

@@ -119,7 +119,7 @@ Route::middleware(['auth:sanctum', 'aktif', 'throttle:api'])->group(function () 
     //            hanya pengaduan dari kelurahan yang sama dengan wilayah kerja paralegal
     // -------------------------------------------------------------------------
     Route::get('/pengaduan',      [PengaduanController::class, 'index']);
-    Route::post('/pengaduan',     [PengaduanController::class, 'store']);
+    Route::post('/pengaduan',     [PengaduanController::class, 'store'])->middleware('throttle:pengaduan');
     Route::get('/pengaduan/{id}', [PengaduanController::class, 'show']);
 
     // Paralegal: update status pengaduan

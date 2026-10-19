@@ -748,7 +748,10 @@ export default function AdminDashboard() {
                 headers
                     .map(
                         (header) =>
-                            `"${String(row[header] ?? "").replace(/"/g, '""')}"`,
+                            // Awalan ' agar teks berawalan = + - @ tidak jadi rumus spreadsheet
+                            `"${String(row[header] ?? "")
+                                .replace(/^[=+\-@\t\r]/, "'$&")
+                                .replace(/"/g, '""')}"`,
                     )
                     .join(";"),
             ),
