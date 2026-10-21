@@ -460,6 +460,8 @@ class LaporanPelayananController extends Controller
             'tanggal_kejadian' => ['required', 'date'],
             'waktu_kejadian' => ['required', 'date_format:H:i'],
             'lokasi_kejadian' => ['required', 'string', 'max:255'],
+            'latitude_kejadian' => ['nullable', 'numeric', 'between:-90,90', 'required_with:longitude_kejadian'],
+            'longitude_kejadian' => ['nullable', 'numeric', 'between:-180,180', 'required_with:latitude_kejadian'],
             'id_paralegal' => ['required', 'string', 'max:100'],
             'masyarakat_id' => ['nullable', 'string', 'max:100'],
             'paralegal_nama' => ['nullable', 'string', 'max:255'],
@@ -535,6 +537,8 @@ class LaporanPelayananController extends Controller
         $this->addColumn($payload, 'pengaduan', 'waktu_kejadian', $validated['waktu_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'lokasi_kejadian', $validated['lokasi_kejadian']);
         $this->addColumn($payload, 'pengaduan', 'lokasi', $validated['lokasi_kejadian']);
+        $this->addColumn($payload, 'pengaduan', 'latitude_kejadian', $validated['latitude_kejadian'] ?? null);
+        $this->addColumn($payload, 'pengaduan', 'longitude_kejadian', $validated['longitude_kejadian'] ?? null);
         $this->addColumn($payload, 'pengaduan', 'status', 'diproses');
         $this->addColumn($payload, 'pengaduan', 'prioritas', $this->normalizePriorityForDatabase($validated['prioritas']));
         $this->addColumn($payload, 'pengaduan', 'catatan_internal', $this->blankToNull($validated['catatan_internal'] ?? null));

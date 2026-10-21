@@ -29,6 +29,7 @@ import ViewToggle, {
     useViewMode,
 } from "../../Components/ViewToggle";
 import { sortItems, waktu } from "../../utils/sort";
+import PilihLokasiPeta from "../../Components/PilihLokasiPeta";
 import "../../../css/Paralegal/kelolaKegiatan.css";
 
 const PAGE_SIZE = 6;
@@ -408,6 +409,7 @@ export default function KelolaKegiatan({
     const [thumbPreviewKind, setThumbPreviewKind] = useState("");
 
     const [form, setForm] = useState(DEFAULT_FORM);
+    const [petaOpen, setPetaOpen] = useState(false);
 
     const fileInputRef = useRef(null);
     const startDateRef = useRef(null);
@@ -1039,13 +1041,35 @@ export default function KelolaKegiatan({
                                         lokasi: event.target.value,
                                     }))
                                 }
-                                placeholder="Nama gedung/alamat tempat kegiatan dilaksanakan"
+                                placeholder="Ketik nama gedung/alamat, atau pilih di peta"
+                                maxLength={255}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setPetaOpen(true)}
+                                className="mt-2 inline-flex items-center gap-1 self-start rounded-lg border border-blue-600 px-3 py-1.5 text-sm text-blue-700 hover:bg-blue-50"
+                            >
+                                <FiMapPin /> Pilih di Peta
+                            </button>
+                            <PilihLokasiPeta
+                                open={petaOpen}
+                                onClose={() => setPetaOpen(false)}
+                                onPick={({ alamat }) => {
+                                    // Tabel kegiatan tanpa kolom koordinat: hanya alamat teks
+                                    if (alamat) {
+                                        setForm((prev) => ({
+                                            ...prev,
+                                            lokasi: alamat.slice(0, 255),
+                                        }));
+                                    }
+                                    setPetaOpen(false);
+                                }}
                             />
                         </div>
 
                         <div className="kk-formGroup">
                             <label className="kk-formLabel">
-                                Dokumentasi / Thumbnail
+                                Dokumentasi Kegiatan
                             </label>
                             <div className="kk-documentWrap">
                                 <label
@@ -1066,8 +1090,9 @@ export default function KelolaKegiatan({
                                         <div className="kk-documentEmpty">
                                             <FiUpload className="kk-documentIcon" />
                                             <div className="kk-documentTitle">
-                                                Klik untuk upload gambar atau
-                                                file
+                                                Klik untuk upload foto kegiatan
+                                                (jadi sampul) atau dokumen
+                                                pendukung
                                             </div>
                                             <div className="kk-documentHint">
                                                 PNG, JPG, JPEG, WEBP, PDF (Max

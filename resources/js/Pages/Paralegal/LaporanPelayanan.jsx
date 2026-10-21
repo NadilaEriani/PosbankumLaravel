@@ -38,6 +38,8 @@ import ViewToggle, {
     useViewMode,
 } from "../../Components/ViewToggle";
 import { sortItems, waktu } from "../../utils/sort";
+import PilihLokasiPeta from "../../Components/PilihLokasiPeta";
+import { googleMapsLink } from "../../lib/leaflet";
 import "../../../css/Paralegal/laporanPelayanan.css";
 
 const PAGE_SIZE = 6;
@@ -54,6 +56,8 @@ const EMPTY_FORM_DATA = {
     tanggal_kejadian: "",
     waktu_kejadian: "",
     lokasi_kejadian: "",
+    latitude_kejadian: "",
+    longitude_kejadian: "",
     id_paralegal: "",
     paralegal_nama: "",
     paralegal_hp: "",
@@ -785,6 +789,7 @@ export default function LaporanPelayanan({
     });
     const [toastReject, setToastReject] = useState("");
     const [formData, setFormData] = useState(EMPTY_FORM_DATA);
+    const [petaOpen, setPetaOpen] = useState(false);
 
     useEffect(() => {
         setReports((initialReports || []).map(normalizeReport));
@@ -1699,10 +1704,58 @@ export default function LaporanPelayanan({
                                     )
                                 }
                                 maxLength={255}
-                                placeholder="Masukkan alamat atau lokasi kejadian"
+                                placeholder="Ketik alamat, atau pilih di peta"
                             />
                         </div>
                     </label>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                        <button
+                            type="button"
+                            onClick={() => setPetaOpen(true)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-blue-600 px-3 py-1.5 text-blue-700 hover:bg-blue-50"
+                        >
+                            <FiMapPin /> Pilih di Peta
+                        </button>
+                        {formData.latitude_kejadian !== "" ? (
+                            <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-green-700">
+                                Titik peta tersimpan ({formData.latitude_kejadian},{" "}
+                                {formData.longitude_kejadian})
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            latitude_kejadian: "",
+                                            longitude_kejadian: "",
+                                        }))
+                                    }
+                                    className="font-medium underline"
+                                >
+                                    Hapus
+                                </button>
+                            </span>
+                        ) : null}
+                    </div>
+                    <PilihLokasiPeta
+                        open={petaOpen}
+                        initial={{
+                            lat: formData.latitude_kejadian,
+                            lng: formData.longitude_kejadian,
+                        }}
+                        onClose={() => setPetaOpen(false)}
+                        onPick={({ lat, lng, alamat }) => {
+                            setFormData((prev) => ({
+                                ...prev,
+                                latitude_kejadian: lat,
+                                longitude_kejadian: lng,
+                                // Alamat dari peta mengisi teks; tetap bisa diedit
+                                lokasi_kejadian: alamat
+                                    ? alamat.slice(0, 255)
+                                    : prev.lokasi_kejadian,
+                            }));
+                            setPetaOpen(false);
+                        }}
+                    />
                 </section>
 
                 <section className="lpvFormSection">
@@ -1743,9 +1796,14 @@ export default function LaporanPelayanan({
 
                 <section className="lpvFormSection">
                     <div className="lpvFormSectionTitle textOnly">
-                        <span>Lampiran Dokumen/Bukti</span>
+                        <span>Bukti Pendukung Pengaduan</span>
                     </div>
                     <div className="lpvFormSectionLine" />
+                    <p className="mb-2 text-sm text-gray-500">
+                        Foto kejadian, surat/dokumen, kwitansi, atau tangkapan
+                        layar percakapan yang berkaitan dengan masalah pelapor.
+                        Opsional.
+                    </p>
                     <label className="lpvDropzone">
                         <input
                             type="file"
@@ -1980,6 +2038,22 @@ export default function LaporanPelayanan({
                                     <strong>
                                         {report.lokasi_kejadian || "-"}
                                     </strong>
+                                    {googleMapsLink(
+                                        report.latitude_kejadian,
+                                        report.longitude_kejadian,
+                                    ) ? (
+                                        <a
+                                            href={googleMapsLink(
+                                                report.latitude_kejadian,
+                                                report.longitude_kejadian,
+                                            )}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-1 inline-flex items-center gap-1 text-sm text-blue-700 underline"
+                                        >
+                                            <FiMapPin /> Buka di Google Maps
+                                        </a>
+                                    ) : null}
                                 </div>
                             </div>
                             <div
