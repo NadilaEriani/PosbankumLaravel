@@ -10,6 +10,7 @@ import {
     AiOutlineYoutube,
     AiOutlineClose,
     AiOutlineQuestionCircle,
+    AiFillAndroid,
 } from "react-icons/ai";
 import { BiRightArrowAlt, BiFile, BiShield } from "react-icons/bi";
 import { MdLanguage } from "react-icons/md";
@@ -30,6 +31,7 @@ import {
     FiLayers,
     FiZoomIn,
     FiZoomOut,
+    FiSmartphone,
 } from "react-icons/fi";
 import { HiArrowTrendingUp } from "react-icons/hi2";
 import { HiOutlineScale } from "react-icons/hi";
@@ -56,6 +58,11 @@ const ORG_WA_TEL = "628116904422";
 const ORG_HOURS_DAYS = "Senin - Jumat";
 const ORG_HOURS_TIME = "08:00 - 16:00 WIB";
 const TUANKU_URL = "https://tuanku.pt-riau.go.id/";
+// APK dibagikan lewat GitHub Releases (repo publik khusus rilis). "latest" selalu
+// menunjuk rilis terbaru, asal nama asset di setiap rilis tetap "sibapak.apk".
+const ANDROID_RELEASES_URL =
+    "https://github.com/ican-bangcat/sibapak-android/releases/latest";
+const ANDROID_APK_URL = `${ANDROID_RELEASES_URL}/download/sibapak.apk`;
 
 const SOCIAL_LINKS = {
     facebook: "#",
@@ -1415,7 +1422,7 @@ export default function LandingPage({
                                 </div>
 
                                 <h1 className="lp-hero-title">
-                                    Ayo Cek Data <span>Posbankum</span>  
+                                    Ayo Cek Data <span>Posbankum</span>{" "}
                                     <br />
                                     di Wilayah Anda
                                 </h1>
@@ -1529,7 +1536,7 @@ export default function LandingPage({
 
                                         <div className="lp-integration-copy">
                                             <h2 id="tuanku-title">
-                                                Akses Layanan Hukum Online   
+                                                Akses Layanan Hukum Online{" "}
                                                 <br />
                                                 melalui{" "}
                                                 <span>TUANKU ONLINE</span>
@@ -1647,6 +1654,164 @@ export default function LandingPage({
                                         aria-label="Buka TUANKU Online Pengadilan Tinggi Riau di tab baru"
                                     >
                                         <span>Buka TUANKU Online</span>
+                                        <FiExternalLink />
+                                    </a>
+                                </aside>
+                            </div>
+                        </Reveal>
+                    </div>
+                </section>
+
+                <section
+                    id="aplikasi"
+                    className="lp-integration-section lp-app-section"
+                    aria-labelledby="aplikasi-title"
+                >
+                    <div className="lp-container">
+                        <Reveal direction="up">
+                            <div className="lp-integration-card">
+                                <div className="lp-integration-content">
+                                    <div className="lp-integration-kicker-row">
+                                        <div className="lp-integration-eyebrow">
+                                            <FiSmartphone />
+                                            <span>APLIKASI MOBILE</span>
+                                        </div>
+
+                                        <div className="lp-integration-owner">
+                                            Untuk Warga &amp; Paralegal
+                                        </div>
+                                    </div>
+
+                                    <div className="lp-integration-heading">
+                                        <div
+                                            className="lp-integration-icon"
+                                            aria-hidden="true"
+                                        >
+                                            <AiFillAndroid />
+                                        </div>
+
+                                        <div className="lp-integration-copy">
+                                            <h2 id="aplikasi-title">
+                                                Ajukan Pengaduan Lewat{" "}
+                                                <br />
+                                                Aplikasi <span>SiBapak</span>
+                                            </h2>
+
+                                            <p>
+                                                Warga dapat mengajukan
+                                                pengaduan hukum langsung dari
+                                                HP, sementara paralegal
+                                                menangani kasus di posbankum
+                                                wilayahnya.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="lp-integration-service-grid">
+                                        <div className="lp-integration-service-card lp-integration-service-card-blue">
+                                            <span className="lp-integration-service-icon lp-integration-service-blue">
+                                                <FiSend />
+                                            </span>
+
+                                            <div>
+                                                <strong>Ajukan Pengaduan</strong>
+                                                <p>
+                                                    Laporkan masalah hukum
+                                                    beserta bukti pendukung.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="lp-integration-service-card lp-integration-service-card-green">
+                                            <span className="lp-integration-service-icon lp-integration-service-green">
+                                                <IoMdTime />
+                                            </span>
+
+                                            <div>
+                                                <strong>Pantau Status</strong>
+                                                <p>
+                                                    Ikuti perkembangan kasus
+                                                    dan terima notifikasi.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="lp-integration-service-card lp-integration-service-card-orange">
+                                            <span className="lp-integration-service-icon lp-integration-service-orange">
+                                                <FiMessageSquare />
+                                            </span>
+
+                                            <div>
+                                                <strong>Chat Paralegal</strong>
+                                                <p>
+                                                    Berkomunikasi dengan
+                                                    paralegal yang menangani
+                                                    kasus Anda.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="lp-integration-domain">
+                                        <AiOutlineQuestionCircle />
+                                        <span>
+                                            Saat memasang, izinkan "Instal
+                                            aplikasi tidak dikenal" untuk
+                                            browser Anda.
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <aside className="lp-integration-portal">
+                                    <div className="lp-integration-portal-top">
+                                        <div
+                                            className="lp-integration-portal-icon"
+                                            aria-hidden="true"
+                                        >
+                                            <img
+                                                src={burung5}
+                                                alt=""
+                                                className="lp-integration-portal-logo"
+                                            />
+                                        </div>
+
+                                        <div className="lp-integration-portal-status">
+                                            <span></span>
+                                            KHUSUS ANDROID
+                                        </div>
+                                    </div>
+
+                                    <div className="lp-integration-portal-copy">
+                                        <span className="lp-integration-portal-label">
+                                            Aplikasi Resmi
+                                        </span>
+
+                                        <h3>
+                                            SiBapak <span>Mobile</span>
+                                        </h3>
+
+                                        <p>
+                                            Unduh file APK versi terbaru, lalu
+                                            buka file tersebut di HP Android
+                                            untuk memasang aplikasi.
+                                        </p>
+                                    </div>
+
+                                    <a
+                                        href={ANDROID_APK_URL}
+                                        className="lp-integration-portal-link"
+                                    >
+                                        <AiFillAndroid />
+                                        <span>Download Aplikasi Android</span>
+                                    </a>
+
+                                    <a
+                                        href={ANDROID_RELEASES_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="lp-app-release-link"
+                                    >
+                                        Catatan rilis &amp; versi
                                         <FiExternalLink />
                                     </a>
                                 </aside>

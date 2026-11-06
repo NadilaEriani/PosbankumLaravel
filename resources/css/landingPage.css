@@ -6562,3 +6562,35 @@ body,
     overflow-wrap: anywhere;
     word-break: normal;
 }
+
+/* Section "Aplikasi Mobile": memakai ulang kartu TUANKU, tanpa tumpang ke hero. */
+.lp-integration-section.lp-app-section {
+    margin-top: 0;
+}
+
+.lp-app-section .lp-integration-domain {
+    line-height: 1.4;
+}
+
+.lp-app-release-link {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.lp-app-release-link:hover,
+.lp-app-release-link:focus-visible {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.lp-app-release-link svg {
+    width: 13px;
+    height: 13px;
+}
